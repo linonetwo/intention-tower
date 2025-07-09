@@ -95,6 +95,212 @@ button {
   margin-right: 5px;
 }
 
+/* 节点激活状态脉冲动画 */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+/* SVG节点脉冲动画 */
+.pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
+
+/* 边流动动画 */
+@keyframes flow {
+  0% {
+    stroke-dashoffset: 10;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 边的流动动画 */
+.flow-positive {
+  animation: flow-positive 2s linear infinite;
+}
+
+.flow-negative {
+  animation: flow-negative 2s linear infinite;
+}
+
+@keyframes flow-positive {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes flow-negative {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 20;
+  }
+}
+
+/* 自定义节点样式 */
+.custom-node {
+  transition: all 0.2s ease;
+}
+
+.custom-node.active {
+  filter: drop-shadow(0 0 6px rgba(76, 175, 80, 0.4));
+}
+
+/* 图标节点样式 */
+.icon-node {
+  transition: all 0.3s ease;
+}
+
+.icon-node:hover {
+  transform: scale(1.05);
+}
+
+.icon-node.active {
+  animation: icon-pulse 2s infinite;
+}
+
+@keyframes icon-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 图标边样式 */
+.icon-edge.flowing {
+  animation: edge-flow 2s linear infinite;
+}
+
+@keyframes edge-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 12;
+  }
+}
+
+.icon-edge.positive {
+  filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.3));
+}
+
+.icon-edge.negative {
+  filter: drop-shadow(0 0 2px rgba(244, 67, 54, 0.3));
+}
+
+/* 简单图标节点样式 */
+.simple-icon-node {
+  transition: all 0.3s ease;
+}
+
+.simple-icon-node:hover {
+  transform: scale(1.1);
+}
+
+.simple-icon-node.active {
+  animation: simple-pulse 2s infinite;
+}
+
+@keyframes simple-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* 简单边样式 */
+.simple-edge-flowing {
+  animation: simple-flow 2s linear infinite;
+}
+
+@keyframes simple-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 12;
+  }
+}
+
+.simple-edge.positive {
+  filter: drop-shadow(0 0 3px rgba(76, 175, 80, 0.4));
+}
+
+.simple-edge.negative {
+  filter: drop-shadow(0 0 3px rgba(244, 67, 54, 0.4));
+}
+
+/* Tooltip 样式优化 */
+.react-tooltip {
+  max-width: 300px !important;
+  z-index: 1000 !important;
+}
+
+/* MUI 图标节点样式 */
+.mui-icon-node {
+  transition: all 0.3s ease;
+}
+
+.mui-icon-node:hover {
+  transform: scale(1.05);
+}
+
+.mui-icon-node.active {
+  animation: mui-pulse 2s infinite;
+}
+
+@keyframes mui-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.mui-icon-node .pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;

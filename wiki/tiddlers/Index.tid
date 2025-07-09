@@ -1,8 +1,16 @@
 created: 20250621115829476
 creator: 林一二
-modified: 20250625152858074
+modified: 20250707161414842
 modifier: 林一二
 title: Index
 type: text/vnd.tiddlywiki
 
-记录意义之塔游戏的设计。详见侧边栏[[文件目录|$:/plugins/linonetwo/itonnote/Sidebar/FolderMenu]]。
+我在这里记录意义之塔游戏的设计。详见侧边栏[[文件目录|$:/plugins/linonetwo/itonnote/Sidebar/FolderMenu]]。
+
+这是我希望加入到我的殖民地模拟游戏里的情绪模块，更好地模拟殖民者的心情以及技能的学习，并支持模拟心灵类攻击和模因污染。
+
+目前单独拆出来作为一个游戏demo测试一下可玩性，关卡见[[叙事]]，玩法见[[游戏性]]。
+
+意义之塔待办APP见[[itkg.netlify.app|https://itkg.netlify.app/]]，我的意义之塔见[[wiki.onetwo.ren|https://wiki.onetwo.ren/#%E6%84%8F%E4%B9%89:%E6%84%8F%E4%B9%89%20%E6%84%8F%E4%B9%89%E4%B9%8B%E5%A1%94%20Index]]
+
+应该会支持桌面端和移动端[[交互]]。

@@ -1,0 +1,10 @@
+created: 20250707161409202
+creator: 林一二
+modified: 20250707161601517
+modifier: 林一二
+tags: 工具
+title: 复制LLM提示词
+
+<$wikify name="renderedContent" text={{LLM提示词!!text}} output="formattedtext">
+<$macrocall $name="copy-to-clipboard" src=<<renderedContent>>/>
+</$wikify>
