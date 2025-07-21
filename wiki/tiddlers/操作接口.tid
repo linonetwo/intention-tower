@@ -1,0 +1,8 @@
+created: 20250714105013665
+creator: 林一二
+modified: 20250714105051225
+modifier: 林一二
+tags: Index
+title: 操作接口
+
+各种游戏元素的操作方法。具体的玩法是调用了这些接口来操作。
