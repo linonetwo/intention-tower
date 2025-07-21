@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "intention-tower-game",
+			"path": "intention-tower-game"
+		},
+		{
+			"name": "intention-tower",
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.cwd": "${workspaceFolder:intention-tower-game}"
+	}
+}
