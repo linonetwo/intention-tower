@@ -1,16 +1,5 @@
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, LinearProgress, Typography } from '@mui/material';
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Box,
-  Chip,
-  LinearProgress,
-  Divider
-} from '@mui/material';
 import { NodeData, NodeType } from '../types/IntentionMap';
 
 interface NodeDetailDialogProps {
@@ -36,7 +25,7 @@ const getNodeTypeLabel = (type: NodeType): string => {
   }
 };
 
-const getNodeTypeColor = (type: NodeType): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
+const getNodeTypeColor = (type: NodeType): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
   switch (type) {
     case NodeType.UNCONDITIONED_STIMULUS:
       return 'primary';
@@ -59,28 +48,28 @@ export const NodeDetailDialog: React.FC<NodeDetailDialogProps> = ({ open, onClos
   const progressValue = node.threshold.length > 0 ? (node.value / Math.max(...node.threshold)) * 100 : 0;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
       <DialogTitle>
-        <Box display="flex" alignItems="center" gap={1}>
-          <Typography variant="h6" component="span">
+        <Box display='flex' alignItems='center' gap={1}>
+          <Typography variant='h6' component='span'>
             {node.label}
           </Typography>
-          <Chip 
-            label={getNodeTypeLabel(node.type)} 
+          <Chip
+            label={getNodeTypeLabel(node.type)}
             color={getNodeTypeColor(node.type)}
-            size="small"
+            size='small'
           />
         </Box>
       </DialogTitle>
-      
+
       <DialogContent>
-        <Box display="flex" flexDirection="column" gap={2}>
+        <Box display='flex' flexDirection='column' gap={2}>
           {/* 描述 */}
           <Box>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            <Typography variant='subtitle2' color='text.secondary' gutterBottom>
               描述
             </Typography>
-            <Typography variant="body2">
+            <Typography variant='body2'>
               {node.description}
             </Typography>
           </Box>
@@ -89,24 +78,24 @@ export const NodeDetailDialog: React.FC<NodeDetailDialogProps> = ({ open, onClos
 
           {/* 数值状态 */}
           <Box>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            <Typography variant='subtitle2' color='text.secondary' gutterBottom>
               当前数值
             </Typography>
-            <Box display="flex" alignItems="center" gap={1} mb={1}>
-              <Typography variant="body2" sx={{ minWidth: '40px' }}>
+            <Box display='flex' alignItems='center' gap={1} mb={1}>
+              <Typography variant='body2' sx={{ minWidth: '40px' }}>
                 {node.value.toFixed(1)}
               </Typography>
               <LinearProgress
-                variant="determinate"
+                variant='determinate'
                 value={Math.min(progressValue, 100)}
                 sx={{ flexGrow: 1 }}
                 color={node.isActive ? 'success' : 'primary'}
               />
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant='body2' color='text.secondary'>
                 {progressValue.toFixed(1)}%
               </Typography>
             </Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               状态: {node.isActive ? '激活' : '未激活'}
             </Typography>
           </Box>
@@ -114,17 +103,17 @@ export const NodeDetailDialog: React.FC<NodeDetailDialogProps> = ({ open, onClos
           {/* 触发阈值 */}
           {node.threshold.length > 0 && (
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              <Typography variant='subtitle2' color='text.secondary' gutterBottom>
                 触发阈值
               </Typography>
-              <Box display="flex" gap={1} flexWrap="wrap">
+              <Box display='flex' gap={1} flexWrap='wrap'>
                 {node.threshold.map((threshold, index) => (
                   <Chip
                     key={index}
                     label={`阈值 ${index + 1}: ${threshold}`}
-                    size="small"
-                    variant={node.value >= threshold ? "filled" : "outlined"}
-                    color={node.value >= threshold ? "success" : "default"}
+                    size='small'
+                    variant={node.value >= threshold ? 'filled' : 'outlined'}
+                    color={node.value >= threshold ? 'success' : 'default'}
                   />
                 ))}
               </Box>
@@ -133,16 +122,16 @@ export const NodeDetailDialog: React.FC<NodeDetailDialogProps> = ({ open, onClos
 
           {/* 类型说明 */}
           <Box>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            <Typography variant='subtitle2' color='text.secondary' gutterBottom>
               节点类型说明
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant='body2' color='text.secondary'>
               {getNodeTypeDescription(node.type)}
             </Typography>
           </Box>
         </Box>
       </DialogContent>
-      
+
       <DialogActions>
         <Button onClick={onClose}>关闭</Button>
       </DialogActions>

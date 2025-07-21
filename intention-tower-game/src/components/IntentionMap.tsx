@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Canvas } from 'reaflow';
 import { Box, Paper, Typography } from '@mui/material';
-import { NodeData, IntentionMapData } from '../types/IntentionMap';
-import { NodeDetailDialog } from './NodeDetailDialog';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Canvas } from 'reaflow';
+import { IntentionMapData, NodeData } from '../types/IntentionMap';
 import { MuiIconNode } from './MuiIconNode';
+import { NodeDetailDialog } from './NodeDetailDialog';
 import { SimpleEdge } from './SimpleEdge';
 
 interface IntentionMapProps {
@@ -11,9 +11,9 @@ interface IntentionMapProps {
   onNodeClick?: (node: NodeData) => void;
 }
 
-export const IntentionMap: React.FC<IntentionMapProps> = ({ 
-  data, 
-  onNodeClick
+export const IntentionMap: React.FC<IntentionMapProps> = ({
+  data,
+  onNodeClick,
 }) => {
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -25,7 +25,7 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
       // 不传递 text 属性，这样就不会显示默认文本
       width: 80,
       height: 80,
-      data: nodeData
+      data: nodeData,
     }));
   }, [data.nodes]);
 
@@ -34,7 +34,7 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
       id: edgeData.id,
       from: edgeData.from,
       to: edgeData.to,
-      data: edgeData
+      data: edgeData,
     }));
   }, [data.edges]);
 
@@ -43,11 +43,11 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
     // 检查点击的是否是节点
     const target = event.target as HTMLElement;
     const nodeElement = target.closest('[data-node-id]');
-    
+
     if (nodeElement) {
       const nodeId = nodeElement.getAttribute('data-node-id');
       const nodeData = data.nodes.find(n => n.id === nodeId);
-      
+
       if (nodeData) {
         setSelectedNode(nodeData);
         setDialogOpen(true);
@@ -57,12 +57,14 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
   }, [data.nodes, onNodeClick]);
 
   return (
-    <Box sx={{ 
-      width: '100%', 
-      height: '100vh', 
-      position: 'relative',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-    }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100vh',
+        position: 'relative',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      }}
+    >
       {/* 标题 */}
       <Paper
         elevation={2}
@@ -72,13 +74,13 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
           left: 16,
           zIndex: 1000,
           p: 2,
-          backgroundColor: 'rgba(255, 255, 255, 0.95)'
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
         }}
       >
-        <Typography variant="h6" gutterBottom>
+        <Typography variant='h6' gutterBottom>
           意义之塔 - 本能图谱
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           点击节点查看详细信息，观察数值流动和激活状态
         </Typography>
       </Paper>
@@ -93,72 +95,72 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
           zIndex: 1000,
           p: 2,
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          maxWidth: 200
+          maxWidth: 200,
         }}
       >
-        <Typography variant="subtitle2" gutterBottom>
+        <Typography variant='subtitle2' gutterBottom>
           节点类型图例
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box 
-              sx={{ 
-                width: 16, 
-                height: 16, 
-                borderRadius: '50%', 
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
                 backgroundColor: '#E3F2FD',
-                border: '2px solid #2196F3'
-              }} 
+                border: '2px solid #2196F3',
+              }}
             />
-            <Typography variant="caption">非条件刺激</Typography>
+            <Typography variant='caption'>非条件刺激</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box 
-              sx={{ 
-                width: 16, 
-                height: 16, 
-                borderRadius: '50%', 
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
                 backgroundColor: '#FFF3E0',
-                border: '2px solid #FF9800'
-              }} 
+                border: '2px solid #FF9800',
+              }}
             />
-            <Typography variant="caption">动机</Typography>
+            <Typography variant='caption'>动机</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box 
-              sx={{ 
-                width: 16, 
-                height: 16, 
-                borderRadius: '50%', 
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
                 backgroundColor: '#F3E5F5',
-                border: '2px solid #9C27B0'
-              }} 
+                border: '2px solid #9C27B0',
+              }}
             />
-            <Typography variant="caption">观察</Typography>
+            <Typography variant='caption'>观察</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box 
-              sx={{ 
-                width: 16, 
-                height: 16, 
-                borderRadius: '50%', 
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
                 backgroundColor: '#E8F5E8',
-                border: '2px solid #4CAF50'
-              }} 
+                border: '2px solid #4CAF50',
+              }}
             />
-            <Typography variant="caption">模因</Typography>
+            <Typography variant='caption'>模因</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box 
-              sx={{ 
-                width: 16, 
-                height: 16, 
-                borderRadius: '50%', 
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
                 backgroundColor: '#FFEBEE',
-                border: '2px solid #F44336'
-              }} 
+                border: '2px solid #F44336',
+              }}
             />
-            <Typography variant="caption">行动</Typography>
+            <Typography variant='caption'>行动</Typography>
           </Box>
         </Box>
       </Paper>
@@ -170,12 +172,12 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
           edges={reaflowEdges}
           node={(nodeProps) => <MuiIconNode {...nodeProps} />}
           edge={(edgeProps) => <SimpleEdge {...edgeProps} />}
-          direction="RIGHT"
+          direction='RIGHT'
           layoutOptions={{
             'elk.algorithm': 'layered',
             'elk.direction': 'RIGHT',
             'elk.spacing.nodeNode': '80',
-            'elk.layered.spacing.nodeNodeBetweenLayers': '120'
+            'elk.layered.spacing.nodeNodeBetweenLayers': '120',
           }}
           pannable
           zoomable
@@ -186,7 +188,9 @@ export const IntentionMap: React.FC<IntentionMapProps> = ({
       {/* 节点详情弹框 */}
       <NodeDetailDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false);
+        }}
         node={selectedNode}
       />
     </Box>

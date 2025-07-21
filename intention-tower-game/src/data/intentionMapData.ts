@@ -1,4 +1,4 @@
-import { NodeType, CategoryType, NodeData, EdgeData, FlowEffect, CategoryInfo, IntentionMapData } from '../types/IntentionMap';
+import { CategoryInfo, CategoryType, EdgeData, FlowEffect, IntentionMapData, NodeData, NodeType } from '../types/IntentionMap';
 
 // 分类信息配置
 export const categoryConfig: CategoryInfo[] = [
@@ -6,17 +6,17 @@ export const categoryConfig: CategoryInfo[] = [
   { type: CategoryType.TOP_CULTURE, name: '顶层文化模因', description: '社会文化层面的意义构建', color: '#9C27B0', position: { row: 0, col: 0 } },
   { type: CategoryType.KNOWLEDGE_EXPLORATION, name: '知识与探索', description: '学习和发现的驱动力', color: '#3F51B5', position: { row: 0, col: 1 } },
   { type: CategoryType.BELIEF_IDEOLOGY, name: '信仰与意识形态', description: '价值观和信念系统', color: '#2196F3', position: { row: 0, col: 2 } },
-  
+
   // 中层社会习得
   { type: CategoryType.AESTHETIC_VALUE, name: '美学与价值', description: '美感和价值判断', color: '#009688', position: { row: 1, col: 0 } },
   { type: CategoryType.SOCIAL_BELONGING, name: '社交与归属', description: '社会关系和归属感', color: '#4CAF50', position: { row: 1, col: 1 } },
   { type: CategoryType.STATUS_DOMINANCE, name: '地位与支配', description: '社会地位和权力', color: '#8BC34A', position: { row: 1, col: 2 } },
-  
+
   // 底层生理驱动
   { type: CategoryType.CURIOSITY_CREATION, name: '好奇与创造', description: '探索欲和创造力', color: '#CDDC39', position: { row: 2, col: 0 } },
   { type: CategoryType.FORAGING_SURVIVAL, name: '觅食与生存', description: '基本生存需求', color: '#FF9800', position: { row: 2, col: 1 } },
   { type: CategoryType.SAFETY_AVOIDANCE, name: '安全与逃避', description: '安全感和威胁规避', color: '#FF5722', position: { row: 2, col: 2 } },
-  { type: CategoryType.REPRODUCTION_INSTINCT, name: '繁衍与本能', description: '繁殖和本能驱动', color: '#F44336', position: { row: 2, col: 3 } }
+  { type: CategoryType.REPRODUCTION_INSTINCT, name: '繁衍与本能', description: '繁殖和本能驱动', color: '#F44336', position: { row: 2, col: 3 } },
 ];
 
 // 示例节点数据
@@ -31,7 +31,7 @@ export const sampleNodes: NodeData[] = [
     value: 45,
     threshold: [50, 80],
     isActive: false,
-    position: { x: 100, y: 500 }
+    position: { x: 100, y: 500 },
   },
   {
     id: 'food_motivation',
@@ -42,7 +42,7 @@ export const sampleNodes: NodeData[] = [
     value: 35,
     threshold: [30, 60],
     isActive: true,
-    position: { x: 300, y: 500 }
+    position: { x: 300, y: 500 },
   },
   {
     id: 'cooking_action',
@@ -53,7 +53,7 @@ export const sampleNodes: NodeData[] = [
     value: 25,
     threshold: [40],
     isActive: false,
-    position: { x: 500, y: 500 }
+    position: { x: 500, y: 500 },
   },
 
   // 安全与逃避 - 底层
@@ -66,7 +66,7 @@ export const sampleNodes: NodeData[] = [
     value: 20,
     threshold: [40, 70],
     isActive: false,
-    position: { x: 100, y: 600 }
+    position: { x: 100, y: 600 },
   },
   {
     id: 'safety_motivation',
@@ -77,7 +77,7 @@ export const sampleNodes: NodeData[] = [
     value: 15,
     threshold: [25, 50],
     isActive: false,
-    position: { x: 300, y: 600 }
+    position: { x: 300, y: 600 },
   },
 
   // 社交与归属 - 中层
@@ -90,7 +90,7 @@ export const sampleNodes: NodeData[] = [
     value: 30,
     threshold: [40, 70],
     isActive: false,
-    position: { x: 100, y: 300 }
+    position: { x: 100, y: 300 },
   },
   {
     id: 'social_motivation',
@@ -101,7 +101,7 @@ export const sampleNodes: NodeData[] = [
     value: 40,
     threshold: [25, 50],
     isActive: true,
-    position: { x: 300, y: 300 }
+    position: { x: 300, y: 300 },
   },
   {
     id: 'community_meme',
@@ -112,7 +112,7 @@ export const sampleNodes: NodeData[] = [
     value: 30,
     threshold: [20],
     isActive: true,
-    position: { x: 500, y: 300 }
+    position: { x: 500, y: 300 },
   },
   {
     id: 'social_action',
@@ -123,7 +123,7 @@ export const sampleNodes: NodeData[] = [
     value: 20,
     threshold: [35],
     isActive: false,
-    position: { x: 700, y: 300 }
+    position: { x: 700, y: 300 },
   },
 
   // 知识与探索 - 顶层
@@ -136,7 +136,7 @@ export const sampleNodes: NodeData[] = [
     value: 55,
     threshold: [30, 60],
     isActive: true,
-    position: { x: 100, y: 100 }
+    position: { x: 100, y: 100 },
   },
   {
     id: 'learning_motivation',
@@ -147,7 +147,7 @@ export const sampleNodes: NodeData[] = [
     value: 60,
     threshold: [20, 40],
     isActive: true,
-    position: { x: 300, y: 100 }
+    position: { x: 300, y: 100 },
   },
   {
     id: 'research_action',
@@ -158,10 +158,10 @@ export const sampleNodes: NodeData[] = [
     value: 45,
     threshold: [35],
     isActive: true,
-    position: { x: 500, y: 100 }
+    position: { x: 500, y: 100 },
   },
 
-  // 美学与价值 - 顶层  
+  // 美学与价值 - 顶层
   {
     id: 'beauty_observation',
     label: '美感观察',
@@ -171,7 +171,7 @@ export const sampleNodes: NodeData[] = [
     value: 25,
     threshold: [20, 40],
     isActive: false,
-    position: { x: 100, y: 200 }
+    position: { x: 100, y: 200 },
   },
   {
     id: 'aesthetic_motivation',
@@ -182,7 +182,7 @@ export const sampleNodes: NodeData[] = [
     value: 35,
     threshold: [30, 50],
     isActive: true,
-    position: { x: 300, y: 200 }
+    position: { x: 300, y: 200 },
   },
   {
     id: 'creativity_action',
@@ -193,7 +193,7 @@ export const sampleNodes: NodeData[] = [
     value: 20,
     threshold: [25],
     isActive: false,
-    position: { x: 500, y: 200 }
+    position: { x: 500, y: 200 },
   },
 
   // 地位与支配 - 中层
@@ -206,7 +206,7 @@ export const sampleNodes: NodeData[] = [
     value: 50,
     threshold: [40, 70],
     isActive: true,
-    position: { x: 300, y: 400 }
+    position: { x: 300, y: 400 },
   },
   {
     id: 'competition_action',
@@ -217,8 +217,8 @@ export const sampleNodes: NodeData[] = [
     value: 30,
     threshold: [35],
     isActive: false,
-    position: { x: 500, y: 400 }
-  }
+    position: { x: 500, y: 400 },
+  },
 ];
 
 // 示例连接数据
@@ -230,7 +230,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'food_motivation',
     weight: 0.8,
     flowSpeed: 1.0,
-    isFlowing: true
+    isFlowing: true,
   },
   {
     id: 'food_motivation_to_cooking',
@@ -238,7 +238,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'cooking_action',
     weight: 0.6,
     flowSpeed: 0.8,
-    isFlowing: true
+    isFlowing: true,
   },
 
   // 安全链路
@@ -248,7 +248,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'safety_motivation',
     weight: 0.9,
     flowSpeed: 1.2,
-    isFlowing: false
+    isFlowing: false,
   },
 
   // 社交链路
@@ -258,7 +258,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'social_motivation',
     weight: 0.7,
     flowSpeed: 0.9,
-    isFlowing: false
+    isFlowing: false,
   },
   {
     id: 'social_to_community',
@@ -266,7 +266,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'community_meme',
     weight: 0.5,
     flowSpeed: 0.6,
-    isFlowing: true
+    isFlowing: true,
   },
   {
     id: 'community_to_social_action',
@@ -274,7 +274,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'social_action',
     weight: 0.6,
     flowSpeed: 0.7,
-    isFlowing: true
+    isFlowing: true,
   },
 
   // 学习探索链路
@@ -284,7 +284,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'learning_motivation',
     weight: 0.9,
     flowSpeed: 1.2,
-    isFlowing: true
+    isFlowing: true,
   },
   {
     id: 'learning_to_research',
@@ -292,7 +292,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'research_action',
     weight: 0.7,
     flowSpeed: 1.0,
-    isFlowing: true
+    isFlowing: true,
   },
 
   // 美学链路
@@ -302,7 +302,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'aesthetic_motivation',
     weight: 0.6,
     flowSpeed: 0.8,
-    isFlowing: false
+    isFlowing: false,
   },
   {
     id: 'aesthetic_to_creativity',
@@ -310,7 +310,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'creativity_action',
     weight: 0.5,
     flowSpeed: 0.6,
-    isFlowing: true
+    isFlowing: true,
   },
 
   // 成就链路
@@ -320,7 +320,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'competition_action',
     weight: 0.6,
     flowSpeed: 0.9,
-    isFlowing: true
+    isFlowing: true,
   },
 
   // 跨层级连接：社交影响学习
@@ -330,7 +330,7 @@ export const sampleEdges: EdgeData[] = [
     to: 'learning_motivation',
     weight: 0.3,
     flowSpeed: 0.5,
-    isFlowing: false
+    isFlowing: false,
   },
 
   // 负面连接：恐惧抑制探索
@@ -340,8 +340,8 @@ export const sampleEdges: EdgeData[] = [
     to: 'curiosity_stimulus',
     weight: -0.4,
     flowSpeed: 0.7,
-    isFlowing: false
-  }
+    isFlowing: false,
+  },
 ];
 
 // 示例流动效果
@@ -350,15 +350,15 @@ export const sampleFlows: FlowEffect[] = [
     id: 'flow_1',
     edgeId: 'hunger_to_food_motivation',
     progress: 0,
-    isPositive: true
-  }
+    isPositive: true,
+  },
 ];
 
 // 完整的示例数据
 export const sampleMapData: IntentionMapData = {
   nodes: sampleNodes,
   edges: sampleEdges,
-  flows: sampleFlows
+  flows: sampleFlows,
 };
 
 // 获取节点类型对应的颜色

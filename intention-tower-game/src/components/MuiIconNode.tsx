@@ -1,14 +1,13 @@
-import React from 'react';
-import { Tooltip } from '@mui/material';
 import BoltIcon from '@mui/icons-material/Bolt';
+import LensIcon from '@mui/icons-material/Lens';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ShareIcon from '@mui/icons-material/Share';
 import StarIcon from '@mui/icons-material/Star';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import ShareIcon from '@mui/icons-material/Share';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import LensIcon from '@mui/icons-material/Lens';
-import { NodeType } from '../types/IntentionMap';
-import { SxProps } from '@mui/material';
+import { Tooltip } from '@mui/material';
+import React from 'react';
 import { Node as ReaflowNode, NodeProps } from 'reaflow';
+import { NodeType } from '../types/IntentionMap';
 
 const getNodeIcon = (type: NodeType) => {
   switch (type) {
@@ -34,37 +33,37 @@ const getNodeStyle = (type: NodeType) => {
       return {
         background: '#E3F2FD',
         border: '#2196F3',
-        iconColor: '#1976D2'
+        iconColor: '#1976D2',
       };
     case NodeType.MOTIVATION:
       return {
         background: '#FFF3E0',
         border: '#FF9800',
-        iconColor: '#F57C00'
+        iconColor: '#F57C00',
       };
     case NodeType.OBSERVATION:
       return {
         background: '#F3E5F5',
         border: '#9C27B0',
-        iconColor: '#7B1FA2'
+        iconColor: '#7B1FA2',
       };
     case NodeType.MEME:
       return {
         background: '#E8F5E8',
         border: '#4CAF50',
-        iconColor: '#388E3C'
+        iconColor: '#388E3C',
       };
     case NodeType.ACTION:
       return {
         background: '#FFEBEE',
         border: '#F44336',
-        iconColor: '#D32F2F'
+        iconColor: '#D32F2F',
       };
     default:
       return {
         background: '#F5F5F5',
         border: '#9E9E9E',
-        iconColor: '#616161'
+        iconColor: '#616161',
       };
   }
 };
@@ -90,7 +89,7 @@ const getNodeTypeLabel = (type: NodeType): string => {
 export const MuiIconNode: React.FC<NodeProps> = (props) => {
   // 获取节点数据
   const nodeData = (props as any).data;
-  
+
   if (!nodeData) {
     return (
       <ReaflowNode
@@ -99,8 +98,8 @@ export const MuiIconNode: React.FC<NodeProps> = (props) => {
           fill: '#f0f0f0',
           stroke: '#ccc',
           strokeWidth: 2,
-          rx: props.width! / 2,
-          ry: props.height! / 2
+          rx: props.width / 2,
+          ry: props.height / 2,
         }}
       />
     );
@@ -116,15 +115,17 @@ export const MuiIconNode: React.FC<NodeProps> = (props) => {
       <div style={{ fontWeight: 'bold', color: nodeStyle.border, marginBottom: 4 }}>{nodeData.label}</div>
       <div style={{ fontSize: 13, marginBottom: 4 }}>{nodeData.description}</div>
       <div style={{ fontSize: 12, color: '#888' }}>
-        类型: {getNodeTypeLabel(nodeData.type)}<br/>
-        当前值: {nodeData.value.toFixed(1)}<br/>
+        类型: {getNodeTypeLabel(nodeData.type)}
+        <br />
+        当前值: {nodeData.value.toFixed(1)}
+        <br />
         状态: {isActive ? '激活' : '未激活'}
       </div>
     </div>
   );
 
   return (
-    <Tooltip title={tooltip} arrow placement="top">
+    <Tooltip title={tooltip} arrow placement='top'>
       <g>
         <ReaflowNode
           {...props}
@@ -132,17 +133,17 @@ export const MuiIconNode: React.FC<NodeProps> = (props) => {
             fill: nodeStyle.background,
             stroke: nodeStyle.border,
             strokeWidth: isActive ? 4 : 3,
-            rx: props.width! / 2,
-            ry: props.height! / 2,
+            rx: props.width / 2,
+            ry: props.height / 2,
             filter: isActive ? `drop-shadow(0 0 8px ${nodeStyle.border}80)` : 'none',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           className={`mui-icon-node ${isActive ? 'active' : ''}`}
         >
           {/* MUI 图标 */}
           <foreignObject
-            x={props.width! / 2 - 16}
-            y={props.height! / 2 - 16}
+            x={props.width / 2 - 16}
+            y={props.height / 2 - 16}
             width={32}
             height={32}
             style={{ pointerEvents: 'none' }}
@@ -153,7 +154,7 @@ export const MuiIconNode: React.FC<NodeProps> = (props) => {
           {/* 数值指示器（小圆点） */}
           {nodeData.value > 0 && (
             <circle
-              cx={props.width! - 10}
+              cx={props.width - 10}
               cy={10}
               r={5}
               fill={nodeStyle.border}
@@ -164,14 +165,14 @@ export const MuiIconNode: React.FC<NodeProps> = (props) => {
           {/* 激活状态脉冲效果 */}
           {isActive && (
             <circle
-              cx={props.width! / 2}
-              cy={props.height! / 2}
-              r={props.width! / 2 + 8}
-              fill="none"
+              cx={props.width / 2}
+              cy={props.height / 2}
+              r={props.width / 2 + 8}
+              fill='none'
               stroke={nodeStyle.border}
               strokeWidth={2}
               opacity={0.4}
-              className="pulse-ring"
+              className='pulse-ring'
             />
           )}
 
@@ -179,8 +180,8 @@ export const MuiIconNode: React.FC<NodeProps> = (props) => {
           {nodeData.threshold.length > 0 && nodeData.value > 0 && (
             <rect
               x={8}
-              y={props.height! - 12}
-              width={Math.min((nodeData.value / Math.max(...nodeData.threshold)) * (props.width! - 16), props.width! - 16)}
+              y={props.height - 12}
+              width={Math.min((nodeData.value / Math.max(...nodeData.threshold)) * (props.width - 16), props.width - 16)}
               height={4}
               fill={nodeStyle.border}
               rx={2}

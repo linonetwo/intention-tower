@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useState } from 'react';
 import { IntentionMap } from './components/IntentionMap';
 import { SimulationControl } from './components/SimulationControl';
 import { sampleMapData } from './data/intentionMapData';
 import { IntentionMapData } from './types/IntentionMap';
-import "./App.css";
+import './App.css';
 
 const theme = createTheme({
   palette: {
@@ -27,8 +27,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <IntentionMap 
-        data={mapData} 
+      <IntentionMap
+        data={mapData}
         onNodeClick={handleNodeClick}
       />
       <SimulationControl
