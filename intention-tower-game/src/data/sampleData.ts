@@ -1,4 +1,4 @@
-import { MemeNode, MemeLink } from '../types';
+import { MemeLink, MemeNode } from '../types';
 
 export const SAMPLE_NODES: MemeNode[] = [
   // 底层生理驱动 - 安全与逃避
@@ -35,7 +35,7 @@ export const SAMPLE_NODES: MemeNode[] = [
     icon: 'Home',
     importance: 9,
   },
-  
+
   // 中层社会习得
   {
     id: 'social_belonging',
@@ -70,7 +70,7 @@ export const SAMPLE_NODES: MemeNode[] = [
     icon: 'Brush',
     importance: 6,
   },
-  
+
   // 顶层文化模因
   {
     id: 'knowledge_seeking',
@@ -105,7 +105,7 @@ export const SAMPLE_NODES: MemeNode[] = [
     icon: 'Balance',
     importance: 7,
   },
-  
+
   // 具体行为节点
   {
     id: 'work_achievement',
