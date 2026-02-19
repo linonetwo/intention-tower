@@ -1,0 +1,17 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:concept/want-to-eat",
+  "@type": "it:Motivation",
+  "label": "concept.want-to-eat.label",
+  "comment": "concept.want-to-eat.description",
+  "it:defaults": {
+    "nodeType": "Motivation",
+    "spawnedBy": "it:concept/hunger",
+    "lookbackWindowSec": 10.0,
+    "isChained": false,
+    "isPersistent": false,
+    "value": 0.0,
+    "valueVelocity": 0.0,
+    "strength": 0.6
+  }
+}

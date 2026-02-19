@@ -1,0 +1,87 @@
+{
+  "@context": { "@import": "../schema/context.jsonld" },
+  "@id": "it:layout/default",
+  "@type": "it:LayoutConfig",
+  "label": "quadrant.default-layout.label",
+  "layers": [
+    {
+      "layerId": "bottom-physical",
+      "label": "quadrant.layer.bottom-physical.label",
+      "quadrants": [
+        {
+          "quadrantId": "foraging-and-survival",
+          "label": "quadrant.foraging-and-survival.label",
+          "color": "#2e7d32",
+          "conceptSchemas": [
+            "it:concept/hunger",
+            "it:concept/satiety",
+            "it:concept/want-to-eat",
+            "it:concept/salivate",
+            "it:concept/hear-metronome",
+            "it:concept/see-food"
+          ]
+        },
+        {
+          "quadrantId": "safety-and-escape",
+          "label": "quadrant.safety-and-escape.label",
+          "color": "#388e3c",
+          "conceptSchemas": []
+        },
+        {
+          "quadrantId": "reproduction-and-instinct",
+          "label": "quadrant.reproduction-and-instinct.label",
+          "color": "#43a047",
+          "conceptSchemas": []
+        }
+      ]
+    },
+    {
+      "layerId": "middle-social",
+      "label": "quadrant.layer.middle-social.label",
+      "quadrants": [
+        {
+          "quadrantId": "social-and-belonging",
+          "label": "quadrant.social-and-belonging.label",
+          "color": "#7b1fa2",
+          "conceptSchemas": []
+        },
+        {
+          "quadrantId": "status-and-dominance",
+          "label": "quadrant.status-and-dominance.label",
+          "color": "#6a1b9a",
+          "conceptSchemas": []
+        },
+        {
+          "quadrantId": "curiosity-and-creation",
+          "label": "quadrant.curiosity-and-creation.label",
+          "color": "#4a148c",
+          "conceptSchemas": []
+        }
+      ]
+    },
+    {
+      "layerId": "top-cultural",
+      "label": "quadrant.layer.top-cultural.label",
+      "quadrants": [
+        {
+          "quadrantId": "knowledge-and-exploration",
+          "label": "quadrant.knowledge-and-exploration.label",
+          "color": "#1976d2",
+          "conceptSchemas": []
+        },
+        {
+          "quadrantId": "belief-and-ideology",
+          "label": "quadrant.belief-and-ideology.label",
+          "color": "#1565c0",
+          "conceptSchemas": []
+        },
+        {
+          "quadrantId": "aesthetics-and-values",
+          "label": "quadrant.aesthetics-and-values.label",
+          "color": "#0d47a1",
+          "conceptSchemas": []
+        }
+      ]
+    }
+  ]
+}

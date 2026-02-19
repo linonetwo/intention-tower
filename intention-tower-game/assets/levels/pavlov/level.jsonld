@@ -1,0 +1,58 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/pavlov",
+  "@type": "it:Level",
+  "label": "level.pavlov.name",
+  "comment": "level.pavlov.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/pavlov",
+      "@type": "schema:Person",
+      "label": "level.pavlov.character.pavlov.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/pavlov/pavlov-mind"
+    },
+    {
+      "@id": "it:entity/dog",
+      "@type": "schema:Animal",
+      "label": "level.pavlov.character.dog.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "d",
+      "mindGraphRef": "it:level/pavlov/dog-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/fast-metronome",
+      "@type": "schema:Product",
+      "label": "level.pavlov.item.fast-metronome.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "♪",
+      "it:abstractType": "it:entity-type/metronome",
+      "it:tempo": 60
+    },
+    {
+      "@id": "it:entity/slow-metronome",
+      "@type": "schema:Product",
+      "label": "level.pavlov.item.slow-metronome.label",
+      "position": { "x": 100, "y": 400 },
+      "fallbackChar": "♫",
+      "it:abstractType": "it:entity-type/metronome",
+      "it:tempo": 40
+    },
+    {
+      "@id": "it:entity/meat",
+      "@type": "schema:Food",
+      "label": "level.pavlov.item.meat.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "%"
+    }
+  ],
+  "objectives": [
+    "level.pavlov.objective.0",
+    "level.pavlov.objective.1",
+    "level.pavlov.objective.2"
+  ]
+}

@@ -1,0 +1,86 @@
+created: 20260219120000000
+creator: 林一二
+modified: 20260219150450065
+modifier: 林一二
+tags: Index
+title: 开发进度
+type: text/vnd.tiddlywiki
+
+!! 阶段一：Schema 字典 + Rust 数据模型（已完成）
+
+* [x] 同步高层设计到 wiki tiddlers（[[数据结构]]、[[操作接口]]、[[节点类型]]）
+* [x] 创建本开发进度页
+* [x] 创建 `assets/schema/` JSON-LD 类型定义文件（context、node-types、edge-types、command-types、threshold-types）
+* [x] 创建 `assets/concepts/resources/` 资源节点概念定义（attention、dopamine、health）
+* [x] 创建 `assets/concepts/foraging-and-survival/` 觅食概念（hunger、want-to-eat、salivate）
+* [x] 创建 `assets/i18n/zh-cn.json` 和 `en.json`
+* [x] 创建 `assets/quadrants/default-layout.jsonld` 象限布局配置
+* [x] 创建 `assets/levels/pavlov/` 关卡数据（level、dog-mind、pavlov-mind、commands）
+* [x] Rust 后端数据模型（`src-tauri/src/models/`）：MindNode、AssociationEdge、MindGraph、WorldState、WorldEvent
+* [x] Rust 仿真系统框架（`src-tauri/src/systems/`）：ResourceRegenSystem、InstinctUpdateSystem、ThresholdSystem、ClassicalConditioningSystem、CleanupSystem、SimulationRunner
+* [x] 单元测试 8/8 通过：饥饿上升、阈值生成动机、喂食后 despawn、经典条件反射建边、重复强化边、多巴胺再生、多巴胺耗尽、第二阈值生成心情
+
+!! 阶段二：完善仿真系统
+
+* [ ] 剩余 18 个仿真系统实现
+* [ ] Tauri Command API 实现（load_level、tick、execute_command、list_commands、subscribe_events 等）
+* [ ] 巴甫洛夫关卡完整可跑
+
+!! 阶段三：前端接入
+
+* [ ] 前端 store 改为后端状态镜像（通过事件流/diff 同步）
+* [ ] 前端渲染层适配后端 StateDiff
+* [ ] 动态命令菜单 UI 实现
+* [ ] 图谱模式接入后端 MindGraph 数据
+
+!! 阶段四：全关卡数据
+
+* [ ] 22 个关卡的 JSON-LD 数据全部编写
+* [ ] 每个关卡的 commands.jsonld 编写
+
+!! 关键设计决定记录
+
+!!! 5 种节点类型（不再增加）
+
+# ''Observation''（观察）：五感、脏器、虚拟/幻境感知、社交信号
+# ''PriorInstinct''（先验本能）：生理本能、心情（isMood）、资源（isResource：attention/dopamine/health）
+# ''Motivation''（动机）：经典动机、多层动机链（isChained）、印刻目标（targetEntity+criticalPeriodEnd）
+# ''Action''（行动）：GOAP 分解行动
+# ''Meme''（模因）：信念（isBelief）、身份认同（isIdentity）、注意力泛洪（isAttentionFlood）、逆模因（isAntiMeme）、魔法模因（isMagic）
+
+!!! 架构决定
+
+* 后端 Rust 是世界状态唯一权威源
+* 每角色一张 MindGraph，共享全局 Schema
+* JSON-LD 仅用于资源/存档；API 用 Rust/Serde DTO
+* 前后端通过事件流/增量 diff 同步
+* 确定性 tick + seeded RNG = 可复现回放
+* 象限布局与节点数据彻底解耦，放 `assets/quadrants/`，支持 MOD 替换
+* 实体类型优先 schema.org，不够才加 `it:` 扩展
+* 所有显示文本走 i18n key
+* ResourcePool 删除：attention/dopamine/health 是 PriorInstinct 实例
+
+!!! ThresholdTrigger 双向机制
+
+每个节点可携带多个 ThresholdTrigger：
+* `activateOnRisingAbove`：value 从下往上越过 → spawn 子节点
+* `deactivateOnFallingBelow`：value 从上往下越过 → despawn 子节点
+* 示例：饥饿感 0.6↑ spawn「想吃」，0.4↓ despawn「想吃」
+* 示例：饥饿感 0.85↑ spawn「饥饿烦躁」，0.65↓ despawn「饥饿烦躁」
+
+!!! 23 个仿真系统（tick 顺序）
+
+详见[[操作接口]]。
+
+!!! 文件路径约定
+
+```
+intention-tower-game/assets/
+  schema/       ← 类型定义 JSON-LD
+  concepts/     ← 概念库（英文目录名）
+  levels/       ← 关卡数据
+  i18n/         ← 国际化翻译
+  quadrants/    ← 象限布局配置
+```
+
+ID 规范：`it:` = `https://intention.tower/schema/`；概念 = `it:concept/{slug}`；实例 = `it:mind/{charId}/node/{localId}`

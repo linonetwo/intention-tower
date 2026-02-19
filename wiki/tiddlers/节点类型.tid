@@ -1,12 +1,12 @@
 created: 20250624152115127
 creator: 林一二
-modified: 20250626071433618
+modified: 20260219150327234
 modifier: 林一二
 tags: Index
 title: 节点类型
 type: text/vnd.tiddlywiki
 
-由于背后有不同的机制，所以将意义之塔从底到顶的各个部分区分为不同的类型。
+由于背后有不同的机制，所以将意义之塔从底到顶的各个部分区分为不同的类型。共 5 种基本类型，每种代表一套不同的仿真机制。不再增加基本类型，通过子类字段（isMood/isResource/isBelief/isIdentity/isAttentionFlood/isAntiMeme/innate 等 bool 标志）实现多态。
 
 <$list filter="[tag<currentTiddler>]">
 
@@ -15,3 +15,13 @@ type: text/vnd.tiddlywiki
  {{!!text}}
 
 </$list>
+
+!! 类型合并说明
+
+* Mood（心情）→ `PriorInstinct { isMood: true }`，是先验本能的子类
+* 注意力/多巴胺/健康 → `PriorInstinct { isResource: true }`
+* ImprintTarget（印刻目标）→ `Motivation { targetEntity, criticalPeriodEnd }`
+* AttentionTrap（注意力陷阱）→ `Meme { isAttentionFlood: true }`
+* Belief（信念）→ `Meme { isBelief: true }`
+* Identity（身份认同）→ `Meme { isIdentity: true }`
+* AntiMeme（逆模因）→ `Meme { isAntiMeme: true }`

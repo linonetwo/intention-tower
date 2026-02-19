@@ -1,0 +1,19 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:concept/health",
+  "@type": "it:PriorInstinct",
+  "label": "concept.health.label",
+  "comment": "concept.health.description",
+  "it:defaults": {
+    "nodeType": "PriorInstinct",
+    "isResource": true,
+    "isMood": false,
+    "brainRegion": "Brainstem",
+    "setPoint": 1.0,
+    "value": 1.0,
+    "valueVelocity": 0.01,
+    "strength": 1.0,
+    "overridableByMeme": false,
+    "satisfiedByAbout": []
+  }
+}

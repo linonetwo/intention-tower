@@ -1,0 +1,19 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:concept/hunger",
+  "@type": "it:PriorInstinct",
+  "label": "concept.hunger.label",
+  "comment": "concept.hunger.description",
+  "it:defaults": {
+    "nodeType": "PriorInstinct",
+    "isResource": false,
+    "isMood": false,
+    "brainRegion": "Hypothalamus",
+    "setPoint": 0.0,
+    "value": 0.0,
+    "valueVelocity": 0.02,
+    "strength": 0.7,
+    "overridableByMeme": true,
+    "satisfiedByAbout": ["schema:Food"]
+  }
+}

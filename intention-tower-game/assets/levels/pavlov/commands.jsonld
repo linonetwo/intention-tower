@@ -1,0 +1,50 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/pavlov/commands",
+  "commands": [
+    {
+      "commandId": "ring-bell",
+      "label": "command.ring-bell.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/metronome" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/hear-metronome",
+          "modality": "Auditory",
+          "about": "it:entity-type/metronome",
+          "ttl": 300,
+          "strength": 0.8
+        }
+      ]
+    },
+    {
+      "commandId": "feed",
+      "label": "command.feed.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Food" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-food",
+          "modality": "Olfactory",
+          "about": "schema:Food",
+          "ttl": 300,
+          "strength": 1.0
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": -0.4,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

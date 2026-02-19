@@ -1,10 +1,49 @@
 created: 20250714105013665
 creator: 林一二
-modified: 20250926165640892
+modified: 20260219120000000
 modifier: 林一二
 tags: Index
 title: 操作接口
+type: text/vnd.tiddlywiki
 
 各种游戏元素的操作方法。具体的玩法是调用了这些接口来操作。
 
 通过 IOC 容器依赖注入，也导出原本的类给 MOD，方便 MOD 继承后覆盖其上的部分方法，然后注入给其它类用。
+
+!! Rust 后端 API（Tauri Command）
+
+|!API|!说明|
+|load_level(level_id)|加载关卡，返回初始 WorldState|
+|snapshot()|全量快照（debug/恢复用）|
+|tick(dt)|确定性推进一帧|
+|set_time_speed(speed)|设置时间流速 0-4|
+|list_commands(actor_id, target_id, context)|返回当前可用命令 DTO 列表|
+|execute_command(command_id, actor_id, target_id?, params?)|执行命令，返回 StateDiff 并广播事件|
+|subscribe_events()|订阅 WorldEvent 事件流（增量 diff）|
+|save_jsonld() / load_jsonld()|JSON-LD 格式存档/读档|
+
+!! 23 个仿真系统（确定性 tick 顺序）
+
+# TimeSystem — dt 推进、timeSpeed 倍率、暂停
+# ResourceRegenSystem — isResource=true 的 PriorInstinct regen
+# BodyStateSystem — 脏器状态 → SpawnObservation(source=Body)
+# CommandSystem — 玩家 CommandDTO → 执行 Effects → WorldEvents
+# EnvironmentEventSystem — NPC 自动行动/环境变化 → WorldEvents
+# PerceptionSystem — WorldEvent → Observation 实例写入目标角色图谱
+# NoveltyHabituationSystem — 同 noveltyKey 重复 → strength 衰减
+# AttentionAllocationSystem — 按 strength 优先分配 attention 预算
+# InstinctUpdateSystem — PriorInstinct value 按 velocity/满足度更新
+# ThresholdSystem — 检查 ThresholdTrigger → spawn/despawn 节点
+# MultiLayerPropagationSystem — isChained Motivation 沿链传播
+# ClassicalConditioningSystem — 动机激活 → 回看共现窗口 → 建边
+# OperantConditioningSystem — Action 执行 → Reward → 强化路径
+# ImprintingSystem — 关键期首次 Observation → 消耗 dopamine → 印刻
+# MemeInfectionSystem — 结合位点匹配 → 写入 Meme 节点
+# SocialSignalSystem — SocialSignal → Identity/归属更新
+# BeliefConflictSystem — Belief.overridesInstinct → 压制本能
+# AttentionFloodSystem — isAttentionFlood Meme → 消耗 attention
+# ActionSelectionSystem — 竞争 Action 加权选择
+# ActionExecutionSystem — 执行 Action → worldEffects
+# MoodCascadeSystem — Mood.thresholdModifiers 应用到其他节点
+# CleanupSystem — TTL 过期删除/孤立节点清理
+# EventEmissionSystem — 收集变化 → StateDiff 事件流输出

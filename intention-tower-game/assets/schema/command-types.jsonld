@@ -1,0 +1,52 @@
+{
+  "@context": { "@import": "./context.jsonld" },
+  "@graph": [
+    {
+      "@id": "it:CommandDef",
+      "@type": "rdfs:Class",
+      "label": "command-type.command-def.label",
+      "it:fields": {
+        "commandId": { "type": "string" },
+        "label": { "type": "i18n-key" },
+        "hotkey": { "type": "string", "optional": true },
+        "targeting": { "type": "enum", "values": ["RequiresTarget", "NoTarget", "OptionalTarget"] },
+        "preconditions": { "type": "array", "items": "it:Precondition" },
+        "effects": { "type": "array", "items": "it:Effect" }
+      }
+    },
+    {
+      "@id": "it:Precondition",
+      "@type": "rdfs:Class",
+      "comment": "AND-combined atomic predicates",
+      "it:variants": [
+        { "type": "EnvHasItem", "fields": { "itemSchemaId": "IRI" } },
+        { "type": "TargetHasNode", "fields": { "nodeType": "string", "schemaId": "IRI" } },
+        { "type": "TargetNodeActive", "fields": { "schemaId": "IRI" } },
+        { "type": "TargetNodeValue", "fields": { "schemaId": "IRI", "op": "enum:GT/LT/EQ/GTE/LTE", "threshold": "f64" } },
+        { "type": "ActorResource", "fields": { "resourceSchemaId": "IRI", "op": "enum:GT/LT/GTE/LTE", "threshold": "f64" } },
+        { "type": "IsVirtualContext", "fields": { "value": "bool" } }
+      ]
+    },
+    {
+      "@id": "it:Effect",
+      "@type": "rdfs:Class",
+      "comment": "Declarative command effects (no closures)",
+      "it:variants": [
+        { "type": "SpawnObservation", "fields": { "schemaId": "IRI", "modality": "string", "about": "IRI", "ttl": "u64", "strength": "f64" } },
+        { "type": "SpawnNode", "fields": { "schemaId": "IRI", "value": "f64", "targetCharacterId": "string" } },
+        { "type": "ModifyNodeValue", "fields": { "schemaId": "IRI", "delta": "f64", "targetCharacterId": "string" } },
+        { "type": "ReinforceEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI", "delta": "f64" } },
+        { "type": "WeakenEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI", "delta": "f64" } },
+        { "type": "InnerCutEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI" } },
+        { "type": "DeleteNode", "fields": { "schemaId": "IRI", "targetCharacterId": "string" } },
+        { "type": "ConsumeResource", "fields": { "resourceSchemaId": "IRI", "amount": "f64" } },
+        { "type": "InjectMeme", "fields": { "memeSchemaId": "IRI", "targetCharacterId": "string" } },
+        { "type": "SpawnAttentionFlood", "fields": { "trapSchemaId": "IRI", "targetCharacterId": "string" } },
+        { "type": "SetVirtualContext", "fields": { "contextSchemaId": "IRI" } },
+        { "type": "ExitVirtualContext", "fields": {} },
+        { "type": "ModifyResourceRegen", "fields": { "resourceSchemaId": "IRI", "newRegenRate": "f64", "targetCharacterId": "string" } },
+        { "type": "EmitWorldEvent", "fields": { "eventType": "string", "params": "object" } }
+      ]
+    }
+  ]
+}

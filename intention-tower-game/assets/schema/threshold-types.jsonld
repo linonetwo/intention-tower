@@ -1,0 +1,36 @@
+{
+  "@context": { "@import": "./context.jsonld" },
+  "@graph": [
+    {
+      "@id": "it:ThresholdTrigger",
+      "@type": "rdfs:Class",
+      "label": "threshold-type.trigger.label",
+      "it:fields": {
+        "triggerId": { "type": "string" },
+        "spawnSchemaId": { "type": "IRI" },
+        "spawnNodeType": { "type": "enum", "values": ["Observation", "PriorInstinct", "Motivation", "Action", "Meme"] },
+        "activateOnRisingAbove": { "type": "f64" },
+        "deactivateOnFallingBelow": { "type": "f64" },
+        "managedInstanceId": { "type": "string", "optional": true }
+      }
+    },
+    {
+      "@id": "it:ThresholdModifier",
+      "@type": "rdfs:Class",
+      "label": "threshold-type.modifier.label",
+      "it:fields": {
+        "targetSchemaId": { "type": "IRI" },
+        "affectsField": { "type": "enum", "values": ["activateOnRisingAbove", "deactivateOnFallingBelow"] },
+        "delta": { "type": "f64" }
+      }
+    },
+    {
+      "@id": "it:ResourceCost",
+      "@type": "rdfs:Class",
+      "it:fields": {
+        "resourceSchemaId": { "type": "IRI" },
+        "amount": { "type": "f64" }
+      }
+    }
+  ]
+}

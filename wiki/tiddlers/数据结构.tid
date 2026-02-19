@@ -1,8 +1,121 @@
 created: 20250714104950045
 creator: 林一二
-modified: 20250714105010911
+modified: 20260219120000000
 modifier: 林一二
 tags: Index
 title: 数据结构
+type: text/vnd.tiddlywiki
 
-各游戏内容例如节点的数据结构
+各游戏内容例如节点的数据结构。JSON-LD 资源放在 `intention-tower-game/assets/` 下，后端运行时加载。
+
+!! 设计原则
+
+* 后端（Rust）是世界状态的唯一权威源；前端只做展示与输入
+* 每个角色拥有一张独立的意义之塔图谱（MindGraph），但所有角色共享全局 Schema（概念库）
+* 存档和资源文件使用 JSON-LD 格式；API 使用紧凑 Rust/Serde DTO
+* 确定性 tick + 事件日志，保证同 seed 同输入必然同输出（可复现回放）
+* 前后端通过事件流/增量 diff 同步状态
+* 所有显示文本使用 i18n key，翻译放 `assets/i18n/` 文件夹
+* 实体类型优先使用 schema.org，不够时才加 `it:` 扩展
+* 象限布局与节点数据彻底解耦，放 `assets/quadrants/`，支持 MOD 替换
+
+!! 目录结构
+
+```
+assets/
+  schema/           ← 类型定义
+    context.jsonld
+    node-types.jsonld
+    edge-types.jsonld
+    command-types.jsonld
+    threshold-types.jsonld
+  concepts/          ← 概念库（每条 wiki 概念 → 一个 .jsonld）
+    foraging-and-survival/
+    safety-and-escape/
+    reproduction-and-instinct/
+    curiosity-and-creation/
+    aesthetics-and-values/
+    social-and-belonging/
+    status-and-dominance/
+    knowledge-and-exploration/
+    belief-and-ideology/
+    resources/
+  levels/            ← 关卡数据
+    pavlov/  gosling/  smart-cat/ ...
+  i18n/              ← 国际化
+    zh-cn.json  en.json
+  quadrants/         ← 象限布局（可 MOD 替换）
+    default-layout.jsonld
+```
+
+!! ID 规范
+
+* 前缀 `it:` → `https://intention.tower/schema/`
+* Schema（类/概念定义）：`it:Observation`、`it:PriorInstinct` 等
+* 概念定义：`it:concept/{english-slug}`，如 `it:concept/hunger`
+* 实例（角色脑内）：`it:mind/{characterId}/node/{localId}`
+* 实体：优先 `schema:Person`、`schema:Animal` 等 schema.org 类型
+
+!! 5 种节点类型
+
+详见[[节点类型]]。
+
+!! MindNode 公共字段
+
+|!字段|!类型|!说明|
+|instanceId|string|角色图谱内唯一 ID|
+|schemaId|IRI|指向 concepts/ 里的概念定义|
+|label|i18n key|显示名|
+|nodeType|enum|5 种节点类型之一|
+|value|f64|当前内部积累值|
+|valueVelocity|f64|每 tick 自然变化率|
+|strength|f64|显著性/注意力分配权重|
+|active|bool|是否在工作记忆中|
+|createdAt|u64|tick 时间戳|
+|ttl|Option<u64>|存活期限|
+|hiddenByDefault|bool|行动池默认隐藏|
+|thresholds|ThresholdTrigger[]|双向生命周期触发器|
+|costs|ResourceCost[]|消耗的资源节点|
+
+!! ThresholdTrigger（双向生命周期触发）
+
+每个 MindNode 可携带多个 ThresholdTrigger：
+
+|!字段|!类型|!说明|
+|triggerId|string|本触发器唯一 ID|
+|spawnSchemaId|IRI|触发时生成的概念 schema|
+|spawnNodeType|enum|目标节点类型|
+|activateOnRisingAbove|f64|值从下往上越过此阈值 → spawn|
+|deactivateOnFallingBelow|f64|值从上往下越过此阈值 → despawn|
+|managedInstanceId|string?|当前已生成实例 ID（运行时）|
+
+示例：
+* 饥饿感 0.6 上升触发「想吃」动机，0.4 下降触发其消失
+* 饥饿感 0.85 上升触发「饥饿烦躁」心情，0.65 下降触发其消失
+
+!! AssociationEdge（心智边）
+
+|!字段|!类型|!说明|
+|edgeId|string|唯一 ID|
+|sourceInstanceId|IRI|源节点|
+|targetInstanceId|IRI|目标节点|
+|polarity|enum|Excitatory / Inhibitory|
+|weight|f64|0-1 强度|
+|learnable|bool|是否可学习|
+|decayRatePerTick|f64|衰减率|
+|learnType|enum|Classical/Operant/Imprinting/Social/DirectInjection/MemeInfection/InnerCut|
+|evidence.coOccurrenceCount|u32|共现计数|
+|evidence.lastCoOccurredAt|u64|最近共现 tick|
+|evidence.windowSec|f64|共现窗口|
+
+!! CommandDef（动态命令定义）
+
+详见[[动态命令菜单]]。命令必须是 id + 参数 + 由后端解释执行，不含闭包。
+
+前提条件（AND 组合）：EnvHasItem / TargetHasNode / TargetNodeActive / TargetNodeValue / ActorResource / IsVirtualContext
+
+效果列表：SpawnObservation / SpawnNode / ModifyNodeValue / ReinforceEdge / WeakenEdge / InnerCutEdge / DeleteNode / ConsumeResource / InjectMeme / SpawnAttentionFlood / SetVirtualContext / ExitVirtualContext / ModifyResourceRegen / EmitWorldEvent
+
+!! 资源节点
+
+attention / dopamine / health 均为 `PriorInstinct { isResource: true }` 实例，不需要独立的 ResourcePool。消耗通过各节点 `costs` 字段声明。

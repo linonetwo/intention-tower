@@ -1,0 +1,15 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:concept/salivate",
+  "@type": "it:Action",
+  "label": "concept.salivate.label",
+  "comment": "concept.salivate.description",
+  "it:defaults": {
+    "nodeType": "Action",
+    "innate": true,
+    "goap": false,
+    "proficiencyLevel": 1.0,
+    "hiddenByDefault": false,
+    "strength": 0.5
+  }
+}

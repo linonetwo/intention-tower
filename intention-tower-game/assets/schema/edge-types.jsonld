@@ -1,0 +1,29 @@
+{
+  "@context": { "@import": "./context.jsonld" },
+  "@graph": [
+    {
+      "@id": "it:AssociationEdge",
+      "@type": "rdfs:Class",
+      "label": "edge-type.association-edge.label",
+      "comment": "edge-type.association-edge.description",
+      "it:fields": {
+        "edgeId": { "type": "string" },
+        "sourceInstanceId": { "type": "string" },
+        "targetInstanceId": { "type": "string" },
+        "polarity": { "type": "enum", "values": ["Excitatory", "Inhibitory"] },
+        "weight": { "type": "f64", "default": 0.1, "comment": "0-1; >=0.5 renders solid line" },
+        "learnable": { "type": "bool", "default": true },
+        "decayRatePerTick": { "type": "f64", "default": 0.001 },
+        "learnType": { "type": "enum", "values": ["Classical", "Operant", "Imprinting", "Social", "DirectInjection", "MemeInfection", "InnerCut"] },
+        "evidence": {
+          "type": "object",
+          "fields": {
+            "coOccurrenceCount": { "type": "u32", "default": 0 },
+            "lastCoOccurredAt": { "type": "u64", "default": 0 },
+            "windowSec": { "type": "f64", "default": 10.0 }
+          }
+        }
+      }
+    }
+  ]
+}

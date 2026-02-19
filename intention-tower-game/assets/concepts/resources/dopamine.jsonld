@@ -1,0 +1,19 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:concept/dopamine",
+  "@type": "it:PriorInstinct",
+  "label": "concept.dopamine.label",
+  "comment": "concept.dopamine.description",
+  "it:defaults": {
+    "nodeType": "PriorInstinct",
+    "isResource": true,
+    "isMood": false,
+    "brainRegion": "Limbic",
+    "setPoint": 1.0,
+    "value": 0.8,
+    "valueVelocity": 0.02,
+    "strength": 0.8,
+    "overridableByMeme": false,
+    "satisfiedByAbout": []
+  }
+}

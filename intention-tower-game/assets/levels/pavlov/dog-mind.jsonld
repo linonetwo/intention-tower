@@ -1,0 +1,129 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/pavlov/dog-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/dog",
+  "nodes": [
+    {
+      "instanceId": "dog-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.4,
+      "valueVelocity": 0.02,
+      "strength": 0.7,
+      "active": true,
+      "thresholds": [
+        {
+          "triggerId": "hunger-spawn-want-eat",
+          "spawnSchemaId": "it:concept/want-to-eat",
+          "spawnNodeType": "Motivation",
+          "activateOnRisingAbove": 0.6,
+          "deactivateOnFallingBelow": 0.4
+        },
+        {
+          "triggerId": "hunger-spawn-irritable",
+          "spawnSchemaId": "it:concept/hungry-irritable",
+          "spawnNodeType": "PriorInstinct",
+          "activateOnRisingAbove": 0.85,
+          "deactivateOnFallingBelow": 0.65
+        }
+      ],
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "satisfiedByAbout": ["schema:Food"],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": false
+      }
+    },
+    {
+      "instanceId": "dog-salivate",
+      "schemaId": "it:concept/salivate",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 1.0
+      }
+    },
+    {
+      "instanceId": "dog-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "PFC",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "dog-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Limbic",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "dog-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Brainstem",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "hunger-to-want-eat",
+      "sourceInstanceId": "dog-hunger",
+      "targetInstanceId": "__managed:hunger-spawn-want-eat",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "want-eat-to-salivate",
+      "sourceInstanceId": "__managed:hunger-spawn-want-eat",
+      "targetInstanceId": "dog-salivate",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

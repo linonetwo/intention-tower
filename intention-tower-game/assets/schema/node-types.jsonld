@@ -1,0 +1,125 @@
+{
+  "@context": { "@import": "./context.jsonld" },
+  "@graph": [
+    {
+      "@id": "it:MindNode",
+      "@type": "rdfs:Class",
+      "label": "node-type.mind-node.label",
+      "comment": "node-type.mind-node.description",
+      "it:fields": {
+        "instanceId": { "type": "string", "comment": "Unique ID within character mind graph" },
+        "schemaId": { "type": "IRI", "comment": "Reference to concept definition" },
+        "label": { "type": "i18n-key" },
+        "nodeType": { "type": "enum", "values": ["Observation", "PriorInstinct", "Motivation", "Action", "Meme"] },
+        "value": { "type": "f64", "default": 0.0 },
+        "valueVelocity": { "type": "f64", "default": 0.0 },
+        "strength": { "type": "f64", "default": 0.5 },
+        "active": { "type": "bool", "default": false },
+        "createdAt": { "type": "u64" },
+        "ttl": { "type": "u64", "optional": true },
+        "hiddenByDefault": { "type": "bool", "default": false },
+        "thresholds": { "type": "array", "items": "it:ThresholdTrigger" },
+        "costs": { "type": "array", "items": "it:ResourceCost" }
+      }
+    },
+    {
+      "@id": "it:Observation",
+      "@type": "rdfs:Class",
+      "subClassOf": "it:MindNode",
+      "label": "node-type.observation.label",
+      "comment": "node-type.observation.description",
+      "it:fields": {
+        "modality": { "type": "enum", "values": ["Visual", "Auditory", "Olfactory", "Gustatory", "Tactile", "Interoceptive", "Chemical"] },
+        "about": { "type": "IRI", "comment": "External entity reference (schema.org type preferred, use abstract-one-level rule)" },
+        "noveltyKey": { "type": "string", "comment": "Shared key for habituation grouping" },
+        "credibility": { "type": "f64", "default": 1.0 },
+        "satisfaction": { "type": "f64", "default": 0.0, "comment": "Can be negative (5-HT mediated aversion)" },
+        "source": { "type": "enum", "values": ["Environment", "Body", "Virtual", "Implant", "Chemical"] },
+        "isSignal": { "type": "bool", "default": false },
+        "signalType": { "type": "enum", "values": ["Status", "Belonging", "Threat", "Approval", "Rejection", "Chemical"], "optional": true },
+        "emitterId": { "type": "IRI", "optional": true },
+        "groupContext": { "type": "IRI", "optional": true },
+        "replicaOf": { "type": "IRI", "optional": true, "comment": "Real entity this virtual observation corresponds to" }
+      }
+    },
+    {
+      "@id": "it:PriorInstinct",
+      "@type": "rdfs:Class",
+      "subClassOf": "it:MindNode",
+      "label": "node-type.prior-instinct.label",
+      "comment": "node-type.prior-instinct.description",
+      "it:fields": {
+        "setPoint": { "type": "f64", "comment": "Homeostatic target value" },
+        "satisfiedByAbout": { "type": "array", "items": "IRI", "comment": "Entity about IRIs that satisfy this instinct" },
+        "brainRegion": { "type": "enum", "values": ["Brainstem", "Hypothalamus", "Limbic", "PFC"] },
+        "overridableByMeme": { "type": "bool", "default": false },
+        "thresholdModifiers": { "type": "array", "items": "it:ThresholdModifier", "comment": "When active, modifies other nodes' thresholds (Mood cascade)" },
+        "isMood": { "type": "bool", "default": false },
+        "valence": { "type": "enum", "values": ["Positive", "Negative", "Neutral"], "optional": true },
+        "arousal": { "type": "f64", "optional": true },
+        "isResource": { "type": "bool", "default": false, "comment": "True for attention/dopamine/health system currency nodes" }
+      }
+    },
+    {
+      "@id": "it:Motivation",
+      "@type": "rdfs:Class",
+      "subClassOf": "it:MindNode",
+      "label": "node-type.motivation.label",
+      "comment": "node-type.motivation.description",
+      "it:fields": {
+        "spawnedBy": { "type": "IRI", "comment": "Upstream PriorInstinct or Motivation schemaId" },
+        "lookbackWindowSec": { "type": "f64", "default": 10.0 },
+        "goal": { "type": "IRI", "optional": true },
+        "isChained": { "type": "bool", "default": false },
+        "chainTarget": { "type": "IRI", "optional": true },
+        "targetEntity": { "type": "IRI", "optional": true, "comment": "Imprinting target entity" },
+        "criticalPeriodEnd": { "type": "u64", "optional": true, "comment": "Imprinting critical period end tick" },
+        "isPersistent": { "type": "bool", "default": false },
+        "suppressedBy": { "type": "array", "items": "IRI", "optional": true }
+      }
+    },
+    {
+      "@id": "it:Action",
+      "@type": "rdfs:Class",
+      "subClassOf": "it:MindNode",
+      "label": "node-type.action.label",
+      "comment": "node-type.action.description",
+      "it:fields": {
+        "innate": { "type": "bool", "default": false, "comment": "True = involuntary gene program (replaces GeneProgram type)" },
+        "goap": { "type": "bool", "default": false },
+        "subActionSchemas": { "type": "array", "items": "IRI", "optional": true },
+        "preconditions": { "type": "array", "items": "it:Precondition", "optional": true },
+        "worldEffects": { "type": "array", "items": "it:WorldEffect", "optional": true },
+        "proficiencyLevel": { "type": "f64", "default": 0.0 },
+        "unlockCondition": { "type": "it:Precondition", "optional": true }
+      }
+    },
+    {
+      "@id": "it:Meme",
+      "@type": "rdfs:Class",
+      "subClassOf": "it:MindNode",
+      "label": "node-type.meme.label",
+      "comment": "node-type.meme.description",
+      "it:fields": {
+        "constituentSchemas": { "type": "array", "items": "IRI" },
+        "internalEdges": { "type": "array", "items": "it:MemeEdgeDef" },
+        "bindingSites": { "type": "array", "items": "IRI" },
+        "spreadVector": { "type": "enum", "values": ["Language", "Visual", "Auditory", "DirectInjection", "Chemical", "Magic"] },
+        "isMagic": { "type": "bool", "default": false },
+        "magicEffect": { "type": "object", "optional": true },
+        "isBelief": { "type": "bool", "default": false },
+        "overridesInstinct": { "type": "array", "items": "IRI", "optional": true },
+        "conflictResolution": { "type": "enum", "values": ["BeliefWins", "InstinctWins", "StressDependent"], "optional": true },
+        "isIdentity": { "type": "bool", "default": false },
+        "groupId": { "type": "IRI", "optional": true },
+        "reinforcedBy": { "type": "array", "items": "string", "optional": true },
+        "dissolvesWhen": { "type": "object", "optional": true },
+        "isAttentionFlood": { "type": "bool", "default": false },
+        "floodNodeCount": { "type": "u32", "optional": true },
+        "floodDrainRatePerTick": { "type": "f64", "optional": true },
+        "isAntiMeme": { "type": "bool", "default": false },
+        "antiMemeTargetPattern": { "type": "IRI", "optional": true }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:concept/attention",
+  "@type": "it:PriorInstinct",
+  "label": "concept.attention.label",
+  "comment": "concept.attention.description",
+  "it:defaults": {
+    "nodeType": "PriorInstinct",
+    "isResource": true,
+    "isMood": false,
+    "brainRegion": "PFC",
+    "setPoint": 1.0,
+    "value": 1.0,
+    "valueVelocity": 0.05,
+    "strength": 1.0,
+    "overridableByMeme": false,
+    "satisfiedByAbout": []
+  }
+}
