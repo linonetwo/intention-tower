@@ -1,5 +1,6 @@
 title: $:/config/FileSystemPaths
 
+[is[system]!has[draft.of]search-replace:g:regexp[/|\\],[_]addprefix[system/]]
 [tag[安全与逃避]addprefix[安全与逃避/]]
 [tag[地位与支配]addprefix[地位与支配/]]
 [tag[繁衍与本能]addprefix[繁衍与本能/]]
