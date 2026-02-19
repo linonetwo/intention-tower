@@ -193,6 +193,9 @@ pub struct MemeData {
     pub flood_drain_rate_per_tick: Option<f64>,
     pub is_anti_meme: bool,
     pub anti_meme_target_pattern: Option<String>,
+    /// How hard it is to remove this meme once installed (0.0 = trivial, 1.0 = thought-seal)
+    /// Key for: 水是有毒的（思想钢印）, 信仰与意识形态
+    pub resilience: f64,
 }
 
 // ── MindNode ──
@@ -223,6 +226,11 @@ pub struct MindNode {
     // Runtime tracking
     /// Previous tick's value, for threshold crossing detection
     pub prev_value: f64,
+    /// 0 = base reality, 1+ = nested virtual context depth.
+    /// Key for: 触发网瘾, 赛博梦中梦, 网瘾少年, 幻境挣扎
+    pub reality_layer: u8,
+    /// If true, this node was spawned in a virtual context (visual distinction)
+    pub is_virtual: bool,
 }
 
 impl MindNode {

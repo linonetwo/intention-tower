@@ -57,6 +57,8 @@ mod tests {
             action: None,
             meme: None,
             prev_value: 0.4,
+            reality_layer: 0,
+            is_virtual: false,
         });
 
         // Salivate (Action, innate)
@@ -85,6 +87,8 @@ mod tests {
             }),
             meme: None,
             prev_value: 0.0,
+            reality_layer: 0,
+            is_virtual: false,
         });
 
         // Dopamine (PriorInstinct, isResource)
@@ -118,6 +122,8 @@ mod tests {
             action: None,
             meme: None,
             prev_value: 0.8,
+            reality_layer: 0,
+            is_virtual: false,
         });
 
         // Attention (PriorInstinct, isResource)
@@ -151,6 +157,8 @@ mod tests {
             action: None,
             meme: None,
             prev_value: 1.0,
+            reality_layer: 0,
+            is_virtual: false,
         });
 
         graph
@@ -198,6 +206,8 @@ mod tests {
             action: None,
             meme: None,
             prev_value: 0.0,
+            reality_layer: 0,
+            is_virtual: false,
         });
     }
 

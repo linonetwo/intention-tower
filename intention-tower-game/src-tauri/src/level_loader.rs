@@ -1,0 +1,734 @@
+use std::collections::HashMap;
+use serde::Deserialize;
+use crate::models::world_state::{WorldState, WorldCharacter, WorldItem, Position};
+use crate::models::mind_graph::MindGraph;
+use crate::models::mind_node::*;
+use crate::models::commands::*;
+use crate::models::events::WorldEvent;
+
+/// Errors during level loading
+#[derive(Debug)]
+pub enum LoadError {
+    Io(std::io::Error),
+    Json(serde_json::Error),
+    NotFound(String),
+}
+
+impl std::fmt::Display for LoadError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            LoadError::Io(e) => write!(f, "IO error: {}", e),
+            LoadError::Json(e) => write!(f, "JSON parse error: {}", e),
+            LoadError::NotFound(s) => write!(f, "Not found: {}", s),
+        }
+    }
+}
+
+// ── JSON-LD Intermediate Representations ──
+
+#[derive(Deserialize, Debug)]
+struct LevelJson {
+    #[serde(rename = "@id")]
+    id: String,
+    label: Option<String>,
+    characters: Vec<CharacterJson>,
+    items: Option<Vec<ItemJson>>,
+    #[serde(rename = "initialMode")]
+    initial_mode: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct CharacterJson {
+    #[serde(rename = "@id")]
+    id: String,
+    #[serde(rename = "@type")]
+    type_: Option<String>,
+    label: Option<String>,
+    position: Option<PositionJson>,
+    #[serde(rename = "mindGraphRef")]
+    mind_graph_ref: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ItemJson {
+    #[serde(rename = "@id")]
+    id: String,
+    #[serde(rename = "@type")]
+    type_: Option<String>,
+    label: Option<String>,
+    position: Option<PositionJson>,
+    #[serde(rename = "it:abstractType")]
+    abstract_type: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct PositionJson {
+    x: f64,
+    y: f64,
+}
+
+#[derive(Deserialize, Debug)]
+struct MindGraphJson {
+    #[serde(rename = "belongsToCharacter")]
+    belongs_to_character: Option<String>,
+    nodes: Vec<NodeJson>,
+    edges: Option<Vec<EdgeJson>>,
+}
+
+#[derive(Deserialize, Debug)]
+struct NodeJson {
+    #[serde(rename = "instanceId")]
+    instance_id: String,
+    #[serde(rename = "schemaId")]
+    schema_id: String,
+    #[serde(rename = "nodeType")]
+    node_type: String,
+    value: Option<f64>,
+    #[serde(rename = "valueVelocity")]
+    value_velocity: Option<f64>,
+    strength: Option<f64>,
+    active: Option<bool>,
+    thresholds: Option<Vec<ThresholdJson>>,
+    label: Option<String>,
+    ttl: Option<u64>,
+    #[serde(rename = "hiddenByDefault")]
+    hidden_by_default: Option<bool>,
+
+    // Type-specific fields
+    #[serde(rename = "it:priorInstinct")]
+    prior_instinct: Option<PriorInstinctJson>,
+    #[serde(rename = "it:action")]
+    action: Option<ActionJson>,
+    #[serde(rename = "it:observation")]
+    observation: Option<ObservationJson>,
+    #[serde(rename = "it:motivation")]
+    motivation: Option<MotivationJson>,
+    #[serde(rename = "it:meme")]
+    meme: Option<MemeJson>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ThresholdJson {
+    #[serde(rename = "triggerId")]
+    trigger_id: String,
+    #[serde(rename = "spawnSchemaId")]
+    spawn_schema_id: String,
+    #[serde(rename = "spawnNodeType")]
+    spawn_node_type: String,
+    #[serde(rename = "activateOnRisingAbove")]
+    activate_on_rising_above: f64,
+    #[serde(rename = "deactivateOnFallingBelow")]
+    deactivate_on_falling_below: f64,
+}
+
+#[derive(Deserialize, Debug)]
+struct PriorInstinctJson {
+    #[serde(rename = "setPoint")]
+    set_point: Option<f64>,
+    #[serde(rename = "brainRegion")]
+    brain_region: Option<String>,
+    #[serde(rename = "satisfiedByAbout")]
+    satisfied_by_about: Option<Vec<String>>,
+    #[serde(rename = "overridableByMeme")]
+    overridable_by_meme: Option<bool>,
+    #[serde(rename = "isResource")]
+    is_resource: Option<bool>,
+    #[serde(rename = "isMood")]
+    is_mood: Option<bool>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ActionJson {
+    innate: Option<bool>,
+    goap: Option<bool>,
+    #[serde(rename = "proficiencyLevel")]
+    proficiency_level: Option<f64>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ObservationJson {
+    modality: Option<String>,
+    about: Option<String>,
+    #[serde(rename = "noveltyKey")]
+    novelty_key: Option<String>,
+    credibility: Option<f64>,
+    satisfaction: Option<f64>,
+    source: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct MotivationJson {
+    #[serde(rename = "lookbackWindowSec")]
+    lookback_window_sec: Option<f64>,
+    goal: Option<String>,
+    #[serde(rename = "isChained")]
+    is_chained: Option<bool>,
+    #[serde(rename = "chainTarget")]
+    chain_target: Option<String>,
+    #[serde(rename = "targetEntity")]
+    target_entity: Option<String>,
+    #[serde(rename = "criticalPeriodEnd")]
+    critical_period_end: Option<u64>,
+}
+
+#[derive(Deserialize, Debug)]
+struct MemeJson {
+    #[serde(rename = "bindingSites")]
+    binding_sites: Option<Vec<String>>,
+    #[serde(rename = "isBelief")]
+    is_belief: Option<bool>,
+    #[serde(rename = "isIdentity")]
+    is_identity: Option<bool>,
+    #[serde(rename = "isAttentionFlood")]
+    is_attention_flood: Option<bool>,
+    #[serde(rename = "isAntiMeme")]
+    is_anti_meme: Option<bool>,
+    #[serde(rename = "isMagic")]
+    is_magic: Option<bool>,
+    #[serde(rename = "overridesInstinct")]
+    overrides_instinct: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Debug)]
+struct EdgeJson {
+    #[serde(rename = "edgeId")]
+    edge_id: String,
+    #[serde(rename = "sourceInstanceId")]
+    source_instance_id: String,
+    #[serde(rename = "targetInstanceId")]
+    target_instance_id: String,
+    polarity: String,
+    weight: f64,
+    learnable: Option<bool>,
+    #[serde(rename = "decayRatePerTick")]
+    decay_rate_per_tick: Option<f64>,
+    #[serde(rename = "learnType")]
+    learn_type: Option<String>,
+    evidence: Option<EvidenceJson>,
+}
+
+#[derive(Deserialize, Debug)]
+struct EvidenceJson {
+    #[serde(rename = "coOccurrenceCount")]
+    co_occurrence_count: Option<u32>,
+    #[serde(rename = "lastCoOccurredAt")]
+    last_co_occurred_at: Option<u64>,
+    #[serde(rename = "windowSec")]
+    window_sec: Option<f64>,
+}
+
+#[derive(Deserialize, Debug)]
+struct CommandsJson {
+    commands: Vec<CommandDefJson>,
+}
+
+#[derive(Deserialize, Debug)]
+struct CommandDefJson {
+    #[serde(rename = "commandId")]
+    command_id: String,
+    label: Option<String>,
+    hotkey: Option<String>,
+    targeting: Option<String>,
+    preconditions: Option<Vec<PreconditionJson>>,
+    effects: Vec<EffectJson>,
+}
+
+#[derive(Deserialize, Debug)]
+struct PreconditionJson {
+    #[serde(rename = "type")]
+    type_: String,
+    #[serde(rename = "itemSchemaId")]
+    item_schema_id: Option<String>,
+    #[serde(rename = "schemaId")]
+    schema_id: Option<String>,
+    #[serde(rename = "resourceSchemaId")]
+    resource_schema_id: Option<String>,
+    op: Option<String>,
+    threshold: Option<f64>,
+    value: Option<bool>,
+}
+
+#[derive(Deserialize, Debug)]
+struct EffectJson {
+    #[serde(rename = "type")]
+    type_: String,
+    #[serde(rename = "schemaId")]
+    schema_id: Option<String>,
+    modality: Option<String>,
+    about: Option<String>,
+    ttl: Option<u64>,
+    strength: Option<f64>,
+    delta: Option<f64>,
+    #[serde(rename = "targetCharacterId")]
+    target_character_id: Option<String>,
+    #[serde(rename = "resourceSchemaId")]
+    resource_schema_id: Option<String>,
+    amount: Option<f64>,
+    #[serde(rename = "sourceSchemaId")]
+    source_schema_id: Option<String>,
+    #[serde(rename = "targetSchemaId")]
+    target_schema_id: Option<String>,
+    #[serde(rename = "characterId")]
+    character_id: Option<String>,
+    #[serde(rename = "memeSchemaId")]
+    meme_schema_id: Option<String>,
+    #[serde(rename = "newRegenRate")]
+    new_regen_rate: Option<f64>,
+}
+
+// ── Loading Implementation ──
+
+/// Load a level from Tauri's asset resolver (bundled assets).
+pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<WorldState, LoadError> {
+    use tauri::Manager;
+
+    let base_path = app.path().resource_dir()
+        .map_err(|_| LoadError::NotFound("Could not find resource directory".to_string()))?;
+    let level_dir = base_path.join("assets").join("levels").join(level_id);
+
+    let level_path = level_dir.join("level.jsonld");
+    let level_text = std::fs::read_to_string(&level_path)
+        .map_err(LoadError::Io)?;
+
+    let level_json: LevelJson = serde_json::from_str(&level_text)
+        .map_err(LoadError::Json)?;
+
+    let mut world = WorldState::new(42);
+
+    // Load characters
+    for char_json in &level_json.characters {
+        let pos = char_json.position.as_ref();
+        let char_id = extract_local_id(&char_json.id);
+
+        // Load mind graph if referenced
+        let mind_graph = if let Some(ref mg_ref) = char_json.mind_graph_ref {
+            let mg_filename = format!("{}-mind.jsonld", char_id);
+            let mg_path = level_dir.join(&mg_filename);
+            if mg_path.exists() {
+                let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
+                let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                parse_mind_graph(&char_id, &mg_json)
+            } else {
+                MindGraph::new(char_id.clone())
+            }
+        } else {
+            MindGraph::new(char_id.clone())
+        };
+
+        let character = WorldCharacter {
+            id: char_id.clone(),
+            label: char_json.label.clone().unwrap_or_default(),
+            position: Position {
+                x: pos.map_or(0.0, |p| p.x),
+                y: pos.map_or(0.0, |p| p.y),
+            },
+            mind_graph,
+        };
+        world.characters.insert(char_id, character);
+    }
+
+    // Load items
+    if let Some(items) = &level_json.items {
+        for item_json in items {
+            let item_id = extract_local_id(&item_json.id);
+            let pos = item_json.position.as_ref();
+            let item = WorldItem {
+                id: item_id.clone(),
+                schema_type: item_json.type_.clone().unwrap_or_default(),
+                label: item_json.label.clone().unwrap_or_default(),
+                position: Position {
+                    x: pos.map_or(0.0, |p| p.x),
+                    y: pos.map_or(0.0, |p| p.y),
+                },
+                abstract_type: item_json.abstract_type.clone(),
+            };
+            world.items.insert(item_id, item);
+        }
+    }
+
+    // Load commands
+    let commands_path = level_dir.join("commands.jsonld");
+    if commands_path.exists() {
+        let cmd_text = std::fs::read_to_string(&commands_path).map_err(LoadError::Io)?;
+        let cmd_json: CommandsJson = serde_json::from_str(&cmd_text).map_err(LoadError::Json)?;
+        world.command_defs = parse_command_defs(&cmd_json);
+    }
+
+    Ok(world)
+}
+
+/// Load a level from a filesystem path (for testing without Tauri runtime).
+pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, LoadError> {
+    let level_path = level_dir.join("level.jsonld");
+    let level_text = std::fs::read_to_string(&level_path).map_err(LoadError::Io)?;
+    let level_json: LevelJson = serde_json::from_str(&level_text).map_err(LoadError::Json)?;
+
+    let mut world = WorldState::new(42);
+
+    for char_json in &level_json.characters {
+        let pos = char_json.position.as_ref();
+        let char_id = extract_local_id(&char_json.id);
+
+        let mind_graph = if char_json.mind_graph_ref.is_some() {
+            let mg_filename = format!("{}-mind.jsonld", char_id);
+            let mg_path = level_dir.join(&mg_filename);
+            if mg_path.exists() {
+                let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
+                let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                parse_mind_graph(&char_id, &mg_json)
+            } else {
+                MindGraph::new(char_id.clone())
+            }
+        } else {
+            MindGraph::new(char_id.clone())
+        };
+
+        let character = WorldCharacter {
+            id: char_id.clone(),
+            label: char_json.label.clone().unwrap_or_default(),
+            position: Position {
+                x: pos.map_or(0.0, |p| p.x),
+                y: pos.map_or(0.0, |p| p.y),
+            },
+            mind_graph,
+        };
+        world.characters.insert(char_id, character);
+    }
+
+    if let Some(items) = &level_json.items {
+        for item_json in items {
+            let item_id = extract_local_id(&item_json.id);
+            let pos = item_json.position.as_ref();
+            let item = WorldItem {
+                id: item_id.clone(),
+                schema_type: item_json.type_.clone().unwrap_or_default(),
+                label: item_json.label.clone().unwrap_or_default(),
+                position: Position {
+                    x: pos.map_or(0.0, |p| p.x),
+                    y: pos.map_or(0.0, |p| p.y),
+                },
+                abstract_type: item_json.abstract_type.clone(),
+            };
+            world.items.insert(item_id, item);
+        }
+    }
+
+    let commands_path = level_dir.join("commands.jsonld");
+    if commands_path.exists() {
+        let cmd_text = std::fs::read_to_string(&commands_path).map_err(LoadError::Io)?;
+        let cmd_json: CommandsJson = serde_json::from_str(&cmd_text).map_err(LoadError::Json)?;
+        world.command_defs = parse_command_defs(&cmd_json);
+    }
+
+    Ok(world)
+}
+
+// ── Parse Helpers ──
+
+fn extract_local_id(full_id: &str) -> String {
+    // "it:entity/dog" → "dog", "it:level/pavlov/dog-mind" → "dog-mind"
+    full_id.rsplit('/').next().unwrap_or(full_id).to_string()
+}
+
+fn parse_node_type(s: &str) -> NodeType {
+    match s {
+        "Observation" => NodeType::Observation,
+        "PriorInstinct" => NodeType::PriorInstinct,
+        "Motivation" => NodeType::Motivation,
+        "Action" => NodeType::Action,
+        "Meme" => NodeType::Meme,
+        _ => NodeType::Observation,
+    }
+}
+
+fn parse_modality(s: &str) -> Modality {
+    match s {
+        "Visual" => Modality::Visual,
+        "Auditory" => Modality::Auditory,
+        "Olfactory" => Modality::Olfactory,
+        "Gustatory" => Modality::Gustatory,
+        "Tactile" => Modality::Tactile,
+        "Interoceptive" => Modality::Interoceptive,
+        "Chemical" => Modality::Chemical,
+        _ => Modality::Visual,
+    }
+}
+
+fn parse_polarity(s: &str) -> Polarity {
+    match s {
+        "Inhibitory" => Polarity::Inhibitory,
+        _ => Polarity::Excitatory,
+    }
+}
+
+fn parse_learn_type(s: &str) -> LearnType {
+    match s {
+        "Classical" => LearnType::Classical,
+        "Operant" => LearnType::Operant,
+        "Imprinting" => LearnType::Imprinting,
+        "Social" => LearnType::Social,
+        "DirectInjection" => LearnType::DirectInjection,
+        "MemeInfection" => LearnType::MemeInfection,
+        "InnerCut" => LearnType::InnerCut,
+        _ => LearnType::Classical,
+    }
+}
+
+fn parse_brain_region(s: &str) -> BrainRegion {
+    match s {
+        "Brainstem" => BrainRegion::Brainstem,
+        "Hypothalamus" => BrainRegion::Hypothalamus,
+        "Limbic" => BrainRegion::Limbic,
+        "PFC" => BrainRegion::Pfc,
+        _ => BrainRegion::Limbic,
+    }
+}
+
+fn parse_observation_source(s: &str) -> ObservationSource {
+    match s {
+        "Environment" => ObservationSource::Environment,
+        "Body" => ObservationSource::Body,
+        "Virtual" => ObservationSource::Virtual,
+        "Implant" => ObservationSource::Implant,
+        "Chemical" => ObservationSource::Chemical,
+        _ => ObservationSource::Environment,
+    }
+}
+
+fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
+    let mut graph = MindGraph::new(char_id.to_string());
+
+    for node_json in &mg.nodes {
+        let node_type = parse_node_type(&node_json.node_type);
+
+        let thresholds: Vec<ThresholdTrigger> = node_json.thresholds.as_ref()
+            .map(|ts| ts.iter().map(|t| ThresholdTrigger {
+                trigger_id: t.trigger_id.clone(),
+                spawn_schema_id: t.spawn_schema_id.clone(),
+                spawn_node_type: parse_node_type(&t.spawn_node_type),
+                activate_on_rising_above: t.activate_on_rising_above,
+                deactivate_on_falling_below: t.deactivate_on_falling_below,
+                managed_instance_id: None,
+            }).collect())
+            .unwrap_or_default();
+
+        let prior_instinct = node_json.prior_instinct.as_ref().map(|pi| PriorInstinctData {
+            set_point: pi.set_point.unwrap_or(0.0),
+            satisfied_by_about: pi.satisfied_by_about.clone().unwrap_or_default(),
+            brain_region: pi.brain_region.as_deref().map(parse_brain_region),
+            overridable_by_meme: pi.overridable_by_meme.unwrap_or(false),
+            threshold_modifiers: Vec::new(),
+            is_mood: pi.is_mood.unwrap_or(false),
+            valence: None,
+            arousal: None,
+            is_resource: pi.is_resource.unwrap_or(false),
+        });
+
+        let action = node_json.action.as_ref().map(|a| ActionData {
+            innate: a.innate.unwrap_or(false),
+            goap: a.goap.unwrap_or(false),
+            sub_action_schemas: Vec::new(),
+            proficiency_level: a.proficiency_level.unwrap_or(0.0),
+        });
+
+        let observation = node_json.observation.as_ref().map(|o| ObservationData {
+            modality: o.modality.as_deref().map(parse_modality),
+            about: o.about.clone(),
+            novelty_key: o.novelty_key.clone(),
+            credibility: o.credibility.unwrap_or(1.0),
+            satisfaction: o.satisfaction.unwrap_or(0.0),
+            source: o.source.as_deref().map(parse_observation_source),
+            ..Default::default()
+        });
+
+        let motivation = node_json.motivation.as_ref().map(|m| MotivationData {
+            spawned_by: None,
+            lookback_window_sec: m.lookback_window_sec.unwrap_or(10.0),
+            goal: m.goal.clone(),
+            is_chained: m.is_chained.unwrap_or(false),
+            chain_target: m.chain_target.clone(),
+            target_entity: m.target_entity.clone(),
+            critical_period_end: m.critical_period_end,
+            is_persistent: false,
+            suppressed_by: Vec::new(),
+        });
+
+        let meme = node_json.meme.as_ref().map(|m| MemeData {
+            binding_sites: m.binding_sites.clone().unwrap_or_default(),
+            is_belief: m.is_belief.unwrap_or(false),
+            is_identity: m.is_identity.unwrap_or(false),
+            is_attention_flood: m.is_attention_flood.unwrap_or(false),
+            is_anti_meme: m.is_anti_meme.unwrap_or(false),
+            is_magic: m.is_magic.unwrap_or(false),
+            overrides_instinct: m.overrides_instinct.clone().unwrap_or_default(),
+            ..Default::default()
+        });
+
+        let value = node_json.value.unwrap_or(0.0);
+        let node = MindNode {
+            instance_id: node_json.instance_id.clone(),
+            schema_id: node_json.schema_id.clone(),
+            label: node_json.label.clone().unwrap_or_else(|| node_json.schema_id.clone()),
+            node_type,
+            value,
+            value_velocity: node_json.value_velocity.unwrap_or(0.0),
+            strength: node_json.strength.unwrap_or(0.5),
+            active: node_json.active.unwrap_or(true),
+            created_at: 0,
+            ttl: node_json.ttl,
+            hidden_by_default: node_json.hidden_by_default.unwrap_or(false),
+            thresholds,
+            costs: Vec::new(),
+            observation,
+            prior_instinct,
+            motivation,
+            action,
+            meme,
+            prev_value: value,
+            reality_layer: 0,
+            is_virtual: false,
+        };
+
+        graph.add_node(node);
+    }
+
+    // Load edges
+    if let Some(edges) = &mg.edges {
+        for edge_json in edges {
+            let edge = AssociationEdge {
+                edge_id: edge_json.edge_id.clone(),
+                source_instance_id: edge_json.source_instance_id.clone(),
+                target_instance_id: edge_json.target_instance_id.clone(),
+                polarity: parse_polarity(&edge_json.polarity),
+                weight: edge_json.weight,
+                learnable: edge_json.learnable.unwrap_or(false),
+                decay_rate_per_tick: edge_json.decay_rate_per_tick.unwrap_or(0.0),
+                learn_type: edge_json.learn_type.as_deref().map(parse_learn_type).unwrap_or(LearnType::Classical),
+                evidence: Evidence {
+                    co_occurrence_count: edge_json.evidence.as_ref().and_then(|e| e.co_occurrence_count).unwrap_or(0),
+                    last_co_occurred_at: edge_json.evidence.as_ref().and_then(|e| e.last_co_occurred_at).unwrap_or(0),
+                    window_sec: edge_json.evidence.as_ref().and_then(|e| e.window_sec).unwrap_or(10.0),
+                },
+            };
+            graph.add_edge(edge);
+        }
+    }
+
+    graph
+}
+
+fn parse_command_defs(cmd_json: &CommandsJson) -> Vec<CommandDef> {
+    cmd_json.commands.iter().map(|cd| {
+        let preconditions = cd.preconditions.as_ref()
+            .map(|pres| pres.iter().filter_map(|p| parse_precondition(p)).collect())
+            .unwrap_or_default();
+
+        let effect_templates = cd.effects.iter()
+            .filter_map(|e| parse_effect(e))
+            .collect();
+
+        let targeting = match cd.targeting.as_deref() {
+            Some("RequiresTarget") => TargetingMode::RequiresTarget,
+            Some("NoTarget") => TargetingMode::NoTarget,
+            Some("OptionalTarget") => TargetingMode::OptionalTarget,
+            _ => TargetingMode::NoTarget,
+        };
+
+        CommandDef {
+            command_id: cd.command_id.clone(),
+            label: cd.label.clone().unwrap_or_default(),
+            hotkey: cd.hotkey.clone(),
+            targeting,
+            preconditions,
+            effect_templates,
+        }
+    }).collect()
+}
+
+fn parse_precondition(p: &PreconditionJson) -> Option<Precondition> {
+    match p.type_.as_str() {
+        "EnvHasItem" => Some(Precondition::EnvHasItem {
+            item_schema_id: p.item_schema_id.clone()?,
+        }),
+        "TargetHasNode" => Some(Precondition::TargetHasNode {
+            schema_id: p.schema_id.clone()?,
+        }),
+        "TargetNodeActive" => Some(Precondition::TargetNodeActive {
+            schema_id: p.schema_id.clone()?,
+        }),
+        "TargetNodeValue" => Some(Precondition::TargetNodeValue {
+            schema_id: p.schema_id.clone()?,
+            op: parse_compare_op(p.op.as_deref().unwrap_or("GTE")),
+            threshold: p.threshold.unwrap_or(0.0),
+        }),
+        "ActorResource" => Some(Precondition::ActorResource {
+            resource_schema_id: p.resource_schema_id.clone()?,
+            op: parse_compare_op(p.op.as_deref().unwrap_or("GTE")),
+            threshold: p.threshold.unwrap_or(0.0),
+        }),
+        "IsVirtualContext" => Some(Precondition::IsVirtualContext {
+            value: p.value.unwrap_or(false),
+        }),
+        _ => None,
+    }
+}
+
+fn parse_compare_op(s: &str) -> CompareOp {
+    match s {
+        "GT" => CompareOp::GT,
+        "LT" => CompareOp::LT,
+        "GTE" => CompareOp::GTE,
+        "LTE" => CompareOp::LTE,
+        "EQ" => CompareOp::EQ,
+        _ => CompareOp::GTE,
+    }
+}
+
+fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
+    match e.type_.as_str() {
+        "SpawnObservation" => Some(CommandEffect::SpawnObservation {
+            schema_id: e.schema_id.clone()?,
+            modality: parse_modality(e.modality.as_deref().unwrap_or("Visual")),
+            about: e.about.clone()?,
+            ttl: e.ttl.unwrap_or(300),
+            strength: e.strength.unwrap_or(0.5),
+            target_character_id: e.target_character_id.clone(),
+        }),
+        "ModifyNodeValue" => Some(CommandEffect::ModifyNodeValue {
+            schema_id: e.schema_id.clone()?,
+            delta: e.delta.unwrap_or(0.0),
+            target_character_id: e.target_character_id.clone(),
+        }),
+        "ConsumeResource" => Some(CommandEffect::ConsumeResource {
+            resource_schema_id: e.resource_schema_id.clone()?,
+            amount: e.amount.unwrap_or(0.0),
+            target_character_id: e.target_character_id.clone(),
+        }),
+        "ReinforceEdge" => Some(CommandEffect::ReinforceEdge {
+            source_schema_id: e.source_schema_id.clone()?,
+            target_schema_id: e.target_schema_id.clone()?,
+            delta: e.delta.unwrap_or(0.1),
+            character_id: e.character_id.clone(),
+        }),
+        "WeakenEdge" => Some(CommandEffect::WeakenEdge {
+            source_schema_id: e.source_schema_id.clone()?,
+            target_schema_id: e.target_schema_id.clone()?,
+            delta: e.delta.unwrap_or(0.1),
+            character_id: e.character_id.clone(),
+        }),
+        "InjectMeme" => Some(CommandEffect::InjectMeme {
+            meme_schema_id: e.meme_schema_id.clone()?,
+            target_character_id: e.target_character_id.clone(),
+        }),
+        "DeleteNode" => Some(CommandEffect::DeleteNode {
+            schema_id: e.schema_id.clone()?,
+            target_character_id: e.target_character_id.clone(),
+        }),
+        "ModifyResourceRegen" => Some(CommandEffect::ModifyResourceRegen {
+            resource_schema_id: e.resource_schema_id.clone()?,
+            new_regen_rate: e.new_regen_rate.unwrap_or(0.0),
+            target_character_id: e.target_character_id.clone(),
+        }),
+        _ => None,
+    }
+}

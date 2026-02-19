@@ -86,6 +86,8 @@ impl System for ThresholdSystem {
                     action: None,
                     meme: None,
                     prev_value: 0.0,
+                    reality_layer: 0,
+                    is_virtual: false,
                 };
 
                 character.mind_graph.add_node(child);

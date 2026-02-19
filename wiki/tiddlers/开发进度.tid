@@ -20,11 +20,32 @@ type: text/vnd.tiddlywiki
 * [x] Rust 仿真系统框架（`src-tauri/src/systems/`）：ResourceRegenSystem、InstinctUpdateSystem、ThresholdSystem、ClassicalConditioningSystem、CleanupSystem、SimulationRunner
 * [x] 单元测试 8/8 通过：饥饿上升、阈值生成动机、喂食后 despawn、经典条件反射建边、重复强化边、多巴胺再生、多巴胺耗尽、第二阈值生成心情
 
-!! 阶段二：完善仿真系统
+!! 阶段二：完善仿真系统（已完成）
 
-* [ ] 剩余 18 个仿真系统实现
-* [ ] Tauri Command API 实现（load_level、tick、execute_command、list_commands、subscribe_events 等）
-* [ ] 巴甫洛夫关卡完整可跑
+* [x] 剩余 18 个仿真系统实现（共 23 个系统全部就位）
+** TimeSystem(#1)、BodyStateSystem(#3)、CommandSystem(#4)、EnvironmentEventSystem(#5)
+** PerceptionSystem(#6)、NoveltyHabituationSystem(#7)、AttentionAllocationSystem(#8)
+** MultiLayerPropagationSystem(#11)、OperantConditioningSystem(#13)、ImprintingSystem(#14)
+** MemeInfectionSystem(#15)、SocialSignalSystem(#16)、BeliefConflictSystem(#17)
+** AttentionFloodSystem(#18)、ActionSelectionSystem(#19)、ActionExecutionSystem(#20)
+** MoodCascadeSystem(#21)、EventEmissionSystem(#23)
+* [x] Tauri Command API 实现（`src-tauri/src/api.rs`）
+** `load_level` — 从 JSON-LD 资产加载关卡
+** `snapshot` — 获取完整世界状态快照
+** `tick` — 推进仿真 1 tick 并返回 StateDiff 事件流
+** `set_time_speed` — 设置倍速（0=暂停，1-4=1x~8x）
+** `list_commands` — 列出当前可用命令（自动检查前置条件）
+** `execute_command` — 执行命令并立即返回事件
+** `get_mind_graph` — 获取特定角色的思维图谱
+** `set_paused` — 暂停/恢复仿真
+* [x] CommandDTO / CommandEffect 体系：9 种声明式命令效果类型
+* [x] 前置条件检查系统：6 种条件类型（EnvHasItem / TargetHasNode / TargetNodeActive / TargetNodeValue / ActorResource / IsVirtualContext）
+* [x] JSON-LD 关卡加载器（`src-tauri/src/level_loader.rs`）：完整解析 level.jsonld / *-mind.jsonld / commands.jsonld
+* [x] 巴甫洛夫关卡完整可跑：17/17 测试全部通过
+** 8 个原始集成测试（手工构建世界）
+** 9 个 JSON-LD 加载器集成测试（从文件加载运行完整场景）
+* [x] 设计评审：对照 21 个关卡场景逐一审查系统覆盖率，发现 6 大设计缺口并记录
+* [x] 追加字段：MemeData.resilience（信念抗擦除强度）、MindNode.reality_layer / is_virtual（虚拟层标记）
 
 !! 阶段三：前端接入
 
@@ -84,3 +105,40 @@ intention-tower-game/assets/
 ```
 
 ID 规范：`it:` = `https://intention.tower/schema/`；概念 = `it:concept/{slug}`；实例 = `it:mind/{charId}/node/{localId}`
+
+!!! 21 场景设计覆盖率评审结果（Phase 2 发现）
+
+3 个教学关卡（巴甫洛夫/聪明猫/雏鹅）缺口最小，已基本可跑。后续扩展优先级：
+
+''缺口 A：VirtualContext 系统''（影响 4 个场景：触发网瘾 / 赛博梦中梦 / 网瘾少年 / 幻境挣扎）
+
+* 需要独立的 VirtualContextSystem，管理 context 栈和感知过滤
+* 支持双层并行仿真（虚拟世界感知 + 现实身体暴露）
+* 建议放在 PerceptionSystem 之前
+* 已追加 `MindNode.reality_layer` / `is_virtual` 字段预留
+
+''缺口 B：群体动力学''（影响 5 个场景：浪潮实验 / 人从众 / 等死死国可乎 / 集群意识 / 毁灭虫族）
+
+* 当前系统是逐角色独立仿真，缺少跨角色交互
+* 需新增 SocialDynamicsSystem（群体密度加成 / 从众压力 / 集体决策）
+* 跨角色共享节点/协议机制
+
+''缺口 C：经济/资产系统''（影响 3 个场景：人从众 / 消费主义魔法 / 毁灭虫族）
+
+* 完全没有市场、价格、交易、股权、产业链机制
+* 需新增 EconomySystem
+
+''缺口 D：信念不可逆性 & 分裂''（影响 3 个场景：水是有毒的 / 信仰与意识形态 / 后现代解构流浪）
+
+* BeliefConflictSystem 需扩展：信念间冲突（不只是信念 vs 本能）
+* 已追加 `MemeData.resilience` 字段（抗擦除强度）
+
+''缺口 E：模因涌现''（影响 2 个场景：后现代解构流浪 / 浪潮实验）
+
+* 当前模因只能被外部注入或预设
+* 需要从底层交互中自然涌现模因的机制（模因结晶）
+
+''缺口 F：空间/战术层''（影响 2 个场景：毁灭虫族 / 逆模因部）
+
+* 23 个系统全部是心智仿真层，没有世界空间管理
+* 需要地图、区域、移动、视距、领土控制系统

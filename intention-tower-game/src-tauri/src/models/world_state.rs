@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use super::mind_graph::MindGraph;
 use super::events::WorldEvent;
+use super::commands::{CommandDTO, CommandDef};
 
 /// Position in the 2D world
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,9 +40,16 @@ pub struct WorldState {
     pub characters: HashMap<String, WorldCharacter>,
     pub items: HashMap<String, WorldItem>,
     pub event_log: Vec<WorldEvent>,
+    /// Available command definitions for the current level
+    pub command_defs: Vec<CommandDef>,
     /// Tick-local pending events (cleared each tick)
     #[serde(skip)]
     pub pending_events: Vec<WorldEvent>,
+    /// Commands queued by player/NPC for this tick
+    #[serde(skip)]
+    pub pending_commands: Vec<CommandDTO>,
+    /// Whether we are in a virtual context (cyber dream etc)
+    pub in_virtual_context: bool,
 }
 
 impl WorldState {
@@ -54,7 +62,10 @@ impl WorldState {
             characters: HashMap::new(),
             items: HashMap::new(),
             event_log: Vec::new(),
+            command_defs: Vec::new(),
             pending_events: Vec::new(),
+            pending_commands: Vec::new(),
+            in_virtual_context: false,
         }
     }
 

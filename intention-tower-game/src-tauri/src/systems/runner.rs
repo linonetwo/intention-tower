@@ -1,26 +1,62 @@
-use super::{System, resource_regen, instinct_update, threshold, classical_conditioning, cleanup};
+use super::*;
 use crate::models::world_state::WorldState;
 use crate::models::events::WorldEvent;
 
-/// The simulation runner. Executes all systems in fixed tick order.
+/// The simulation runner. Executes all 23 systems in fixed tick order.
 pub struct SimulationRunner {
     systems: Vec<Box<dyn System>>,
 }
 
 impl SimulationRunner {
     pub fn new() -> Self {
-        // Systems in tick execution order (subset for phase 1)
+        // All 23 systems in canonical tick execution order
         let systems: Vec<Box<dyn System>> = vec![
+            // #1 TimeSystem
+            Box::new(time_system::TimeSystem),
             // #2 ResourceRegenSystem
             Box::new(resource_regen::ResourceRegenSystem),
+            // #3 BodyStateSystem
+            Box::new(body_state::BodyStateSystem),
+            // #4 CommandSystem
+            Box::new(command_system::CommandSystem),
+            // #5 EnvironmentEventSystem
+            Box::new(environment_event::EnvironmentEventSystem),
+            // #6 PerceptionSystem
+            Box::new(perception::PerceptionSystem),
+            // #7 NoveltyHabituationSystem
+            Box::new(novelty_habituation::NoveltyHabituationSystem),
+            // #8 AttentionAllocationSystem
+            Box::new(attention_allocation::AttentionAllocationSystem),
             // #9 InstinctUpdateSystem
             Box::new(instinct_update::InstinctUpdateSystem),
             // #10 ThresholdSystem
             Box::new(threshold::ThresholdSystem),
+            // #11 MultiLayerPropagationSystem
+            Box::new(multi_layer_propagation::MultiLayerPropagationSystem),
             // #12 ClassicalConditioningSystem
             Box::new(classical_conditioning::ClassicalConditioningSystem),
+            // #13 OperantConditioningSystem
+            Box::new(operant_conditioning::OperantConditioningSystem),
+            // #14 ImprintingSystem
+            Box::new(imprinting::ImprintingSystem),
+            // #15 MemeInfectionSystem
+            Box::new(meme_infection::MemeInfectionSystem),
+            // #16 SocialSignalSystem
+            Box::new(social_signal::SocialSignalSystem),
+            // #17 BeliefConflictSystem
+            Box::new(belief_conflict::BeliefConflictSystem),
+            // #18 AttentionFloodSystem
+            Box::new(attention_flood::AttentionFloodSystem),
+            // #19 ActionSelectionSystem
+            Box::new(action_selection::ActionSelectionSystem),
+            // #20 ActionExecutionSystem
+            Box::new(action_execution::ActionExecutionSystem),
+            // #21 MoodCascadeSystem
+            Box::new(mood_cascade::MoodCascadeSystem),
             // #22 CleanupSystem
             Box::new(cleanup::CleanupSystem),
+            // #23 EventEmissionSystem
+            Box::new(event_emission::EventEmissionSystem),
         ];
 
         Self { systems }
