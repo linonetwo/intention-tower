@@ -4,7 +4,7 @@ export interface MemeNode {
   description?: string;
   category: string; // 9大类别之一
   layer: 'topCultural' | 'middleSocial' | 'bottomPhysical'; // 三层结构
-  nodeType: string; // 观察、行动、动机、心情、非条件刺激等
+  nodeType: string; // 观察、行动、动机、心情、先验本能等
   tags: string[];
   icon?: string; // MUI icon name
   importance?: number; // 1-10 重要性等级
@@ -51,5 +51,5 @@ export const NODE_TYPES = [
   '行动',
   '动机',
   '心情',
-  '非条件刺激',
+  '先验本能',
 ];

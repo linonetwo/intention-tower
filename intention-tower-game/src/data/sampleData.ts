@@ -8,7 +8,7 @@ export const SAMPLE_NODES: MemeNode[] = [
     description: '对人身安全和环境稳定的基本需求',
     category: '安全与逃避',
     layer: 'bottomPhysical',
-    nodeType: '非条件刺激',
+    nodeType: '先验本能',
     tags: ['生存', '安全', '稳定'],
     icon: 'Security',
     importance: 10,
