@@ -1,0 +1,251 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/internet-addict/teen-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/addict-teen",
+  "nodes": [
+    {
+      "instanceId": "teen-game-rank",
+      "schemaId": "it:concept/game-rank",
+      "nodeType": "Meme",
+      "value": 0.8,
+      "strength": 0.9,
+      "active": true,
+      "it:meme": {
+        "bindingSites": [],
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": true,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "teen-game-achievement",
+      "schemaId": "it:concept/game-achievement",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:meme": {
+        "bindingSites": [],
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "teen-game-social",
+      "schemaId": "it:concept/game-social",
+      "nodeType": "Meme",
+      "value": 0.6,
+      "strength": 0.7,
+      "active": true,
+      "it:meme": {
+        "bindingSites": [],
+        "isBelief": false,
+        "isIdentity": true,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "teen-play-game",
+      "schemaId": "it:concept/play-game",
+      "nodeType": "Action",
+      "value": 0.5,
+      "strength": 0.8,
+      "active": true,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.9
+      }
+    },
+    {
+      "instanceId": "teen-virtual-pleasure",
+      "schemaId": "it:concept/virtual-pleasure",
+      "nodeType": "PriorInstinct",
+      "value": 0.6,
+      "valueVelocity": 0.0,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.3,
+        "brainRegion": "Limbic",
+        "satisfiedByAbout": [],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": true
+      }
+    },
+    {
+      "instanceId": "teen-real-study",
+      "schemaId": "it:concept/real-study",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.2
+      }
+    },
+    {
+      "instanceId": "teen-real-friendship",
+      "schemaId": "it:concept/real-friendship",
+      "nodeType": "Meme",
+      "value": 0.1,
+      "strength": 0.1,
+      "active": false,
+      "it:meme": {
+        "bindingSites": [],
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "teen-boredom",
+      "schemaId": "it:concept/boredom",
+      "nodeType": "PriorInstinct",
+      "value": 0.4,
+      "valueVelocity": 0.02,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "satisfiedByAbout": [],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": true
+      }
+    },
+    {
+      "instanceId": "teen-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.2,
+      "valueVelocity": 0.02,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "satisfiedByAbout": ["schema:Food"],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": false
+      }
+    },
+    {
+      "instanceId": "teen-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "teen-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "teen-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "game-rank-to-virtual-pleasure",
+      "sourceInstanceId": "teen-game-rank",
+      "targetInstanceId": "teen-virtual-pleasure",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "game-achievement-to-virtual-pleasure",
+      "sourceInstanceId": "teen-game-achievement",
+      "targetInstanceId": "teen-virtual-pleasure",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "game-social-to-play-game",
+      "sourceInstanceId": "teen-game-social",
+      "targetInstanceId": "teen-play-game",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "virtual-pleasure-to-play-game",
+      "sourceInstanceId": "teen-virtual-pleasure",
+      "targetInstanceId": "teen-play-game",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "boredom-to-play-game",
+      "sourceInstanceId": "teen-boredom",
+      "targetInstanceId": "teen-play-game",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": true,
+      "decayRatePerTick": 0.005,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 15.0 }
+    },
+    {
+      "edgeId": "real-study-to-real-friendship",
+      "sourceInstanceId": "teen-real-study",
+      "targetInstanceId": "teen-real-friendship",
+      "polarity": "Excitatory",
+      "weight": 0.1,
+      "learnable": true,
+      "decayRatePerTick": 0.005,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 15.0 }
+    }
+  ]
+}

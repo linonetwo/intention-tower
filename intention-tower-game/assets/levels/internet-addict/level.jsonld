@@ -1,0 +1,46 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/internet-addict",
+  "@type": "it:Level",
+  "label": "level.internet-addict.name",
+  "comment": "level.internet-addict.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/addict-teen",
+      "@type": "schema:Person",
+      "label": "level.internet-addict.character.addict-teen.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "T",
+      "mindGraphRef": "it:level/internet-addict/teen-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/gaming-pc",
+      "@type": "schema:Product",
+      "label": "level.internet-addict.item.gaming-pc.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "G"
+    },
+    {
+      "@id": "it:entity/textbook",
+      "@type": "schema:Product",
+      "label": "level.internet-addict.item.textbook.label",
+      "position": { "x": 400, "y": 200 },
+      "fallbackChar": "B"
+    },
+    {
+      "@id": "it:entity/home",
+      "@type": "schema:Place",
+      "label": "level.internet-addict.item.home.label",
+      "position": { "x": 300, "y": 400 },
+      "fallbackChar": "H"
+    }
+  ],
+  "objectives": [
+    "level.internet-addict.objective.0",
+    "level.internet-addict.objective.1",
+    "level.internet-addict.objective.2"
+  ]
+}

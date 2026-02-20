@@ -1,0 +1,76 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/illusion-trap/commands",
+  "commands": [
+    {
+      "commandId": "inflict-real-pain",
+      "label": "command.inflict-real-pain.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/pain-from-reality",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "trigger-memory-fragment",
+      "label": "command.trigger-memory-fragment.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "WeakenEdge",
+          "sourceSchemaId": "it:concept/suppressed-memory",
+          "targetSchemaId": "it:concept/real-identity",
+          "delta": -0.2,
+          "characterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/real-identity",
+          "delta": 0.15,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "shake-illusion",
+      "label": "command.shake-illusion.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/illusion-happiness",
+          "delta": -0.2,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "call-name",
+      "label": "command.call-name.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/hear-real-name",
+          "modality": "Auditory",
+          "about": "it:entity/trapped-person",
+          "ttl": 200,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

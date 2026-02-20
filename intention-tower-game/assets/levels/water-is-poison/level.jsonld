@@ -1,0 +1,54 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/water-is-poison",
+  "@type": "it:Level",
+  "label": "level.water-is-poison.name",
+  "comment": "level.water-is-poison.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/hines",
+      "@type": "schema:Person",
+      "label": "level.water-is-poison.character.hines.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "H",
+      "mindGraphRef": "it:level/water-is-poison/hines-mind"
+    },
+    {
+      "@id": "it:entity/subject",
+      "@type": "schema:Person",
+      "label": "level.water-is-poison.character.subject.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "S",
+      "mindGraphRef": "it:level/water-is-poison/subject-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/mind-stamp-machine",
+      "@type": "schema:Product",
+      "label": "level.water-is-poison.item.mind-stamp-machine.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "M"
+    },
+    {
+      "@id": "it:entity/water",
+      "@type": "schema:Product",
+      "label": "level.water-is-poison.item.water.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "W"
+    },
+    {
+      "@id": "it:entity/dry-food",
+      "@type": "schema:Product",
+      "label": "level.water-is-poison.item.dry-food.label",
+      "position": { "x": 500, "y": 200 },
+      "fallbackChar": "D"
+    }
+  ],
+  "objectives": [
+    "level.water-is-poison.objective.0",
+    "level.water-is-poison.objective.1",
+    "level.water-is-poison.objective.2"
+  ]
+}

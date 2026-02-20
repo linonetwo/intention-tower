@@ -8,6 +8,14 @@ use crate::models::events::WorldEvent;
 /// Each command is a declarative DTO with preconditions and effects.
 pub struct CommandSystem;
 
+/// Resolve "__target" placeholder to actual target_id
+fn resolve_target<'a>(explicit: Option<&'a str>, fallback: Option<&'a str>) -> Option<&'a str> {
+    match explicit {
+        Some("__target") | None => fallback,
+        Some(id) => Some(id),
+    }
+}
+
 impl System for CommandSystem {
     fn name(&self) -> &'static str { "CommandSystem" }
 
@@ -26,8 +34,7 @@ impl System for CommandSystem {
             for effect in &cmd.effects {
                 match effect {
                     CommandEffect::SpawnObservation { schema_id, modality, about, ttl, strength, target_character_id } => {
-                        let target_char = target_character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 let instance_id = format!("obs_{}_{}", schema_id, state.tick);
@@ -73,8 +80,7 @@ impl System for CommandSystem {
                         }
                     }
                     CommandEffect::ModifyNodeValue { schema_id, delta, target_character_id } => {
-                        let target_char = target_character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 if let Some(node) = character.mind_graph.find_by_schema_mut(schema_id) {
@@ -91,8 +97,7 @@ impl System for CommandSystem {
                         }
                     }
                     CommandEffect::ConsumeResource { resource_schema_id, amount, target_character_id } => {
-                        let target_char = target_character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 let old = character.mind_graph.resource_value(resource_schema_id);
@@ -107,8 +112,7 @@ impl System for CommandSystem {
                         }
                     }
                     CommandEffect::ReinforceEdge { source_schema_id, target_schema_id, delta, character_id } => {
-                        let char_id = character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let char_id = resolve_target(character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(cid) = char_id {
                             if let Some(character) = state.characters.get_mut(cid) {
                                 // Find edge between nodes with those schemas
@@ -137,8 +141,7 @@ impl System for CommandSystem {
                         }
                     }
                     CommandEffect::WeakenEdge { source_schema_id, target_schema_id, delta, character_id } => {
-                        let char_id = character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let char_id = resolve_target(character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(cid) = char_id {
                             if let Some(character) = state.characters.get_mut(cid) {
                                 let edge_id = character.mind_graph.edges.values()
@@ -167,8 +170,7 @@ impl System for CommandSystem {
                     }
                     CommandEffect::InjectMeme { meme_schema_id, target_character_id } => {
                         // Placeholder: will be processed by MemeInfectionSystem
-                        let target_char = target_character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 let instance_id = format!("meme_{}_{}", meme_schema_id, state.tick);
@@ -206,8 +208,7 @@ impl System for CommandSystem {
                         }
                     }
                     CommandEffect::DeleteNode { schema_id, target_character_id } => {
-                        let target_char = target_character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 if let Some(node) = character.mind_graph.find_by_schema(schema_id) {
@@ -222,8 +223,7 @@ impl System for CommandSystem {
                         }
                     }
                     CommandEffect::ModifyResourceRegen { resource_schema_id, new_regen_rate, target_character_id } => {
-                        let target_char = target_character_id.as_deref()
-                            .or(cmd.target_id.as_deref());
+                        let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 if let Some(node) = character.mind_graph.find_by_schema_mut(resource_schema_id) {
@@ -251,5 +251,6 @@ fn modality_str(m: Modality) -> &'static str {
         Modality::Tactile => "tactile",
         Modality::Interoceptive => "interoceptive",
         Modality::Chemical => "chemical",
+        Modality::Social => "social",
     }
 }

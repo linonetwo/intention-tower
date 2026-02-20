@@ -1,0 +1,185 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/destroy-hive-mind/luddite-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/luddite-template",
+  "nodes": [
+    {
+      "instanceId": "lud-ancient-tradition",
+      "schemaId": "it:concept/ancient-tradition",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:meme": {
+        "isBelief": true,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "lud-anti-technology",
+      "schemaId": "it:concept/anti-technology",
+      "nodeType": "Meme",
+      "value": 0.8,
+      "strength": 0.9,
+      "active": true,
+      "it:meme": {
+        "isBelief": true,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "lud-hive-infection",
+      "schemaId": "it:concept/hive-infection",
+      "nodeType": "Meme",
+      "value": 0.5,
+      "strength": 0.6,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": true
+      }
+    },
+    {
+      "instanceId": "lud-destroy-power-plant",
+      "schemaId": "it:concept/destroy-power-plant",
+      "nodeType": "Motivation",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:motivation": {
+        "goal": "destroy-fusion-plant"
+      }
+    },
+    {
+      "instanceId": "lud-cultivator-combat",
+      "schemaId": "it:concept/cultivator-combat",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.6,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.7
+      }
+    },
+    {
+      "instanceId": "lud-basic-needs",
+      "schemaId": "it:concept/basic-needs",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.01,
+      "strength": 0.4,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": true,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "lud-class-resentment",
+      "schemaId": "it:concept/class-resentment",
+      "nodeType": "Meme",
+      "value": 0.6,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "lud-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "lud-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "lud-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "anti-technology-to-destroy-power-plant",
+      "sourceInstanceId": "lud-anti-technology",
+      "targetInstanceId": "lud-destroy-power-plant",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "hive-infection-to-cultivator-combat",
+      "sourceInstanceId": "lud-hive-infection",
+      "targetInstanceId": "lud-cultivator-combat",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "class-resentment-to-destroy-power-plant",
+      "sourceInstanceId": "lud-class-resentment",
+      "targetInstanceId": "lud-destroy-power-plant",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "basic-needs-to-cultivator-combat",
+      "sourceInstanceId": "lud-basic-needs",
+      "targetInstanceId": "lud-cultivator-combat",
+      "polarity": "Inhibitory",
+      "weight": 0.3,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

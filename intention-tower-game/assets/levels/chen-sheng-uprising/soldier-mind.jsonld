@@ -1,0 +1,160 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/chen-sheng-uprising/soldier-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/soldier-template",
+  "nodes": [
+    {
+      "instanceId": "sol-fear-of-death",
+      "schemaId": "it:concept/fear-of-death",
+      "nodeType": "PriorInstinct",
+      "value": 0.7,
+      "valueVelocity": 0.0,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sol-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.6,
+      "valueVelocity": 0.0,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sol-obey-law",
+      "schemaId": "it:concept/obey-law",
+      "nodeType": "Meme",
+      "value": 0.6,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": { "isBelief": true, "isIdentity": false, "isAttentionFlood": false, "isAntiMeme": false, "isMagic": false }
+    },
+    {
+      "instanceId": "sol-hope-of-change",
+      "schemaId": "it:concept/hope-of-change",
+      "nodeType": "Motivation",
+      "value": 0.1,
+      "strength": 0.2,
+      "active": false,
+      "it:motivation": { "goal": "change-fate", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sol-courage",
+      "schemaId": "it:concept/courage",
+      "nodeType": "PriorInstinct",
+      "value": 0.2,
+      "valueVelocity": 0.0,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.1, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sol-despair",
+      "schemaId": "it:concept/despair",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.0,
+      "strength": 0.4,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sol-rebel",
+      "schemaId": "it:concept/rebel",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.2 }
+    },
+    {
+      "instanceId": "sol-surrender",
+      "schemaId": "it:concept/surrender",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.4,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.5 }
+    },
+    {
+      "instanceId": "sol-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sol-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sol-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "fear-to-surrender",
+      "sourceInstanceId": "sol-fear-of-death",
+      "targetInstanceId": "sol-surrender",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "obey-law-to-surrender",
+      "sourceInstanceId": "sol-obey-law",
+      "targetInstanceId": "sol-surrender",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "hope-to-rebel",
+      "sourceInstanceId": "sol-hope-of-change",
+      "targetInstanceId": "sol-rebel",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": true,
+      "decayRatePerTick": 0.001,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "despair-to-surrender",
+      "sourceInstanceId": "sol-despair",
+      "targetInstanceId": "sol-surrender",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

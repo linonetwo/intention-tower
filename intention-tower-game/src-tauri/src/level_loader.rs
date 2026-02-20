@@ -53,12 +53,60 @@ struct CharacterJson {
 struct ItemJson {
     #[serde(rename = "@id")]
     id: String,
-    #[serde(rename = "@type")]
+    #[serde(rename = "@type", deserialize_with = "deserialize_string_or_array", default)]
     type_: Option<String>,
     label: Option<String>,
     position: Option<PositionJson>,
     #[serde(rename = "it:abstractType")]
     abstract_type: Option<String>,
+}
+
+/// Deserialize a field that may be a single string or an array of strings.
+/// If array, joins them with ", ".
+fn deserialize_string_or_array<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de;
+
+    struct StringOrArray;
+    impl<'de> de::Visitor<'de> for StringOrArray {
+        type Value = Option<String>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a string or an array of strings")
+        }
+
+        fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
+            Ok(Some(v.to_string()))
+        }
+
+        fn visit_string<E: de::Error>(self, v: String) -> Result<Self::Value, E> {
+            Ok(Some(v))
+        }
+
+        fn visit_seq<A: de::SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+            let mut parts = Vec::new();
+            while let Some(s) = seq.next_element::<String>()? {
+                parts.push(s);
+            }
+            if parts.is_empty() {
+                Ok(None)
+            } else {
+                Ok(Some(parts.join(", ")))
+            }
+        }
+
+        fn visit_none<E: de::Error>(self) -> Result<Self::Value, E> {
+            Ok(None)
+        }
+
+        fn visit_unit<E: de::Error>(self) -> Result<Self::Value, E> {
+            Ok(None)
+        }
+    }
+
+    deserializer.deserialize_any(StringOrArray)
 }
 
 #[derive(Deserialize, Debug)]
@@ -187,6 +235,17 @@ struct MemeJson {
     is_magic: Option<bool>,
     #[serde(rename = "overridesInstinct")]
     overrides_instinct: Option<Vec<String>>,
+    #[serde(rename = "groupId")]
+    group_id: Option<String>,
+    #[serde(rename = "conflictResolution")]
+    conflict_resolution: Option<String>,
+    resilience: Option<f64>,
+    #[serde(rename = "floodNodeCount")]
+    flood_node_count: Option<u32>,
+    #[serde(rename = "floodDrainRatePerTick")]
+    flood_drain_rate_per_tick: Option<f64>,
+    #[serde(rename = "antiMemeTargetPattern")]
+    anti_meme_target_pattern: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -302,14 +361,25 @@ pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<
 
         // Load mind graph if referenced
         let mind_graph = if let Some(ref mg_ref) = char_json.mind_graph_ref {
-            let mg_filename = format!("{}-mind.jsonld", char_id);
+            // Derive filename from mindGraphRef: extract last segment + ".jsonld"
+            let mg_local = extract_local_id(mg_ref);
+            let mg_filename = format!("{}.jsonld", mg_local);
             let mg_path = level_dir.join(&mg_filename);
             if mg_path.exists() {
                 let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
                 let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
                 parse_mind_graph(&char_id, &mg_json)
             } else {
-                MindGraph::new(char_id.clone())
+                // Fallback: try {char_id}-mind.jsonld for backwards compatibility
+                let fallback_filename = format!("{}-mind.jsonld", char_id);
+                let fallback_path = level_dir.join(&fallback_filename);
+                if fallback_path.exists() {
+                    let mg_text = std::fs::read_to_string(&fallback_path).map_err(LoadError::Io)?;
+                    let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                    parse_mind_graph(&char_id, &mg_json)
+                } else {
+                    MindGraph::new(char_id.clone())
+                }
             }
         } else {
             MindGraph::new(char_id.clone())
@@ -369,15 +439,24 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
         let pos = char_json.position.as_ref();
         let char_id = extract_local_id(&char_json.id);
 
-        let mind_graph = if char_json.mind_graph_ref.is_some() {
-            let mg_filename = format!("{}-mind.jsonld", char_id);
+        let mind_graph = if let Some(ref mg_ref) = char_json.mind_graph_ref {
+            let mg_local = extract_local_id(mg_ref);
+            let mg_filename = format!("{}.jsonld", mg_local);
             let mg_path = level_dir.join(&mg_filename);
             if mg_path.exists() {
                 let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
                 let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
                 parse_mind_graph(&char_id, &mg_json)
             } else {
-                MindGraph::new(char_id.clone())
+                let fallback_filename = format!("{}-mind.jsonld", char_id);
+                let fallback_path = level_dir.join(&fallback_filename);
+                if fallback_path.exists() {
+                    let mg_text = std::fs::read_to_string(&fallback_path).map_err(LoadError::Io)?;
+                    let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                    parse_mind_graph(&char_id, &mg_json)
+                } else {
+                    MindGraph::new(char_id.clone())
+                }
             }
         } else {
             MindGraph::new(char_id.clone())
@@ -450,6 +529,7 @@ fn parse_modality(s: &str) -> Modality {
         "Tactile" => Modality::Tactile,
         "Interoceptive" => Modality::Interoceptive,
         "Chemical" => Modality::Chemical,
+        "Social" => Modality::Social,
         _ => Modality::Visual,
     }
 }
@@ -481,6 +561,15 @@ fn parse_brain_region(s: &str) -> BrainRegion {
         "Limbic" => BrainRegion::Limbic,
         "PFC" => BrainRegion::Pfc,
         _ => BrainRegion::Limbic,
+    }
+}
+
+fn parse_conflict_resolution(s: &str) -> Option<ConflictResolution> {
+    match s {
+        "BeliefWins" => Some(ConflictResolution::BeliefWins),
+        "InstinctWins" => Some(ConflictResolution::InstinctWins),
+        "StressDependent" => Some(ConflictResolution::StressDependent),
+        _ => None,
     }
 }
 
@@ -561,6 +650,12 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
             is_anti_meme: m.is_anti_meme.unwrap_or(false),
             is_magic: m.is_magic.unwrap_or(false),
             overrides_instinct: m.overrides_instinct.clone().unwrap_or_default(),
+            group_id: m.group_id.clone(),
+            conflict_resolution: m.conflict_resolution.as_deref().and_then(parse_conflict_resolution),
+            resilience: m.resilience.unwrap_or(0.0),
+            flood_node_count: m.flood_node_count,
+            flood_drain_rate_per_tick: m.flood_drain_rate_per_tick,
+            anti_meme_target_pattern: m.anti_meme_target_pattern.clone(),
             ..Default::default()
         });
 
@@ -730,5 +825,112 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
             target_character_id: e.target_character_id.clone(),
         }),
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn assets_dir() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent().unwrap()
+            .join("assets")
+            .join("levels")
+    }
+
+    #[test]
+    fn test_load_pavlov_level() {
+        let level_dir = assets_dir().join("pavlov");
+        let world = load_level_from_path(&level_dir).expect("Should load pavlov level");
+
+        // Basic structure
+        assert_eq!(world.characters.len(), 2, "pavlov has 2 characters");
+        assert!(world.characters.contains_key("pavlov"), "has pavlov");
+        assert!(world.characters.contains_key("dog"), "has dog");
+        assert!(world.items.len() >= 2, "has items");
+        assert!(!world.command_defs.is_empty(), "has commands");
+
+        // Dog's mind graph should have nodes
+        let dog = &world.characters["dog"];
+        assert!(!dog.mind_graph.nodes.is_empty(), "dog has mind nodes");
+
+        // Check that key nodes exist
+        let has_hunger = dog.mind_graph.nodes.values().any(|n| n.schema_id == "it:concept/hunger");
+        let has_attention = dog.mind_graph.nodes.values().any(|n| n.schema_id == "it:concept/attention");
+        assert!(has_hunger, "dog has hunger node");
+        assert!(has_attention, "dog has attention node");
+
+        // Check that resource nodes are loaded correctly
+        let attention = dog.mind_graph.find_by_schema("it:concept/attention").unwrap();
+        assert!(attention.prior_instinct.is_some(), "attention has prior_instinct data");
+        assert!(attention.prior_instinct.as_ref().unwrap().is_resource, "attention is a resource");
+
+        println!("Pavlov level loaded: {} chars, {} items, {} commands",
+            world.characters.len(), world.items.len(), world.command_defs.len());
+        println!("Dog nodes: {}", dog.mind_graph.nodes.len());
+        println!("Dog edges: {}", dog.mind_graph.edges.len());
+    }
+
+    #[test]
+    fn test_load_all_levels() {
+        let levels_dir = assets_dir();
+        let mut loaded = 0;
+        let mut failed = Vec::new();
+
+        for entry in std::fs::read_dir(&levels_dir).unwrap() {
+            let entry = entry.unwrap();
+            if entry.file_type().unwrap().is_dir() {
+                let level_dir = entry.path();
+                let level_id = level_dir.file_name().unwrap().to_str().unwrap().to_string();
+                match load_level_from_path(&level_dir) {
+                    Ok(world) => {
+                        loaded += 1;
+                        println!("✓ {}: {} chars, {} items, {} cmds, {} total nodes",
+                            level_id,
+                            world.characters.len(),
+                            world.items.len(),
+                            world.command_defs.len(),
+                            world.characters.values().map(|c| c.mind_graph.nodes.len()).sum::<usize>(),
+                        );
+                    }
+                    Err(e) => {
+                        failed.push(format!("{}: {}", level_id, e));
+                    }
+                }
+            }
+        }
+
+        println!("\nLoaded {} levels, {} failed", loaded, failed.len());
+        for f in &failed {
+            eprintln!("  FAIL: {}", f);
+        }
+        assert!(failed.is_empty(), "Some levels failed to load: {:?}", failed);
+        assert!(loaded >= 3, "Should load at least 3 levels (tutorial levels)");
+    }
+
+    #[test]
+    fn test_simulation_tick() {
+        let level_dir = assets_dir().join("pavlov");
+        let mut world = load_level_from_path(&level_dir).expect("load pavlov");
+        let runner = crate::systems::runner::SimulationRunner::new();
+
+        // Run 10 ticks
+        for _ in 0..10 {
+            let events = runner.tick(&mut world, 0.5);
+            // Should produce at least a TickCompleted event
+            assert!(events.iter().any(|e| matches!(e, WorldEvent::TickCompleted { .. })),
+                "Each tick should emit TickCompleted");
+        }
+
+        assert_eq!(world.tick, 10, "Should have advanced 10 ticks");
+
+        // Check that hunger has increased (velocity > 0)
+        let dog = &world.characters["dog"];
+        let hunger = dog.mind_graph.find_by_schema("it:concept/hunger").unwrap();
+        assert!(hunger.value > 0.3, "Hunger should have increased from initial 0.3, got {}", hunger.value);
+
+        println!("After 10 ticks: dog hunger = {:.3}", hunger.value);
     }
 }

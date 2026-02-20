@@ -1,0 +1,77 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/chen-sheng-uprising/commands",
+  "commands": [
+    {
+      "commandId": "announce-situation",
+      "label": "command.announce-situation.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/certain-death-if-late",
+          "modality": "Visual",
+          "about": "it:entity/rain-delay",
+          "ttl": 600,
+          "strength": 1.0,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "inspire-hope",
+      "label": "command.inspire-hope.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hope-of-change",
+          "delta": 0.4,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/courage",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "plant-prophecy",
+      "label": "command.plant-prophecy.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/mandate-of-heaven",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "rally-troops",
+      "label": "command.rally-troops.label",
+      "hotkey": "4",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/hope-of-change",
+          "targetSchemaId": "it:concept/rebel",
+          "delta": 0.3,
+          "characterId": "__target"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/postmodern-vagrant/vagrant-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/vagrant-template",
+  "nodes": [
+    {
+      "instanceId": "vag-mutual-aid",
+      "schemaId": "it:concept/mutual-aid",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.7,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "vag-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.4,
+      "valueVelocity": 0.02,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "vag-work-for-group",
+      "schemaId": "it:concept/work-for-group",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.6
+      }
+    },
+    {
+      "instanceId": "vag-communism-primitive",
+      "schemaId": "it:concept/communism-primitive",
+      "nodeType": "Meme",
+      "value": 0.5,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": {
+        "isBelief": true,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "vag-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vag-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vag-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "mutual-aid-to-work-for-group",
+      "sourceInstanceId": "vag-mutual-aid",
+      "targetInstanceId": "vag-work-for-group",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

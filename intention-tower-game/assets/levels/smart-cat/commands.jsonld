@@ -1,0 +1,96 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/smart-cat/commands",
+  "commands": [
+    {
+      "commandId": "show-button",
+      "label": "command.show-button.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-button",
+          "modality": "Visual",
+          "about": "it:entity-type/sound-button",
+          "ttl": 300,
+          "strength": 0.8
+        }
+      ]
+    },
+    {
+      "commandId": "feed-after-press",
+      "label": "command.feed-after-press.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "TargetNodeActive", "schemaId": "it:concept/press-button" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-food",
+          "modality": "Olfactory",
+          "about": "schema:Food",
+          "ttl": 300,
+          "strength": 1.0
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "demonstrate-press",
+      "label": "command.demonstrate-press.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-button",
+          "modality": "Visual",
+          "about": "it:entity-type/sound-button",
+          "ttl": 300,
+          "strength": 0.8
+        },
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/hear-button-sound",
+          "modality": "Auditory",
+          "about": "it:entity-type/sound-button",
+          "ttl": 300,
+          "strength": 0.8
+        },
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-food",
+          "modality": "Olfactory",
+          "about": "schema:Food",
+          "ttl": 300,
+          "strength": 1.0
+        }
+      ]
+    },
+    {
+      "commandId": "feed",
+      "label": "command.feed.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

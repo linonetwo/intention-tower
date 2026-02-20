@@ -1,0 +1,87 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cthulhu/commands",
+  "commands": [
+    {
+      "commandId": "read-necronomicon",
+      "label": "command.read-necronomicon.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/eldritch-knowledge",
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/sanity",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/attention",
+          "delta": -0.4,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "resist-madness",
+      "label": "command.resist-madness.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/sanity",
+          "delta": 0.2,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "close-book",
+      "label": "command.close-book.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/attention",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyResourceRegen",
+          "resourceSchemaId": "it:concept/attention",
+          "newRegenRate": 0.08,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "investigate-victim",
+      "label": "command.investigate-victim.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-victim-state",
+          "modality": "Visual",
+          "about": "it:entity/victim",
+          "ttl": 200,
+          "strength": 0.6
+        }
+      ]
+    }
+  ]
+}

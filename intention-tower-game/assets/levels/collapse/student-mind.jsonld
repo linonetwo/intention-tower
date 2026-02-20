@@ -1,0 +1,222 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/collapse/student-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/student-worker",
+  "nodes": [
+    {
+      "instanceId": "sw-study",
+      "schemaId": "it:concept/study",
+      "nodeType": "Action",
+      "value": 0.3,
+      "strength": 0.5,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.5 }
+    },
+    {
+      "instanceId": "sw-good-grades",
+      "schemaId": "it:concept/good-grades",
+      "nodeType": "Motivation",
+      "value": 0.5,
+      "strength": 0.7,
+      "active": true,
+      "it:motivation": { "goal": "achieve-good-grades", "isChained": true, "chainTarget": "it:concept/good-job", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sw-good-job",
+      "schemaId": "it:concept/good-job",
+      "nodeType": "Motivation",
+      "value": 0.4,
+      "strength": 0.6,
+      "active": true,
+      "it:motivation": { "goal": "get-good-job", "isChained": true, "chainTarget": "it:concept/earn-money", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sw-earn-money",
+      "schemaId": "it:concept/earn-money",
+      "nodeType": "Motivation",
+      "value": 0.3,
+      "strength": 0.5,
+      "active": true,
+      "it:motivation": { "goal": "earn-money", "isChained": true, "chainTarget": "it:concept/buy-house", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sw-buy-house",
+      "schemaId": "it:concept/buy-house",
+      "nodeType": "Motivation",
+      "value": 0.2,
+      "strength": 0.4,
+      "active": true,
+      "it:motivation": { "goal": "buy-house", "isChained": true, "chainTarget": "it:concept/bride-price", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sw-bride-price",
+      "schemaId": "it:concept/bride-price",
+      "nodeType": "Motivation",
+      "value": 0.1,
+      "strength": 0.3,
+      "active": true,
+      "it:motivation": { "goal": "bride-price", "isChained": false, "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sw-stress",
+      "schemaId": "it:concept/stress",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.01,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "sw-joy-of-learning",
+      "schemaId": "it:concept/joy-of-learning",
+      "nodeType": "Motivation",
+      "value": 0.1,
+      "strength": 0.2,
+      "active": false,
+      "it:motivation": { "goal": "intrinsic-learning", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "sw-despair",
+      "schemaId": "it:concept/despair",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "sw-give-up",
+      "schemaId": "it:concept/give-up",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.0 }
+    },
+    {
+      "instanceId": "sw-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sw-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "sw-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "good-grades-to-good-job",
+      "sourceInstanceId": "sw-good-grades",
+      "targetInstanceId": "sw-good-job",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "good-job-to-earn-money",
+      "sourceInstanceId": "sw-good-job",
+      "targetInstanceId": "sw-earn-money",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "earn-money-to-buy-house",
+      "sourceInstanceId": "sw-earn-money",
+      "targetInstanceId": "sw-buy-house",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "buy-house-to-bride-price",
+      "sourceInstanceId": "sw-buy-house",
+      "targetInstanceId": "sw-bride-price",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "good-grades-to-study",
+      "sourceInstanceId": "sw-good-grades",
+      "targetInstanceId": "sw-study",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "stress-to-give-up",
+      "sourceInstanceId": "sw-stress",
+      "targetInstanceId": "sw-give-up",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": true,
+      "decayRatePerTick": 0.001,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "joy-of-learning-to-study",
+      "sourceInstanceId": "sw-joy-of-learning",
+      "targetInstanceId": "sw-study",
+      "polarity": "Excitatory",
+      "weight": 0.3,
+      "learnable": true,
+      "decayRatePerTick": 0.001,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

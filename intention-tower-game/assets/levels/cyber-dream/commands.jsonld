@@ -1,0 +1,74 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cyber-dream/commands",
+  "commands": [
+    {
+      "commandId": "enter-vr",
+      "label": "command.enter-vr.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/enter-virtual",
+          "modality": "Visual",
+          "about": "it:entity/vr-terminal-l1",
+          "ttl": 600,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "exit-vr",
+      "label": "command.exit-vr.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [
+        { "type": "IsVirtualContext", "value": true }
+      ],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/reality-sense",
+          "delta": 0.2,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "examine-reality",
+      "label": "command.examine-reality.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/reality-sense",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "compare-layers",
+      "label": "command.compare-layers.label",
+      "hotkey": "4",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/layer-comparison",
+          "modality": "Visual",
+          "about": "it:entity/real-object",
+          "ttl": 300,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 created: 20260219120000000
 creator: 林一二
-modified: 20260219150450065
+modified: 20260220180000000
 modifier: 林一二
 tags: Index
 title: 开发进度
@@ -54,10 +54,38 @@ type: text/vnd.tiddlywiki
 * [ ] 动态命令菜单 UI 实现
 * [ ] 图谱模式接入后端 MindGraph 数据
 
-!! 阶段四：全关卡数据
+!! 阶段四：全关卡数据（已完成）
 
-* [ ] 22 个关卡的 JSON-LD 数据全部编写
-* [ ] 每个关卡的 commands.jsonld 编写
+* [x] 21 个关卡目录全部创建，共 86 个 JSON-LD 文件
+** `pavlov`（巴甫洛夫的狗）— 教程：经典条件反射
+** `smart-cat`（聪明猫）— 教程：操作性条件反射
+** `gosling`（雏鹅的印刻行为）— 教程：印刻与关键期
+** `trigger-addiction`（触发网瘾）— 先验本能：多巴胺劫持
+** `the-wave`（浪潮实验）— 社交与归属：群体身份压制个体
+** `crowd`（人从众）— 社交与归属：群体消费操控
+** `collapse`（崩溃）— 动机链：链式崩溃与内在动机重建
+** `cyber-dream`（赛博梦中梦）— 虚拟与现实：多层虚拟现实逃脱
+** `internet-addict`（网瘾少年）— 虚拟与现实：虚拟成就 vs 现实意义
+** `face-saving`（死要面子活受罪）— 地位与面子：身份认同 vs 生存本能
+** `meme-magic`（模因和魔法）— 模因：普通/魔法模因传播机制
+** `antimeme-division`（逆模因部）— 模因：逆模因场与记忆衰减
+** `consumerism-magic`（消费主义魔法）— 模因：魔法广告植入购物欲
+** `ideology`（信仰与意识形态）— 信念：顶层文化模因驱动极端行为
+** `chen-sheng-uprising`（等死死国可乎）— 信念：绝境博弈与群体起义
+** `water-is-poison`（水是有毒的）— 信念：思想钢印不可逆性
+** `destroy-hive-mind`（毁灭虫族主脑）— 终局：多阵营战役
+** `cthulhu`（克苏鲁神话）— 终局：注意力洪流与理智
+** `hive-self`（集群意识）— 终局：协作协议崩溃
+** `illusion-trap`（幻境挣扎）— 终局：幻境逃脱
+** `postmodern-vagrant`（后现代解构流浪）— 终局：解构叙事与意义重建
+* [x] 每个关卡包含：level.jsonld（角色/物品/目标）+ N 个 *-mind.jsonld（心智图谱）+ commands.jsonld（命令定义）
+* [x] zh-cn.json 扩展至 768 个 key（覆盖所有关卡、命令、概念的中文翻译）
+* [x] 前端关卡选择器更新为 21 关卡分类展示
+* [x] JSON-LD ↔ Rust 加载器审计并修复 4 大类问题：
+** 🔴 `mindGraphRef` 文件名解析：改为从 ref 提取文件名（支持模板共享 mind 文件）
+** 🟠 InjectMeme/ModifyResourceRegen/WeakenEdge/ReinforceEdge 字段名修复（6 个文件 10 处）
+** 🟡 新增 `Modality::Social` 变体
+** 🟡 MemeJson 扩展：groupId / conflictResolution / resilience / floodNodeCount / floodDrainRatePerTick / antiMemeTargetPattern
 
 !! 关键设计决定记录
 

@@ -1,0 +1,55 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/hive-self",
+  "@type": "it:Level",
+  "label": "level.hive-self.name",
+  "comment": "level.hive-self.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/clone-a",
+      "@type": "schema:Person",
+      "label": "level.hive-self.character.clone-a.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "A",
+      "mindGraphRef": "it:level/hive-self/clone-mind"
+    },
+    {
+      "@id": "it:entity/clone-b",
+      "@type": "schema:Person",
+      "label": "level.hive-self.character.clone-b.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "B",
+      "mindGraphRef": "it:level/hive-self/clone-mind"
+    },
+    {
+      "@id": "it:entity/clone-c",
+      "@type": "schema:Person",
+      "label": "level.hive-self.character.clone-c.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "C",
+      "mindGraphRef": "it:level/hive-self/clone-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/scarce-habitat",
+      "@type": "schema:Place",
+      "label": "level.hive-self.item.scarce-habitat.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "H"
+    },
+    {
+      "@id": "it:entity/limited-food",
+      "@type": ["schema:Product", "schema:Food"],
+      "label": "level.hive-self.item.limited-food.label",
+      "position": { "x": 300, "y": 400 },
+      "fallbackChar": "F"
+    }
+  ],
+  "objectives": [
+    "level.hive-self.objective.0",
+    "level.hive-self.objective.1",
+    "level.hive-self.objective.2"
+  ]
+}

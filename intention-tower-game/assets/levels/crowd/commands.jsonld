@@ -1,0 +1,78 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/crowd/commands",
+  "commands": [
+    {
+      "commandId": "place-billboard",
+      "label": "command.place-billboard.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/desire-for-product",
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-ad",
+          "modality": "Visual",
+          "about": "it:entity/billboard",
+          "ttl": 300,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "build-factory",
+      "label": "command.build-factory.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-ad",
+          "modality": "Visual",
+          "about": "it:entity/factory",
+          "ttl": 100,
+          "strength": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "set-price",
+      "label": "command.set-price.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/desire-for-product",
+          "delta": 0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "craft-ad-meme",
+      "label": "command.craft-ad-meme.label",
+      "hotkey": "4",
+      "targeting": "NoTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/meme-workbench" }
+      ],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/desire-for-product",
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

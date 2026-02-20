@@ -1,0 +1,93 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/crowd",
+  "@type": "it:Level",
+  "label": "level.crowd.name",
+  "comment": "level.crowd.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/player-capitalist",
+      "@type": "schema:Person",
+      "label": "level.crowd.character.player-capitalist.label",
+      "position": { "x": 300, "y": 100 },
+      "fallbackChar": "$",
+      "mindGraphRef": "it:level/crowd/capitalist-mind"
+    },
+    {
+      "@id": "it:entity/citizen-1",
+      "@type": "schema:Person",
+      "label": "level.crowd.character.citizen-1.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "c",
+      "mindGraphRef": "it:level/crowd/citizen-mind"
+    },
+    {
+      "@id": "it:entity/citizen-2",
+      "@type": "schema:Person",
+      "label": "level.crowd.character.citizen-2.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "c",
+      "mindGraphRef": "it:level/crowd/citizen-mind"
+    },
+    {
+      "@id": "it:entity/citizen-3",
+      "@type": "schema:Person",
+      "label": "level.crowd.character.citizen-3.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "c",
+      "mindGraphRef": "it:level/crowd/citizen-mind"
+    },
+    {
+      "@id": "it:entity/citizen-4",
+      "@type": "schema:Person",
+      "label": "level.crowd.character.citizen-4.label",
+      "position": { "x": 250, "y": 400 },
+      "fallbackChar": "c",
+      "mindGraphRef": "it:level/crowd/citizen-mind"
+    },
+    {
+      "@id": "it:entity/citizen-5",
+      "@type": "schema:Person",
+      "label": "level.crowd.character.citizen-5.label",
+      "position": { "x": 350, "y": 400 },
+      "fallbackChar": "c",
+      "mindGraphRef": "it:level/crowd/citizen-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/billboard",
+      "@type": "schema:Product",
+      "label": "level.crowd.item.billboard.label",
+      "position": { "x": 100, "y": 100 },
+      "fallbackChar": "B"
+    },
+    {
+      "@id": "it:entity/factory",
+      "@type": "schema:Place",
+      "label": "level.crowd.item.factory.label",
+      "position": { "x": 500, "y": 200 },
+      "fallbackChar": "F"
+    },
+    {
+      "@id": "it:entity/product",
+      "@type": "schema:Product",
+      "label": "level.crowd.item.product.label",
+      "position": { "x": 500, "y": 400 },
+      "fallbackChar": "P"
+    },
+    {
+      "@id": "it:entity/meme-workbench",
+      "@type": "schema:Product",
+      "label": "level.crowd.item.meme-workbench.label",
+      "position": { "x": 100, "y": 400 },
+      "fallbackChar": "M"
+    }
+  ],
+  "objectives": [
+    "level.crowd.objective.0",
+    "level.crowd.objective.1",
+    "level.crowd.objective.2"
+  ]
+}

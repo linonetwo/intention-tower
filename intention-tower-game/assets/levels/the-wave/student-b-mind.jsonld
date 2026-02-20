@@ -1,0 +1,115 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/the-wave/student-b-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/student-b",
+  "nodes": [
+    {
+      "instanceId": "student-b-loneliness",
+      "schemaId": "it:concept/loneliness",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.01,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "student-b-belonging-need",
+      "schemaId": "it:concept/belonging-need",
+      "nodeType": "Motivation",
+      "value": 0.2,
+      "strength": 0.7,
+      "active": true,
+      "thresholds": [
+        {
+          "triggerId": "belonging-spawn-want-to-belong",
+          "spawnSchemaId": "it:concept/want-to-belong",
+          "spawnNodeType": "Motivation",
+          "activateOnRisingAbove": 0.3,
+          "deactivateOnFallingBelow": 0.1
+        }
+      ],
+      "it:motivation": { "goal": "find-belonging", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "student-b-self-worth",
+      "schemaId": "it:concept/self-worth",
+      "nodeType": "Motivation",
+      "value": 0.4,
+      "strength": 0.5,
+      "active": true,
+      "it:motivation": { "goal": "gain-self-worth", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "student-b-individual-thought",
+      "schemaId": "it:concept/individual-thought",
+      "nodeType": "Meme",
+      "value": 0.3,
+      "strength": 0.3,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": false }
+    },
+    {
+      "instanceId": "student-b-obey",
+      "schemaId": "it:concept/obey",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.6 }
+    },
+    {
+      "instanceId": "student-b-rebel",
+      "schemaId": "it:concept/rebel",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.2 }
+    },
+    {
+      "instanceId": "student-b-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "student-b-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "student-b-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "loneliness-to-belonging-need",
+      "sourceInstanceId": "student-b-loneliness",
+      "targetInstanceId": "student-b-belonging-need",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

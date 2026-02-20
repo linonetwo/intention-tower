@@ -1,0 +1,190 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/hive-self/clone-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/clone-template",
+  "nodes": [
+    {
+      "instanceId": "cl-self-cooperation-protocol",
+      "schemaId": "it:concept/self-cooperation-protocol",
+      "nodeType": "Meme",
+      "value": 0.8,
+      "strength": 0.9,
+      "active": true,
+      "it:meme": { "isIdentity": true, "isBelief": false, "isAttentionFlood": false, "isAntiMeme": false, "isMagic": false, "bindingSites": [] }
+    },
+    {
+      "instanceId": "cl-collective-goal",
+      "schemaId": "it:concept/collective-goal",
+      "nodeType": "Motivation",
+      "value": 0.6,
+      "strength": 0.7,
+      "active": true,
+      "it:motivation": { "goal": "collective-survival", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "cl-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.2,
+      "valueVelocity": 0.03,
+      "strength": 0.5,
+      "active": true,
+      "thresholds": [
+        {
+          "triggerId": "hunger-spawn-compete",
+          "spawnSchemaId": "it:concept/compete-for-resource",
+          "spawnNodeType": "Action",
+          "activateOnRisingAbove": 0.7,
+          "deactivateOnFallingBelow": 0.5
+        }
+      ],
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Hypothalamus", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cl-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.4,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cl-trust-clone",
+      "schemaId": "it:concept/trust-clone",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.7,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": false, "isAttentionFlood": false, "isAntiMeme": false, "isMagic": false, "bindingSites": [] }
+    },
+    {
+      "instanceId": "cl-cooperate",
+      "schemaId": "it:concept/cooperate",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.7
+      }
+    },
+    {
+      "instanceId": "cl-betray",
+      "schemaId": "it:concept/betray",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.2
+      }
+    },
+    {
+      "instanceId": "cl-compete-for-resource",
+      "schemaId": "it:concept/compete-for-resource",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3
+      }
+    },
+    {
+      "instanceId": "cl-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cl-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cl-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "protocol-to-cooperate",
+      "sourceInstanceId": "cl-self-cooperation-protocol",
+      "targetInstanceId": "cl-cooperate",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "trust-to-cooperate",
+      "sourceInstanceId": "cl-trust-clone",
+      "targetInstanceId": "cl-cooperate",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "collective-goal-to-cooperate",
+      "sourceInstanceId": "cl-collective-goal",
+      "targetInstanceId": "cl-cooperate",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "survival-to-betray",
+      "sourceInstanceId": "cl-survival-instinct",
+      "targetInstanceId": "cl-betray",
+      "polarity": "Excitatory",
+      "weight": 0.3,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "hunger-to-betray",
+      "sourceInstanceId": "cl-hunger",
+      "targetInstanceId": "cl-betray",
+      "polarity": "Excitatory",
+      "weight": 0.2,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

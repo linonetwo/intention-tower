@@ -1,0 +1,99 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/meme-magic/commands",
+  "commands": [
+    {
+      "commandId": "craft-normal-meme",
+      "label": "command.craft-normal-meme.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/meme-workbench" }
+      ],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/normal-meme",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "craft-magic-meme",
+      "label": "command.craft-magic-meme.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/magic-meme-carrier" }
+      ],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/magic-meme",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "inject-meme",
+      "label": "command.inject-meme.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/normal-meme",
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ConsumeResource",
+          "resourceSchemaId": "it:concept/dopamine",
+          "amount": 0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "spread-via-carrier",
+      "label": "command.spread-via-carrier.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-meme-carrier",
+          "modality": "Visual",
+          "about": "it:entity/normal-meme-carrier",
+          "ttl": 200,
+          "strength": 0.6,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/normal-meme",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "observe-binding",
+      "label": "command.observe-binding.label",
+      "hotkey": "5",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-binding-sites",
+          "modality": "Visual",
+          "about": "it:entity/meme-target",
+          "ttl": 100,
+          "strength": 0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

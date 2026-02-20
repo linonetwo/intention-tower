@@ -1,0 +1,78 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/chen-sheng-uprising",
+  "@type": "it:Level",
+  "label": "level.chen-sheng-uprising.name",
+  "comment": "level.chen-sheng-uprising.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/chen-sheng",
+      "@type": "schema:Person",
+      "label": "level.chen-sheng-uprising.character.chen-sheng.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "C",
+      "mindGraphRef": "it:level/chen-sheng-uprising/chen-sheng-mind"
+    },
+    {
+      "@id": "it:entity/wu-guang",
+      "@type": "schema:Person",
+      "label": "level.chen-sheng-uprising.character.wu-guang.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "W",
+      "mindGraphRef": "it:level/chen-sheng-uprising/wu-guang-mind"
+    },
+    {
+      "@id": "it:entity/soldier-1",
+      "@type": "schema:Person",
+      "label": "level.chen-sheng-uprising.character.soldier-1.label",
+      "position": { "x": 400, "y": 200 },
+      "fallbackChar": "s",
+      "mindGraphRef": "it:level/chen-sheng-uprising/soldier-mind"
+    },
+    {
+      "@id": "it:entity/soldier-2",
+      "@type": "schema:Person",
+      "label": "level.chen-sheng-uprising.character.soldier-2.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "s",
+      "mindGraphRef": "it:level/chen-sheng-uprising/soldier-mind"
+    },
+    {
+      "@id": "it:entity/soldier-3",
+      "@type": "schema:Person",
+      "label": "level.chen-sheng-uprising.character.soldier-3.label",
+      "position": { "x": 400, "y": 400 },
+      "fallbackChar": "s",
+      "mindGraphRef": "it:level/chen-sheng-uprising/soldier-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/camp",
+      "@type": "schema:Place",
+      "label": "level.chen-sheng-uprising.item.camp.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "▲"
+    },
+    {
+      "@id": "it:entity/rain-delay",
+      "@type": "schema:Product",
+      "label": "level.chen-sheng-uprising.item.rain-delay.label",
+      "position": { "x": 100, "y": 100 },
+      "fallbackChar": "~"
+    },
+    {
+      "@id": "it:entity/fish-prophecy",
+      "@type": "schema:Product",
+      "label": "level.chen-sheng-uprising.item.fish-prophecy.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "F"
+    }
+  ],
+  "objectives": [
+    "level.chen-sheng-uprising.objective.0",
+    "level.chen-sheng-uprising.objective.1",
+    "level.chen-sheng-uprising.objective.2"
+  ]
+}

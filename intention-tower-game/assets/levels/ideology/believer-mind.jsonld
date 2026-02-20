@@ -1,0 +1,152 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/ideology/believer-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/believer",
+  "nodes": [
+    {
+      "instanceId": "bel-ideology",
+      "schemaId": "it:concept/ideology",
+      "nodeType": "Meme",
+      "value": 0.8,
+      "strength": 0.9,
+      "active": true,
+      "it:meme": { "isBelief": true, "isIdentity": false, "isAttentionFlood": false, "isAntiMeme": false, "isMagic": false, "overridesInstinct": ["it:concept/survival-instinct"] }
+    },
+    {
+      "instanceId": "bel-identity-as-follower",
+      "schemaId": "it:concept/identity-as-follower",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": true, "isAttentionFlood": false, "isAntiMeme": false, "isMagic": false }
+    },
+    {
+      "instanceId": "bel-struggle-action",
+      "schemaId": "it:concept/struggle-action",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.6 }
+    },
+    {
+      "instanceId": "bel-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "bel-fervor",
+      "schemaId": "it:concept/fervor",
+      "nodeType": "PriorInstinct",
+      "value": 0.7,
+      "valueVelocity": 0.0,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "bel-doubt",
+      "schemaId": "it:concept/doubt",
+      "nodeType": "PriorInstinct",
+      "value": 0.1,
+      "valueVelocity": 0.0,
+      "strength": 0.2,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "PFC", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "bel-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "bel-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "bel-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "ideology-to-struggle-action",
+      "sourceInstanceId": "bel-ideology",
+      "targetInstanceId": "bel-struggle-action",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "ideology-to-fervor",
+      "sourceInstanceId": "bel-ideology",
+      "targetInstanceId": "bel-fervor",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "identity-to-ideology",
+      "sourceInstanceId": "bel-identity-as-follower",
+      "targetInstanceId": "bel-ideology",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "survival-to-struggle-action",
+      "sourceInstanceId": "bel-survival-instinct",
+      "targetInstanceId": "bel-struggle-action",
+      "polarity": "Inhibitory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "doubt-to-ideology",
+      "sourceInstanceId": "bel-doubt",
+      "targetInstanceId": "bel-ideology",
+      "polarity": "Inhibitory",
+      "weight": 0.3,
+      "learnable": true,
+      "decayRatePerTick": 0.001,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

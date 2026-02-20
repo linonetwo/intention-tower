@@ -1,0 +1,122 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/destroy-hive-mind/hive-mind-graph",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/hive-mind",
+  "nodes": [
+    {
+      "instanceId": "hm-hive-control",
+      "schemaId": "it:concept/hive-control",
+      "nodeType": "Meme",
+      "value": 0.9,
+      "strength": 1.0,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": true
+      }
+    },
+    {
+      "instanceId": "hm-breed-and-spread",
+      "schemaId": "it:concept/breed-and-spread",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.01,
+      "strength": 0.9,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.5,
+        "brainRegion": "Brainstem",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "hm-plasma-defense",
+      "schemaId": "it:concept/plasma-defense",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 1.0
+      }
+    },
+    {
+      "instanceId": "hm-corporate-control",
+      "schemaId": "it:concept/corporate-control",
+      "nodeType": "Meme",
+      "value": 0.6,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "hm-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "hm-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "hm-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.0,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "hive-control-to-plasma-defense",
+      "sourceInstanceId": "hm-hive-control",
+      "targetInstanceId": "hm-plasma-defense",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "breed-and-spread-to-hive-control",
+      "sourceInstanceId": "hm-breed-and-spread",
+      "targetInstanceId": "hm-hive-control",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

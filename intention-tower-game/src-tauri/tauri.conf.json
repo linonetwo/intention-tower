@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "intention-tower-game",
-        "width": 800,
-        "height": 600
+        "title": "意念之塔 — Intention Tower",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600
       }
     ],
     "security": {
@@ -30,6 +32,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": {
+      "../assets": "assets"
+    }
   }
 }

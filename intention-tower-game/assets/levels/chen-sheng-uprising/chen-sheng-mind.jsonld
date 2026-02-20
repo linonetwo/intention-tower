@@ -1,0 +1,141 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/chen-sheng-uprising/chen-sheng-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/chen-sheng",
+  "nodes": [
+    {
+      "instanceId": "cs-fear-of-death",
+      "schemaId": "it:concept/fear-of-death",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cs-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.7,
+      "valueVelocity": 0.0,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cs-hope-of-change",
+      "schemaId": "it:concept/hope-of-change",
+      "nodeType": "Motivation",
+      "value": 0.6,
+      "strength": 0.7,
+      "active": true,
+      "it:motivation": { "goal": "change-fate", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "cs-courage",
+      "schemaId": "it:concept/courage",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cs-rebel",
+      "schemaId": "it:concept/rebel",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.5 }
+    },
+    {
+      "instanceId": "cs-surrender",
+      "schemaId": "it:concept/surrender",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.3 }
+    },
+    {
+      "instanceId": "cs-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cs-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cs-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "hope-to-rebel",
+      "sourceInstanceId": "cs-hope-of-change",
+      "targetInstanceId": "cs-rebel",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "courage-to-rebel",
+      "sourceInstanceId": "cs-courage",
+      "targetInstanceId": "cs-rebel",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "fear-to-rebel",
+      "sourceInstanceId": "cs-fear-of-death",
+      "targetInstanceId": "cs-rebel",
+      "polarity": "Inhibitory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "fear-to-surrender",
+      "sourceInstanceId": "cs-fear-of-death",
+      "targetInstanceId": "cs-surrender",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cthulhu",
+  "@type": "it:Level",
+  "label": "level.cthulhu.name",
+  "comment": "level.cthulhu.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/investigator",
+      "@type": "schema:Person",
+      "label": "level.cthulhu.character.investigator.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/cthulhu/investigator-mind"
+    },
+    {
+      "@id": "it:entity/victim",
+      "@type": "schema:Person",
+      "label": "level.cthulhu.character.victim.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "V",
+      "mindGraphRef": "it:level/cthulhu/victim-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/necronomicon",
+      "@type": "schema:Product",
+      "label": "level.cthulhu.item.necronomicon.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "N"
+    },
+    {
+      "@id": "it:entity/investigation-kit",
+      "@type": "schema:Product",
+      "label": "level.cthulhu.item.investigation-kit.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "K"
+    }
+  ],
+  "objectives": [
+    "level.cthulhu.objective.0",
+    "level.cthulhu.objective.1",
+    "level.cthulhu.objective.2"
+  ]
+}

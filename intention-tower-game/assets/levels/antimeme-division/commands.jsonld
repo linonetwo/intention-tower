@@ -1,0 +1,83 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/antimeme-division/commands",
+  "commands": [
+    {
+      "commandId": "take-memory-drug",
+      "label": "command.take-memory-drug.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/attention",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyResourceRegen",
+          "resourceSchemaId": "it:concept/attention",
+          "newRegenRate": 0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "remember-this-place",
+      "label": "command.remember-this-place.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/memory-of-location",
+          "modality": "Visual",
+          "about": "it:entity/antimeme-zone",
+          "ttl": 300,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "ask-bystander",
+      "label": "command.ask-bystander.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/memory-of-location",
+          "modality": "Auditory",
+          "about": "it:entity/bystander",
+          "ttl": 150,
+          "strength": 0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "investigate-area",
+      "label": "command.investigate-area.label",
+      "hotkey": "4",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/memory-of-location",
+          "modality": "Visual",
+          "about": "it:entity/antimeme-zone",
+          "ttl": 200,
+          "strength": 0.6,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

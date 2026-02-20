@@ -155,7 +155,10 @@ fn check_precondition(
 ) -> bool {
     match pre {
         Precondition::EnvHasItem { item_schema_id } => {
-            world.items.values().any(|i| i.schema_type == *item_schema_id)
+            world.items.values().any(|i| {
+                i.schema_type == *item_schema_id
+                    || i.abstract_type.as_deref() == Some(item_schema_id.as_str())
+            })
         }
         Precondition::TargetHasNode { schema_id } => {
             target_id.and_then(|tid| world.characters.get(tid))

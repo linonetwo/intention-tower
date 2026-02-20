@@ -1,0 +1,161 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/consumerism-magic/citizen-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/citizen-template",
+  "nodes": [
+    {
+      "instanceId": "cit-basic-needs",
+      "schemaId": "it:concept/basic-needs",
+      "nodeType": "PriorInstinct",
+      "value": 0.2,
+      "valueVelocity": 0.01,
+      "strength": 0.4,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": true,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "cit-desire-for-magic-product",
+      "schemaId": "it:concept/desire-for-magic-product",
+      "nodeType": "Motivation",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": false,
+      "it:motivation": {
+        "lookbackWindowSec": 10.0,
+        "goal": "buy-magic-product",
+        "isChained": false,
+        "chainTarget": null,
+        "targetEntity": null,
+        "criticalPeriodEnd": null
+      }
+    },
+    {
+      "instanceId": "cit-buy-magic-product",
+      "schemaId": "it:concept/buy-magic-product",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.4
+      }
+    },
+    {
+      "instanceId": "cit-consumer-satisfaction",
+      "schemaId": "it:concept/consumer-satisfaction",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "cit-envy",
+      "schemaId": "it:concept/envy",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "cit-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "PFC",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "cit-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Limbic",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "cit-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Brainstem",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "desire-to-buy",
+      "sourceInstanceId": "cit-desire-for-magic-product",
+      "targetInstanceId": "cit-buy-magic-product",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "envy-to-desire",
+      "sourceInstanceId": "cit-envy",
+      "targetInstanceId": "cit-desire-for-magic-product",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

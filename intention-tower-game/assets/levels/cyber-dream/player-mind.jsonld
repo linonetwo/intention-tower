@@ -1,0 +1,140 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cyber-dream/player-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/player",
+  "nodes": [
+    {
+      "instanceId": "player-reality-sense",
+      "schemaId": "it:concept/reality-sense",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": -0.01,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "PFC",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": true,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "player-virtual-achievement-l1",
+      "schemaId": "it:concept/virtual-achievement-l1",
+      "nodeType": "Meme",
+      "value": 0.3,
+      "strength": 0.4,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": false }
+    },
+    {
+      "instanceId": "player-virtual-achievement-l2",
+      "schemaId": "it:concept/virtual-achievement-l2",
+      "nodeType": "Meme",
+      "value": 0.1,
+      "strength": 0.2,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": false }
+    },
+    {
+      "instanceId": "player-real-purpose",
+      "schemaId": "it:concept/real-purpose",
+      "nodeType": "Motivation",
+      "value": 0.4,
+      "strength": 0.6,
+      "active": true,
+      "it:motivation": { "goal": "find-meaning", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "player-confusion",
+      "schemaId": "it:concept/confusion",
+      "nodeType": "PriorInstinct",
+      "value": 0.2,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "player-escape-virtual",
+      "schemaId": "it:concept/escape-virtual",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.4,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.5 }
+    },
+    {
+      "instanceId": "player-enter-deeper",
+      "schemaId": "it:concept/enter-deeper",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.5 }
+    },
+    {
+      "instanceId": "player-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "player-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "player-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "real-purpose-to-escape-virtual",
+      "sourceInstanceId": "player-real-purpose",
+      "targetInstanceId": "player-escape-virtual",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "confusion-to-enter-deeper",
+      "sourceInstanceId": "player-confusion",
+      "targetInstanceId": "player-enter-deeper",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": true,
+      "decayRatePerTick": 0.001,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

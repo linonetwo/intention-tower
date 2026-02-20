@@ -1,0 +1,101 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/destroy-hive-mind",
+  "@type": "it:Level",
+  "label": "level.destroy-hive-mind.name",
+  "comment": "level.destroy-hive-mind.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/player-agent",
+      "@type": "schema:Person",
+      "label": "level.destroy-hive-mind.character.player-agent.label",
+      "position": { "x": 100, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/destroy-hive-mind/player-mind"
+    },
+    {
+      "@id": "it:entity/luddite-1",
+      "@type": "schema:Person",
+      "label": "level.destroy-hive-mind.character.luddite-1.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "L",
+      "mindGraphRef": "it:level/destroy-hive-mind/luddite-mind"
+    },
+    {
+      "@id": "it:entity/luddite-2",
+      "@type": "schema:Person",
+      "label": "level.destroy-hive-mind.character.luddite-2.label",
+      "position": { "x": 400, "y": 200 },
+      "fallbackChar": "L",
+      "mindGraphRef": "it:level/destroy-hive-mind/luddite-mind"
+    },
+    {
+      "@id": "it:entity/hive-mind",
+      "@type": "schema:Animal",
+      "label": "level.destroy-hive-mind.character.hive-mind.label",
+      "position": { "x": 500, "y": 300 },
+      "fallbackChar": "H",
+      "mindGraphRef": "it:level/destroy-hive-mind/hive-mind-graph"
+    },
+    {
+      "@id": "it:entity/energy-employee",
+      "@type": "schema:Person",
+      "label": "level.destroy-hive-mind.character.energy-employee.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "E",
+      "mindGraphRef": "it:level/destroy-hive-mind/player-mind"
+    },
+    {
+      "@id": "it:entity/ally-agent",
+      "@type": "schema:Person",
+      "label": "level.destroy-hive-mind.character.ally-agent.label",
+      "position": { "x": 100, "y": 400 },
+      "fallbackChar": "A",
+      "mindGraphRef": "it:level/destroy-hive-mind/player-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/microwave-station",
+      "@type": "schema:Place",
+      "label": "level.destroy-hive-mind.item.microwave-station.label",
+      "position": { "x": 200, "y": 100 },
+      "fallbackChar": "M"
+    },
+    {
+      "@id": "it:entity/fusion-plant",
+      "@type": "schema:Place",
+      "label": "level.destroy-hive-mind.item.fusion-plant.label",
+      "position": { "x": 500, "y": 100 },
+      "fallbackChar": "F"
+    },
+    {
+      "@id": "it:entity/pheromone-tool",
+      "@type": "schema:Product",
+      "label": "level.destroy-hive-mind.item.pheromone-tool.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "P"
+    },
+    {
+      "@id": "it:entity/bci-hack-tool",
+      "@type": "schema:Product",
+      "label": "level.destroy-hive-mind.item.bci-hack-tool.label",
+      "position": { "x": 100, "y": 300 },
+      "fallbackChar": "B"
+    },
+    {
+      "@id": "it:entity/security-terminal",
+      "@type": "schema:Product",
+      "label": "level.destroy-hive-mind.item.security-terminal.label",
+      "position": { "x": 400, "y": 400 },
+      "fallbackChar": "S"
+    }
+  ],
+  "objectives": [
+    "level.destroy-hive-mind.objective.0",
+    "level.destroy-hive-mind.objective.1",
+    "level.destroy-hive-mind.objective.2",
+    "level.destroy-hive-mind.objective.3"
+  ]
+}

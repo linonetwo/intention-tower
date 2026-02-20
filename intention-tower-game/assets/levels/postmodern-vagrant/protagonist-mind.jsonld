@@ -1,0 +1,262 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/postmodern-vagrant/protagonist-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/protagonist",
+  "nodes": [
+    {
+      "instanceId": "pro-deconstruct",
+      "schemaId": "it:concept/deconstruct",
+      "nodeType": "Meme",
+      "value": 0.9,
+      "strength": 0.9,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "pro-nihilism",
+      "schemaId": "it:concept/nihilism",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:meme": {
+        "isBelief": true,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "pro-grand-narrative-1",
+      "schemaId": "it:concept/grand-narrative-1",
+      "nodeType": "Meme",
+      "value": 0.5,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "pro-grand-narrative-2",
+      "schemaId": "it:concept/grand-narrative-2",
+      "nodeType": "Meme",
+      "value": 0.4,
+      "strength": 0.4,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "pro-grand-narrative-3",
+      "schemaId": "it:concept/grand-narrative-3",
+      "nodeType": "Meme",
+      "value": 0.3,
+      "strength": 0.3,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "pro-meaning-of-life",
+      "schemaId": "it:concept/meaning-of-life",
+      "nodeType": "Motivation",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:motivation": {
+        "goal": "find-meaning"
+      }
+    },
+    {
+      "instanceId": "pro-seek-death",
+      "schemaId": "it:concept/seek-death",
+      "nodeType": "Motivation",
+      "value": 0.3,
+      "strength": 0.4,
+      "active": true,
+      "it:motivation": {
+        "goal": "end-suffering"
+      }
+    },
+    {
+      "instanceId": "pro-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.1,
+      "valueVelocity": 0.0,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": true,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "pro-work-for-group",
+      "schemaId": "it:concept/work-for-group",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.0
+      }
+    },
+    {
+      "instanceId": "pro-suicide-attempt",
+      "schemaId": "it:concept/suicide-attempt",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.1
+      }
+    },
+    {
+      "instanceId": "pro-participation-sense",
+      "schemaId": "it:concept/participation-sense",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "pro-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "pro-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "pro-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "nihilism-to-seek-death",
+      "sourceInstanceId": "pro-nihilism",
+      "targetInstanceId": "pro-seek-death",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "grand-narrative-1-to-meaning-of-life",
+      "sourceInstanceId": "pro-grand-narrative-1",
+      "targetInstanceId": "pro-meaning-of-life",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "grand-narrative-2-to-meaning-of-life",
+      "sourceInstanceId": "pro-grand-narrative-2",
+      "targetInstanceId": "pro-meaning-of-life",
+      "polarity": "Excitatory",
+      "weight": 0.3,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "grand-narrative-3-to-meaning-of-life",
+      "sourceInstanceId": "pro-grand-narrative-3",
+      "targetInstanceId": "pro-meaning-of-life",
+      "polarity": "Excitatory",
+      "weight": 0.2,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "deconstruct-to-nihilism",
+      "sourceInstanceId": "pro-deconstruct",
+      "targetInstanceId": "pro-nihilism",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "participation-sense-to-meaning-of-life",
+      "sourceInstanceId": "pro-participation-sense",
+      "targetInstanceId": "pro-meaning-of-life",
+      "polarity": "Excitatory",
+      "weight": 0.1,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

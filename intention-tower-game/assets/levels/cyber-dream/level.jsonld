@@ -1,0 +1,45 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cyber-dream",
+  "@type": "it:Level",
+  "label": "level.cyber-dream.name",
+  "comment": "level.cyber-dream.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/player",
+      "@type": "schema:Person",
+      "label": "level.cyber-dream.character.player.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/cyber-dream/player-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/vr-terminal-l1",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.vr-terminal-l1.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "V"
+    },
+    {
+      "@id": "it:entity/vr-terminal-l2",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.vr-terminal-l2.label",
+      "position": { "x": 400, "y": 200 },
+      "fallbackChar": "v"
+    },
+    {
+      "@id": "it:entity/real-object",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.real-object.label",
+      "position": { "x": 100, "y": 400 },
+      "fallbackChar": "R"
+    }
+  ],
+  "objectives": [
+    "level.cyber-dream.objective.0",
+    "level.cyber-dream.objective.1"
+  ]
+}

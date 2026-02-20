@@ -1,0 +1,77 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/gosling/commands",
+  "commands": [
+    {
+      "commandId": "approach-gosling",
+      "label": "command.approach-gosling.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-contact-object",
+          "modality": "Visual",
+          "about": "it:entity/lorenz",
+          "ttl": 300,
+          "strength": 0.9,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "make-sound",
+      "label": "command.make-sound.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/hear-contact-object",
+          "modality": "Auditory",
+          "about": "it:entity/lorenz",
+          "ttl": 200,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "move-away",
+      "label": "command.move-away.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/separation-distress",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "show-decoy",
+      "label": "command.show-decoy.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-contact-object",
+          "modality": "Visual",
+          "about": "it:entity/mother-goose-decoy",
+          "ttl": 300,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

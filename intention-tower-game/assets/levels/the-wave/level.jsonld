@@ -1,0 +1,72 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/the-wave",
+  "@type": "it:Level",
+  "label": "level.the-wave.name",
+  "comment": "level.the-wave.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/teacher-wenger",
+      "@type": "schema:Person",
+      "label": "level.the-wave.character.teacher-wenger.label",
+      "position": { "x": 300, "y": 100 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/the-wave/teacher-mind"
+    },
+    {
+      "@id": "it:entity/tim",
+      "@type": "schema:Person",
+      "label": "level.the-wave.character.tim.label",
+      "position": { "x": 200, "y": 400 },
+      "fallbackChar": "T",
+      "mindGraphRef": "it:level/the-wave/tim-mind"
+    },
+    {
+      "@id": "it:entity/student-a",
+      "@type": "schema:Person",
+      "label": "level.the-wave.character.student-a.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "A",
+      "mindGraphRef": "it:level/the-wave/student-a-mind"
+    },
+    {
+      "@id": "it:entity/student-b",
+      "@type": "schema:Person",
+      "label": "level.the-wave.character.student-b.label",
+      "position": { "x": 400, "y": 500 },
+      "fallbackChar": "B",
+      "mindGraphRef": "it:level/the-wave/student-b-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/uniform",
+      "@type": "schema:Product",
+      "label": "level.the-wave.item.uniform.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "U",
+      "it:abstractType": "it:entity-type/uniform"
+    },
+    {
+      "@id": "it:entity/wave-gesture",
+      "@type": "schema:Product",
+      "label": "level.the-wave.item.wave-gesture.label",
+      "position": { "x": 100, "y": 400 },
+      "fallbackChar": "W",
+      "it:abstractType": "it:entity-type/wave-gesture"
+    },
+    {
+      "@id": "it:entity/classroom",
+      "@type": "schema:Place",
+      "label": "level.the-wave.item.classroom.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "C"
+    }
+  ],
+  "objectives": [
+    "level.the-wave.objective.0",
+    "level.the-wave.objective.1",
+    "level.the-wave.objective.2"
+  ]
+}

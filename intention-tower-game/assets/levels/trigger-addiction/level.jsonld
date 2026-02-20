@@ -1,0 +1,49 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/trigger-addiction",
+  "@type": "it:Level",
+  "label": "level.trigger-addiction.name",
+  "comment": "level.trigger-addiction.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/player-agent",
+      "@type": "schema:Person",
+      "label": "level.trigger-addiction.character.player-agent.label",
+      "position": { "x": 100, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/trigger-addiction/player-mind"
+    },
+    {
+      "@id": "it:entity/enemy-target",
+      "@type": "schema:Person",
+      "label": "level.trigger-addiction.character.enemy-target.label",
+      "position": { "x": 500, "y": 300 },
+      "fallbackChar": "E",
+      "mindGraphRef": "it:level/trigger-addiction/enemy-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/bci-hack-tool",
+      "@type": "schema:Product",
+      "label": "level.trigger-addiction.item.bci-hack-tool.label",
+      "position": { "x": 300, "y": 150 },
+      "fallbackChar": "H",
+      "it:abstractType": "it:entity-type/bci-hack-tool"
+    },
+    {
+      "@id": "it:entity/vr-terminal",
+      "@type": "schema:Product",
+      "label": "level.trigger-addiction.item.vr-terminal.label",
+      "position": { "x": 300, "y": 450 },
+      "fallbackChar": "V",
+      "it:abstractType": "it:entity-type/vr-terminal"
+    }
+  ],
+  "objectives": [
+    "level.trigger-addiction.objective.0",
+    "level.trigger-addiction.objective.1",
+    "level.trigger-addiction.objective.2"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/consumerism-magic/commands",
+  "commands": [
+    {
+      "commandId": "cast-magic-ad",
+      "label": "command.cast-magic-ad.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/desire-for-magic-product",
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-magic-ad",
+          "modality": "Visual",
+          "about": "it:entity/magic-billboard",
+          "ttl": 300,
+          "strength": 0.9,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "craft-product",
+      "label": "command.craft-product.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-magic-ad",
+          "modality": "Visual",
+          "about": "it:entity/magic-product",
+          "ttl": 100,
+          "strength": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "set-up-shop",
+      "label": "command.set-up-shop.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/desire-for-magic-product",
+          "delta": 0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "enhance-brand",
+      "label": "command.enhance-brand.label",
+      "hotkey": "4",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/brand-identity",
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

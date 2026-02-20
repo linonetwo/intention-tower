@@ -1,0 +1,101 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/water-is-poison/commands",
+  "commands": [
+    {
+      "commandId": "activate-mind-stamp",
+      "label": "command.activate-mind-stamp.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/water-is-poison",
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/fear-of-water",
+          "delta": 0.8,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "offer-water",
+      "label": "command.offer-water.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-water",
+          "modality": "Visual",
+          "about": "it:entity/water",
+          "ttl": 300,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/thirst",
+          "delta": -0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "offer-dry-food",
+      "label": "command.offer-dry-food.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "attempt-rational-persuasion",
+      "label": "command.attempt-rational-persuasion.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/rational-knowledge",
+          "targetSchemaId": "it:concept/drink",
+          "delta": 0.1,
+          "characterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "observe-conflict",
+      "label": "command.observe-conflict.label",
+      "hotkey": "5",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-internal-conflict",
+          "modality": "Visual",
+          "about": "it:entity/subject",
+          "ttl": 100,
+          "strength": 0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

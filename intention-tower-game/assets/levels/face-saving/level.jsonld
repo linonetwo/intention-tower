@@ -1,0 +1,47 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/face-saving",
+  "@type": "it:Level",
+  "label": "level.face-saving.name",
+  "comment": "level.face-saving.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/minister",
+      "@type": "schema:Person",
+      "label": "level.face-saving.character.minister.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "M",
+      "mindGraphRef": "it:level/face-saving/minister-mind"
+    },
+    {
+      "@id": "it:entity/king",
+      "@type": "schema:Person",
+      "label": "level.face-saving.character.king.label",
+      "position": { "x": 300, "y": 100 },
+      "fallbackChar": "K",
+      "mindGraphRef": "it:level/face-saving/king-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/court",
+      "@type": "schema:Place",
+      "label": "level.face-saving.item.court.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "C"
+    },
+    {
+      "@id": "it:entity/ritual-vessel",
+      "@type": "schema:Product",
+      "label": "level.face-saving.item.ritual-vessel.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "R"
+    }
+  ],
+  "objectives": [
+    "level.face-saving.objective.0",
+    "level.face-saving.objective.1",
+    "level.face-saving.objective.2"
+  ]
+}

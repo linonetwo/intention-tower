@@ -1,0 +1,54 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/meme-magic",
+  "@type": "it:Level",
+  "label": "level.meme-magic.name",
+  "comment": "level.meme-magic.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/meme-engineer",
+      "@type": "schema:Person",
+      "label": "level.meme-magic.character.meme-engineer.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/meme-magic/engineer-mind"
+    },
+    {
+      "@id": "it:entity/meme-target",
+      "@type": "schema:Person",
+      "label": "level.meme-magic.character.meme-target.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "T",
+      "mindGraphRef": "it:level/meme-magic/target-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/meme-workbench",
+      "@type": "schema:Product",
+      "label": "level.meme-magic.item.meme-workbench.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "W"
+    },
+    {
+      "@id": "it:entity/normal-meme-carrier",
+      "@type": "schema:Product",
+      "label": "level.meme-magic.item.normal-meme-carrier.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "N"
+    },
+    {
+      "@id": "it:entity/magic-meme-carrier",
+      "@type": "schema:Product",
+      "label": "level.meme-magic.item.magic-meme-carrier.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "M"
+    }
+  ],
+  "objectives": [
+    "level.meme-magic.objective.0",
+    "level.meme-magic.objective.1",
+    "level.meme-magic.objective.2"
+  ]
+}

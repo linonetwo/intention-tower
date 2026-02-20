@@ -1,0 +1,219 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/water-is-poison/subject-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/subject",
+  "nodes": [
+    {
+      "instanceId": "subj-thirst",
+      "schemaId": "it:concept/thirst",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.03,
+      "strength": 0.7,
+      "active": true,
+      "thresholds": [
+        {
+          "triggerId": "thirst-spawn-want-drink",
+          "spawnSchemaId": "it:concept/want-to-drink",
+          "spawnNodeType": "Motivation",
+          "activateOnRisingAbove": 0.5,
+          "deactivateOnFallingBelow": 0.3
+        }
+      ],
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": true,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "subj-drink",
+      "schemaId": "it:concept/drink",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 1.0
+      }
+    },
+    {
+      "instanceId": "subj-vomit",
+      "schemaId": "it:concept/vomit",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 1.0
+      }
+    },
+    {
+      "instanceId": "subj-fear-of-water",
+      "schemaId": "it:concept/fear-of-water",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "valueVelocity": 0.0,
+      "strength": 0.1,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "subj-rational-knowledge",
+      "schemaId": "it:concept/rational-knowledge",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.6,
+      "active": true,
+      "it:meme": {
+        "isBelief": false,
+        "isIdentity": false,
+        "isAntiMeme": false,
+        "isAttentionFlood": false,
+        "isMagic": false
+      }
+    },
+    {
+      "instanceId": "subj-eat-dry-food",
+      "schemaId": "it:concept/eat-dry-food",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.4,
+      "active": false,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 1.0
+      }
+    },
+    {
+      "instanceId": "subj-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.02,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "isResource": false,
+        "isMood": false,
+        "overridableByMeme": true,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "subj-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "PFC",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "subj-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Limbic",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "subj-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": -0.005,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Brainstem",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "thirst-to-want-drink",
+      "sourceInstanceId": "subj-thirst",
+      "targetInstanceId": "__managed:thirst-spawn-want-drink",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "want-drink-to-drink",
+      "sourceInstanceId": "__managed:thirst-spawn-want-drink",
+      "targetInstanceId": "subj-drink",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "rational-to-drink",
+      "sourceInstanceId": "subj-rational-knowledge",
+      "targetInstanceId": "subj-drink",
+      "polarity": "Excitatory",
+      "weight": 0.3,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "fear-to-drink",
+      "sourceInstanceId": "subj-fear-of-water",
+      "targetInstanceId": "subj-drink",
+      "polarity": "Inhibitory",
+      "weight": 0.1,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

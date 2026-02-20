@@ -1,0 +1,84 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cthulhu/investigator-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/investigator",
+  "nodes": [
+    {
+      "instanceId": "inv-curiosity",
+      "schemaId": "it:concept/curiosity",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.01,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Limbic", "isResource": false, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "inv-sanity",
+      "schemaId": "it:concept/sanity",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": -0.0,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "inv-normal-thought",
+      "schemaId": "it:concept/normal-thought",
+      "nodeType": "Action",
+      "value": 0.5,
+      "strength": 0.5,
+      "active": true,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 1.0
+      }
+    },
+    {
+      "instanceId": "inv-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "inv-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "inv-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "curiosity-to-normal-thought",
+      "sourceInstanceId": "inv-curiosity",
+      "targetInstanceId": "inv-normal-thought",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

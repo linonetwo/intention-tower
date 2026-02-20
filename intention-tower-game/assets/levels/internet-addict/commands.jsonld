@@ -1,0 +1,81 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/internet-addict/commands",
+  "commands": [
+    {
+      "commandId": "show-real-world",
+      "label": "command.show-real-world.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/boredom",
+          "delta": -0.2,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-real-world",
+          "modality": "Visual",
+          "about": "it:entity/home",
+          "ttl": 300,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "cut-game-connection",
+      "label": "command.cut-game-connection.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "WeakenEdge",
+          "sourceSchemaId": "it:concept/game-rank",
+          "targetSchemaId": "it:concept/virtual-pleasure",
+          "delta": -0.3
+        }
+      ]
+    },
+    {
+      "commandId": "build-real-meaning",
+      "label": "command.build-real-meaning.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/real-study",
+          "targetSchemaId": "it:concept/real-friendship",
+          "delta": 0.3
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/real-study",
+          "delta": 0.2,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "restrict-gaming",
+      "label": "command.restrict-gaming.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/play-game",
+          "delta": -0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

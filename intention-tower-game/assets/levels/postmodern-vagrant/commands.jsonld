@@ -1,0 +1,86 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/postmodern-vagrant/commands",
+  "commands": [
+    {
+      "commandId": "deconstruct-narrative",
+      "label": "command.deconstruct-narrative.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/grand-narrative-1",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "go-to-wilderness",
+      "label": "command.go-to-wilderness.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": 0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "help-with-work",
+      "label": "command.help-with-work.label",
+      "hotkey": "3",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/mutual-aid",
+          "targetSchemaId": "it:concept/work-for-group",
+          "delta": 0.2
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/participation-sense",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "reflect-on-meaning",
+      "label": "command.reflect-on-meaning.label",
+      "hotkey": "4",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/meaning-of-life",
+          "delta": 0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "accept-new-narrative",
+      "label": "command.accept-new-narrative.label",
+      "hotkey": "5",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/communism-primitive",
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

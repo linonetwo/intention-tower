@@ -1,0 +1,118 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/trigger-addiction/enemy-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/enemy-target",
+  "nodes": [
+    {
+      "instanceId": "enemy-duty",
+      "schemaId": "it:concept/duty",
+      "nodeType": "Motivation",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:motivation": { "goal": "guard-post", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "enemy-alertness",
+      "schemaId": "it:concept/alertness",
+      "nodeType": "PriorInstinct",
+      "value": 0.6,
+      "valueVelocity": 0.01,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "enemy-curiosity",
+      "schemaId": "it:concept/curiosity",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.01,
+      "strength": 0.4,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Limbic", "isResource": false, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "enemy-virtual-pleasure",
+      "schemaId": "it:concept/virtual-pleasure",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "enemy-combat-action",
+      "schemaId": "it:concept/combat-action",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.6,
+      "active": false,
+      "it:action": { "innate": true, "goap": false, "proficiencyLevel": 0.8 }
+    },
+    {
+      "instanceId": "enemy-play-game",
+      "schemaId": "it:concept/play-game",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.3 }
+    },
+    {
+      "instanceId": "enemy-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "enemy-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "enemy-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "duty-to-combat-action",
+      "sourceInstanceId": "enemy-duty",
+      "targetInstanceId": "enemy-combat-action",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "alertness-to-combat-action",
+      "sourceInstanceId": "enemy-alertness",
+      "targetInstanceId": "enemy-combat-action",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

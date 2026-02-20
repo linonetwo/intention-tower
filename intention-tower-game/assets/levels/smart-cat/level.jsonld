@@ -1,0 +1,71 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/smart-cat",
+  "@type": "it:Level",
+  "label": "level.smart-cat.name",
+  "comment": "level.smart-cat.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/trainer",
+      "@type": "schema:Person",
+      "label": "level.smart-cat.character.trainer.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/smart-cat/trainer-mind"
+    },
+    {
+      "@id": "it:entity/cat-billi",
+      "@type": "schema:Animal",
+      "label": "level.smart-cat.character.cat-billi.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "c",
+      "mindGraphRef": "it:level/smart-cat/cat-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/button-food",
+      "@type": "schema:Product",
+      "label": "level.smart-cat.item.button-food.label",
+      "position": { "x": 100, "y": 200 },
+      "fallbackChar": "🔘",
+      "it:abstractType": "it:entity-type/sound-button"
+    },
+    {
+      "@id": "it:entity/button-catnip",
+      "@type": "schema:Product",
+      "label": "level.smart-cat.item.button-catnip.label",
+      "position": { "x": 100, "y": 300 },
+      "fallbackChar": "🔘",
+      "it:abstractType": "it:entity-type/sound-button"
+    },
+    {
+      "@id": "it:entity/button-angry",
+      "@type": "schema:Product",
+      "label": "level.smart-cat.item.button-angry.label",
+      "position": { "x": 100, "y": 400 },
+      "fallbackChar": "🔘",
+      "it:abstractType": "it:entity-type/sound-button"
+    },
+    {
+      "@id": "it:entity/cat-food",
+      "@type": "schema:Food",
+      "label": "level.smart-cat.item.cat-food.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "%"
+    },
+    {
+      "@id": "it:entity/catnip",
+      "@type": "schema:Product",
+      "label": "level.smart-cat.item.catnip.label",
+      "position": { "x": 300, "y": 400 },
+      "fallbackChar": "✿"
+    }
+  ],
+  "objectives": [
+    "level.smart-cat.objective.0",
+    "level.smart-cat.objective.1",
+    "level.smart-cat.objective.2"
+  ]
+}

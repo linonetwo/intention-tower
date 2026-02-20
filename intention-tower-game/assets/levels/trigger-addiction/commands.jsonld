@@ -1,0 +1,78 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/trigger-addiction/commands",
+  "commands": [
+    {
+      "commandId": "hack-bci",
+      "label": "command.hack-bci.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/bci-hack-tool" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/enter-virtual",
+          "modality": "Visual",
+          "about": "it:entity/vr-terminal",
+          "ttl": 600,
+          "strength": 0.9,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "inject-game-meme",
+      "label": "command.inject-game-meme.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/game-achievement",
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/virtual-pleasure",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "boost-virtual-reward",
+      "label": "command.boost-virtual-reward.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/virtual-pleasure",
+          "delta": 0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "attack-body",
+      "label": "command.attack-body.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "TargetNodeActive", "schemaId": "it:concept/play-game" }
+      ],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/health",
+          "delta": -0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/ideology/skeptic-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/skeptic",
+  "nodes": [
+    {
+      "instanceId": "skp-critical-thinking",
+      "schemaId": "it:concept/critical-thinking",
+      "nodeType": "Meme",
+      "value": 0.7,
+      "strength": 0.8,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": false, "isAttentionFlood": false, "isAntiMeme": false, "isMagic": false }
+    },
+    {
+      "instanceId": "skp-doubt",
+      "schemaId": "it:concept/doubt",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "PFC", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "skp-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "skp-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "skp-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "skp-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "critical-thinking-to-doubt",
+      "sourceInstanceId": "skp-critical-thinking",
+      "targetInstanceId": "skp-doubt",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

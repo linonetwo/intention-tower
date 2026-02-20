@@ -1,0 +1,148 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/antimeme-division/agent-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/antimeme-agent",
+  "nodes": [
+    {
+      "instanceId": "agent-memory-of-location",
+      "schemaId": "it:concept/memory-of-location",
+      "nodeType": "Observation",
+      "value": 0.5,
+      "strength": 0.6,
+      "active": true,
+      "ttl": 100,
+      "it:observation": {
+        "modality": "Visual",
+        "about": "it:entity/location-a",
+        "noveltyKey": "location-memory",
+        "credibility": 1.0,
+        "satisfaction": 0.0,
+        "source": "Environment"
+      }
+    },
+    {
+      "instanceId": "agent-antimeme-field",
+      "schemaId": "it:concept/antimeme-field",
+      "nodeType": "Meme",
+      "value": 0.0,
+      "strength": 0.0,
+      "active": false,
+      "it:meme": {
+        "isAntiMeme": true,
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isMagic": false,
+        "bindingSites": [],
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "agent-confusion",
+      "schemaId": "it:concept/confusion",
+      "nodeType": "PriorInstinct",
+      "value": 0.2,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "PFC",
+        "isResource": false,
+        "isMood": true,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "agent-investigate",
+      "schemaId": "it:concept/investigate",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.5,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.7
+      }
+    },
+    {
+      "instanceId": "agent-remember-location",
+      "schemaId": "it:concept/remember-location",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.4,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.5
+      }
+    },
+    {
+      "instanceId": "agent-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "PFC",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "agent-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Limbic",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    },
+    {
+      "instanceId": "agent-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 1.0,
+        "brainRegion": "Brainstem",
+        "isResource": true,
+        "isMood": false,
+        "overridableByMeme": false,
+        "satisfiedByAbout": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "confusion-to-investigate",
+      "sourceInstanceId": "agent-confusion",
+      "targetInstanceId": "agent-investigate",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": true,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

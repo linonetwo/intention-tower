@@ -1,0 +1,47 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/illusion-trap",
+  "@type": "it:Level",
+  "label": "level.illusion-trap.name",
+  "comment": "level.illusion-trap.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/trapped-person",
+      "@type": "schema:Person",
+      "label": "level.illusion-trap.character.trapped-person.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "T",
+      "mindGraphRef": "it:level/illusion-trap/trapped-mind"
+    },
+    {
+      "@id": "it:entity/illusionist",
+      "@type": "schema:Person",
+      "label": "level.illusion-trap.character.illusionist.label",
+      "position": { "x": 100, "y": 100 },
+      "fallbackChar": "I",
+      "mindGraphRef": "it:level/illusion-trap/illusionist-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/illusion-world",
+      "@type": "schema:Place",
+      "label": "level.illusion-trap.item.illusion-world.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "*"
+    },
+    {
+      "@id": "it:entity/real-danger",
+      "@type": "schema:Product",
+      "label": "level.illusion-trap.item.real-danger.label",
+      "position": { "x": 500, "y": 300 },
+      "fallbackChar": "!"
+    }
+  ],
+  "objectives": [
+    "level.illusion-trap.objective.0",
+    "level.illusion-trap.objective.1",
+    "level.illusion-trap.objective.2"
+  ]
+}

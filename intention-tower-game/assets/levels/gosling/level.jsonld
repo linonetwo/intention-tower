@@ -1,0 +1,47 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/gosling",
+  "@type": "it:Level",
+  "label": "level.gosling.name",
+  "comment": "level.gosling.description",
+  "initialMode": "micro",
+  "characters": [
+    {
+      "@id": "it:entity/lorenz",
+      "@type": "schema:Person",
+      "label": "level.gosling.character.lorenz.label",
+      "position": { "x": 200, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/gosling/lorenz-mind"
+    },
+    {
+      "@id": "it:entity/gosling",
+      "@type": "schema:Animal",
+      "label": "level.gosling.character.gosling.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "g",
+      "mindGraphRef": "it:level/gosling/gosling-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/nest",
+      "@type": "schema:Place",
+      "label": "level.gosling.item.nest.label",
+      "position": { "x": 350, "y": 350 },
+      "fallbackChar": "O"
+    },
+    {
+      "@id": "it:entity/mother-goose-decoy",
+      "@type": "schema:Product",
+      "label": "level.gosling.item.decoy.label",
+      "position": { "x": 500, "y": 200 },
+      "fallbackChar": "D"
+    }
+  ],
+  "objectives": [
+    "level.gosling.objective.0",
+    "level.gosling.objective.1",
+    "level.gosling.objective.2"
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/postmodern-vagrant",
+  "@type": "it:Level",
+  "label": "level.postmodern-vagrant.name",
+  "comment": "level.postmodern-vagrant.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/protagonist",
+      "@type": "schema:Person",
+      "label": "level.postmodern-vagrant.character.protagonist.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/postmodern-vagrant/protagonist-mind"
+    },
+    {
+      "@id": "it:entity/friend",
+      "@type": "schema:Person",
+      "label": "level.postmodern-vagrant.character.friend.label",
+      "position": { "x": 300, "y": 200 },
+      "fallbackChar": "F",
+      "mindGraphRef": "it:level/postmodern-vagrant/friend-mind"
+    },
+    {
+      "@id": "it:entity/vagrant-leader",
+      "@type": "schema:Person",
+      "label": "level.postmodern-vagrant.character.vagrant-leader.label",
+      "position": { "x": 400, "y": 400 },
+      "fallbackChar": "V",
+      "mindGraphRef": "it:level/postmodern-vagrant/vagrant-mind"
+    },
+    {
+      "@id": "it:entity/vagrant-1",
+      "@type": "schema:Person",
+      "label": "level.postmodern-vagrant.character.vagrant-1.label",
+      "position": { "x": 350, "y": 400 },
+      "fallbackChar": "v",
+      "mindGraphRef": "it:level/postmodern-vagrant/vagrant-mind"
+    },
+    {
+      "@id": "it:entity/vagrant-2",
+      "@type": "schema:Person",
+      "label": "level.postmodern-vagrant.character.vagrant-2.label",
+      "position": { "x": 450, "y": 400 },
+      "fallbackChar": "v",
+      "mindGraphRef": "it:level/postmodern-vagrant/vagrant-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/automated-city",
+      "@type": "schema:Place",
+      "label": "level.postmodern-vagrant.item.automated-city.label",
+      "position": { "x": 200, "y": 100 },
+      "fallbackChar": "C"
+    },
+    {
+      "@id": "it:entity/wilderness",
+      "@type": "schema:Place",
+      "label": "level.postmodern-vagrant.item.wilderness.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "W"
+    },
+    {
+      "@id": "it:entity/vagrant-camp",
+      "@type": "schema:Place",
+      "label": "level.postmodern-vagrant.item.vagrant-camp.label",
+      "position": { "x": 400, "y": 400 },
+      "fallbackChar": "T"
+    }
+  ],
+  "objectives": [
+    "level.postmodern-vagrant.objective.0",
+    "level.postmodern-vagrant.objective.1",
+    "level.postmodern-vagrant.objective.2"
+  ]
+}

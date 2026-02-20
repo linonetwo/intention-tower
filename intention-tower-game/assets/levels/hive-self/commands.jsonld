@@ -1,0 +1,68 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/hive-self/commands",
+  "commands": [
+    {
+      "commandId": "reduce-resources",
+      "label": "command.reduce-resources.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "restore-resources",
+      "label": "command.restore-resources.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hunger",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "inject-distrust",
+      "label": "command.inject-distrust.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "WeakenEdge",
+          "sourceSchemaId": "it:concept/trust-clone",
+          "targetSchemaId": "it:concept/cooperate",
+          "delta": -0.3,
+          "characterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "reinforce-protocol",
+      "label": "command.reinforce-protocol.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/self-cooperation-protocol",
+          "targetSchemaId": "it:concept/cooperate",
+          "delta": 0.3,
+          "characterId": "__target"
+        }
+      ]
+    }
+  ]
+}

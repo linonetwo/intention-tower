@@ -1,0 +1,40 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/ideology",
+  "@type": "it:Level",
+  "label": "level.ideology.name",
+  "comment": "level.ideology.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/ideologue",
+      "@type": "schema:Person",
+      "label": "level.ideology.character.ideologue.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "I",
+      "mindGraphRef": "it:level/ideology/ideologue-mind"
+    },
+    {
+      "@id": "it:entity/believer",
+      "@type": "schema:Person",
+      "label": "level.ideology.character.believer.label",
+      "position": { "x": 400, "y": 300 },
+      "fallbackChar": "B",
+      "mindGraphRef": "it:level/ideology/believer-mind"
+    },
+    {
+      "@id": "it:entity/skeptic",
+      "@type": "schema:Person",
+      "label": "level.ideology.character.skeptic.label",
+      "position": { "x": 400, "y": 400 },
+      "fallbackChar": "S",
+      "mindGraphRef": "it:level/ideology/skeptic-mind"
+    }
+  ],
+  "items": [],
+  "objectives": [
+    "level.ideology.objective.0",
+    "level.ideology.objective.1",
+    "level.ideology.objective.2"
+  ]
+}

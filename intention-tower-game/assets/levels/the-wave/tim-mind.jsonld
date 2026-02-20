@@ -1,0 +1,115 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/the-wave/tim-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/tim",
+  "nodes": [
+    {
+      "instanceId": "tim-loneliness",
+      "schemaId": "it:concept/loneliness",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.01,
+      "strength": 0.9,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "tim-belonging-need",
+      "schemaId": "it:concept/belonging-need",
+      "nodeType": "Motivation",
+      "value": 0.2,
+      "strength": 0.9,
+      "active": true,
+      "thresholds": [
+        {
+          "triggerId": "belonging-spawn-want-to-belong",
+          "spawnSchemaId": "it:concept/want-to-belong",
+          "spawnNodeType": "Motivation",
+          "activateOnRisingAbove": 0.3,
+          "deactivateOnFallingBelow": 0.1
+        }
+      ],
+      "it:motivation": { "goal": "find-belonging", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "tim-self-worth",
+      "schemaId": "it:concept/self-worth",
+      "nodeType": "Motivation",
+      "value": 0.1,
+      "strength": 0.5,
+      "active": true,
+      "it:motivation": { "goal": "gain-self-worth", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "tim-individual-thought",
+      "schemaId": "it:concept/individual-thought",
+      "nodeType": "Meme",
+      "value": 0.5,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": { "isBelief": false, "isIdentity": false }
+    },
+    {
+      "instanceId": "tim-obey",
+      "schemaId": "it:concept/obey",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.3 }
+    },
+    {
+      "instanceId": "tim-rebel",
+      "schemaId": "it:concept/rebel",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.2 }
+    },
+    {
+      "instanceId": "tim-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "tim-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "tim-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "loneliness-to-belonging-need",
+      "sourceInstanceId": "tim-loneliness",
+      "targetInstanceId": "tim-belonging-need",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/antimeme-division",
+  "@type": "it:Level",
+  "label": "level.antimeme-division.name",
+  "comment": "level.antimeme-division.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/antimeme-agent",
+      "@type": "schema:Person",
+      "label": "level.antimeme-division.character.antimeme-agent.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "@",
+      "mindGraphRef": "it:level/antimeme-division/agent-mind"
+    },
+    {
+      "@id": "it:entity/bystander",
+      "@type": "schema:Person",
+      "label": "level.antimeme-division.character.bystander.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "B",
+      "mindGraphRef": "it:level/antimeme-division/bystander-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/memory-drug",
+      "@type": "schema:Product",
+      "label": "level.antimeme-division.item.memory-drug.label",
+      "position": { "x": 100, "y": 300 },
+      "fallbackChar": "D"
+    },
+    {
+      "@id": "it:entity/location-a",
+      "@type": "schema:Place",
+      "label": "level.antimeme-division.item.location-a.label",
+      "position": { "x": 100, "y": 100 },
+      "fallbackChar": "A"
+    },
+    {
+      "@id": "it:entity/location-b",
+      "@type": "schema:Place",
+      "label": "level.antimeme-division.item.location-b.label",
+      "position": { "x": 500, "y": 100 },
+      "fallbackChar": "B"
+    },
+    {
+      "@id": "it:entity/location-c",
+      "@type": "schema:Place",
+      "label": "level.antimeme-division.item.location-c.label",
+      "position": { "x": 500, "y": 500 },
+      "fallbackChar": "C"
+    },
+    {
+      "@id": "it:entity/antimeme-zone",
+      "@type": "schema:Place",
+      "label": "level.antimeme-division.item.antimeme-zone.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "?"
+    }
+  ],
+  "objectives": [
+    "level.antimeme-division.objective.0",
+    "level.antimeme-division.objective.1",
+    "level.antimeme-division.objective.2"
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/face-saving/minister-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/minister",
+  "nodes": [
+    {
+      "instanceId": "min-face",
+      "schemaId": "it:concept/face",
+      "nodeType": "Meme",
+      "value": 0.8,
+      "strength": 0.9,
+      "active": true,
+      "it:meme": {
+        "bindingSites": [],
+        "isBelief": false,
+        "isIdentity": true,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "min-pride",
+      "schemaId": "it:concept/pride",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.6,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.3,
+        "brainRegion": "Limbic",
+        "satisfiedByAbout": [],
+        "overridableByMeme": false,
+        "isResource": false,
+        "isMood": true
+      }
+    },
+    {
+      "instanceId": "min-shame",
+      "schemaId": "it:concept/shame",
+      "nodeType": "PriorInstinct",
+      "value": 0.1,
+      "valueVelocity": 0.0,
+      "strength": 0.4,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "satisfiedByAbout": [],
+        "overridableByMeme": false,
+        "isResource": false,
+        "isMood": true
+      }
+    },
+    {
+      "instanceId": "min-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.0,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.5,
+        "brainRegion": "Brainstem",
+        "satisfiedByAbout": [],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": false
+      }
+    },
+    {
+      "instanceId": "min-submit",
+      "schemaId": "it:concept/submit",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.4
+      }
+    },
+    {
+      "instanceId": "min-defy",
+      "schemaId": "it:concept/defy",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.4,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3
+      }
+    },
+    {
+      "instanceId": "min-dominance-need",
+      "schemaId": "it:concept/dominance-need",
+      "nodeType": "Motivation",
+      "value": 0.5,
+      "strength": 0.6,
+      "active": true,
+      "it:motivation": {
+        "goal": "maintain-status",
+        "lookbackWindowSec": 10.0
+      }
+    },
+    {
+      "instanceId": "min-loyalty",
+      "schemaId": "it:concept/loyalty",
+      "nodeType": "Meme",
+      "value": 0.4,
+      "strength": 0.4,
+      "active": true,
+      "it:meme": {
+        "bindingSites": [],
+        "isBelief": true,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "min-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "min-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "min-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "face-to-defy",
+      "sourceInstanceId": "min-face",
+      "targetInstanceId": "min-defy",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "survival-instinct-to-submit",
+      "sourceInstanceId": "min-survival-instinct",
+      "targetInstanceId": "min-submit",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "face-to-pride",
+      "sourceInstanceId": "min-face",
+      "targetInstanceId": "min-pride",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "shame-to-submit",
+      "sourceInstanceId": "min-shame",
+      "targetInstanceId": "min-submit",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": true,
+      "decayRatePerTick": 0.005,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 15.0 }
+    },
+    {
+      "edgeId": "loyalty-to-submit",
+      "sourceInstanceId": "min-loyalty",
+      "targetInstanceId": "min-submit",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

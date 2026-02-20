@@ -1,0 +1,85 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/face-saving/commands",
+  "commands": [
+    {
+      "commandId": "humiliate",
+      "label": "command.humiliate.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/status-signal",
+          "modality": "Social",
+          "about": "it:entity/king",
+          "ttl": 200,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/shame",
+          "delta": 0.4,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "offer-respect",
+      "label": "command.offer-respect.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/status-signal",
+          "modality": "Social",
+          "about": "it:entity/king",
+          "ttl": 200,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/pride",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "threaten-life",
+      "label": "command.threaten-life.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/survival-instinct",
+          "delta": 0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "praise-loyalty",
+      "label": "command.praise-loyalty.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/loyalty",
+          "targetSchemaId": "it:concept/submit",
+          "delta": 0.3,
+          "characterId": "__target"
+        }
+      ]
+    }
+  ]
+}

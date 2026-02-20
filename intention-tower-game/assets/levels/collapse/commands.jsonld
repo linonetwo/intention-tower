@@ -1,0 +1,78 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/collapse/commands",
+  "commands": [
+    {
+      "commandId": "deliver-bad-news",
+      "label": "command.deliver-bad-news.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/good-grades",
+          "delta": -0.4,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/stress",
+          "delta": 0.2,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "deliver-good-news",
+      "label": "command.deliver-good-news.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/good-grades",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "encourage-intrinsic",
+      "label": "command.encourage-intrinsic.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/study",
+          "targetSchemaId": "it:concept/joy-of-learning",
+          "delta": 0.3
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/joy-of-learning",
+          "delta": 0.2,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "add-pressure",
+      "label": "command.add-pressure.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/stress",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

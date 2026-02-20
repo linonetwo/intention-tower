@@ -1,0 +1,141 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/chen-sheng-uprising/wu-guang-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/wu-guang",
+  "nodes": [
+    {
+      "instanceId": "wu-fear-of-death",
+      "schemaId": "it:concept/fear-of-death",
+      "nodeType": "PriorInstinct",
+      "value": 0.6,
+      "valueVelocity": 0.0,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "wu-survival-instinct",
+      "schemaId": "it:concept/survival-instinct",
+      "nodeType": "PriorInstinct",
+      "value": 0.6,
+      "valueVelocity": 0.0,
+      "strength": 0.7,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.5, "brainRegion": "Brainstem", "isResource": false, "isMood": false, "overridableByMeme": true, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "wu-hope-of-change",
+      "schemaId": "it:concept/hope-of-change",
+      "nodeType": "Motivation",
+      "value": 0.5,
+      "strength": 0.6,
+      "active": true,
+      "it:motivation": { "goal": "change-fate", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "wu-courage",
+      "schemaId": "it:concept/courage",
+      "nodeType": "PriorInstinct",
+      "value": 0.4,
+      "valueVelocity": 0.0,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.3, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "wu-rebel",
+      "schemaId": "it:concept/rebel",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.4,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.4 }
+    },
+    {
+      "instanceId": "wu-surrender",
+      "schemaId": "it:concept/surrender",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.3 }
+    },
+    {
+      "instanceId": "wu-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "wu-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "wu-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "hope-to-rebel",
+      "sourceInstanceId": "wu-hope-of-change",
+      "targetInstanceId": "wu-rebel",
+      "polarity": "Excitatory",
+      "weight": 0.7,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "courage-to-rebel",
+      "sourceInstanceId": "wu-courage",
+      "targetInstanceId": "wu-rebel",
+      "polarity": "Excitatory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "fear-to-rebel",
+      "sourceInstanceId": "wu-fear-of-death",
+      "targetInstanceId": "wu-rebel",
+      "polarity": "Inhibitory",
+      "weight": 0.5,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "fear-to-surrender",
+      "sourceInstanceId": "wu-fear-of-death",
+      "targetInstanceId": "wu-surrender",
+      "polarity": "Excitatory",
+      "weight": 0.4,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

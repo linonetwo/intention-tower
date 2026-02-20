@@ -1,0 +1,125 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/cthulhu/victim-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/victim",
+  "nodes": [
+    {
+      "instanceId": "vic-eldritch-knowledge",
+      "schemaId": "it:concept/eldritch-knowledge",
+      "nodeType": "Meme",
+      "value": 0.9,
+      "strength": 1.0,
+      "active": true,
+      "it:meme": { "isAttentionFlood": true, "isBelief": false, "isIdentity": false, "isAntiMeme": false, "isMagic": true, "bindingSites": [] }
+    },
+    {
+      "instanceId": "vic-cosmic-horror",
+      "schemaId": "it:concept/cosmic-horror",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.0,
+      "strength": 0.9,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vic-madness",
+      "schemaId": "it:concept/madness",
+      "nodeType": "PriorInstinct",
+      "value": 0.7,
+      "valueVelocity": 0.0,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vic-normal-thought",
+      "schemaId": "it:concept/normal-thought",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": false,
+      "it:action": {
+        "innate": true,
+        "goap": false,
+        "proficiencyLevel": 0.1
+      }
+    },
+    {
+      "instanceId": "vic-sanity",
+      "schemaId": "it:concept/sanity",
+      "nodeType": "PriorInstinct",
+      "value": 0.1,
+      "valueVelocity": -0.01,
+      "strength": 0.3,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vic-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 0.1,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vic-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "vic-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "eldritch-knowledge-to-cosmic-horror",
+      "sourceInstanceId": "vic-eldritch-knowledge",
+      "targetInstanceId": "vic-cosmic-horror",
+      "polarity": "Excitatory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "cosmic-horror-to-madness",
+      "sourceInstanceId": "vic-cosmic-horror",
+      "targetInstanceId": "vic-madness",
+      "polarity": "Excitatory",
+      "weight": 0.8,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    },
+    {
+      "edgeId": "madness-to-normal-thought",
+      "sourceInstanceId": "vic-madness",
+      "targetInstanceId": "vic-normal-thought",
+      "polarity": "Inhibitory",
+      "weight": 0.9,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
+    }
+  ]
+}

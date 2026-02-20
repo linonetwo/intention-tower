@@ -1,0 +1,91 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/the-wave/commands",
+  "commands": [
+    {
+      "commandId": "introduce-uniform",
+      "label": "command.introduce-uniform.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/group-identity",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "teach-gesture",
+      "label": "command.teach-gesture.label",
+      "hotkey": "2",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/discipline",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "enforce-discipline",
+      "label": "command.enforce-discipline.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/discipline",
+          "targetSchemaId": "it:concept/obey",
+          "delta": 0.2
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/collective-power",
+          "delta": 0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "give-approval",
+      "label": "command.give-approval.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/social-approval",
+          "modality": "Social",
+          "about": "it:entity/teacher-wenger",
+          "ttl": 200,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "reject-outsider",
+      "label": "command.reject-outsider.label",
+      "hotkey": "5",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/social-rejection",
+          "modality": "Social",
+          "about": "it:entity/teacher-wenger",
+          "ttl": 200,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

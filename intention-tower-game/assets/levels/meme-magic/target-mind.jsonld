@@ -1,0 +1,103 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/meme-magic/target-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/meme-target",
+  "nodes": [
+    {
+      "instanceId": "tgt-existing-knowledge-a",
+      "schemaId": "it:concept/existing-knowledge-a",
+      "nodeType": "Meme",
+      "value": 0.6,
+      "strength": 0.5,
+      "active": true,
+      "it:meme": {
+        "bindingSites": ["it:concept/curiosity"],
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "tgt-existing-knowledge-b",
+      "schemaId": "it:concept/existing-knowledge-b",
+      "nodeType": "Meme",
+      "value": 0.5,
+      "strength": 0.4,
+      "active": true,
+      "it:meme": {
+        "bindingSites": ["it:concept/knowledge-and-exploration"],
+        "isBelief": false,
+        "isIdentity": false,
+        "isAttentionFlood": false,
+        "isAntiMeme": false,
+        "isMagic": false,
+        "overridesInstinct": []
+      }
+    },
+    {
+      "instanceId": "tgt-curiosity",
+      "schemaId": "it:concept/curiosity",
+      "nodeType": "PriorInstinct",
+      "value": 0.5,
+      "valueVelocity": 0.01,
+      "strength": 0.5,
+      "active": true,
+      "it:priorInstinct": {
+        "setPoint": 0.3,
+        "brainRegion": "Limbic",
+        "satisfiedByAbout": [],
+        "overridableByMeme": false,
+        "isResource": false,
+        "isMood": false
+      }
+    },
+    {
+      "instanceId": "tgt-magic-action",
+      "schemaId": "it:concept/magic-action",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.0
+      }
+    },
+    {
+      "instanceId": "tgt-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "tgt-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "tgt-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": []
+}

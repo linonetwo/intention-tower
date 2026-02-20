@@ -1,0 +1,112 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/destroy-hive-mind/commands",
+  "commands": [
+    {
+      "commandId": "defend-station",
+      "label": "command.defend-station.label",
+      "hotkey": "1",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/health",
+          "delta": -0.1,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "pheromone-attack",
+      "label": "command.pheromone-attack.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/hive-infection",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        },
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/smell-pheromone",
+          "modality": "Chemical",
+          "about": "it:entity/pheromone-tool",
+          "ttl": 200,
+          "strength": 0.7,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "hack-bci",
+      "label": "command.hack-bci.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-hive-data",
+          "modality": "Visual",
+          "about": "it:entity/hive-mind",
+          "ttl": 400,
+          "strength": 0.9,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "persuade-luddite",
+      "label": "command.persuade-luddite.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "WeakenEdge",
+          "sourceSchemaId": "it:concept/anti-technology",
+          "targetSchemaId": "it:concept/destroy-power-plant",
+          "delta": -0.3
+        }
+      ]
+    },
+    {
+      "commandId": "seize-bonds",
+      "label": "command.seize-bonds.label",
+      "hotkey": "5",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/corporate-control",
+          "delta": -0.3,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "request-orbital-fire",
+      "label": "command.request-orbital-fire.label",
+      "hotkey": "6",
+      "targeting": "NoTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/health",
+          "delta": -0.5,
+          "targetCharacterId": "__target"
+        }
+      ]
+    }
+  ]
+}

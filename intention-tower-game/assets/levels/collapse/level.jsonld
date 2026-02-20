@@ -1,0 +1,39 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/collapse",
+  "@type": "it:Level",
+  "label": "level.collapse.name",
+  "comment": "level.collapse.description",
+  "initialMode": "observe",
+  "characters": [
+    {
+      "@id": "it:entity/student-worker",
+      "@type": "schema:Person",
+      "label": "level.collapse.character.student-worker.label",
+      "position": { "x": 300, "y": 300 },
+      "fallbackChar": "S",
+      "mindGraphRef": "it:level/collapse/student-mind"
+    }
+  ],
+  "items": [
+    {
+      "@id": "it:entity/exam-result",
+      "@type": "schema:Product",
+      "label": "level.collapse.item.exam-result.label",
+      "position": { "x": 200, "y": 200 },
+      "fallbackChar": "E"
+    },
+    {
+      "@id": "it:entity/work-task",
+      "@type": "schema:Product",
+      "label": "level.collapse.item.work-task.label",
+      "position": { "x": 400, "y": 200 },
+      "fallbackChar": "W"
+    }
+  ],
+  "objectives": [
+    "level.collapse.objective.0",
+    "level.collapse.objective.1",
+    "level.collapse.objective.2"
+  ]
+}

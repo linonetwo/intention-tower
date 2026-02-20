@@ -1,0 +1,67 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/ideology/commands",
+  "commands": [
+    {
+      "commandId": "preach",
+      "label": "command.preach.label",
+      "hotkey": "1",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "InjectMeme",
+          "memeSchemaId": "it:concept/ideology",
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "reinforce-faith",
+      "label": "command.reinforce-faith.label",
+      "hotkey": "2",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ReinforceEdge",
+          "sourceSchemaId": "it:concept/ideology",
+          "targetSchemaId": "it:concept/struggle-action",
+          "delta": 0.3,
+          "characterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "challenge-belief",
+      "label": "command.challenge-belief.label",
+      "hotkey": "3",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/doubt",
+          "delta": 0.4,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
+      "commandId": "show-evidence",
+      "label": "command.show-evidence.label",
+      "hotkey": "4",
+      "targeting": "RequiresTarget",
+      "preconditions": [],
+      "effects": [
+        {
+          "type": "WeakenEdge",
+          "sourceSchemaId": "it:concept/ideology",
+          "targetSchemaId": "it:concept/struggle-action",
+          "delta": -0.2,
+          "characterId": "__target"
+        }
+      ]
+    }
+  ]
+}

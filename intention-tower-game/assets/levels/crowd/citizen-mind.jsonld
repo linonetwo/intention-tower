@@ -1,0 +1,135 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/crowd/citizen-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/citizen-template",
+  "nodes": [
+    {
+      "instanceId": "cit-hunger",
+      "schemaId": "it:concept/hunger",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.02,
+      "strength": 0.6,
+      "active": true,
+      "thresholds": [
+        {
+          "triggerId": "hunger-spawn-want-eat",
+          "spawnSchemaId": "it:concept/want-to-eat",
+          "spawnNodeType": "Motivation",
+          "activateOnRisingAbove": 0.6,
+          "deactivateOnFallingBelow": 0.4
+        }
+      ],
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Hypothalamus",
+        "satisfiedByAbout": ["schema:Food"],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": false
+      }
+    },
+    {
+      "instanceId": "cit-desire-for-product",
+      "schemaId": "it:concept/desire-for-product",
+      "nodeType": "Motivation",
+      "value": 0.0,
+      "strength": 0.1,
+      "active": false,
+      "it:motivation": {
+        "lookbackWindowSec": 30.0,
+        "goal": "buy-product",
+        "isChained": false,
+        "chainTarget": null,
+        "targetEntity": null,
+        "criticalPeriodEnd": null
+      }
+    },
+    {
+      "instanceId": "cit-buy",
+      "schemaId": "it:concept/buy",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.5
+      }
+    },
+    {
+      "instanceId": "cit-work",
+      "schemaId": "it:concept/work",
+      "nodeType": "Action",
+      "value": 0.3,
+      "strength": 0.4,
+      "active": true,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.5
+      }
+    },
+    {
+      "instanceId": "cit-consumption-satisfaction",
+      "schemaId": "it:concept/consumption-satisfaction",
+      "nodeType": "PriorInstinct",
+      "value": 0.0,
+      "strength": 0.2,
+      "active": false,
+      "it:priorInstinct": {
+        "setPoint": 0.0,
+        "brainRegion": "Limbic",
+        "satisfiedByAbout": [],
+        "overridableByMeme": true,
+        "isResource": false,
+        "isMood": true
+      }
+    },
+    {
+      "instanceId": "cit-attention",
+      "schemaId": "it:concept/attention",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.05,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "PFC", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cit-dopamine",
+      "schemaId": "it:concept/dopamine",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.02,
+      "strength": 0.8,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Limbic", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
+      "instanceId": "cit-health",
+      "schemaId": "it:concept/health",
+      "nodeType": "PriorInstinct",
+      "value": 1.0,
+      "valueVelocity": 0.01,
+      "strength": 1.0,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 1.0, "brainRegion": "Brainstem", "isResource": true, "isMood": false, "overridableByMeme": false, "satisfiedByAbout": [] }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "desire-to-buy",
+      "sourceInstanceId": "cit-desire-for-product",
+      "targetInstanceId": "cit-buy",
+      "polarity": "Excitatory",
+      "weight": 0.6,
+      "learnable": true,
+      "decayRatePerTick": 0.005,
+      "learnType": "Classical",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 15.0 }
+    }
+  ]
+}

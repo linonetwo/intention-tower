@@ -20,6 +20,7 @@ pub enum Modality {
     Tactile,
     Interoceptive,
     Chemical,
+    Social,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
