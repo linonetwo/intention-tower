@@ -147,6 +147,16 @@ pub fn set_paused(paused: bool, sim: State<'_, SimulationState>) -> Result<(), S
 
 // ── Precondition Checker ──
 
+/// Public wrapper for precondition checking (used by test_server).
+pub fn check_precondition_pub(
+    pre: &Precondition,
+    actor_id: &str,
+    target_id: Option<&str>,
+    world: &WorldState,
+) -> bool {
+    check_precondition(pre, actor_id, target_id, world)
+}
+
 fn check_precondition(
     pre: &Precondition,
     actor_id: &str,
