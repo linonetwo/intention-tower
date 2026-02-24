@@ -4,10 +4,14 @@
  */
 import React, { useMemo } from 'react';
 import {
-  Box, Typography, Paper, CircularProgress, Chip,
+  Box, Typography, Paper, CircularProgress, Chip, IconButton,
 } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
 import { allLevels, type LevelMeta } from '../../data/levels/allLevels';
+import { t as translate } from '../../i18n';
 
 const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; loading: boolean }> = ({ level, onSelect, loading }) => (
   <Paper
@@ -28,17 +32,17 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
     }}
   >
     <Typography sx={{ fontSize: 18, fontWeight: 600, mb: 1, color: '#fff' }}>
-      {level.name}
+    {translate(`level.${level.id}.name`) !== `level.${level.id}.name` ? translate(`level.${level.id}.name`) : level.name}
     </Typography>
     <Typography sx={{ fontSize: 12, color: '#999', lineHeight: 1.5, mb: 1.5 }}>
-      {level.description}
+    {translate(`level.${level.id}.description`) !== `level.${level.id}.description` ? translate(`level.${level.id}.description`) : level.description}
     </Typography>
     {level.objectives.length > 0 && (
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
         {level.objectives.slice(0, 3).map((obj, i) => (
           <Chip
             key={i}
-            label={obj}
+            label={translate(`level.${level.id}.objective.${i}`) !== `level.${level.id}.objective.${i}` ? translate(`level.${level.id}.objective.${i}`) : obj}
             size="small"
             variant="outlined"
             sx={{ height: 20, fontSize: 10, borderColor: '#3a3a6e', color: '#888' }}
@@ -50,9 +54,16 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
 );
 
 export const LevelSelectPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const loadLevel = useGameState((s) => s.loadLevel);
   const loading = useGameState((s) => s.loading);
   const error = useGameState((s) => s.error);
+
+  const onSelectLevel = async (id: string) => {
+    await loadLevel(id);
+    navigate('/game');
+  };
 
   const grouped = useMemo(() => {
     const groups = new Map<string, LevelMeta[]>();
@@ -73,16 +84,24 @@ export const LevelSelectPage: React.FC = () => {
       p: 4,
     }}>
       <Typography sx={{ fontSize: 42, fontWeight: 700, mb: 1, letterSpacing: 4 }}>
-        意念之塔
+        {t('app.title')}
       </Typography>
       <Typography sx={{ fontSize: 13, color: '#666', mb: 4 }}>
-        选择关卡开始游戏 — 共 {allLevels.length} 个关卡
+        {t('menu.subtitle', { count: allLevels.length })}
       </Typography>
+
+      <IconButton
+        onClick={() => navigate('/settings')}
+        sx={{ position: 'fixed', top: 16, right: 16, color: '#bbb' }}
+        aria-label={t('menu.settings')}
+      >
+        <SettingsIcon />
+      </IconButton>
 
       {loading && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <CircularProgress size={20} />
-          <Typography sx={{ fontSize: 13, color: '#aaa' }}>加载中…</Typography>
+          <Typography sx={{ fontSize: 13, color: '#aaa' }}>{t('app.loading')}</Typography>
         </Box>
       )}
 
@@ -107,7 +126,7 @@ export const LevelSelectPage: React.FC = () => {
               gap: 2,
             }}>
               {levels.map((level) => (
-                <LevelCard key={level.id} level={level} onSelect={loadLevel} loading={loading} />
+                <LevelCard key={level.id} level={level} onSelect={onSelectLevel} loading={loading} />
               ))}
             </Box>
           </Box>
@@ -116,7 +135,7 @@ export const LevelSelectPage: React.FC = () => {
 
       <Box sx={{ mt: 4, mb: 2 }}>
         <Typography sx={{ fontSize: 12, color: '#444' }}>
-          Space 暂停/继续 | 1-4 调速 | ESC 返回 | 命令热键 Q/W/E/R
+          {t('menu.hotkeys')}
         </Typography>
       </Box>
     </Box>

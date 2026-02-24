@@ -14,6 +14,7 @@
  */
 import React, { useEffect } from 'react';
 import { Box, Paper, Snackbar, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useGameState, gameStore } from '../store/useGameState';
 import { TimeControls } from './panels/TimeControls';
 import { WorldPanel } from './panels/WorldPanel';
@@ -22,6 +23,8 @@ import { CommandPanel } from './panels/CommandPanel';
 import { EventLog } from './panels/EventLog';
 
 export const GamePage: React.FC = () => {
+  const navigate = useNavigate();
+  const worldState = useGameState((s) => s.worldState);
   const error = useGameState((s) => s.error);
   const clearError = useGameState((s) => s.clearError);
   const setTimeSpeed = useGameState((s) => s.setTimeSpeed);
@@ -37,6 +40,7 @@ export const GamePage: React.FC = () => {
       // ESC → back to menu
       if (key === 'escape') {
         gameStore.getState().reset();
+        navigate('/');
         return;
       }
 
@@ -70,7 +74,13 @@ export const GamePage: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setTimeSpeed]);
+  }, [navigate, setTimeSpeed]);
+
+  useEffect(() => {
+    if (!worldState) {
+      navigate('/');
+    }
+  }, [navigate, worldState]);
 
   // Cleanup tick loop on unmount
   useEffect(() => {

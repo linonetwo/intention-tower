@@ -3,8 +3,9 @@
  */
 import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { useGameState } from './store/useGameState';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { LevelSelectPage } from './components/pages/LevelSelectPage';
+import { SettingsPage } from './components/pages/SettingsPage';
 import { GamePage } from './components/GamePage';
 
 const darkTheme = createTheme({
@@ -21,12 +22,15 @@ const darkTheme = createTheme({
 });
 
 const App: React.FC = () => {
-  const page = useGameState((s) => s.page);
-
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      {page === 'menu' ? <LevelSelectPage /> : <GamePage />}
+      <Routes>
+        <Route path='/' element={<LevelSelectPage />} />
+        <Route path='/settings' element={<SettingsPage />} />
+        <Route path='/game' element={<GamePage />} />
+        <Route path='*' element={<Navigate to='/' replace />} />
+      </Routes>
     </ThemeProvider>
   );
 };

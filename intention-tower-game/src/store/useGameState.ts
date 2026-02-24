@@ -6,6 +6,7 @@
  */
 import { createStore, useStore } from 'zustand';
 import * as api from '../api/tauriApi';
+import { t } from '../i18n';
 import type { WorldState, WorldEvent, CommandDef } from '../types/backend';
 
 export type Page = 'menu' | 'game';
@@ -98,7 +99,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       // Start tick loop
       get().startTickLoop();
     } catch (err) {
-      set({ error: `关卡加载失败: ${String(err)}`, loading: false });
+      set({ error: t('app.error.loadLevel', { message: String(err) }), loading: false });
     }
   },
 
@@ -147,7 +148,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       }));
       await get().refreshCommands();
     } catch (err) {
-      set({ error: `命令执行失败: ${String(err)}` });
+      set({ error: t('app.error.executeCommand', { message: String(err) }) });
     }
   },
 
@@ -176,7 +177,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       const state = await api.snapshot();
       set({ worldState: state });
     } catch (err) {
-      set({ error: `速度设置失败: ${String(err)}` });
+      set({ error: t('app.error.setSpeed', { message: String(err) }) });
     }
   },
 

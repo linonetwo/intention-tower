@@ -6,10 +6,12 @@ import {
   Box, Typography, Button, Divider, Chip, Tooltip, Alert,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
-import { t } from '../../i18n';
+import { t as translateLabel } from '../../i18n';
 
 export const CommandPanel: React.FC = () => {
+  const { t } = useTranslation();
   const availableCommands = useGameState((s) => s.availableCommands);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
@@ -17,17 +19,17 @@ export const CommandPanel: React.FC = () => {
   const executeCommand = useGameState((s) => s.executeCommand);
 
   const actorLabel = selectedActorId && worldState?.characters[selectedActorId]
-    ? t(worldState.characters[selectedActorId].label)
-    : '未选择';
+    ? translateLabel(worldState.characters[selectedActorId].label)
+    : t('world.none');
   const targetLabel = selectedTargetId && worldState?.characters[selectedTargetId]
-    ? t(worldState.characters[selectedTargetId].label)
-    : '无';
+    ? translateLabel(worldState.characters[selectedTargetId].label)
+    : t('world.none');
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header: Actor → Target */}
       <Box sx={{ p: 1, pb: 0.5 }}>
-        <Typography sx={{ fontSize: 10, color: '#888', mb: 0.5 }}>命令面板</Typography>
+        <Typography sx={{ fontSize: 10, color: '#888', mb: 0.5 }}>{t('command.panel')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
           <Chip label={actorLabel} size="small" color="success" variant="outlined" sx={{ height: 20, fontSize: 10 }} />
           <Typography sx={{ fontSize: 12, color: '#666' }}>→</Typography>
@@ -41,25 +43,25 @@ export const CommandPanel: React.FC = () => {
       <Box sx={{ overflow: 'auto', flex: 1, p: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {!selectedActorId && (
           <Alert severity="info" sx={{ fontSize: 11, py: 0 }}>
-            请先选择执行者
+            {t('command.noActor')}
           </Alert>
         )}
 
         {selectedActorId && availableCommands.length === 0 && (
           <Alert severity="info" sx={{ fontSize: 11, py: 0 }}>
-            当前无可用命令
+            {t('command.noneAvailable')}
           </Alert>
         )}
 
         {availableCommands.map((cmd) => {
-          const label = t(cmd.label);
+          const label = translateLabel(cmd.label);
           const needsTarget = cmd.targeting === 'RequiresTarget';
           const disabled = needsTarget && !selectedTargetId;
 
           return (
             <Tooltip
               key={cmd.command_id}
-              title={disabled ? '此命令需要目标' : `执行: ${label}`}
+              title={disabled ? t('command.needTarget') : t('command.execute', { label })}
               arrow
               placement="left"
             >
@@ -95,7 +97,7 @@ export const CommandPanel: React.FC = () => {
                     )}
                     {needsTarget && (
                       <Chip
-                        label="需目标"
+                        label={t('command.needTargetTag')}
                         size="small"
                         variant="outlined"
                         sx={{ height: 14, fontSize: 8, borderColor: '#666' }}
@@ -113,7 +115,7 @@ export const CommandPanel: React.FC = () => {
       <Divider />
       <Box sx={{ p: 1 }}>
         <Typography sx={{ fontSize: 9, color: '#555' }}>
-          提示: 选择执行者和目标，然后点击命令按钮执行操作
+          {t('command.tip')}
         </Typography>
       </Box>
     </Box>

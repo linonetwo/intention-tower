@@ -7,10 +7,15 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PauseIcon from '@mui/icons-material/Pause';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useGameState } from '../../store/useGameState';
 import { allLevels } from '../../data/levels/allLevels';
+import { t as translateLabel } from '../../i18n';
 
 export const TimeControls: React.FC = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const worldState = useGameState((s) => s.worldState);
   const currentLevelId = useGameState((s) => s.currentLevelId);
   const setTimeSpeed = useGameState((s) => s.setTimeSpeed);
@@ -21,7 +26,7 @@ export const TimeControls: React.FC = () => {
   const paused = worldState?.paused ?? false;
 
   const levelMeta = allLevels.find((l) => l.id === currentLevelId);
-  const levelName = levelMeta?.name ?? currentLevelId ?? '未知关卡';
+  const levelName = levelMeta?.id ? translateLabel(`level.${levelMeta.id}.name`) : (currentLevelId ?? t('game.unknownLevel'));
 
   const handleSpeedChange = (_: React.MouseEvent, newSpeed: number | null) => {
     if (newSpeed != null) {
@@ -38,8 +43,8 @@ export const TimeControls: React.FC = () => {
       minHeight: 44,
     }}>
       {/* Back button */}
-      <Tooltip title="返回关卡选择" arrow>
-        <IconButton size="small" onClick={reset} sx={{ color: '#aaa' }}>
+      <Tooltip title={t('game.backToMenu')} arrow>
+        <IconButton size="small" onClick={() => { reset(); navigate('/'); }} sx={{ color: '#aaa' }}>
           <ArrowBackIcon fontSize="small" />
         </IconButton>
       </Tooltip>
@@ -91,7 +96,7 @@ export const TimeControls: React.FC = () => {
       {paused && (
         <Chip
           icon={<PauseIcon sx={{ fontSize: 12 }} />}
-          label="已暂停"
+          label={t('game.paused')}
           size="small"
           color="warning"
           sx={{ height: 20, fontSize: 10 }}

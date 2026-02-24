@@ -3,8 +3,9 @@
  */
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
-import { t } from '../../i18n';
+import { t as translateLabel } from '../../i18n';
 import { eventType, eventPayload, type WorldEvent } from '../../types/backend';
 import type { WorldState } from '../../types/backend';
 
@@ -14,7 +15,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
 
   const charName = (id: string) => {
     const c = worldState?.characters[id as string];
-    return c ? t(c.label) : String(id);
+    return c ? translateLabel(c.label) : String(id);
   };
 
   switch (type) {
@@ -22,7 +23,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
       const oldVal = (data.old_value as number).toFixed(2);
       const newVal = (data.new_value as number).toFixed(2);
       const node = worldState?.characters[data.character_id as string]?.mind_graph.nodes[data.instance_id as string];
-      const label = node ? t(node.label) : String(data.instance_id);
+      const label = node ? translateLabel(node.label) : String(data.instance_id);
       return { icon: '📊', text: `${charName(data.character_id as string)}: ${label} ${oldVal} → ${newVal}`, color: '#aaa' };
     }
     case 'NodeSpawned':
@@ -58,6 +59,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
 }
 
 export const EventLog: React.FC = () => {
+  const { t } = useTranslation();
   const recentEvents = useGameState((s) => s.recentEvents);
   const worldState = useGameState((s) => s.worldState);
 
@@ -73,7 +75,7 @@ export const EventLog: React.FC = () => {
     >
       {recentEvents.length === 0 && (
         <Typography sx={{ fontSize: 11, color: '#555', textAlign: 'center', py: 1 }}>
-          暂无事件 — 尝试执行命令或等待仿真推进
+          {t('event.empty')}
         </Typography>
       )}
       {recentEvents.map((ev, idx) => {

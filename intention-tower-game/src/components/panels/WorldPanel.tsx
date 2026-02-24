@@ -9,8 +9,9 @@ import {
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import InventoryIcon from '@mui/icons-material/Inventory2';
+import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
-import { t } from '../../i18n';
+import { t as translateLabel } from '../../i18n';
 import type { WorldCharacter, WorldItem } from '../../types/backend';
 
 const CharacterEntry: React.FC<{
@@ -19,6 +20,7 @@ const CharacterEntry: React.FC<{
   isTarget: boolean;
   isInspected: boolean;
 }> = ({ char, isActor, isTarget, isInspected }) => {
+  const { t } = useTranslation();
   const inspectCharacter = useGameState((s) => s.inspectCharacter);
 
   return (
@@ -31,12 +33,12 @@ const CharacterEntry: React.FC<{
         <PersonIcon sx={{ fontSize: 18, color: isActor ? '#4caf50' : isTarget ? '#ff9800' : '#888' }} />
       </ListItemIcon>
       <ListItemText
-        primary={t(char.label)}
+        primary={translateLabel(char.label)}
         primaryTypographyProps={{ fontSize: 13, fontWeight: isInspected ? 600 : 400 }}
       />
       <Box sx={{ display: 'flex', gap: 0.5 }}>
-        {isActor && <Chip label="执行" size="small" color="success" sx={{ height: 18, fontSize: 10 }} />}
-        {isTarget && <Chip label="目标" size="small" color="warning" sx={{ height: 18, fontSize: 10 }} />}
+        {isActor && <Chip label={t('world.role.actor')} size="small" color="success" sx={{ height: 18, fontSize: 10 }} />}
+        {isTarget && <Chip label={t('world.role.target')} size="small" color="warning" sx={{ height: 18, fontSize: 10 }} />}
       </Box>
     </ListItemButton>
   );
@@ -49,7 +51,7 @@ const ItemEntry: React.FC<{ item: WorldItem }> = ({ item }) => {
         <InventoryIcon sx={{ fontSize: 16, color: '#ffab00' }} />
       </ListItemIcon>
       <ListItemText
-        primary={t(item.label)}
+        primary={translateLabel(item.label)}
         primaryTypographyProps={{ fontSize: 12, color: '#aaa' }}
         secondary={item.schema_type.replace('schema:', '')}
         secondaryTypographyProps={{ fontSize: 10 }}
@@ -59,6 +61,7 @@ const ItemEntry: React.FC<{ item: WorldItem }> = ({ item }) => {
 };
 
 export const WorldPanel: React.FC = () => {
+  const { t } = useTranslation();
   const worldState = useGameState((s) => s.worldState);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
@@ -84,32 +87,32 @@ export const WorldPanel: React.FC = () => {
       {/* Actor / Target selectors */}
       <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
         <FormControl size="small" fullWidth>
-          <InputLabel sx={{ fontSize: 12 }}>执行者</InputLabel>
+          <InputLabel sx={{ fontSize: 12 }}>{t('world.actor')}</InputLabel>
           <Select
             value={selectedActorId ?? ''}
-            label="执行者"
+            label={t('world.actor')}
             onChange={handleActorChange}
             sx={{ fontSize: 12 }}
           >
             {characters.map((c) => (
               <MenuItem key={c.id} value={c.id} sx={{ fontSize: 12 }}>
-                {t(c.label)}
+                {translateLabel(c.label)}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
         <FormControl size="small" fullWidth>
-          <InputLabel sx={{ fontSize: 12 }}>目标</InputLabel>
+          <InputLabel sx={{ fontSize: 12 }}>{t('world.target')}</InputLabel>
           <Select
             value={selectedTargetId ?? ''}
-            label="目标"
+            label={t('world.target')}
             onChange={handleTargetChange}
             sx={{ fontSize: 12 }}
           >
-            <MenuItem value="" sx={{ fontSize: 12 }}><em>无</em></MenuItem>
+            <MenuItem value="" sx={{ fontSize: 12 }}><em>{t('world.none')}</em></MenuItem>
             {characters.map((c) => (
               <MenuItem key={c.id} value={c.id} sx={{ fontSize: 12 }}>
-                {t(c.label)}
+                {translateLabel(c.label)}
               </MenuItem>
             ))}
           </Select>
@@ -120,7 +123,7 @@ export const WorldPanel: React.FC = () => {
 
       {/* Characters */}
       <Typography variant="overline" sx={{ px: 1, pt: 0.5, fontSize: 10, color: '#888' }}>
-        角色
+        {t('world.characters')}
       </Typography>
       <List dense disablePadding sx={{ flexShrink: 0 }}>
         {characters.map((c) => (
@@ -138,7 +141,7 @@ export const WorldPanel: React.FC = () => {
 
       {/* Items */}
       <Typography variant="overline" sx={{ px: 1, pt: 0.5, fontSize: 10, color: '#888' }}>
-        物品
+        {t('world.items')}
       </Typography>
       <List dense disablePadding sx={{ overflow: 'auto', flex: 1 }}>
         {items.map((item) => (
