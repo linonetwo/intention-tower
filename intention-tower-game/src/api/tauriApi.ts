@@ -3,7 +3,7 @@
  * All calls go to the Rust backend via invoke().
  */
 import { invoke } from '@tauri-apps/api/core';
-import type { WorldState, WorldEvent, CommandDef } from '../types/backend';
+import type { WorldState, WorldEvent, CommandDef, SaveMeta } from '../types/backend';
 
 /** Load a level by directory ID (e.g. "pavlov"). Returns initial WorldState. */
 export async function loadLevel(levelId: string): Promise<WorldState> {
@@ -51,4 +51,26 @@ export async function getMindGraph(characterId: string): Promise<unknown> {
 /** Pause or unpause the simulation. */
 export async function setPaused(paused: boolean): Promise<void> {
   return invoke('set_paused', { paused });
+}
+
+// ── Save / Load ──
+
+/** Save current game state to a named slot. */
+export async function saveGame(slot: string): Promise<SaveMeta> {
+  return invoke<SaveMeta>('save_game', { slot });
+}
+
+/** Load game state from a named slot. Returns the restored WorldState. */
+export async function loadSave(slot: string): Promise<WorldState> {
+  return invoke<WorldState>('load_save', { slot });
+}
+
+/** List all save slots. */
+export async function listSaves(): Promise<SaveMeta[]> {
+  return invoke<SaveMeta[]>('list_saves');
+}
+
+/** Delete a save slot. */
+export async function deleteSave(slot: string): Promise<void> {
+  return invoke('delete_save', { slot });
 }

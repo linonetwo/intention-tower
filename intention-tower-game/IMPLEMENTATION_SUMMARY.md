@@ -1,242 +1,177 @@
-# 意念之塔游戏 - 前端实现总结
+# 意念之塔游戏 - 实现总结
 
 ## 项目概述
-基于 React + Zustand + Canvas 的多模式游戏前端框架，实现了巴甫洛夫的狗和雏鹅印刻两个教学关卡。
 
-## 已完成功能
+后端驱动的认知科学模拟游戏 Demo。Rust/Tauri 后端是世界状态唯一权威源，运行 23 个仿真系统；React 前端是纯展示 thin client，通过 Tauri IPC 调用后端。
 
-### 1. 状态管理系统 (Zustand Stores)
+### 技术栈
 
-#### gameStore.ts
-- 游戏模式管理（观察、微操、图谱、菜单）
-- 时间流速控制（0-4倍速）
-- 摄像机位置和移动
-- 角色选择和详情查看
-- 命令菜单状态
-- 教学系统状态
+- **后端**：Rust + Tauri 2.5，serde 序列化，确定性 tick + seeded RNG
+- **前端**：React 18 + TypeScript + MUI Material v7 + Zustand v5 + d3-force
+- **数据**：JSON-LD 关卡资产（21 关卡、86 文件），i18next 中英双语（800+ 条翻译）
+- **构建**：Vite 6 + pnpm workspace
+- **测试**：Rust 单元/集成测试 + MCP 测试服务器（端口 9222）
 
-#### entityStore.ts
-- 角色管理（增删改查）
-- 物品管理
-- 动作队列系统
+## 当前架构
 
-#### graphStore.ts
-- 图谱节点管理
-- 图谱边管理
-- 节点激活状态
-- 信号传播动画
-- 连接强化/削弱
-
-#### uiStore.ts
-- 详情面板状态
-- 间隔重复记忆系统
-- 技能快捷栏
-- 教学系统
-- 对话系统
-- 背景图片
-
-### 2. 游戏模式系统
-
-#### 观察模式 (ObserveMode)
-- ✅ WASD 移动摄像机
-- ✅ 左键选中角色/物品
-- ✅ 双击打开详情面板
-- ✅ 右键打开命令菜单
-- ✅ Canvas 渲染系统
-
-#### 微操模式 (MicroMode)
-- ✅ AD 左右移动
-- ✅ W 跳跃（预留）
-- ✅ 摄像机跟随角色
-- ✅ 居中显示准星
-
-#### 图谱模式 (GraphMode)
-- ✅ SVG 渲染图谱
-- ✅ 节点激活状态显示
-- ✅ 虚线/实线边渲染
-- ✅ 兴奋性/抑制性边区分
-- ✅ QWER 技能快捷键
-
-### 3. 渲染系统
-
-#### SimpleRenderer (Canvas)
-- ✅ 高性能 Canvas 渲染
-- ✅ Roguelike 字符回退
-- ✅ 角色名称显示
-- ✅ 选中高亮效果
-- ✅ 鼠标交互（点击/双击/右键）
-- ✅ 摄像机偏移计算
-
-#### GraphRenderer (SVG)
-- ✅ 节点渲染（按层级着色）
-- ✅ 边渲染（虚线/实线、箭头）
-- ✅ 激活光晕效果
-
-### 4. 关卡数据
-
-#### pavlovsDog.ts - 巴甫洛夫的狗
-- 角色：巴甫洛夫、实验犬
-- 物品：快速节拍器、慢速节拍器、肉
-- 图谱：感官层（听觉）→ 认知层（食欲）→ 生物层（流口水）
-- 教学步骤：6步引导
-
-#### goslingImprinting.ts - 雏鹅的印刻行为  
-- 角色：农家少女、小鹅
-- 物品：鹅蛋
-- 图谱：视觉刺激 + 多巴胺 → 印刻对象 → 跟随行为
-- 教学步骤：6步引导
-
-### 5. UI 组件
-
-#### LevelSelect - 关卡选择页面
-- ✅ 关卡卡片展示
-- ✅ 悬停动画
-- ✅ 目标列表
-- ✅ 关卡加载
-
-#### App - 主应用
-- ✅ 模式切换（ESC/G/M 键）
-- ✅ 时间控制（Space/1234 键）
-- ✅ 模式指示器
-- ✅ 时间流速指示器
-
-### 6. 键盘交互
-
-#### 全局快捷键
-- ✅ ESC - 返回菜单
-- ✅ G - 切换图谱模式
-- ✅ M - 切换微操模式
-- ✅ Space - 暂停/继续
-- ✅ 1/2/3/4 - 时间流速
-
-#### 观察模式
-- ✅ WASD - 移动摄像机
-
-#### 微操模式
-- ✅ AD - 左右移动
-- ✅ W - 跳跃
-
-#### 图谱模式
-- ✅ QWER - 使用技能
-
-## 技术架构
+```
+App.tsx (React Router)
+├── /          → LevelSelectPage（关卡选择）
+├── /settings  → SettingsPage（语言设置）
+└── /game      → GamePage（三栏布局）
+    ├── TimeControls     ← 顶栏：返回、关卡名、Tick 计数、速度 0-4×
+    ├── WorldPanel       ← 左侧 240px：Actor/Target 选择器、角色列表、物品列表
+    ├── MindGraphPanel   ← 中央 flex：SVG 心智图谱 + NodeInspector 检视器
+    ├── CommandPanel     ← 右侧 220px：命令按钮列表
+    └── EventLog         ← 底部 160px：事件日志流
+```
 
 ```
 src/
-├── types/
-│   ├── game.ts          # 游戏核心类型定义
-│   └── index.ts         # MemeNode等类型（原有）
-├── store/
-│   ├── gameStore.ts     # 游戏核心状态
-│   ├── entityStore.ts   # 角色物品状态
-│   ├── graphStore.ts    # 图谱状态
-│   └── uiStore.ts       # UI状态
-├── data/
-│   └── levels/
-│       ├── pavlovsDog.ts         # 巴甫洛夫关卡数据
-│       ├── goslingImprinting.ts  # 雏鹅关卡数据
-│       └── index.ts              # 关卡索引
-├── components/
-│   ├── modes/
-│   │   ├── ObserveMode.tsx  # 观察模式
-│   │   ├── MicroMode.tsx    # 微操模式
-│   │   └── GraphMode.tsx    # 图谱模式
-│   ├── renderers/
-│   │   ├── SimpleRenderer.tsx  # Canvas渲染器
-│   │   └── GraphRenderer.tsx   # 图谱渲染器
-│   └── pages/
-│       └── LevelSelect.tsx     # 关卡选择
-└── App.tsx              # 主应用
+├── api/tauriApi.ts          # 8 个 Tauri IPC 命令封装
+├── store/useGameState.ts    # 单一 Zustand store（后端状态镜像）
+├── types/backend.ts         # 镜像 Rust serde 结构的 TS 类型
+├── i18n/                    # i18next 配置 + zh-CN/en UI 翻译
+├── data/levels/allLevels.ts # 22 个关卡元数据（仅选择器用）
+└── components/
+    ├── GamePage.tsx                   # 主游戏页面 + 键盘快捷键
+    ├── pages/LevelSelectPage.tsx      # 关卡选择
+    ├── pages/SettingsPage.tsx         # 设置
+    └── panels/
+        ├── TimeControls.tsx           # 时间控制栏
+        ├── WorldPanel.tsx             # 世界面板
+        ├── CommandPanel.tsx           # 命令面板
+        ├── EventLog.tsx               # 事件日志
+        ├── MindGraphPanel.tsx         # 心智图谱面板
+        └── mindgraph/
+            ├── GraphSvg.tsx           # SVG 渲染（节点/边/缩放）
+            └── NodeInspector.tsx      # 节点/边属性检视器
 ```
 
-## 设计亮点
+## 已实现系统
 
-### 1. 细粒度状态订阅
-所有组件都使用 Zustand 的 selector 模式，只订阅必要的状态，避免不必要的重渲染。
+### 后端（Rust/Tauri）
 
-### 2. Canvas 渲染优化
-使用 `requestAnimationFrame` 循环，在渲染循环内直接调用 `getState()` 获取最新状态，避免 React 重渲染导致的性能问题。
+#### 8 个 Tauri Command API
+| 命令 | 功能 |
+|------|------|
+| `load_level` | 从 JSON-LD 加载关卡 → WorldState |
+| `snapshot` | 获取完整世界状态快照 |
+| `tick` | 推进仿真，返回 WorldEvent[] |
+| `set_time_speed` | 设置倍速 0-4 |
+| `list_commands` | 列出可用命令（自动检查前置条件） |
+| `execute_command` | 执行命令，返回事件 |
+| `get_mind_graph` | 获取指定角色的心智图谱 |
+| `set_paused` | 暂停/恢复仿真 |
 
-### 3. 模式化设计
-游戏分为多个模式，每个模式有独立的组件和交互逻辑，类似 Vim 的模式系统，便于扩展。
+#### 23 个仿真系统（每 tick 顺序执行）
+1. TimeSystem → 2. ResourceRegenSystem → 3. BodyStateSystem → 4. CommandSystem → 5. EnvironmentEventSystem → 6. PerceptionSystem → 7. NoveltyHabituationSystem → 8. AttentionAllocationSystem → 9. InstinctUpdateSystem → 10. ThresholdSystem → 11. MultiLayerPropagationSystem → 12. ClassicalConditioningSystem → 13. OperantConditioningSystem → 14. ImprintingSystem → 15. MemeInfectionSystem → 16. SocialSignalSystem → 17. BeliefConflictSystem → 18. AttentionFloodSystem → 19. ActionSelectionSystem → 20. ActionExecutionSystem → 21. MoodCascadeSystem → 22. CleanupSystem → 23. EventEmissionSystem
 
-### 4. 类型安全
-使用 TypeScript 严格类型，所有状态和数据都有完整的类型定义。
+#### 命令系统
+- 6 种前置条件：EnvHasItem / TargetHasNode / TargetNodeActive / TargetNodeValue / ActorResource / IsVirtualContext
+- 14 种效果类型：SpawnObservation / ModifyNodeValue / ConsumeResource / ReinforceEdge / WeakenEdge / InjectMeme / DeleteNode / ModifyResourceRegen 等
 
-### 5. Roguelike 字符回退
-在没有美术资源的情况下，使用传统 Roguelike 字符（@, d, % 等）作为回退方案，保证游戏可玩性。
+#### MCP 测试服务器（可选 feature）
+- 端口 9222，23 个 MCP 工具，支持外部 AI 代理操控游戏
+- 启动：`pnpm run start:mcp`
 
-## 待实现功能（需要游戏逻辑）
+### 前端（React）
 
-### 1. UI 组件库
-- [ ] 左侧详情面板
-  - [ ] 工作记忆标签页
-  - [ ] 图谱标签页
-  - [ ] 背包标签页
-  - [ ] 属性标签页
-- [ ] 右下角操作提示（间隔重复系统）
-- [ ] 命令菜单
-- [ ] 对话系统（Galgame风格）
-- [ ] 教学引导 UI
+#### 关卡选择
+- 22 个关卡按分类分组（教程/先验本能/社交/动机链/虚拟与现实/地位/模因/信念/终局）
+- 卡片悬停动画、目标列表
 
-### 2. 游戏逻辑
-- [ ] 命令系统（摇铃、喂食、抚摸等）
-- [ ] 条件反射建立机制
-- [ ] 图谱节点生成逻辑
-- [ ] 连接强化/削弱算法
-- [ ] 信号传播模拟
-- [ ] 印刻行为实现
-- [ ] 多巴胺奖励系统
+#### 游戏界面
+- 三栏固定布局 + 顶底工具栏
+- Actor/Target 下拉选择器
+- 命令按钮列表，显示 hotkey 标签和 RequiresTarget 禁用状态
+- 500ms 间隔自动 tick 循环
 
-### 3. 高级功能
-- [ ] 保存/加载系统
-- [ ] 成就系统
-- [ ] 教学完成度跟踪
-- [ ] 动画系统（角色移动、技能释放等）
+#### 心智图谱可视化
+- d3-force 布局引擎，九宫格象限定位（3 层 × 3 象限）
+- SVG 渲染：5 种节点类型着色，兴奋性/抑制性边区分，动画虚线流动
+- 滚轮/pinch 缩放、fit-view 按钮
+- 节点/边检视器（value、velocity、strength、active、polarity、weight 等）
+- 按 NodeType 过滤器
+
+#### 事件日志
+- 14 种事件类型格式化（emoji 图标 + 彩色文字）
+- 最近 500 条事件
+
+#### 键盘快捷键
+- ESC 返回菜单、Space 暂停、0-4 速度切换、命令 hotkey 绑定
+
+#### 国际化
+- i18next 双语（zh-CN/en），支持语言切换持久化
+
+### 数据层
+
+#### 21 个关卡（assets/levels/）
+教程 3 关（巴甫洛夫/聪明猫/雏鹅）+ 先验本能 1 关 + 社交 2 关 + 动机链 1 关 + 虚拟与现实 2 关 + 地位 1 关 + 模因 3 关 + 信念 3 关 + 终局 5 关
+
+每关含：level.jsonld + N 个 *-mind.jsonld + commands.jsonld
+
+#### Schema 定义（assets/schema/）
+5 个 JSON-LD 文件：context、node-types、edge-types、command-types、threshold-types
+
+#### 九宫格布局（assets/quadrants/）
+default-layout.jsonld：9 象限 3 层映射配置
+
+## 设计要点
+
+1. **后端权威**：所有游戏状态存在 Rust 后端，前端是纯视图层
+2. **细粒度订阅**：Zustand selector 模式，组件只订阅必要状态
+3. **类型安全**：`types/backend.ts` 完整镜像 Rust serde 结构
+4. **确定性仿真**：seeded RNG + 固定 tick 顺序 = 可复现回放
+5. **声明式关卡**：JSON-LD 关卡数据，支持 i18n key 国际化
+
+## 待实现功能
+
+### P0 — 阶段三核心（前端接入完善）
+- [ ] Tick 循环暂停修复：speed=0 时停止 tick，speed>1 时传入更大 dt
+- [ ] 存档管理系统：保存/加载/自动存档（后端 Tauri Command + 前端 UI）
+- [ ] 动态命令菜单：右键任意对象弹出上下文命令菜单，替代固定按钮面板
+- [ ] 角色详情面板：左侧标签页（属性/图谱/资源）
+- [ ] 教学引导 UI：教程关卡步骤指引 + 高亮提示
+
+### P1 — 游戏体验
+- [ ] 图谱垂直"塔"形布局：底层生理在下、顶层文化在上
+- [ ] 图谱迷雾：未探索节点显示为 ?
+- [ ] 条件反射建立视觉反馈：共现连线动画
+- [ ] 对话系统（Galgame 风格叙事推进）
+- [ ] 世界空间可视化：角色/物品按 position 渲染
+
+### P2 — 后端系统扩展（6 大设计缺口）
+- [ ] VirtualContext 系统（影响 4 关：触发网瘾/赛博梦中梦/网瘾少年/幻境挣扎）
+- [ ] 群体动力学系统（影响 5 关：浪潮/人从众/等死死国可乎/集群意识/毁灭虫族）
+- [ ] 经济/资产系统（影响 3 关）
+- [ ] 信念不可逆性 & 分裂（影响 3 关）
+- [ ] 模因涌现（影响 2 关）
+- [ ] 空间/战术层（影响 2 关）
+
+### P3 — 美术与体感
+- [ ] 角色立绘（日漫风格）
 - [ ] 音效和音乐
+- [ ] 动画系统
+- [ ] 成就系统
 
 ## 使用方法
 
-### 启动开发服务器
+### 开发模式
 ```bash
 cd intention-tower-game
-pnpm dev
+pnpm run tauri:dev
 ```
 
-### 访问游戏
-打开浏览器访问 `http://localhost:1420/`
+### MCP 测试模式（AI 代理操控）
+```bash
+pnpm run start:mcp
+```
 
 ### 测试流程
-1. 在关卡选择页面选择"巴甫洛夫的狗"或"雏鹅的印刻行为"
-2. 进入观察模式，用 WASD 移动摄像机
-3. 点击角色查看信息
-4. 按 G 切换到图谱模式
-5. 按 M 切换到微操模式
-6. 按 ESC 返回菜单
-
-## 注意事项
-
-1. 所有状态都存储在 Zustand store 中，没有组件本地状态
-2. 渲染循环使用 `getState()` 直接访问最新状态，避免闭包陷阱
-3. 关卡数据是声明式的，便于添加新关卡
-4. 目前使用 Canvas 渲染，未来可以替换为 PixiJS（需要处理 v8 API 变更）
-
-## 下一步建议
-
-1. **实现命令系统**：创建可复用的命令框架，支持不同的动作
-2. **完善详情面板**：展示角色的工作记忆和图谱
-3. **添加教学引导**：实现教学提示 UI 和步骤跟踪
-4. **实现游戏逻辑**：条件反射、印刻等核心机制
-5. **添加动画**：让游戏更生动
-
-## 已知问题
-
-1. ~~Canvas 渲染可能在某些浏览器有性能问题~~ ✅ 已优化
-2. 图谱布局是固定位置，未来可以实现力导向布局
-3. 微操模式的跳跃逻辑尚未实现
-4. 命令菜单和详情面板 UI 尚未实现
-
-## 测试截图
-
-关卡选择页面：显示两个关卡卡片
-游戏界面：Canvas 渲染角色和物品，显示模式和时间指示器
+1. 在关卡选择页面选择任意关卡
+2. 在 WorldPanel 选择 Actor 和 Target
+3. 在 CommandPanel 点击命令或按 hotkey 执行
+4. 在 MindGraphPanel 查看心智图谱变化
+5. 在 EventLog 观察仿真事件
+6. 按 Space 暂停、0-4 切换速度、ESC 返回

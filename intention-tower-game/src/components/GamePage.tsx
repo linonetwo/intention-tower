@@ -64,6 +64,13 @@ export const GamePage: React.FC = () => {
         return;
       }
 
+      // Ctrl+S → quick save
+      if ((e.ctrlKey || e.metaKey) && key === 's') {
+        e.preventDefault();
+        gameStore.getState().saveGame();
+        return;
+      }
+
       // Hotkey-based command execution
       const cmds = gameStore.getState().availableCommands;
       const match = cmds.find((c) => c.hotkey?.toLowerCase() === key);

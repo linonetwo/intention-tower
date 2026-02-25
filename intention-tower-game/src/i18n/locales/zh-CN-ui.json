@@ -4,6 +4,8 @@
   "app.error.loadLevel": "关卡加载失败: {{message}}",
   "app.error.executeCommand": "命令执行失败: {{message}}",
   "app.error.setSpeed": "速度设置失败: {{message}}",
+  "app.error.save": "保存失败: {{message}}",
+  "app.error.loadSave": "加载存档失败: {{message}}",
 
   "menu.subtitle": "选择关卡开始游戏 — 共 {{count}} 个关卡",
   "menu.hotkeys": "Space 暂停/继续 | 1-4 调速 | ESC 返回 | 命令热键 Q/W/E/R",
@@ -63,5 +65,19 @@
   "inspector.fixed": "固定边",
   "inspector.decay": "衰减/tick: {{value}}",
 
-  "event.empty": "暂无事件 — 尝试执行命令或等待仿真推进"
+  "event.empty": "暂无事件 — 尝试执行命令或等待仿真推进",
+
+  "save.title": "存档管理",
+  "save.quickSave": "快速保存",
+  "save.save": "保存",
+  "save.load": "加载",
+  "save.delete": "删除",
+  "save.empty": "暂无存档",
+  "save.slot": "存档: {{slot}}",
+  "save.tick": "Tick {{tick}}",
+  "save.confirm.delete": "确定删除此存档?",
+  "save.confirm.load": "加载存档将覆盖当前游戏状态，确定继续?",
+  "save.success": "已保存到 {{slot}}",
+  "save.slotName": "存档名称",
+  "save.cancel": "取消"
 }

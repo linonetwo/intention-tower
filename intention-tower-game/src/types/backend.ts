@@ -199,6 +199,15 @@ export type WorldEvent =
   | { ThresholdCrossed: { character_id: string; instance_id: string; trigger_id: string; direction: string } }
   | { TickCompleted: { tick: number } };
 
+// ── Save / Load ──
+
+export interface SaveMeta {
+  slot: string;
+  level_id: string;
+  tick: number;
+  timestamp: string;
+}
+
 /** Helper: get the event type name */
 export function eventType(e: WorldEvent): string {
   return Object.keys(e)[0];

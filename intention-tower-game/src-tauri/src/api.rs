@@ -1,6 +1,7 @@
 use std::sync::Mutex;
 use std::ops::Deref;
 use tauri::State;
+use tauri::Manager;
 use crate::models::world_state::WorldState;
 use crate::models::events::WorldEvent;
 use crate::models::commands::{CommandDTO, CommandDef, Precondition, CompareOp};
@@ -143,6 +144,166 @@ pub fn set_paused(paused: bool, sim: State<'_, SimulationState>) -> Result<(), S
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
     world.paused = paused;
     Ok(())
+}
+
+// ── Save / Load System ──
+
+/// Get the saves directory path (creates if not exists).
+fn saves_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    let dir = app.path().app_data_dir()
+        .map_err(|e| format!("Failed to get app data dir: {}", e))?
+        .join("saves");
+    if !dir.exists() {
+        std::fs::create_dir_all(&dir).map_err(|e| format!("Failed to create saves dir: {}", e))?;
+    }
+    Ok(dir)
+}
+
+/// Save metadata returned to frontend
+#[derive(serde::Serialize, Clone)]
+pub struct SaveMeta {
+    pub slot: String,
+    pub level_id: String,
+    pub tick: u64,
+    pub timestamp: String,
+}
+
+/// Save current world state to a named slot.
+#[tauri::command]
+pub fn save_game(
+    slot: String,
+    sim: State<'_, SimulationState>,
+    app_handle: tauri::AppHandle,
+) -> Result<SaveMeta, String> {
+    let world = sim.world.lock().map_err(|e| e.to_string())?;
+    let dir = saves_dir(&app_handle)?;
+    let file_path = dir.join(format!("{}.json", slot));
+
+    let json = serde_json::to_string_pretty(&*world)
+        .map_err(|e| format!("Serialize error: {}", e))?;
+    std::fs::write(&file_path, &json)
+        .map_err(|e| format!("Write error: {}", e))?;
+
+    // Extract level_id from the slot name or world state
+    let level_id = world.command_defs.first()
+        .map(|c| c.command_id.split(':').next().unwrap_or("unknown").to_string())
+        .unwrap_or_else(|| "unknown".to_string());
+
+    Ok(SaveMeta {
+        slot: slot.clone(),
+        level_id,
+        tick: world.tick,
+        timestamp: chrono_now(),
+    })
+}
+
+/// Load world state from a named slot.
+#[tauri::command]
+pub fn load_save(
+    slot: String,
+    sim: State<'_, SimulationState>,
+    app_handle: tauri::AppHandle,
+) -> Result<serde_json::Value, String> {
+    let dir = saves_dir(&app_handle)?;
+    let file_path = dir.join(format!("{}.json", slot));
+
+    if !file_path.exists() {
+        return Err(format!("Save slot '{}' not found", slot));
+    }
+
+    let json = std::fs::read_to_string(&file_path)
+        .map_err(|e| format!("Read error: {}", e))?;
+    let loaded: WorldState = serde_json::from_str(&json)
+        .map_err(|e| format!("Deserialize error: {}", e))?;
+
+    let mut world = sim.world.lock().map_err(|e| e.to_string())?;
+    *world = loaded;
+
+    serde_json::to_value(&*world).map_err(|e| e.to_string())
+}
+
+/// List all save slots.
+#[tauri::command]
+pub fn list_saves(
+    app_handle: tauri::AppHandle,
+) -> Result<Vec<SaveMeta>, String> {
+    let dir = saves_dir(&app_handle)?;
+    let mut saves = Vec::new();
+
+    if dir.exists() {
+        let entries = std::fs::read_dir(&dir).map_err(|e| e.to_string())?;
+        for entry in entries {
+            let entry = entry.map_err(|e| e.to_string())?;
+            let path = entry.path();
+            if path.extension().map_or(false, |ext| ext == "json") {
+                let slot = path.file_stem()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or("unknown")
+                    .to_string();
+
+                // Read just enough to get tick
+                if let Ok(json) = std::fs::read_to_string(&path) {
+                    if let Ok(ws) = serde_json::from_str::<WorldState>(&json) {
+                        let metadata = std::fs::metadata(&path);
+                        let timestamp = metadata.ok()
+                            .and_then(|m| m.modified().ok())
+                            .map(|t| {
+                                let duration = t.duration_since(std::time::UNIX_EPOCH).unwrap_or_default();
+                                format_timestamp(duration.as_secs())
+                            })
+                            .unwrap_or_else(|| "unknown".to_string());
+
+                        let level_id = ws.command_defs.first()
+                            .map(|c| c.command_id.split(':').next().unwrap_or("unknown").to_string())
+                            .unwrap_or_else(|| "unknown".to_string());
+
+                        saves.push(SaveMeta {
+                            slot,
+                            level_id,
+                            tick: ws.tick,
+                            timestamp,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    saves.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+    Ok(saves)
+}
+
+/// Delete a save slot.
+#[tauri::command]
+pub fn delete_save(
+    slot: String,
+    app_handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let dir = saves_dir(&app_handle)?;
+    let file_path = dir.join(format!("{}.json", slot));
+    if file_path.exists() {
+        std::fs::remove_file(&file_path).map_err(|e| format!("Delete error: {}", e))?;
+    }
+    Ok(())
+}
+
+fn chrono_now() -> String {
+    let duration = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default();
+    format_timestamp(duration.as_secs())
+}
+
+fn format_timestamp(secs: u64) -> String {
+    // Simple ISO-ish format without chrono crate
+    let s = secs % 60;
+    let m = (secs / 60) % 60;
+    let h = (secs / 3600) % 24;
+    let days = secs / 86400;
+    // Approximate date from days since epoch (good enough for sorting)
+    let y = 1970 + days / 365;
+    let d = days % 365;
+    format!("{:04}-{:03} {:02}:{:02}:{:02}", y, d, h, m, s)
 }
 
 // ── Precondition Checker ──

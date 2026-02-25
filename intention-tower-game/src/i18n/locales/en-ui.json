@@ -4,6 +4,8 @@
   "app.error.loadLevel": "Failed to load level: {{message}}",
   "app.error.executeCommand": "Failed to execute command: {{message}}",
   "app.error.setSpeed": "Failed to set speed: {{message}}",
+  "app.error.save": "Failed to save: {{message}}",
+  "app.error.loadSave": "Failed to load save: {{message}}",
 
   "menu.subtitle": "Select a level to start — {{count}} levels",
   "menu.hotkeys": "Space pause/resume | 1-4 speed | ESC back | command hotkeys Q/W/E/R",
@@ -63,5 +65,19 @@
   "inspector.fixed": "Fixed edge",
   "inspector.decay": "Decay/tick: {{value}}",
 
-  "event.empty": "No events yet — execute commands or wait for simulation"
+  "event.empty": "No events yet — execute commands or wait for simulation",
+
+  "save.title": "Save Manager",
+  "save.quickSave": "Quick Save",
+  "save.save": "Save",
+  "save.load": "Load",
+  "save.delete": "Delete",
+  "save.empty": "No saves yet",
+  "save.slot": "Save: {{slot}}",
+  "save.tick": "Tick {{tick}}",
+  "save.confirm.delete": "Delete this save?",
+  "save.confirm.load": "Loading will overwrite current game state. Continue?",
+  "save.success": "Saved to {{slot}}",
+  "save.slotName": "Save name",
+  "save.cancel": "Cancel"
 }

@@ -7,7 +7,7 @@
 import { createStore, useStore } from 'zustand';
 import * as api from '../api/tauriApi';
 import { t } from '../i18n';
-import type { WorldState, WorldEvent, CommandDef } from '../types/backend';
+import type { WorldState, WorldEvent, CommandDef, SaveMeta } from '../types/backend';
 
 export type Page = 'menu' | 'game';
 
@@ -35,6 +35,9 @@ interface GameState {
   // Tick loop
   tickIntervalId: number | null;
 
+  // Save/Load
+  saves: SaveMeta[];
+
   // UI state
   loading: boolean;
   error: string | null;
@@ -52,6 +55,11 @@ interface GameActions {
   setTimeSpeed: (speed: number) => Promise<void>;
   startTickLoop: () => void;
   stopTickLoop: () => void;
+  // Save/Load
+  saveGame: (slot?: string) => Promise<void>;
+  loadSave: (slot: string) => Promise<void>;
+  refreshSaves: () => Promise<void>;
+  deleteSave: (slot: string) => Promise<void>;
   clearError: () => void;
   reset: () => void;
 }
@@ -69,6 +77,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   availableCommands: [],
   recentEvents: [],
   tickIntervalId: null,
+  saves: [],
   loading: false,
   error: null,
 
@@ -153,6 +162,9 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   },
 
   doTick: async () => {
+    // Skip tick when paused
+    const ws = get().worldState;
+    if (ws?.paused || ws?.time_speed === 0) return;
     try {
       const events = await api.tick(0.5);
       const state = await api.snapshot();
@@ -198,6 +210,61 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     }
   },
 
+  // ── Save / Load ──
+
+  saveGame: async (slot?: string) => {
+    const levelId = get().currentLevelId ?? 'unknown';
+    const tick = get().worldState?.tick ?? 0;
+    const slotName = slot ?? `${levelId}-tick${tick}`;
+    try {
+      await api.saveGame(slotName);
+      await get().refreshSaves();
+    } catch (err) {
+      set({ error: t('app.error.save', { message: String(err) }) });
+    }
+  },
+
+  loadSave: async (slot: string) => {
+    set({ loading: true, error: null });
+    try {
+      const state = await api.loadSave(slot);
+      const charIds = Object.keys(state.characters);
+      const firstCharId = charIds[0] ?? null;
+      set({
+        worldState: state,
+        currentLevelId: slot.split('-tick')[0] || null,
+        selectedActorId: firstCharId,
+        selectedTargetId: charIds.length > 1 ? charIds[1] : null,
+        inspectedCharacterId: charIds.length > 1 ? charIds[1] : firstCharId,
+        recentEvents: [],
+        page: 'game',
+        loading: false,
+      });
+      await get().refreshCommands();
+      get().startTickLoop();
+    } catch (err) {
+      set({ error: t('app.error.loadSave', { message: String(err) }), loading: false });
+    }
+  },
+
+  refreshSaves: async () => {
+    try {
+      const saves = await api.listSaves();
+      set({ saves });
+    } catch {
+      set({ saves: [] });
+    }
+  },
+
+  deleteSave: async (slot: string) => {
+    try {
+      await api.deleteSave(slot);
+      await get().refreshSaves();
+    } catch (err) {
+      set({ error: String(err) });
+    }
+  },
+
   clearError: () => set({ error: null }),
 
   reset: () => {
@@ -211,6 +278,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       inspectedCharacterId: null,
       availableCommands: [],
       recentEvents: [],
+      saves: [],
       loading: false,
       error: null,
     });

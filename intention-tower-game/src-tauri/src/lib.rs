@@ -30,6 +30,10 @@ pub fn run() {
             api::execute_command,
             api::get_mind_graph,
             api::set_paused,
+            api::save_game,
+            api::load_save,
+            api::list_saves,
+            api::delete_save,
         ])
         .setup(move |_app| {
             // 在嵌入测试模式下，轮询 test channel 并转发给 webview
