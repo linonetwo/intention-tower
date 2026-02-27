@@ -37,7 +37,11 @@ impl System for CommandSystem {
                         let target_char = resolve_target(target_character_id.as_deref(), cmd.target_id.as_deref());
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
-                                let instance_id = format!("obs_{}_{}", schema_id, state.tick);
+                                // Use persistent schema-based ID (no tick suffix) so conditioning
+                                // can accumulate over time and edges remain valid across rerings.
+                                let sanitized = schema_id.replace(':', "_").replace('/', "_");
+                                let instance_id = format!("obs_{}", sanitized);
+                                let already_exists = character.mind_graph.nodes.contains_key(&instance_id);
                                 let node = MindNode {
                                     instance_id: instance_id.clone(),
                                     schema_id: schema_id.clone(),
@@ -47,7 +51,7 @@ impl System for CommandSystem {
                                     value_velocity: 0.0,
                                     strength: *strength,
                                     active: true,
-                                    created_at: state.tick,
+                                    created_at: state.tick, // reset TTL on re-ring
                                     ttl: Some(*ttl),
                                     hidden_by_default: false,
                                     thresholds: Vec::new(),
@@ -70,12 +74,22 @@ impl System for CommandSystem {
                                     is_virtual: false,
                                 };
                                 character.mind_graph.add_node(node);
-                                state.pending_events.push(WorldEvent::NodeSpawned {
-                                    character_id: char_id.to_string(),
-                                    instance_id,
-                                    schema_id: schema_id.clone(),
-                                    node_type: "Observation".to_string(),
-                                });
+                                if already_exists {
+                                    // Refreshed an existing obs node
+                                    state.pending_events.push(WorldEvent::NodeValueChanged {
+                                        character_id: char_id.to_string(),
+                                        instance_id,
+                                        old_value: 0.0,
+                                        new_value: 1.0,
+                                    });
+                                } else {
+                                    state.pending_events.push(WorldEvent::NodeSpawned {
+                                        character_id: char_id.to_string(),
+                                        instance_id,
+                                        schema_id: schema_id.clone(),
+                                        node_type: "Observation".to_string(),
+                                    });
+                                }
                             }
                         }
                     }

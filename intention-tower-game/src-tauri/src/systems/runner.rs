@@ -19,22 +19,25 @@ impl SimulationRunner {
             Box::new(body_state::BodyStateSystem),
             // #4 CommandSystem
             Box::new(command_system::CommandSystem),
-            // #5 EnvironmentEventSystem
-            Box::new(environment_event::EnvironmentEventSystem),
-            // #6 PerceptionSystem
-            Box::new(perception::PerceptionSystem),
-            // #7 NoveltyHabituationSystem
-            Box::new(novelty_habituation::NoveltyHabituationSystem),
-            // #8 AttentionAllocationSystem
-            Box::new(attention_allocation::AttentionAllocationSystem),
-            // #9 InstinctUpdateSystem
-            Box::new(instinct_update::InstinctUpdateSystem),
-            // #10 ThresholdSystem
-            Box::new(threshold::ThresholdSystem),
-            // #11 MultiLayerPropagationSystem
-            Box::new(multi_layer_propagation::MultiLayerPropagationSystem),
-            // #12 ClassicalConditioningSystem
+            // #5 ClassicalConditioningSystem — runs here (before ThresholdSystem)
+            // so that newly-created observations can pair with still-active motivations
+            // BEFORE feeding/etc causes ThresholdSystem to despawn them.
             Box::new(classical_conditioning::ClassicalConditioningSystem),
+            // #6 EnvironmentEventSystem
+            Box::new(environment_event::EnvironmentEventSystem),
+            // #7 PerceptionSystem
+            Box::new(perception::PerceptionSystem),
+            // #8 NoveltyHabituationSystem
+            Box::new(novelty_habituation::NoveltyHabituationSystem),
+            // #9 AttentionAllocationSystem
+            Box::new(attention_allocation::AttentionAllocationSystem),
+            // #10 InstinctUpdateSystem
+            Box::new(instinct_update::InstinctUpdateSystem),
+            // #11 ThresholdSystem
+            Box::new(threshold::ThresholdSystem),
+            // #12 MultiLayerPropagationSystem
+            Box::new(multi_layer_propagation::MultiLayerPropagationSystem),
+            // (ClassicalConditioningSystem moved to #5)
             // #13 OperantConditioningSystem
             Box::new(operant_conditioning::OperantConditioningSystem),
             // #14 ImprintingSystem

@@ -43,6 +43,11 @@ export async function executeCommand(
   });
 }
 
+/** Cancel a queued pending command by command_id. */
+export async function cancelPendingCommand(commandId: string): Promise<void> {
+  return invoke('cancel_pending_command', { commandId });
+}
+
 /** Get a specific character's mind graph JSON. */
 export async function getMindGraph(characterId: string): Promise<unknown> {
   return invoke('get_mind_graph', { characterId });
@@ -51,6 +56,11 @@ export async function getMindGraph(characterId: string): Promise<unknown> {
 /** Pause or unpause the simulation. */
 export async function setPaused(paused: boolean): Promise<void> {
   return invoke('set_paused', { paused });
+}
+
+/** Advance exactly one tick regardless of pause state (single-step button). */
+export async function stepTick(): Promise<WorldEvent[]> {
+  return invoke<WorldEvent[]>('step_tick');
 }
 
 // ── Save / Load ──

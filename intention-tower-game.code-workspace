@@ -10,6 +10,11 @@
 		}
 	],
 	"settings": {
-		"terminal.integrated.cwd": "${workspaceFolder:intention-tower-game}"
+		"terminal.integrated.cwd": "${workspaceFolder:intention-tower-game}",
+		"i18n-ally.localesPaths": [
+			"assets/i18n",
+			"src/i18n",
+			"src/i18n/locales"
+		]
 	}
 }

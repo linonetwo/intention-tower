@@ -14,15 +14,15 @@ function hashString(input: string): number {
 function fallbackCell(nodeType: NodeType): number {
   switch (nodeType) {
     case 'PriorInstinct':
-      return 6;
-    case 'Observation':
-      return 4;
-    case 'Motivation':
-      return 7;
-    case 'Action':
-      return 8;
-    case 'Meme':
       return 1;
+    case 'Observation':
+      return 0;
+    case 'Motivation':
+      return 4;
+    case 'Action':
+      return 5;
+    case 'Meme':
+      return 7;
     default:
       return 4;
   }
@@ -35,10 +35,12 @@ export function useFixedMindGraphLayout(
   height: number,
   schemaToCell: Map<string, number>,
 ) {
-  const cellWidth = width / 3;
-  const cellHeight = height / 3;
   const nodeRadius = 12;
-  const minGap = 10;
+  const minGap = 14;
+
+  // Spread layers more apart so nodes don't cluster
+  const layerY = [height * 0.82, height * 0.50, height * 0.18];
+  const layerSpread = [200, 190, 160];
 
   const topologyKey = useMemo(() => {
     const nodeIds = nodesInput.map((node) => node.instance_id).sort().join('|');
@@ -68,10 +70,10 @@ export function useFixedMindGraphLayout(
     const simNodes: SimNode[] = [];
 
     byCell.forEach((group, cell) => {
-      const col = cell % 3;
-      const row = Math.floor(cell / 3);
-      const centerX = col * cellWidth + cellWidth / 2;
-      const centerY = row * cellHeight + cellHeight / 2;
+      const lane = cell % 3;
+      const layer = Math.max(0, Math.min(2, Math.floor(cell / 3)));
+      const centerX = width / 2 + (lane - 1) * layerSpread[layer];
+      const centerY = layerY[layer];
 
       group
         .slice()
@@ -80,7 +82,7 @@ export function useFixedMindGraphLayout(
           const ring = Math.floor(index / 8);
           const inRing = index % 8;
           const angle = (Math.PI * 2 * inRing) / 8;
-          const radius = 14 + ring * 24;
+          const radius = 12 + ring * 18;
           simNodes.push({
             id: node.instance_id,
             x: centerX + Math.cos(angle) * radius,
@@ -111,7 +113,9 @@ export function useFixedMindGraphLayout(
         },
       ]),
     );
-  }, [topologyKey, nodesInput, schemaToCell, cellWidth, cellHeight, width, height]);
+    // topologyKey encodes the identity of nodesInput/edgesInput so we don't re-layout on value-only changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topologyKey, schemaToCell, width, height]);
 
   const nodes = useMemo<GraphNode[]>(() => {
     return nodesInput.map((node) => {

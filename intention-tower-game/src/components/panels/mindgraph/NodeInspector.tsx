@@ -34,35 +34,45 @@ export function NodeInspector({ selectedNode, selectedEdge }: Props) {
         {selectedNode && (
           <>
             <Typography sx={{ fontSize: 11, color: '#8b96a5', mb: 0.5 }}>{t('inspector.node')}</Typography>
-            <Chip
-              label={nodeTypeText(selectedNode.node_type)}
-              size='small'
-              sx={{
-                height: 20,
-                fontSize: 10,
-                bgcolor: NODE_TYPE_COLORS[selectedNode.node_type],
-                color: '#fff',
-                mb: 1,
-              }}
-            />
-            <Typography sx={{ fontSize: 13, fontWeight: 600 }}>{translateLabel(selectedNode.label)}</Typography>
-            <Typography sx={{ fontSize: 11, color: '#8b96a5', wordBreak: 'break-all', mt: 0.5 }}>
-              {selectedNode.schema_id}
-            </Typography>
-            <Divider sx={{ my: 1 }} />
-            <Typography sx={{ fontSize: 11, color: '#b0bec5' }}>{t('inspector.value', { value: selectedNode.value.toFixed(3) })}</Typography>
-            <Typography sx={{ fontSize: 11, color: '#b0bec5' }}>
-              {t('inspector.velocity', { value: `${selectedNode.value_velocity > 0 ? '+' : ''}${selectedNode.value_velocity.toFixed(3)}` })}
-            </Typography>
-            <Typography sx={{ fontSize: 11, color: '#b0bec5' }}>{t('inspector.strength', { value: selectedNode.strength.toFixed(3) })}</Typography>
-            <Typography sx={{ fontSize: 11, color: selectedNode.active ? '#6fcf97' : '#ef5350' }}>
-              {t('inspector.state', { value: selectedNode.active ? t('inspector.active') : t('inspector.inactive') })}
-            </Typography>
-            <Divider sx={{ my: 1 }} />
-            <Typography sx={{ fontSize: 11, color: '#8b96a5' }}>{t('inspector.instanceId')}</Typography>
-            <Typography sx={{ fontSize: 10, color: '#94a3b8', wordBreak: 'break-all' }}>
-              {selectedNode.instance_id}
-            </Typography>
+            {!selectedNode.isUnknown && (
+              <>
+                <Chip
+                  label={nodeTypeText(selectedNode.node_type)}
+                  size='small'
+                  sx={{
+                    height: 20,
+                    fontSize: 10,
+                    bgcolor: NODE_TYPE_COLORS[selectedNode.node_type],
+                    color: '#fff',
+                    mb: 1,
+                  }}
+                />
+                <Typography sx={{ fontSize: 13, fontWeight: 600 }}>{translateLabel(selectedNode.label)}</Typography>
+                <Typography sx={{ fontSize: 11, color: '#8b96a5', wordBreak: 'break-all', mt: 0.5 }}>
+                  {selectedNode.schema_id}
+                </Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography sx={{ fontSize: 11, color: '#b0bec5' }}>{t('inspector.value', { value: selectedNode.value.toFixed(3) })}</Typography>
+                <Typography sx={{ fontSize: 11, color: '#b0bec5' }}>
+                  {t('inspector.velocity', { value: `${selectedNode.value_velocity > 0 ? '+' : ''}${selectedNode.value_velocity.toFixed(3)}` })}
+                </Typography>
+                <Typography sx={{ fontSize: 11, color: '#b0bec5' }}>{t('inspector.strength', { value: selectedNode.strength.toFixed(3) })}</Typography>
+                <Typography sx={{ fontSize: 11, color: selectedNode.active ? '#6fcf97' : '#ef5350' }}>
+                  {t('inspector.state', { value: selectedNode.active ? t('inspector.active') : t('inspector.inactive') })}
+                </Typography>
+                <Divider sx={{ my: 1 }} />
+                <Typography sx={{ fontSize: 11, color: '#8b96a5' }}>{t('inspector.instanceId')}</Typography>
+                <Typography sx={{ fontSize: 10, color: '#94a3b8', wordBreak: 'break-all' }}>
+                  {selectedNode.instance_id}
+                </Typography>
+              </>
+            )}
+
+            {selectedNode.isUnknown && (
+              <Typography sx={{ fontSize: 12, color: '#90a4ae' }}>
+                {t('inspector.unknown')}
+              </Typography>
+            )}
           </>
         )}
 

@@ -17,11 +17,21 @@ export interface WorldState {
   time_speed: number;
   paused: boolean;
   seed: number;
+  /** The level directory ID, e.g. "pavlov" */
+  level_id: string;
   characters: Record<string, WorldCharacter>;
   items: Record<string, WorldItem>;
   event_log: WorldEvent[];
   command_defs: CommandDef[];
+  pending_commands: PendingCommand[];
   in_virtual_context: boolean;
+}
+
+/** A command queued for execution on the next tick. */
+export interface PendingCommand {
+  command_id: string;
+  actor_id: string;
+  target_id: string | null;
 }
 
 export interface WorldCharacter {

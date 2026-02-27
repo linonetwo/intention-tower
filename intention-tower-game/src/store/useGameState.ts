@@ -10,6 +10,7 @@ import { t } from '../i18n';
 import type { WorldState, WorldEvent, CommandDef, SaveMeta } from '../types/backend';
 
 export type Page = 'menu' | 'game';
+export type UiMode = 'observe' | 'micro' | 'graph';
 
 interface GameState {
   // Navigation
@@ -39,6 +40,8 @@ interface GameState {
   saves: SaveMeta[];
 
   // UI state
+  uiMode: UiMode;
+  autoStepOnCommand: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -49,8 +52,12 @@ interface GameActions {
   selectActor: (id: string | null) => void;
   selectTarget: (id: string | null) => void;
   inspectCharacter: (id: string | null) => void;
+  setUiMode: (mode: UiMode) => void;
+  setAutoStepOnCommand: (enabled: boolean) => void;
   refreshCommands: () => Promise<void>;
   executeCommand: (commandId: string) => Promise<void>;
+  cancelPendingCommand: (commandId: string) => Promise<void>;
+  stepTick: () => Promise<void>;
   doTick: () => Promise<void>;
   setTimeSpeed: (speed: number) => Promise<void>;
   startTickLoop: () => void;
@@ -78,6 +85,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   recentEvents: [],
   tickIntervalId: null,
   saves: [],
+  uiMode: 'observe',
+  autoStepOnCommand: true,
   loading: false,
   error: null,
 
@@ -89,11 +98,14 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     set({ loading: true, error: null });
     try {
       const state = await api.loadLevel(levelId);
+      // Immediately pause so the player can orient before time starts
+      await api.setTimeSpeed(0);
+      const pausedState = { ...state, time_speed: 0 as 0, paused: true };
       const charIds = Object.keys(state.characters);
       const firstCharId = charIds[0] ?? null;
 
       set({
-        worldState: state,
+        worldState: pausedState,
         currentLevelId: levelId,
         selectedActorId: firstCharId,
         selectedTargetId: charIds.length > 1 ? charIds[1] : null,
@@ -105,8 +117,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
 
       // Auto-refresh commands after loading
       await get().refreshCommands();
-      // Start tick loop
-      get().startTickLoop();
+      // Don't start tick loop — game starts paused
     } catch (err) {
       set({ error: t('app.error.loadLevel', { message: String(err) }), loading: false });
     }
@@ -127,6 +138,14 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     set({ inspectedCharacterId: id });
   },
 
+  setUiMode: (mode) => {
+    set({ uiMode: mode });
+  },
+
+  setAutoStepOnCommand: (enabled) => {
+    set({ autoStepOnCommand: enabled });
+  },
+
   refreshCommands: async () => {
     const { selectedActorId, selectedTargetId } = get();
     if (!selectedActorId) {
@@ -142,18 +161,52 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   },
 
   executeCommand: async (commandId) => {
-    const { selectedActorId, selectedTargetId } = get();
+    const { selectedActorId, selectedTargetId, autoStepOnCommand } = get();
     if (!selectedActorId) return;
     try {
       const events = await api.executeCommand(commandId, selectedActorId, selectedTargetId);
-      // After executing, refresh the full state
+      // After executing/queueing, refresh the full state
       const state = await api.snapshot();
+      const meaningful = events.filter((e) => !('TickCompleted' in e));
       set((prev) => ({
         worldState: state,
         recentEvents: [
-          ...events.filter((e) => !('TickCompleted' in e)),
+          ...meaningful,
           ...prev.recentEvents,
         ].slice(0, 500),
+      }));
+
+      // Auto-step: if paused and autoStep is on, advance one tick so the
+      // player immediately sees the effect of the command.
+      const ws = get().worldState;
+      if (autoStepOnCommand && ws?.paused) {
+        await get().stepTick();
+      }
+
+      await get().refreshCommands();
+    } catch (err) {
+      set({ error: t('app.error.executeCommand', { message: String(err) }) });
+    }
+  },
+
+  cancelPendingCommand: async (commandId) => {
+    try {
+      await api.cancelPendingCommand(commandId);
+      const state = await api.snapshot();
+      set({ worldState: state });
+    } catch (err) {
+      set({ error: t('app.error.executeCommand', { message: String(err) }) });
+    }
+  },
+
+  stepTick: async () => {
+    try {
+      const events = await api.stepTick();
+      const state = await api.snapshot();
+      const meaningful = events.filter((e) => !('TickCompleted' in e));
+      set((prev) => ({
+        worldState: state,
+        recentEvents: [...meaningful, ...prev.recentEvents].slice(0, 500),
       }));
       await get().refreshCommands();
     } catch (err) {
@@ -166,7 +219,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     const ws = get().worldState;
     if (ws?.paused || ws?.time_speed === 0) return;
     try {
-      const events = await api.tick(0.5);
+      const dt = 0.5 * Math.max(1, ws?.time_speed ?? 1);
+      const events = await api.tick(dt);
       const state = await api.snapshot();
       // Only add non-TickCompleted events to the log
       const meaningful = events.filter((e) => !('TickCompleted' in e));
@@ -188,6 +242,11 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       await api.setTimeSpeed(speed);
       const state = await api.snapshot();
       set({ worldState: state });
+      if (speed === 0) {
+        get().stopTickLoop();
+      } else {
+        get().startTickLoop();
+      }
     } catch (err) {
       set({ error: t('app.error.setSpeed', { message: String(err) }) });
     }
@@ -196,6 +255,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   startTickLoop: () => {
     const existing = get().tickIntervalId;
     if (existing != null) return;
+    const ws = get().worldState;
+    if (ws?.paused || ws?.time_speed === 0) return;
     const id = window.setInterval(() => {
       get().doTick();
     }, 500) as unknown as number;
@@ -232,7 +293,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       const firstCharId = charIds[0] ?? null;
       set({
         worldState: state,
-        currentLevelId: slot.split('-tick')[0] || null,
+        currentLevelId: state.level_id || slot.split('-tick')[0] || null,
         selectedActorId: firstCharId,
         selectedTargetId: charIds.length > 1 ? charIds[1] : null,
         inspectedCharacterId: charIds.length > 1 ? charIds[1] : firstCharId,
@@ -279,6 +340,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       availableCommands: [],
       recentEvents: [],
       saves: [],
+      uiMode: 'observe',
+      autoStepOnCommand: true,
       loading: false,
       error: null,
     });

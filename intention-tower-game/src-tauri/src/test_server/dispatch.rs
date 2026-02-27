@@ -42,6 +42,7 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                 .map_err(|e| format!("加载关卡 '{}' 失败: {}", level_id, e))?;
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
             *world = world_data;
+            world.level_id = level_id.clone();
             Ok(json!({
                 "success": true,
                 "level_id": level_id,
@@ -87,6 +88,17 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                 .map(|c| json!({ "command_id": c.command_id, "label": c.label, "hotkey": c.hotkey }))
                 .collect();
             Ok(json!(available))
+        }
+
+        "cancel_pending_command" => {
+            let command_id = str_arg!("command_id");
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            if let Some(pos) = world.pending_commands.iter().position(|c| c.command_id == command_id) {
+                world.pending_commands.remove(pos);
+                Ok(json!({ "success": true, "removed": command_id }))
+            } else {
+                Ok(json!({ "success": false, "reason": "not_found" }))
+            }
         }
 
         "get_node_value" => {

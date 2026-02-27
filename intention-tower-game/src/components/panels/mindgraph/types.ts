@@ -1,6 +1,11 @@
 import type { AssociationEdge, MindNode } from '../../../types/backend';
 
-export type GraphNode = MindNode & { x: number; y: number; r: number };
+export type GraphNode = MindNode & {
+  x: number;
+  y: number;
+  r: number;
+  isUnknown?: boolean;
+};
 
 export type GraphEdge = AssociationEdge & {
   source: string;

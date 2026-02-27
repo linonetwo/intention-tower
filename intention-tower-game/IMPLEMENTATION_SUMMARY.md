@@ -29,22 +29,25 @@ App.tsx (React Router)
 ```
 src/
 ├── api/tauriApi.ts          # 8 个 Tauri IPC 命令封装
-├── store/useGameState.ts    # 单一 Zustand store（后端状态镜像）
+├── store/
+│   ├── useGameState.ts    # 单一 Zustand store（后端状态镜像）
+│   └── useLevelProgress.ts # 关卡进度追踪（localStorage 持久化）
 ├── types/backend.ts         # 镜像 Rust serde 结构的 TS 类型
 ├── i18n/                    # i18next 配置 + zh-CN/en UI 翻译
 ├── data/levels/allLevels.ts # 22 个关卡元数据（仅选择器用）
 └── components/
-    ├── GamePage.tsx                   # 主游戏页面 + 键盘快捷键
-    ├── pages/LevelSelectPage.tsx      # 关卡选择
+    ├── GamePage.tsx                   # 主游戏页面 + 键盘快捷键 + 进度追踪
+    ├── pages/LevelSelectPage.tsx      # 关卡选择（含进度指示器）
     ├── pages/SettingsPage.tsx         # 设置
     └── panels/
-        ├── TimeControls.tsx           # 时间控制栏
+        ├── TimeControls.tsx           # 时间控制栏 + 模式切换
         ├── WorldPanel.tsx             # 世界面板
-        ├── CommandPanel.tsx           # 命令面板
-        ├── EventLog.tsx               # 事件日志
-        ├── MindGraphPanel.tsx         # 心智图谱面板
+        ├── WorldSceneMiniMap.tsx      # 2D 场景微缩图（可点击交互）
+        ├── CommandPanel.tsx           # 命令面板（含效果预览 + 执行反馈）
+        ├── EventLog.tsx               # 事件日志（含分类过滤 + 自动滚动）
+        ├── MindGraphPanel.tsx         # 心智图谱面板（迷雾 + 边高亮）
         └── mindgraph/
-            ├── GraphSvg.tsx           # SVG 渲染（节点/边/缩放）
+            ├── GraphSvg.tsx           # SVG 渲染（节点/边/缩放/发光）
             └── NodeInspector.tsx      # 节点/边属性检视器
 ```
 
@@ -128,18 +131,19 @@ default-layout.jsonld：9 象限 3 层映射配置
 ## 待实现功能
 
 ### P0 — 阶段三核心（前端接入完善）
-- [ ] Tick 循环暂停修复：speed=0 时停止 tick，speed>1 时传入更大 dt
-- [ ] 存档管理系统：保存/加载/自动存档（后端 Tauri Command + 前端 UI）
-- [ ] 动态命令菜单：右键任意对象弹出上下文命令菜单，替代固定按钮面板
-- [ ] 角色详情面板：左侧标签页（属性/图谱/资源）
-- [ ] 教学引导 UI：教程关卡步骤指引 + 高亮提示
+- [x] Tick 循环暂停修复：speed=0 时停止 tick，speed>1 时传入更大 dt
+- [x] 存档管理系统：保存/加载/自动存档（后端 Tauri Command + 前端 UI）
+- [x] 动态命令菜单：右键任意对象弹出上下文命令菜单，替代固定按钮面板
+- [x] 角色详情面板：左侧标签页（属性/图谱/资源）
+- [x] 教学引导 UI：教程关卡步骤指引 + 高亮提示
 
 ### P1 — 游戏体验
-- [ ] 图谱垂直"塔"形布局：底层生理在下、顶层文化在上
-- [ ] 图谱迷雾：未探索节点显示为 ?
-- [ ] 条件反射建立视觉反馈：共现连线动画
+- [x] 图谱垂直"塔"形布局：底层生理在下、顶层文化在上
+- [x] 图谱迷雾：未探索节点显示为 ?
+- [x] 条件反射建立视觉反馈：共现连线动画（已完成边权增长高亮反馈）
 - [ ] 对话系统（Galgame 风格叙事推进）
-- [ ] 世界空间可视化：角色/物品按 position 渲染
+- [x] 世界空间可视化：角色/物品按 position 渲染（已完成基础 MiniMap 版本）
+- [x] 三大操作模式（观察 / 微操 / 图谱）基础切换
 
 ### P2 — 后端系统扩展（6 大设计缺口）
 - [ ] VirtualContext 系统（影响 4 关：触发网瘾/赛博梦中梦/网瘾少年/幻境挣扎）
@@ -167,6 +171,28 @@ pnpm run tauri:dev
 ```bash
 pnpm run start:mcp
 ```
+
+## 实时进度日志（2026-02-26）
+
+- 已安装 Visual Studio 2022 Build Tools 到 `E:\Toolchains\VS2022\BuildTools`（含 MSVC + Windows SDK）。
+- 已修复 `pnpm i` 报错：`pnpm-workspace.yaml` 补齐 `packages: ['.']`。
+- 已接入右键上下文命令菜单：在 WorldPanel 右键角色弹出动态过滤命令。
+- 已完成角色详情面板：属性 / 图谱 / 背包三标签页。
+- 已完成教程引导面板：教程关卡显示可跟踪步骤与完成进度。
+- 已修复 Tick 速度逻辑：`speed=0` 停止循环，`speed>1` 放大 `dt`。
+- 已切换图谱为塔式纵向布局：底层生理 → 中层社会 → 顶层文化。
+- 已完成世界空间基础可视化：WorldPanel 增加 2D MiniMap（角色/物品按 position 渲染）。
+- 已完成图谱迷雾：未探索节点显示为 `?`，检视器隐藏未知节点详情。
+- 已完成条件反射视觉反馈：`EdgeWeightChanged(↑)` 与新建边会在图谱中高亮发光。
+- 已完成三模式切换：`观察`/`微操`/`图谱` 在顶栏切换并驱动主布局显隐。
+- 已完成事件日志增强：6 类过滤器（全部/命令/节点/边/资源/环境），增减箭头图标，自动滚动。
+- 已完成命令效果预览：hover 命令显示效果摘要，执行后显示绿✓反馈。
+- 已完成 MiniMap 交互：点击角色检视，Ctrl+点设执行者，Shift+点设目标，Tooltip 显示名称。
+- 已完成关卡进度追踪：`useLevelProgress` 基于 localStorage，关卡卡片显示✓/▶ 徽标和最远 Tick。
+- 已通过 MCP 执行 `load_level -> ring-bell -> feed -> tick -> get_edges` 验证全流程。
+- 已验证 TypeScript：`pnpm --ignore-workspace check` 通过。
+- 已清理 `1420` 端口占用，Vite dev server 可正常启动。
+- 当前启动阻塞：`pnpm run start:mcp` 仅受本机 Rust MSVC linker 缺失影响（`link.exe not found`）。
 
 ### 测试流程
 1. 在关卡选择页面选择任意关卡

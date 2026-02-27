@@ -47,15 +47,27 @@ impl System for ThresholdSystem {
 
             // Execute spawns
             for (parent_id, trigger, tick) in spawns {
-                let managed_id = format!("{}__{}",
-                    parent_id, trigger.trigger_id);
+                // Use __managed:{trigger_id} format to match JSON edge references
+                let managed_id = format!("__managed:{}", trigger.trigger_id);
+
+                // Give spawned Motivation nodes a meaningful initial value so edges fire
+                let parent_val = character.mind_graph.nodes.get(&parent_id)
+                    .map_or(trigger.activate_on_rising_above, |n| n.value);
+                let initial_value = if trigger.spawn_node_type == NodeType::Motivation {
+                    // Scale 0.3–1.0 based on how far above the threshold we are
+                    let excess_ratio = ((parent_val - trigger.activate_on_rising_above)
+                        / (1.0 - trigger.activate_on_rising_above + 1e-6)).min(1.0);
+                    0.4 + 0.6 * excess_ratio
+                } else {
+                    0.0
+                };
 
                 let child = MindNode {
                     instance_id: managed_id.clone(),
                     schema_id: trigger.spawn_schema_id.clone(),
                     label: trigger.spawn_schema_id.clone(), // Will be resolved to i18n key
                     node_type: trigger.spawn_node_type,
-                    value: 0.0,
+                    value: initial_value,
                     value_velocity: 0.0,
                     strength: 0.5,
                     active: true,
@@ -117,7 +129,10 @@ impl System for ThresholdSystem {
 
             // Execute despawns
             for (parent_id, trigger_id, managed_id) in despawns {
-                character.mind_graph.remove_node(&managed_id);
+                // IMPORTANT: Remove ONLY the node, not its edges!
+                // Conditioned edges (e.g. hear-metronome → want-to-eat) must survive
+                // so they can reconnect when the node re-spawns with the same ID.
+                character.mind_graph.nodes.remove(&managed_id);
 
                 if let Some(parent_node) = character.mind_graph.nodes.get_mut(&parent_id) {
                     for t in &mut parent_node.thresholds {

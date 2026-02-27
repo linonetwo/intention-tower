@@ -1,0 +1,87 @@
+    Checking intention-tower-game v0.1.0 (E:\repo\intention-tower\intention-tower-game\src-tauri)
+error: proc macro panicked
+  --> src\lib.rs:68:14
+   |
+68 |         .run(tauri::generate_context!())
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: message: The `frontendDist` configuration is set to `"../dist"` but this path doesn't exist
+
+warning: unused imports: `AssociationEdge`, `Evidence`, `LearnType`, and `Polarity`
+ --> src\systems\operant_conditioning.rs:3:42
+  |
+3 | use crate::models::mind_node::{NodeType, AssociationEdge, Evidence, Polarity, LearnType};
+  |                                          ^^^^^^^^^^^^^^^  ^^^^^^^^  ^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `crate::models::events::WorldEvent`
+ --> src\systems\event_emission.rs:3:5
+  |
+3 | use crate::models::events::WorldEvent;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::ops::Deref`
+ --> src\api.rs:2:5
+  |
+2 | use std::ops::Deref;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `CompareOp`
+ --> src\api.rs:7:69
+  |
+7 | use crate::models::commands::{CommandDTO, CommandDef, Precondition, CompareOp};
+  |                                                                     ^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\level_loader.rs:1:5
+  |
+1 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::models::events::WorldEvent`
+ --> src\level_loader.rs:7:5
+  |
+7 | use crate::models::events::WorldEvent;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `state`
+  --> src\systems\time_system.rs:11:19
+   |
+11 |     fn run(&self, state: &mut WorldState, _dt: f64) {
+   |                   ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `old`
+   --> src\systems\command_system.rs:117:37
+    |
+117 | ...                   let old = character.mind_graph.resource_value(resource_schema_id);
+    |                           ^^^ help: if this is intentional, prefix it with an underscore: `_old`
+
+warning: unused variable: `source_entity_id`
+  --> src\systems\perception.rs:22:44
+   |
+22 |                 WorldEvent::SoundEmitted { source_entity_id, about, modality } => {
+   |                                            ^^^^^^^^^^^^^^^^ help: try ignoring the field: `source_entity_id: _`
+
+warning: unused variable: `source_id`
+  --> src\systems\multi_layer_propagation.rs:30:18
+   |
+30 |             for (source_id, target_schema, source_value) in chained {
+   |                  ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_source_id`
+
+warning: unused variable: `old`
+  --> src\systems\attention_flood.rs:37:21
+   |
+37 |                 let old = character.mind_graph.resource_value(ATTENTION_SCHEMA);
+   |                     ^^^ help: if this is intentional, prefix it with an underscore: `_old`
+
+warning: unused variable: `winner_id`
+  --> src\systems\action_selection.rs:54:26
+   |
+54 |             if let Some((winner_id, _)) = action_scores.first() {
+   |                          ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_winner_id`
+
+warning: `intention-tower-game` (lib) generated 12 warnings
+error: could not compile `intention-tower-game` (lib) due to 1 previous error; 12 warnings emitted

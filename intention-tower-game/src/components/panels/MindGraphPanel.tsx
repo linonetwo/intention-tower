@@ -16,6 +16,7 @@ export function MindGraphPanel() {
   const { t } = useTranslation();
   const worldState = useGameState((s) => s.worldState);
   const inspectedCharacterId = useGameState((s) => s.inspectedCharacterId);
+  const recentEvents = useGameState((s) => s.recentEvents);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
@@ -27,7 +28,6 @@ export function MindGraphPanel() {
   const sortedNodes = useMemo(() => {
     if (!graph) return [];
     return Object.values(graph.nodes)
-      .filter((n) => !n.hidden_by_default || n.active)
       .sort((a, b) => {
         const aResource = a.prior_instinct?.is_resource ? 0 : 1;
         const bResource = b.prior_instinct?.is_resource ? 0 : 1;
@@ -48,6 +48,34 @@ export function MindGraphPanel() {
       });
   }, [graph]);
 
+  const discoveredNodeIds = useMemo(() => {
+    const discovered = new Set<string>();
+    if (!graph || !inspectedCharacterId) return discovered;
+
+    Object.values(graph.nodes).forEach((node) => {
+      if (!node.hidden_by_default || node.active) {
+        discovered.add(node.instance_id);
+      }
+    });
+
+    recentEvents.forEach((event) => {
+      if ('NodeSpawned' in event && event.NodeSpawned.character_id === inspectedCharacterId) {
+        discovered.add(event.NodeSpawned.instance_id);
+      }
+      if ('NodeActivated' in event && event.NodeActivated.character_id === inspectedCharacterId) {
+        discovered.add(event.NodeActivated.instance_id);
+      }
+      if ('NodeValueChanged' in event && event.NodeValueChanged.character_id === inspectedCharacterId) {
+        discovered.add(event.NodeValueChanged.instance_id);
+      }
+      if ('NodeDeactivated' in event && event.NodeDeactivated.character_id === inspectedCharacterId) {
+        discovered.add(event.NodeDeactivated.instance_id);
+      }
+    });
+
+    return discovered;
+  }, [graph, inspectedCharacterId, recentEvents]);
+
   const sortedEdges = useMemo(() => {
     if (!graph) return [];
     return Object.values(graph.edges).sort((a, b) => b.weight - a.weight);
@@ -63,8 +91,33 @@ export function MindGraphPanel() {
     schemaToCell,
   );
 
-  const selectedNode = selectedNodeId ? nodes.find((n) => n.instance_id === selectedNodeId) ?? null : null;
+  const fogNodes = useMemo(() => {
+    return nodes.map((node) => {
+      const unknown = node.hidden_by_default && !discoveredNodeIds.has(node.instance_id);
+      return { ...node, isUnknown: unknown };
+    });
+  }, [nodes, discoveredNodeIds]);
+
+  const selectedNode = selectedNodeId ? fogNodes.find((n) => n.instance_id === selectedNodeId) ?? null : null;
   const selectedEdge = selectedEdgeId ? edges.find((edge) => edge.edge_id === selectedEdgeId) ?? null : null;
+
+  const highlightedEdgeIds = useMemo(() => {
+    const ids = new Set<string>();
+    if (!inspectedCharacterId) return ids;
+
+    recentEvents.slice(0, 80).forEach((event) => {
+      if ('EdgeWeightChanged' in event && event.EdgeWeightChanged.character_id === inspectedCharacterId) {
+        if (event.EdgeWeightChanged.new_weight > event.EdgeWeightChanged.old_weight) {
+          ids.add(event.EdgeWeightChanged.edge_id);
+        }
+      }
+      if ('EdgeCreated' in event && event.EdgeCreated.character_id === inspectedCharacterId) {
+        ids.add(event.EdgeCreated.edge_id);
+      }
+    });
+
+    return ids;
+  }, [inspectedCharacterId, recentEvents]);
 
   const toggleType = (type: NodeType) => {
     setHiddenTypes((previous) => {
@@ -106,7 +159,7 @@ export function MindGraphPanel() {
           {t('graph.title', { name: translateLabel(character.label) })}
         </Typography>
 
-        <Chip label={t('graph.nodes', { count: nodes.length })} size='small' sx={{ height: 18, fontSize: 10 }} />
+        <Chip label={t('graph.nodes', { count: fogNodes.length })} size='small' sx={{ height: 18, fontSize: 10 }} />
         <Chip label={t('graph.edges', { count: edges.length })} size='small' sx={{ height: 18, fontSize: 10 }} />
         <Typography sx={{ fontSize: 10, color: '#777' }}>{t('graph.hint')}</Typography>
       </Box>
@@ -137,12 +190,13 @@ export function MindGraphPanel() {
 
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <GraphSvg
-          nodes={nodes}
+          nodes={fogNodes}
           edges={edges}
           width={GRAPH_WIDTH}
           height={GRAPH_HEIGHT}
           selectedNodeId={selectedNodeId}
           selectedEdgeId={selectedEdgeId}
+          highlightedEdgeIds={highlightedEdgeIds}
           hiddenTypes={hiddenTypes}
           onSelectNode={(nodeId) => {
             setSelectedNodeId(nodeId);
@@ -152,9 +206,15 @@ export function MindGraphPanel() {
             setSelectedEdgeId(edgeId);
             setSelectedNodeId(null);
           }}
+          onDeselect={() => {
+            setSelectedNodeId(null);
+            setSelectedEdgeId(null);
+          }}
         />
 
-        <NodeInspector selectedNode={selectedNode} selectedEdge={selectedEdge} />
+        {(selectedNode || selectedEdge) && (
+          <NodeInspector selectedNode={selectedNode} selectedEdge={selectedEdge} />
+        )}
       </Box>
     </Box>
   );

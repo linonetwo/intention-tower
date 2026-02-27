@@ -38,6 +38,7 @@ pub fn load_level(
         .map_err(|e| format!("Failed to load level '{}': {}", level_id, e))?;
 
     *world = level_data;
+    world.level_id = level_id;
 
     // Return the initial state as JSON
     serde_json::to_value(&*world).map_err(|e| e.to_string())
@@ -54,8 +55,8 @@ pub fn snapshot(sim: State<'_, SimulationState>) -> Result<serde_json::Value, St
 #[tauri::command]
 pub fn tick(dt: f64, sim: State<'_, SimulationState>) -> Result<Vec<WorldEvent>, String> {
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
-    let effective_dt = dt * (world.time_speed as f64);
-    let events = sim.runner.tick(&mut world, effective_dt);
+    // dt is already scaled by the frontend (0.5 * speed), do NOT multiply by time_speed again
+    let events = sim.runner.tick(&mut world, dt);
     Ok(events)
 }
 
@@ -121,12 +122,51 @@ pub fn execute_command(
     };
     world.pending_commands.push(dto);
 
-    // Run one tick to process the command immediately
-    let events = sim.runner.tick(&mut world, 0.0);
+    // If paused, just queue — the command will execute on next step_tick / unpause.
+    // If running, process immediately with a zero-dt tick.
+    if world.paused {
+        Ok(vec![])
+    } else {
+        let events = sim.runner.tick(&mut world, 0.0);
+        Ok(events)
+    }
+}
+
+/// Advance exactly one tick regardless of pause state. Used by the single-step button.
+/// Restores the paused state after the tick so the game remains paused.
+#[tauri::command]
+pub fn step_tick(sim: State<'_, SimulationState>) -> Result<Vec<WorldEvent>, String> {
+    let mut world = sim.world.lock().map_err(|e| e.to_string())?;
+    let was_paused = world.paused;
+    let saved_speed = world.time_speed;
+    // Temporarily unpause with speed 1 for exactly one tick
+    world.paused = false;
+    if world.time_speed == 0 {
+        world.time_speed = 1;
+    }
+    let effective_dt = 0.5 * world.time_speed as f64;
+    let events = sim.runner.tick(&mut world, effective_dt);
+    // Restore pause state
+    world.paused = was_paused;
+    world.time_speed = saved_speed;
     Ok(events)
 }
 
-/// Get a specific character's mind graph.
+/// Cancel a queued pending command by command_id.
+/// Used when the player clicks a queued command button to dequeue it.
+#[tauri::command]
+pub fn cancel_pending_command(
+    command_id: String,
+    sim: State<'_, SimulationState>,
+) -> Result<(), String> {
+    let mut world = sim.world.lock().map_err(|e| e.to_string())?;
+    if let Some(pos) = world.pending_commands.iter().position(|c| c.command_id == command_id) {
+        world.pending_commands.remove(pos);
+    }
+    Ok(())
+}
+
+/// Get the mind graph for a specific character.
 #[tauri::command]
 pub fn get_mind_graph(
     character_id: String,
@@ -150,9 +190,15 @@ pub fn set_paused(paused: bool, sim: State<'_, SimulationState>) -> Result<(), S
 
 /// Get the saves directory path (creates if not exists).
 fn saves_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
-    let dir = app.path().app_data_dir()
-        .map_err(|e| format!("Failed to get app data dir: {}", e))?
-        .join("saves");
+    let dir = if cfg!(debug_assertions) {
+        // Dev mode: keep saves in the project's userData-Dev/ folder so they're
+        // easy to inspect and reset during development.
+        std::path::PathBuf::from("userData-Dev").join("saves")
+    } else {
+        app.path().app_data_dir()
+            .map_err(|e| format!("Failed to get app data dir: {}", e))?
+            .join("saves")
+    };
     if !dir.exists() {
         std::fs::create_dir_all(&dir).map_err(|e| format!("Failed to create saves dir: {}", e))?;
     }
@@ -184,10 +230,8 @@ pub fn save_game(
     std::fs::write(&file_path, &json)
         .map_err(|e| format!("Write error: {}", e))?;
 
-    // Extract level_id from the slot name or world state
-    let level_id = world.command_defs.first()
-        .map(|c| c.command_id.split(':').next().unwrap_or("unknown").to_string())
-        .unwrap_or_else(|| "unknown".to_string());
+    // Extract level_id reliably from world state
+    let level_id = if world.level_id.is_empty() { "unknown".to_string() } else { world.level_id.clone() };
 
     Ok(SaveMeta {
         slot: slot.clone(),
@@ -253,9 +297,7 @@ pub fn list_saves(
                             })
                             .unwrap_or_else(|| "unknown".to_string());
 
-                        let level_id = ws.command_defs.first()
-                            .map(|c| c.command_id.split(':').next().unwrap_or("unknown").to_string())
-                            .unwrap_or_else(|| "unknown".to_string());
+                        let level_id = if ws.level_id.is_empty() { "unknown".to_string() } else { ws.level_id.clone() };
 
                         saves.push(SaveMeta {
                             slot,

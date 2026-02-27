@@ -14,18 +14,22 @@
           "color": "#2e7d32",
           "conceptSchemas": [
             "it:concept/hunger",
-            "it:concept/satiety",
-            "it:concept/want-to-eat",
-            "it:concept/salivate",
-            "it:concept/hear-metronome",
-            "it:concept/see-food"
+            "it:concept/satiety"
           ]
         },
         {
           "quadrantId": "safety-and-escape",
           "label": "quadrant.safety-and-escape.label",
           "color": "#388e3c",
-          "conceptSchemas": []
+          "conceptSchemas": [
+            "it:concept/hear-metronome",
+            "it:concept/see-food",
+            "it:concept/hear-bell",
+            "it:concept/see-lever",
+            "it:concept/see-button",
+            "it:concept/feel-pain",
+            "it:concept/see-parent"
+          ]
         },
         {
           "quadrantId": "reproduction-and-instinct",

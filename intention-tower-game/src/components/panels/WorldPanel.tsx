@@ -13,13 +13,17 @@ import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
 import { t as translateLabel } from '../../i18n';
 import type { WorldCharacter, WorldItem } from '../../types/backend';
+import { ContextCommandMenu } from './ContextCommandMenu';
+import { RoleDetailPanel } from './RoleDetailPanel';
+import { WorldSceneMiniMap } from './WorldSceneMiniMap';
 
 const CharacterEntry: React.FC<{
   char: WorldCharacter;
   isActor: boolean;
   isTarget: boolean;
   isInspected: boolean;
-}> = ({ char, isActor, isTarget, isInspected }) => {
+  onOpenContextMenu: (event: React.MouseEvent, charId: string) => void;
+}> = ({ char, isActor, isTarget, isInspected, onOpenContextMenu }) => {
   const { t } = useTranslation();
   const inspectCharacter = useGameState((s) => s.inspectCharacter);
 
@@ -27,6 +31,8 @@ const CharacterEntry: React.FC<{
     <ListItemButton
       selected={isInspected}
       onClick={() => inspectCharacter(char.id)}
+      onContextMenu={(event) => onOpenContextMenu(event, char.id)}
+      data-tutorial={`character-${char.id}`}
       sx={{ py: 0.5, borderLeft: isActor ? '3px solid #4caf50' : isTarget ? '3px solid #ff9800' : '3px solid transparent' }}
     >
       <ListItemIcon sx={{ minWidth: 32 }}>
@@ -68,6 +74,8 @@ export const WorldPanel: React.FC = () => {
   const inspectedCharacterId = useGameState((s) => s.inspectedCharacterId);
   const selectActor = useGameState((s) => s.selectActor);
   const selectTarget = useGameState((s) => s.selectTarget);
+  const [contextMenuPos, setContextMenuPos] = React.useState<{ top: number; left: number } | null>(null);
+  const [contextTargetId, setContextTargetId] = React.useState<string | null>(null);
 
   if (!worldState) return null;
 
@@ -82,6 +90,26 @@ export const WorldPanel: React.FC = () => {
     selectTarget(e.target.value || null);
   };
 
+  const handleOpenContextMenu = (event: React.MouseEvent, targetId: string) => {
+    event.preventDefault();
+    setContextMenuPos({ top: event.clientY, left: event.clientX });
+    setContextTargetId(targetId);
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenuPos(null);
+    setContextTargetId(null);
+  };
+
+  const actorIdForMenu = selectedActorId ?? contextTargetId;
+  const targetIdForMenu = selectedActorId === contextTargetId ? null : contextTargetId;
+  const actorLabel = actorIdForMenu && worldState.characters[actorIdForMenu]
+    ? translateLabel(worldState.characters[actorIdForMenu].label)
+    : t('world.none');
+  const targetLabel = targetIdForMenu && worldState.characters[targetIdForMenu]
+    ? translateLabel(worldState.characters[targetIdForMenu].label)
+    : t('world.none');
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Actor / Target selectors */}
@@ -93,6 +121,7 @@ export const WorldPanel: React.FC = () => {
             label={t('world.actor')}
             onChange={handleActorChange}
             sx={{ fontSize: 12 }}
+            inputProps={{ 'data-tutorial': 'actor-selector' }}
           >
             {characters.map((c) => (
               <MenuItem key={c.id} value={c.id} sx={{ fontSize: 12 }}>
@@ -119,6 +148,8 @@ export const WorldPanel: React.FC = () => {
         </FormControl>
       </Box>
 
+      <WorldSceneMiniMap />
+
       <Divider />
 
       {/* Characters */}
@@ -133,6 +164,7 @@ export const WorldPanel: React.FC = () => {
             isActor={c.id === selectedActorId}
             isTarget={c.id === selectedTargetId}
             isInspected={c.id === inspectedCharacterId}
+            onOpenContextMenu={handleOpenContextMenu}
           />
         ))}
       </List>
@@ -148,6 +180,18 @@ export const WorldPanel: React.FC = () => {
           <ItemEntry key={item.id} item={item} />
         ))}
       </List>
+
+      <ContextCommandMenu
+        open={!!contextMenuPos}
+        anchorPosition={contextMenuPos}
+        actorId={actorIdForMenu}
+        targetId={targetIdForMenu}
+        actorLabel={actorLabel}
+        targetLabel={targetLabel}
+        onClose={handleCloseContextMenu}
+      />
+
+      <RoleDetailPanel />
     </Box>
   );
 };

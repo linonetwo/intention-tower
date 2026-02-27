@@ -37,6 +37,9 @@ pub struct WorldState {
     pub time_speed: u8, // 0-4
     pub paused: bool,
     pub seed: u64,
+    /// The level directory ID (e.g. "pavlov")
+    #[serde(default)]
+    pub level_id: String,
     pub characters: HashMap<String, WorldCharacter>,
     pub items: HashMap<String, WorldItem>,
     pub event_log: Vec<WorldEvent>,
@@ -45,8 +48,9 @@ pub struct WorldState {
     /// Tick-local pending events (cleared each tick)
     #[serde(skip)]
     pub pending_events: Vec<WorldEvent>,
-    /// Commands queued by player/NPC for this tick
-    #[serde(skip)]
+    /// Commands queued by player/NPC for this tick.
+    /// Visible to frontend so the UI can show "queued" buttons.
+    #[serde(default)]
     pub pending_commands: Vec<CommandDTO>,
     /// Whether we are in a virtual context (cyber dream etc)
     pub in_virtual_context: bool,
@@ -59,6 +63,7 @@ impl WorldState {
             time_speed: 1,
             paused: false,
             seed,
+            level_id: String::new(),
             characters: HashMap::new(),
             items: HashMap::new(),
             event_log: Vec::new(),

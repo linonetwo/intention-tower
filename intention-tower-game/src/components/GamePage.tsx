@@ -12,22 +12,51 @@
  * │ EventLog (recent events)                                 │
  * └──────────────────────────────────────────────────────────┘
  */
-import React, { useEffect } from 'react';
-import { Box, Paper, Snackbar, Alert } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Paper, Snackbar, Alert, useMediaQuery, Tabs, Tab } from '@mui/material';
+import PublicIcon from '@mui/icons-material/Public';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGameState, gameStore } from '../store/useGameState';
+import { progressStore } from '../store/useLevelProgress';
 import { TimeControls } from './panels/TimeControls';
 import { WorldPanel } from './panels/WorldPanel';
 import { MindGraphPanel } from './panels/MindGraphPanel';
 import { CommandPanel } from './panels/CommandPanel';
 import { EventLog } from './panels/EventLog';
+import { TutorialGuidePanel } from './panels/TutorialGuidePanel';
 
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const worldState = useGameState((s) => s.worldState);
   const error = useGameState((s) => s.error);
   const clearError = useGameState((s) => s.clearError);
   const setTimeSpeed = useGameState((s) => s.setTimeSpeed);
+  const uiMode = useGameState((s) => s.uiMode);
+  const currentLevelId = useGameState((s) => s.currentLevelId);
+
+  // Responsive breakpoints: mobile < 768, tablet < 1024
+  const isMobile = useMediaQuery('(max-width:767px)');
+  const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
+  const [mobileTab, setMobileTab] = useState(1); // default to graph tab on mobile
+
+  // Track level progress
+  useEffect(() => {
+    if (currentLevelId) {
+      progressStore.getState().markPlayed(currentLevelId);
+    }
+  }, [currentLevelId]);
+
+  useEffect(() => {
+    const tick = worldState?.tick;
+    if (currentLevelId && tick != null && tick > 0) {
+      progressStore.getState().updateTick(currentLevelId, tick);
+    }
+  }, [currentLevelId, worldState?.tick]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -98,7 +127,7 @@ export const GamePage: React.FC = () => {
 
   return (
     <Box sx={{
-      width: '100vw', height: '100vh',
+      width: '100vw', height: '100dvh',
       display: 'flex', flexDirection: 'column',
       bgcolor: '#0e0e1a', color: '#ddd',
       overflow: 'hidden',
@@ -106,59 +135,115 @@ export const GamePage: React.FC = () => {
       {/* Top bar */}
       <TimeControls />
 
-      {/* Main 3-panel area */}
-      <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-        {/* Left: World Panel */}
-        <Paper
-          elevation={0}
-          sx={{
-            width: 240, flexShrink: 0,
-            bgcolor: '#141428',
-            borderRight: '1px solid #2a2a4e',
-            overflow: 'hidden',
-          }}
-        >
-          <WorldPanel />
-        </Paper>
+      {/* Tutorial guide (only visible in tutorial levels) */}
+      <TutorialGuidePanel />
 
-        {/* Center: Mind Graph */}
-        <Paper
-          elevation={0}
-          sx={{
-            flex: 1,
-            bgcolor: '#0e0e1a',
-            overflow: 'hidden',
-          }}
-        >
-          <MindGraphPanel />
-        </Paper>
+      {/* ─── Mobile layout: tab-based ─── */}
+      {isMobile && (
+        <>
+          <Box sx={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+            {mobileTab === 0 && <WorldPanel />}
+            {mobileTab === 1 && <MindGraphPanel />}
+            {mobileTab === 2 && <CommandPanel />}
+            {mobileTab === 3 && <EventLog />}
+          </Box>
+          <Tabs
+            value={mobileTab}
+            onChange={(_, v) => setMobileTab(v)}
+            variant='fullWidth'
+            sx={{
+              minHeight: 40,
+              bgcolor: '#141428',
+              borderTop: '1px solid #2a2a4e',
+              '& .MuiTab-root': {
+                minHeight: 40, fontSize: 10, textTransform: 'none',
+                color: '#888', py: 0.5,
+              },
+              '& .Mui-selected': { color: '#c5cae9 !important' },
+              '& .MuiTabs-indicator': { bgcolor: '#536dfe' },
+            }}
+          >
+            <Tab icon={<PublicIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.world')} />
+            <Tab icon={<AccountTreeIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.graph')} />
+            <Tab icon={<SportsEsportsIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.cmd')} />
+            <Tab icon={<FormatListBulletedIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.log')} />
+          </Tabs>
+        </>
+      )}
 
-        {/* Right: Commands */}
-        <Paper
-          elevation={0}
-          sx={{
-            width: 220, flexShrink: 0,
-            bgcolor: '#141428',
-            borderLeft: '1px solid #2a2a4e',
-            overflow: 'hidden',
-          }}
-        >
-          <CommandPanel />
-        </Paper>
-      </Box>
+      {/* ─── Tablet layout: 2-panel (world+graph or graph+cmd) + bottom log ─── */}
+      {isTablet && (
+        <>
+          <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+            {uiMode !== 'graph' && (
+              <Paper elevation={0} sx={{ width: 220, flexShrink: 0, bgcolor: '#141428', borderRight: '1px solid #2a2a4e', overflow: 'hidden' }}>
+                <WorldPanel />
+              </Paper>
+            )}
+            <Paper elevation={0} sx={{ flex: 1, bgcolor: '#0e0e1a', overflow: 'hidden' }}>
+              <MindGraphPanel />
+            </Paper>
+            {uiMode !== 'graph' && (
+              <Paper elevation={0} sx={{ width: 200, flexShrink: 0, bgcolor: '#141428', borderLeft: '1px solid #2a2a4e', overflow: 'hidden' }}>
+                <CommandPanel />
+              </Paper>
+            )}
+          </Box>
+          <Paper elevation={0} sx={{ height: 130, flexShrink: 0, bgcolor: '#0a0a16', borderTop: '1px solid #2a2a4e', overflow: 'hidden' }}>
+            <EventLog />
+          </Paper>
+        </>
+      )}
 
-      {/* Bottom: Event Log */}
-      <Paper
-        elevation={0}
-        sx={{
-          height: 160, flexShrink: 0,
-          bgcolor: '#0a0a16',
-          borderTop: '1px solid #2a2a4e',
-          overflow: 'hidden',
-        }}
-      >
-        <EventLog />
-      </Paper>
+      {/* ─── Desktop layout: full 3-panel + bottom log ─── */}
+      {!isMobile && !isTablet && (
+        <>
+          <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+            {uiMode !== 'graph' && (
+              <Paper
+                elevation={0}
+                sx={{
+                  width: uiMode === 'micro' ? 270 : 240,
+                  flexShrink: 0,
+                  bgcolor: '#141428',
+                  borderRight: '1px solid #2a2a4e',
+                  overflow: 'hidden',
+                }}
+              >
+                <WorldPanel />
+              </Paper>
+            )}
+            <Paper elevation={0} sx={{ flex: 1, bgcolor: '#0e0e1a', overflow: 'hidden' }}>
+              <MindGraphPanel />
+            </Paper>
+            {uiMode !== 'graph' && (
+              <Paper
+                elevation={0}
+                sx={{
+                  width: uiMode === 'micro' ? 280 : 220,
+                  flexShrink: 0,
+                  bgcolor: '#141428',
+                  borderLeft: '1px solid #2a2a4e',
+                  overflow: 'hidden',
+                }}
+              >
+                <CommandPanel />
+              </Paper>
+            )}
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{
+              height: 160, flexShrink: 0,
+              bgcolor: '#0a0a16',
+              borderTop: '1px solid #2a2a4e',
+              overflow: 'hidden',
+            }}
+          >
+            <EventLog />
+          </Paper>
+        </>
+      )}
 
       {/* Error snackbar */}
       <Snackbar

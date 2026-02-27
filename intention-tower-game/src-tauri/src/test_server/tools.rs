@@ -18,6 +18,9 @@ pub fn tool_list(has_webview: bool) -> Value {
         json!({ "name": "list_commands", "description": "列出可用命令", "inputSchema": {
             "type": "object", "properties": { "actor_id": { "type": "string" }, "target_id": { "type": "string" } }, "required": ["actor_id"]
         }}),
+        json!({ "name": "cancel_pending_command", "description": "取消排队中的命令", "inputSchema": {
+            "type": "object", "properties": { "command_id": { "type": "string" } }, "required": ["command_id"]
+        }}),
         json!({ "name": "get_node_value", "description": "查询节点", "inputSchema": {
             "type": "object", "properties": { "character_id": { "type": "string" }, "schema_id": { "type": "string" } },
             "required": ["character_id", "schema_id"]

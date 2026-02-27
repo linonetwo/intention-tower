@@ -7,38 +7,58 @@ import {
   Box, Typography, Paper, CircularProgress, Chip, IconButton,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
+import { useLevelProgress } from '../../store/useLevelProgress';
 import { allLevels, type LevelMeta } from '../../data/levels/allLevels';
 import { t as translate } from '../../i18n';
 
-const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; loading: boolean }> = ({ level, onSelect, loading }) => (
-  <Paper
-    elevation={0}
-    onClick={() => !loading && onSelect(level.id)}
-    sx={{
-      bgcolor: '#1a1a3e',
-      borderRadius: 2,
-      p: 2.5,
-      cursor: loading ? 'wait' : 'pointer',
-      transition: 'all 0.2s',
-      border: '1px solid #2a2a5e',
-      '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: '0 8px 24px rgba(100, 100, 255, 0.2)',
-        borderColor: '#4a4aff',
-      },
-    }}
-  >
-    <Typography sx={{ fontSize: 18, fontWeight: 600, mb: 1, color: '#fff' }}>
-    {translate(`level.${level.id}.name`) !== `level.${level.id}.name` ? translate(`level.${level.id}.name`) : level.name}
-    </Typography>
-    <Typography sx={{ fontSize: 12, color: '#999', lineHeight: 1.5, mb: 1.5 }}>
-    {translate(`level.${level.id}.description`) !== `level.${level.id}.description` ? translate(`level.${level.id}.description`) : level.description}
-    </Typography>
-    {level.objectives.length > 0 && (
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; loading: boolean; progress: { played: boolean; maxTick: number; completed: boolean } | undefined }> = ({ level, onSelect, loading, progress }) => {
+  const { t } = useTranslation();
+  const played = progress?.played ?? false;
+  const completed = progress?.completed ?? false;
+  const maxTick = progress?.maxTick ?? 0;
+
+  return (
+    <Paper
+      elevation={0}
+      onClick={() => !loading && onSelect(level.id)}
+      sx={{
+        bgcolor: completed ? '#1a2e1a' : '#1a1a3e',
+        borderRadius: 2,
+        p: 2.5,
+        cursor: loading ? 'wait' : 'pointer',
+        transition: 'all 0.2s',
+        border: completed ? '1px solid #2e7d32' : '1px solid #2a2a5e',
+        position: 'relative',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: completed
+            ? '0 8px 24px rgba(46, 125, 50, 0.2)'
+            : '0 8px 24px rgba(100, 100, 255, 0.2)',
+          borderColor: completed ? '#43a047' : '#4a4aff',
+        },
+      }}
+    >
+      {/* Progress badge */}
+      {completed && (
+        <CheckCircleIcon sx={{ position: 'absolute', top: 10, right: 10, fontSize: 20, color: '#66bb6a' }} />
+      )}
+      {played && !completed && (
+        <PlayCircleOutlineIcon sx={{ position: 'absolute', top: 10, right: 10, fontSize: 20, color: '#ffa726' }} />
+      )}
+
+      <Typography sx={{ fontSize: 18, fontWeight: 600, mb: 1, color: '#fff', pr: 3 }}>
+        {translate(`level.${level.id}.name`) !== `level.${level.id}.name` ? translate(`level.${level.id}.name`) : level.name}
+      </Typography>
+      <Typography sx={{ fontSize: 12, color: '#999', lineHeight: 1.5, mb: 1.5 }}>
+        {translate(`level.${level.id}.description`) !== `level.${level.id}.description` ? translate(`level.${level.id}.description`) : level.description}
+      </Typography>
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
         {level.objectives.slice(0, 3).map((obj, i) => (
           <Chip
             key={i}
@@ -48,10 +68,17 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
             sx={{ height: 20, fontSize: 10, borderColor: '#3a3a6e', color: '#888' }}
           />
         ))}
+        {played && maxTick > 0 && (
+          <Chip
+            label={t('menu.maxTick', { tick: maxTick })}
+            size="small"
+            sx={{ height: 18, fontSize: 9, bgcolor: 'rgba(255,255,255,0.05)', color: '#666' }}
+          />
+        )}
       </Box>
-    )}
-  </Paper>
-);
+    </Paper>
+  );
+};
 
 export const LevelSelectPage: React.FC = () => {
   const navigate = useNavigate();
@@ -59,6 +86,7 @@ export const LevelSelectPage: React.FC = () => {
   const loadLevel = useGameState((s) => s.loadLevel);
   const loading = useGameState((s) => s.loading);
   const error = useGameState((s) => s.error);
+  const levelProgress = useLevelProgress((s) => s.levels);
 
   const onSelectLevel = async (id: string) => {
     await loadLevel(id);
@@ -126,7 +154,7 @@ export const LevelSelectPage: React.FC = () => {
               gap: 2,
             }}>
               {levels.map((level) => (
-                <LevelCard key={level.id} level={level} onSelect={onSelectLevel} loading={loading} />
+                <LevelCard key={level.id} level={level} onSelect={onSelectLevel} loading={loading} progress={levelProgress[level.id]} />
               ))}
             </Box>
           </Box>
