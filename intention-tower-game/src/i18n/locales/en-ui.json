@@ -17,6 +17,11 @@
   "settings.back": "Back",
   "settings.lang.zh-CN": "简体中文",
   "settings.lang.en": "English",
+  "settings.graphics.title": "Graphics",
+  "settings.graphics.resolution": "Resolution",
+  "settings.graphics.current": "Current window: {{size}}",
+  "settings.graphics.hint": "Applies instantly, no restart required.",
+  "settings.graphics.applyFailed": "Failed to apply resolution: {{message}}",
 
   "game.unknownLevel": "Unknown Level",
   "game.backToMenu": "Back to level select",

@@ -6,6 +6,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
 import { eventPayload, eventType } from '../../types/backend';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 interface GuideStep {
   id: string;
@@ -43,6 +44,7 @@ function ensureHighlightStyle() {
 
 export const TutorialGuidePanel: React.FC = () => {
   const { t } = useTranslation();
+  const layout = useResponsiveLayout();
   const currentLevelId = useGameState((s) => s.currentLevelId);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
@@ -181,82 +183,96 @@ export const TutorialGuidePanel: React.FC = () => {
   }
 
   const doneCount = steps.filter((step) => step.done).length;
+  const panelTop = layout.isMobile ? 86 : 52;
+  const panelLeft = layout.isMobile ? 8 : layout.statusBarWidth + 8;
+  const panelRight = layout.isMobile ? 8 : undefined;
 
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
-        mx: 1,
-        mt: 0.8,
-        p: 1,
-        bgcolor: '#141428',
-        border: '1px solid #2a2a4e',
+        position: 'absolute',
+        top: panelTop,
+        left: panelLeft,
+        right: panelRight,
+        zIndex: 26,
+        width: layout.isMobile ? 'auto' : 320,
+        pointerEvents: 'auto',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.6 }}>
-        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#ddd' }}>
-          {t('tutorial.title')}
-        </Typography>
-        <Chip
-          size='small'
-          label={t('tutorial.progress', { done: doneCount, total: steps.length })}
-          sx={{ height: 18, fontSize: 10, bgcolor: 'rgba(255,255,255,0.06)' }}
-        />
-      </Box>
-
-      {/* Scrollable steps list — auto-scrolls to active step */}
-      <Box
-        ref={scrollRef}
+      <Paper
+        elevation={0}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0.4,
-          maxHeight: 220,
-          overflowY: 'auto',
-          pr: 0.3,
-          '&::-webkit-scrollbar': { width: 3 },
-          '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.18)', borderRadius: 2 },
-          '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
+          p: 1,
+          bgcolor: '#141428',
+          border: '1px solid #2a2a4e',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
         }}
       >
-        {steps.map((step) => {
-          const isActive = step === activeStep;
-          return (
-            <Box
-              key={step.id}
-              ref={(el: HTMLDivElement | null) => {
-                if (el) stepEls.current.set(step.id, el);
-                else stepEls.current.delete(step.id);
-              }}
-              sx={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 0.8,
-                px: 0.5,
-                py: 0.4,
-                borderRadius: 0.5,
-                bgcolor: step.done
-                  ? 'rgba(76,175,80,0.12)'
-                  : isActive
-                    ? 'rgba(255,167,38,0.1)'
-                    : 'transparent',
-                border: isActive ? '1px solid rgba(255,167,38,0.35)' : '1px solid transparent',
-              }}
-            >
-              <Box sx={{ mt: 0.15, flexShrink: 0 }}>
-                {step.done
-                  ? <CheckCircleIcon sx={{ fontSize: 14, color: '#66bb6a' }} />
-                  : isActive
-                    ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#ffa726' }} />
-                    : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#555' }} />}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.6 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#ddd' }}>
+            {t('tutorial.title')}
+          </Typography>
+          <Chip
+            size='small'
+            label={t('tutorial.progress', { done: doneCount, total: steps.length })}
+            sx={{ height: 18, fontSize: 10, bgcolor: 'rgba(255,255,255,0.06)' }}
+          />
+        </Box>
+
+      {/* Scrollable steps list — auto-scrolls to active step */}
+        <Box
+          ref={scrollRef}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.4,
+            maxHeight: 220,
+            overflowY: 'auto',
+            pr: 0.3,
+            '&::-webkit-scrollbar': { width: 3 },
+            '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.18)', borderRadius: 2 },
+            '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
+          }}
+        >
+          {steps.map((step) => {
+            const isActive = step === activeStep;
+            return (
+              <Box
+                key={step.id}
+                ref={(el: HTMLDivElement | null) => {
+                  if (el) stepEls.current.set(step.id, el);
+                  else stepEls.current.delete(step.id);
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 0.8,
+                  px: 0.5,
+                  py: 0.4,
+                  borderRadius: 0.5,
+                  bgcolor: step.done
+                    ? 'rgba(76,175,80,0.12)'
+                    : isActive
+                      ? 'rgba(255,167,38,0.1)'
+                      : 'transparent',
+                  border: isActive ? '1px solid rgba(255,167,38,0.35)' : '1px solid transparent',
+                }}
+              >
+                <Box sx={{ mt: 0.15, flexShrink: 0 }}>
+                  {step.done
+                    ? <CheckCircleIcon sx={{ fontSize: 14, color: '#66bb6a' }} />
+                    : isActive
+                      ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#ffa726' }} />
+                      : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#555' }} />}
+                </Box>
+                <Typography sx={{ fontSize: 11, color: step.done ? '#c8e6c9' : isActive ? '#ffe082' : '#888', lineHeight: 1.5 }}>
+                  {step.text}
+                </Typography>
               </Box>
-              <Typography sx={{ fontSize: 11, color: step.done ? '#c8e6c9' : isActive ? '#ffe082' : '#888', lineHeight: 1.5 }}>
-                {step.text}
-              </Typography>
-            </Box>
-          );
-        })}
-      </Box>
-    </Paper>
+            );
+          })}
+        </Box>
+      </Paper>
+    </Box>
   );
 };

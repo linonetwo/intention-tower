@@ -1,0 +1,734 @@
+{
+  "id": "qwen-image-pack",
+  "name": "Qwen Full Image Pack",
+  "provider": "Qwen/Qwen-Image via SiliconFlow",
+  "version": 1772723054063,
+  "portraits": {
+    "left": "/mods/qwen-image-pack/portraits/it-entity-antimeme-agent.png",
+    "right": "/mods/qwen-image-pack/portraits/it-entity-antimeme-agent.png"
+  },
+  "portraitsByCharacter": {
+    "it:entity/antimeme-agent": "/mods/qwen-image-pack/portraits/it-entity-antimeme-agent.png",
+    "antimeme-agent": "/mods/qwen-image-pack/portraits/it-entity-antimeme-agent.png",
+    "it:entity/bystander": "/mods/qwen-image-pack/portraits/it-entity-bystander.png",
+    "bystander": "/mods/qwen-image-pack/portraits/it-entity-bystander.png",
+    "it:entity/chen-sheng": "/mods/qwen-image-pack/portraits/it-entity-chen-sheng.png",
+    "chen-sheng": "/mods/qwen-image-pack/portraits/it-entity-chen-sheng.png",
+    "it:entity/wu-guang": "/mods/qwen-image-pack/portraits/it-entity-wu-guang.png",
+    "wu-guang": "/mods/qwen-image-pack/portraits/it-entity-wu-guang.png",
+    "it:entity/soldier-1": "/mods/qwen-image-pack/portraits/it-entity-soldier-1.png",
+    "soldier-1": "/mods/qwen-image-pack/portraits/it-entity-soldier-1.png",
+    "it:entity/soldier-2": "/mods/qwen-image-pack/portraits/it-entity-soldier-2.png",
+    "soldier-2": "/mods/qwen-image-pack/portraits/it-entity-soldier-2.png",
+    "it:entity/soldier-3": "/mods/qwen-image-pack/portraits/it-entity-soldier-3.png",
+    "soldier-3": "/mods/qwen-image-pack/portraits/it-entity-soldier-3.png",
+    "it:entity/student-worker": "/mods/qwen-image-pack/portraits/it-entity-student-worker.png",
+    "student-worker": "/mods/qwen-image-pack/portraits/it-entity-student-worker.png",
+    "it:entity/magic-merchant": "/mods/qwen-image-pack/portraits/it-entity-magic-merchant.png",
+    "magic-merchant": "/mods/qwen-image-pack/portraits/it-entity-magic-merchant.png",
+    "it:entity/citizen-1": "/mods/qwen-image-pack/portraits/it-entity-citizen-1.png",
+    "citizen-1": "/mods/qwen-image-pack/portraits/it-entity-citizen-1.png",
+    "it:entity/citizen-2": "/mods/qwen-image-pack/portraits/it-entity-citizen-2.png",
+    "citizen-2": "/mods/qwen-image-pack/portraits/it-entity-citizen-2.png",
+    "it:entity/citizen-3": "/mods/qwen-image-pack/portraits/it-entity-citizen-3.png",
+    "citizen-3": "/mods/qwen-image-pack/portraits/it-entity-citizen-3.png",
+    "it:entity/player-capitalist": "/mods/qwen-image-pack/portraits/it-entity-player-capitalist.png",
+    "player-capitalist": "/mods/qwen-image-pack/portraits/it-entity-player-capitalist.png",
+    "it:entity/citizen-4": "/mods/qwen-image-pack/portraits/it-entity-citizen-4.png",
+    "citizen-4": "/mods/qwen-image-pack/portraits/it-entity-citizen-4.png",
+    "it:entity/citizen-5": "/mods/qwen-image-pack/portraits/it-entity-citizen-5.png",
+    "citizen-5": "/mods/qwen-image-pack/portraits/it-entity-citizen-5.png",
+    "it:entity/investigator": "/mods/qwen-image-pack/portraits/it-entity-investigator.png",
+    "investigator": "/mods/qwen-image-pack/portraits/it-entity-investigator.png",
+    "it:entity/victim": "/mods/qwen-image-pack/portraits/it-entity-victim.png",
+    "victim": "/mods/qwen-image-pack/portraits/it-entity-victim.png",
+    "it:entity/player": "/mods/qwen-image-pack/portraits/it-entity-player.png",
+    "player": "/mods/qwen-image-pack/portraits/it-entity-player.png",
+    "it:entity/player-agent": "/mods/qwen-image-pack/portraits/it-entity-player-agent.png",
+    "player-agent": "/mods/qwen-image-pack/portraits/it-entity-player-agent.png",
+    "it:entity/luddite-1": "/mods/qwen-image-pack/portraits/it-entity-luddite-1.png",
+    "luddite-1": "/mods/qwen-image-pack/portraits/it-entity-luddite-1.png",
+    "it:entity/luddite-2": "/mods/qwen-image-pack/portraits/it-entity-luddite-2.png",
+    "luddite-2": "/mods/qwen-image-pack/portraits/it-entity-luddite-2.png",
+    "it:entity/hive-mind": "/mods/qwen-image-pack/portraits/it-entity-hive-mind.png",
+    "hive-mind": "/mods/qwen-image-pack/portraits/it-entity-hive-mind.png",
+    "it:entity/energy-employee": "/mods/qwen-image-pack/portraits/it-entity-energy-employee.png",
+    "energy-employee": "/mods/qwen-image-pack/portraits/it-entity-energy-employee.png",
+    "it:entity/ally-agent": "/mods/qwen-image-pack/portraits/it-entity-ally-agent.png",
+    "ally-agent": "/mods/qwen-image-pack/portraits/it-entity-ally-agent.png",
+    "it:entity/minister": "/mods/qwen-image-pack/portraits/it-entity-minister.png",
+    "minister": "/mods/qwen-image-pack/portraits/it-entity-minister.png",
+    "it:entity/king": "/mods/qwen-image-pack/portraits/it-entity-king.png",
+    "king": "/mods/qwen-image-pack/portraits/it-entity-king.png",
+    "it:entity/lorenz": "/mods/qwen-image-pack/portraits/it-entity-lorenz.png",
+    "lorenz": "/mods/qwen-image-pack/portraits/it-entity-lorenz.png",
+    "it:entity/gosling": "/mods/qwen-image-pack/portraits/it-entity-gosling.png",
+    "gosling": "/mods/qwen-image-pack/portraits/it-entity-gosling.png",
+    "it:entity/clone-a": "/mods/qwen-image-pack/portraits/it-entity-clone-a.png",
+    "clone-a": "/mods/qwen-image-pack/portraits/it-entity-clone-a.png",
+    "it:entity/clone-b": "/mods/qwen-image-pack/portraits/it-entity-clone-b.png",
+    "clone-b": "/mods/qwen-image-pack/portraits/it-entity-clone-b.png",
+    "it:entity/clone-c": "/mods/qwen-image-pack/portraits/it-entity-clone-c.png",
+    "clone-c": "/mods/qwen-image-pack/portraits/it-entity-clone-c.png",
+    "it:entity/ideologue": "/mods/qwen-image-pack/portraits/it-entity-ideologue.png",
+    "ideologue": "/mods/qwen-image-pack/portraits/it-entity-ideologue.png",
+    "it:entity/believer": "/mods/qwen-image-pack/portraits/it-entity-believer.png",
+    "believer": "/mods/qwen-image-pack/portraits/it-entity-believer.png",
+    "it:entity/skeptic": "/mods/qwen-image-pack/portraits/it-entity-skeptic.png",
+    "skeptic": "/mods/qwen-image-pack/portraits/it-entity-skeptic.png",
+    "it:entity/trapped-person": "/mods/qwen-image-pack/portraits/it-entity-trapped-person.png",
+    "trapped-person": "/mods/qwen-image-pack/portraits/it-entity-trapped-person.png",
+    "it:entity/illusionist": "/mods/qwen-image-pack/portraits/it-entity-illusionist.png",
+    "illusionist": "/mods/qwen-image-pack/portraits/it-entity-illusionist.png",
+    "it:entity/addict-teen": "/mods/qwen-image-pack/portraits/it-entity-addict-teen.png",
+    "addict-teen": "/mods/qwen-image-pack/portraits/it-entity-addict-teen.png",
+    "it:entity/meme-engineer": "/mods/qwen-image-pack/portraits/it-entity-meme-engineer.png",
+    "meme-engineer": "/mods/qwen-image-pack/portraits/it-entity-meme-engineer.png",
+    "it:entity/meme-target": "/mods/qwen-image-pack/portraits/it-entity-meme-target.png",
+    "meme-target": "/mods/qwen-image-pack/portraits/it-entity-meme-target.png",
+    "it:entity/pavlov": "/mods/qwen-image-pack/portraits/it-entity-pavlov.png",
+    "pavlov": "/mods/qwen-image-pack/portraits/it-entity-pavlov.png",
+    "it:entity/dog": "/mods/qwen-image-pack/portraits/it-entity-dog.png",
+    "dog": "/mods/qwen-image-pack/portraits/it-entity-dog.png",
+    "it:entity/protagonist": "/mods/qwen-image-pack/portraits/it-entity-protagonist.png",
+    "protagonist": "/mods/qwen-image-pack/portraits/it-entity-protagonist.png",
+    "it:entity/friend": "/mods/qwen-image-pack/portraits/it-entity-friend.png",
+    "friend": "/mods/qwen-image-pack/portraits/it-entity-friend.png",
+    "it:entity/vagrant-leader": "/mods/qwen-image-pack/portraits/it-entity-vagrant-leader.png",
+    "vagrant-leader": "/mods/qwen-image-pack/portraits/it-entity-vagrant-leader.png",
+    "it:entity/vagrant-1": "/mods/qwen-image-pack/portraits/it-entity-vagrant-1.png",
+    "vagrant-1": "/mods/qwen-image-pack/portraits/it-entity-vagrant-1.png",
+    "it:entity/vagrant-2": "/mods/qwen-image-pack/portraits/it-entity-vagrant-2.png",
+    "vagrant-2": "/mods/qwen-image-pack/portraits/it-entity-vagrant-2.png",
+    "it:entity/trainer": "/mods/qwen-image-pack/portraits/it-entity-trainer.png",
+    "trainer": "/mods/qwen-image-pack/portraits/it-entity-trainer.png",
+    "it:entity/cat-billi": "/mods/qwen-image-pack/portraits/it-entity-cat-billi.png",
+    "cat-billi": "/mods/qwen-image-pack/portraits/it-entity-cat-billi.png",
+    "it:entity/teacher-wenger": "/mods/qwen-image-pack/portraits/it-entity-teacher-wenger.png",
+    "teacher-wenger": "/mods/qwen-image-pack/portraits/it-entity-teacher-wenger.png",
+    "it:entity/tim": "/mods/qwen-image-pack/portraits/it-entity-tim.png",
+    "tim": "/mods/qwen-image-pack/portraits/it-entity-tim.png",
+    "it:entity/student-a": "/mods/qwen-image-pack/portraits/it-entity-student-a.png",
+    "student-a": "/mods/qwen-image-pack/portraits/it-entity-student-a.png",
+    "it:entity/student-b": "/mods/qwen-image-pack/portraits/it-entity-student-b.png",
+    "student-b": "/mods/qwen-image-pack/portraits/it-entity-student-b.png",
+    "it:entity/enemy-target": "/mods/qwen-image-pack/portraits/it-entity-enemy-target.png",
+    "enemy-target": "/mods/qwen-image-pack/portraits/it-entity-enemy-target.png",
+    "it:entity/hines": "/mods/qwen-image-pack/portraits/it-entity-hines.png",
+    "hines": "/mods/qwen-image-pack/portraits/it-entity-hines.png",
+    "it:entity/subject": "/mods/qwen-image-pack/portraits/it-entity-subject.png",
+    "subject": "/mods/qwen-image-pack/portraits/it-entity-subject.png"
+  },
+  "backgrounds": {
+    "antimeme-division": "/mods/qwen-image-pack/backgrounds/antimeme-division.png",
+    "chen-sheng-uprising": "/mods/qwen-image-pack/backgrounds/chen-sheng-uprising.png",
+    "collapse": "/mods/qwen-image-pack/backgrounds/collapse.png",
+    "consumerism-magic": "/mods/qwen-image-pack/backgrounds/consumerism-magic.png",
+    "crowd": "/mods/qwen-image-pack/backgrounds/crowd.png",
+    "cthulhu": "/mods/qwen-image-pack/backgrounds/cthulhu.png",
+    "cyber-dream": "/mods/qwen-image-pack/backgrounds/cyber-dream.png",
+    "destroy-hive-mind": "/mods/qwen-image-pack/backgrounds/destroy-hive-mind.png",
+    "face-saving": "/mods/qwen-image-pack/backgrounds/face-saving.png",
+    "gosling": "/mods/qwen-image-pack/backgrounds/gosling.png",
+    "hive-self": "/mods/qwen-image-pack/backgrounds/hive-self.png",
+    "ideology": "/mods/qwen-image-pack/backgrounds/ideology.png",
+    "illusion-trap": "/mods/qwen-image-pack/backgrounds/illusion-trap.png",
+    "internet-addict": "/mods/qwen-image-pack/backgrounds/internet-addict.png",
+    "meme-magic": "/mods/qwen-image-pack/backgrounds/meme-magic.png",
+    "pavlov": "/mods/qwen-image-pack/backgrounds/pavlov.png",
+    "postmodern-vagrant": "/mods/qwen-image-pack/backgrounds/postmodern-vagrant.png",
+    "smart-cat": "/mods/qwen-image-pack/backgrounds/smart-cat.png",
+    "the-wave": "/mods/qwen-image-pack/backgrounds/the-wave.png",
+    "trigger-addiction": "/mods/qwen-image-pack/backgrounds/trigger-addiction.png",
+    "water-is-poison": "/mods/qwen-image-pack/backgrounds/water-is-poison.png"
+  },
+  "items": [
+    {
+      "id": "bg-antimeme-division",
+      "type": "background",
+      "levelId": "antimeme-division",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 逆模因部. Theme: 作为逆模因部特工，在反模因区域中对抗会让人遗忘的逆模因效应. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/antimeme-division.png"
+    },
+    {
+      "id": "portrait-it-entity-antimeme-agent",
+      "type": "portrait",
+      "charId": "it:entity/antimeme-agent",
+      "levelId": "antimeme-division",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 逆模因部特工. Level context: 逆模因部. Mood: 作为逆模因部特工，在反模因区域中对抗会让人遗忘的逆模因效应. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-antimeme-agent.png"
+    },
+    {
+      "id": "portrait-it-entity-bystander",
+      "type": "portrait",
+      "charId": "it:entity/bystander",
+      "levelId": "antimeme-division",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 旁观者. Level context: 逆模因部. Mood: 作为逆模因部特工，在反模因区域中对抗会让人遗忘的逆模因效应. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-bystander.png"
+    },
+    {
+      "id": "bg-chen-sheng-uprising",
+      "type": "background",
+      "levelId": "chen-sheng-uprising",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 等死死国可乎. Theme: 秦末大泽乡起义：陈胜吴广利用「今亡亦死，举大计亦死，等死，死国可乎？」的绝望处境煽动士兵造反. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/chen-sheng-uprising.png"
+    },
+    {
+      "id": "portrait-it-entity-chen-sheng",
+      "type": "portrait",
+      "charId": "it:entity/chen-sheng",
+      "levelId": "chen-sheng-uprising",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 陈胜. Level context: 等死死国可乎. Mood: 秦末大泽乡起义：陈胜吴广利用「今亡亦死，举大计亦死，等死，死国可乎？」的绝望处境煽动士兵造反. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-chen-sheng.png"
+    },
+    {
+      "id": "portrait-it-entity-wu-guang",
+      "type": "portrait",
+      "charId": "it:entity/wu-guang",
+      "levelId": "chen-sheng-uprising",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 吴广. Level context: 等死死国可乎. Mood: 秦末大泽乡起义：陈胜吴广利用「今亡亦死，举大计亦死，等死，死国可乎？」的绝望处境煽动士兵造反. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-wu-guang.png"
+    },
+    {
+      "id": "portrait-it-entity-soldier-1",
+      "type": "portrait",
+      "charId": "it:entity/soldier-1",
+      "levelId": "chen-sheng-uprising",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 戍卒甲. Level context: 等死死国可乎. Mood: 秦末大泽乡起义：陈胜吴广利用「今亡亦死，举大计亦死，等死，死国可乎？」的绝望处境煽动士兵造反. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-soldier-1.png"
+    },
+    {
+      "id": "portrait-it-entity-soldier-2",
+      "type": "portrait",
+      "charId": "it:entity/soldier-2",
+      "levelId": "chen-sheng-uprising",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 戍卒乙. Level context: 等死死国可乎. Mood: 秦末大泽乡起义：陈胜吴广利用「今亡亦死，举大计亦死，等死，死国可乎？」的绝望处境煽动士兵造反. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-soldier-2.png"
+    },
+    {
+      "id": "portrait-it-entity-soldier-3",
+      "type": "portrait",
+      "charId": "it:entity/soldier-3",
+      "levelId": "chen-sheng-uprising",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 戍卒丙. Level context: 等死死国可乎. Mood: 秦末大泽乡起义：陈胜吴广利用「今亡亦死，举大计亦死，等死，死国可乎？」的绝望处境煽动士兵造反. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-soldier-3.png"
+    },
+    {
+      "id": "bg-collapse",
+      "type": "background",
+      "levelId": "collapse",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 崩溃. Theme: 观察一个学生在学业和工作的双重压力下，如何从积极学习走向心理崩溃. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/collapse.png"
+    },
+    {
+      "id": "portrait-it-entity-student-worker",
+      "type": "portrait",
+      "charId": "it:entity/student-worker",
+      "levelId": "collapse",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 打工学生. Level context: 崩溃. Mood: 观察一个学生在学业和工作的双重压力下，如何从积极学习走向心理崩溃. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-student-worker.png"
+    },
+    {
+      "id": "bg-consumerism-magic",
+      "type": "background",
+      "levelId": "consumerism-magic",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 消费主义魔法. Theme: 在奇幻世界中扮演魔法商人，利用魔法广告和品牌效应操控消费者的购买欲望. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/consumerism-magic.png"
+    },
+    {
+      "id": "portrait-it-entity-magic-merchant",
+      "type": "portrait",
+      "charId": "it:entity/magic-merchant",
+      "levelId": "consumerism-magic",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 魔法商人. Level context: 消费主义魔法. Mood: 在奇幻世界中扮演魔法商人，利用魔法广告和品牌效应操控消费者的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-magic-merchant.png"
+    },
+    {
+      "id": "portrait-it-entity-citizen-1",
+      "type": "portrait",
+      "charId": "it:entity/citizen-1",
+      "levelId": "consumerism-magic",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 市民甲. Level context: 消费主义魔法. Mood: 在奇幻世界中扮演魔法商人，利用魔法广告和品牌效应操控消费者的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-citizen-1.png"
+    },
+    {
+      "id": "portrait-it-entity-citizen-2",
+      "type": "portrait",
+      "charId": "it:entity/citizen-2",
+      "levelId": "consumerism-magic",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 市民乙. Level context: 消费主义魔法. Mood: 在奇幻世界中扮演魔法商人，利用魔法广告和品牌效应操控消费者的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-citizen-2.png"
+    },
+    {
+      "id": "portrait-it-entity-citizen-3",
+      "type": "portrait",
+      "charId": "it:entity/citizen-3",
+      "levelId": "consumerism-magic",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 市民丙. Level context: 消费主义魔法. Mood: 在奇幻世界中扮演魔法商人，利用魔法广告和品牌效应操控消费者的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-citizen-3.png"
+    },
+    {
+      "id": "bg-crowd",
+      "type": "background",
+      "levelId": "crowd",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 人从众. Theme: 扮演资本家，利用广告、模因和消费主义心理操控大众的购买欲望. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/crowd.png"
+    },
+    {
+      "id": "portrait-it-entity-player-capitalist",
+      "type": "portrait",
+      "charId": "it:entity/player-capitalist",
+      "levelId": "crowd",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 资本家玩家. Level context: 人从众. Mood: 扮演资本家，利用广告、模因和消费主义心理操控大众的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-player-capitalist.png"
+    },
+    {
+      "id": "portrait-it-entity-citizen-4",
+      "type": "portrait",
+      "charId": "it:entity/citizen-4",
+      "levelId": "crowd",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 市民丁. Level context: 人从众. Mood: 扮演资本家，利用广告、模因和消费主义心理操控大众的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-citizen-4.png"
+    },
+    {
+      "id": "portrait-it-entity-citizen-5",
+      "type": "portrait",
+      "charId": "it:entity/citizen-5",
+      "levelId": "crowd",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 市民戊. Level context: 人从众. Mood: 扮演资本家，利用广告、模因和消费主义心理操控大众的购买欲望. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-citizen-5.png"
+    },
+    {
+      "id": "bg-cthulhu",
+      "type": "background",
+      "levelId": "cthulhu",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 克苏鲁神话. Theme: 作为调查员探索克苏鲁神话中的禁忌知识，在获取真相与保持理智之间寻求平衡. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/cthulhu.png"
+    },
+    {
+      "id": "portrait-it-entity-investigator",
+      "type": "portrait",
+      "charId": "it:entity/investigator",
+      "levelId": "cthulhu",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 调查员. Level context: 克苏鲁神话. Mood: 作为调查员探索克苏鲁神话中的禁忌知识，在获取真相与保持理智之间寻求平衡. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-investigator.png"
+    },
+    {
+      "id": "portrait-it-entity-victim",
+      "type": "portrait",
+      "charId": "it:entity/victim",
+      "levelId": "cthulhu",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 受害者. Level context: 克苏鲁神话. Mood: 作为调查员探索克苏鲁神话中的禁忌知识，在获取真相与保持理智之间寻求平衡. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-victim.png"
+    },
+    {
+      "id": "bg-cyber-dream",
+      "type": "background",
+      "levelId": "cyber-dream",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 赛博梦中梦. Theme: 在多层嵌套的虚拟现实中，探索真实与虚幻的边界，寻找回到现实的方法. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/cyber-dream.png"
+    },
+    {
+      "id": "portrait-it-entity-player",
+      "type": "portrait",
+      "charId": "it:entity/player",
+      "levelId": "cyber-dream",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 玩家. Level context: 赛博梦中梦. Mood: 在多层嵌套的虚拟现实中，探索真实与虚幻的边界，寻找回到现实的方法. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-player.png"
+    },
+    {
+      "id": "bg-destroy-hive-mind",
+      "type": "background",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 毁灭虫族主脑. Theme: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/destroy-hive-mind.png"
+    },
+    {
+      "id": "portrait-it-entity-player-agent",
+      "type": "portrait",
+      "charId": "it:entity/player-agent",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 玩家特工. Level context: 毁灭虫族主脑. Mood: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-player-agent.png"
+    },
+    {
+      "id": "portrait-it-entity-luddite-1",
+      "type": "portrait",
+      "charId": "it:entity/luddite-1",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 卢德分子甲. Level context: 毁灭虫族主脑. Mood: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-luddite-1.png"
+    },
+    {
+      "id": "portrait-it-entity-luddite-2",
+      "type": "portrait",
+      "charId": "it:entity/luddite-2",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 卢德分子乙. Level context: 毁灭虫族主脑. Mood: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-luddite-2.png"
+    },
+    {
+      "id": "portrait-it-entity-hive-mind",
+      "type": "portrait",
+      "charId": "it:entity/hive-mind",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 虫族主脑. Level context: 毁灭虫族主脑. Mood: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-hive-mind.png"
+    },
+    {
+      "id": "portrait-it-entity-energy-employee",
+      "type": "portrait",
+      "charId": "it:entity/energy-employee",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 能源站员工. Level context: 毁灭虫族主脑. Mood: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-energy-employee.png"
+    },
+    {
+      "id": "portrait-it-entity-ally-agent",
+      "type": "portrait",
+      "charId": "it:entity/ally-agent",
+      "levelId": "destroy-hive-mind",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 盟友特工. Level context: 毁灭虫族主脑. Mood: 在外星虫族殖民地中，组织人类抵抗力量破坏虫族主脑的控制网络. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-ally-agent.png"
+    },
+    {
+      "id": "bg-face-saving",
+      "type": "background",
+      "levelId": "face-saving",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 死要面子活受罪. Theme: 在朝堂之上，观察面子文化如何让大臣在尊严与生存之间艰难抉择. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/face-saving.png"
+    },
+    {
+      "id": "portrait-it-entity-minister",
+      "type": "portrait",
+      "charId": "it:entity/minister",
+      "levelId": "face-saving",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 大臣. Level context: 死要面子活受罪. Mood: 在朝堂之上，观察面子文化如何让大臣在尊严与生存之间艰难抉择. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-minister.png"
+    },
+    {
+      "id": "portrait-it-entity-king",
+      "type": "portrait",
+      "charId": "it:entity/king",
+      "levelId": "face-saving",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 君王. Level context: 死要面子活受罪. Mood: 在朝堂之上，观察面子文化如何让大臣在尊严与生存之间艰难抉择. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-king.png"
+    },
+    {
+      "id": "bg-gosling",
+      "type": "background",
+      "levelId": "gosling",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 雏鹅的印刻行为. Theme: 洛伦兹的印刻实验：雏鹅在关键期内会将第一个看到的移动物体视为母亲并追随. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/gosling.png"
+    },
+    {
+      "id": "portrait-it-entity-lorenz",
+      "type": "portrait",
+      "charId": "it:entity/lorenz",
+      "levelId": "gosling",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 洛伦兹. Level context: 雏鹅的印刻行为. Mood: 洛伦兹的印刻实验：雏鹅在关键期内会将第一个看到的移动物体视为母亲并追随. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-lorenz.png"
+    },
+    {
+      "id": "portrait-it-entity-gosling",
+      "type": "portrait",
+      "charId": "it:entity/gosling",
+      "levelId": "gosling",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 雏鹅. Level context: 雏鹅的印刻行为. Mood: 洛伦兹的印刻实验：雏鹅在关键期内会将第一个看到的移动物体视为母亲并追随. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-gosling.png"
+    },
+    {
+      "id": "bg-hive-self",
+      "type": "background",
+      "levelId": "hive-self",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 集群意识. Theme: 三个基因完全相同的克隆人在资源匮乏的环境中，探索合作与竞争的边界. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/hive-self.png"
+    },
+    {
+      "id": "portrait-it-entity-clone-a",
+      "type": "portrait",
+      "charId": "it:entity/clone-a",
+      "levelId": "hive-self",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 克隆体A. Level context: 集群意识. Mood: 三个基因完全相同的克隆人在资源匮乏的环境中，探索合作与竞争的边界. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-clone-a.png"
+    },
+    {
+      "id": "portrait-it-entity-clone-b",
+      "type": "portrait",
+      "charId": "it:entity/clone-b",
+      "levelId": "hive-self",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 克隆体B. Level context: 集群意识. Mood: 三个基因完全相同的克隆人在资源匮乏的环境中，探索合作与竞争的边界. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-clone-b.png"
+    },
+    {
+      "id": "portrait-it-entity-clone-c",
+      "type": "portrait",
+      "charId": "it:entity/clone-c",
+      "levelId": "hive-self",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 克隆体C. Level context: 集群意识. Mood: 三个基因完全相同的克隆人在资源匮乏的环境中，探索合作与竞争的边界. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-clone-c.png"
+    },
+    {
+      "id": "bg-ideology",
+      "type": "background",
+      "levelId": "ideology",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 信仰与意识形态. Theme: 探索意识形态如何在人群中传播、强化和被质疑的心理机制. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/ideology.png"
+    },
+    {
+      "id": "portrait-it-entity-ideologue",
+      "type": "portrait",
+      "charId": "it:entity/ideologue",
+      "levelId": "ideology",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 意识形态宣传者. Level context: 信仰与意识形态. Mood: 探索意识形态如何在人群中传播、强化和被质疑的心理机制. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-ideologue.png"
+    },
+    {
+      "id": "portrait-it-entity-believer",
+      "type": "portrait",
+      "charId": "it:entity/believer",
+      "levelId": "ideology",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 信徒. Level context: 信仰与意识形态. Mood: 探索意识形态如何在人群中传播、强化和被质疑的心理机制. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-believer.png"
+    },
+    {
+      "id": "portrait-it-entity-skeptic",
+      "type": "portrait",
+      "charId": "it:entity/skeptic",
+      "levelId": "ideology",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 怀疑者. Level context: 信仰与意识形态. Mood: 探索意识形态如何在人群中传播、强化和被质疑的心理机制. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-skeptic.png"
+    },
+    {
+      "id": "bg-illusion-trap",
+      "type": "background",
+      "levelId": "illusion-trap",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 幻境挣扎. Theme: 一个人被困在幻术师制造的美好幻境中，需要通过痛觉和记忆唤醒真实自我. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/illusion-trap.png"
+    },
+    {
+      "id": "portrait-it-entity-trapped-person",
+      "type": "portrait",
+      "charId": "it:entity/trapped-person",
+      "levelId": "illusion-trap",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 被困者. Level context: 幻境挣扎. Mood: 一个人被困在幻术师制造的美好幻境中，需要通过痛觉和记忆唤醒真实自我. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-trapped-person.png"
+    },
+    {
+      "id": "portrait-it-entity-illusionist",
+      "type": "portrait",
+      "charId": "it:entity/illusionist",
+      "levelId": "illusion-trap",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 幻术师. Level context: 幻境挣扎. Mood: 一个人被困在幻术师制造的美好幻境中，需要通过痛觉和记忆唤醒真实自我. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-illusionist.png"
+    },
+    {
+      "id": "bg-internet-addict",
+      "type": "background",
+      "levelId": "internet-addict",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 网瘾少年. Theme: 一个沉迷网络游戏的少年，尝试引导他重建现实生活中的意义连接. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/internet-addict.png"
+    },
+    {
+      "id": "portrait-it-entity-addict-teen",
+      "type": "portrait",
+      "charId": "it:entity/addict-teen",
+      "levelId": "internet-addict",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 网瘾少年. Level context: 网瘾少年. Mood: 一个沉迷网络游戏的少年，尝试引导他重建现实生活中的意义连接. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-addict-teen.png"
+    },
+    {
+      "id": "bg-meme-magic",
+      "type": "background",
+      "levelId": "meme-magic",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 模因和魔法. Theme: 在模因工程实验室中，制造普通模因和魔法模因，研究它们如何感染和改变思维. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/meme-magic.png"
+    },
+    {
+      "id": "portrait-it-entity-meme-engineer",
+      "type": "portrait",
+      "charId": "it:entity/meme-engineer",
+      "levelId": "meme-magic",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 模因工程师. Level context: 模因和魔法. Mood: 在模因工程实验室中，制造普通模因和魔法模因，研究它们如何感染和改变思维. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-meme-engineer.png"
+    },
+    {
+      "id": "portrait-it-entity-meme-target",
+      "type": "portrait",
+      "charId": "it:entity/meme-target",
+      "levelId": "meme-magic",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 模因目标. Level context: 模因和魔法. Mood: 在模因工程实验室中，制造普通模因和魔法模因，研究它们如何感染和改变思维. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-meme-target.png"
+    },
+    {
+      "id": "bg-pavlov",
+      "type": "background",
+      "levelId": "pavlov",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 巴甫洛夫的狗. Theme: 经典条件反射实验：通过反复配对铃声与食物，让狗学会仅听到铃声就流口水. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/pavlov.png"
+    },
+    {
+      "id": "portrait-it-entity-pavlov",
+      "type": "portrait",
+      "charId": "it:entity/pavlov",
+      "levelId": "pavlov",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 巴甫洛夫. Level context: 巴甫洛夫的狗. Mood: 经典条件反射实验：通过反复配对铃声与食物，让狗学会仅听到铃声就流口水. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-pavlov.png"
+    },
+    {
+      "id": "portrait-it-entity-dog",
+      "type": "portrait",
+      "charId": "it:entity/dog",
+      "levelId": "pavlov",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 实验犬. Level context: 巴甫洛夫的狗. Mood: 经典条件反射实验：通过反复配对铃声与食物，让狗学会仅听到铃声就流口水. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-dog.png"
+    },
+    {
+      "id": "bg-postmodern-vagrant",
+      "type": "background",
+      "levelId": "postmodern-vagrant",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 后现代解构流浪. Theme: 在自动化取代一切工作的后现代社会中，主角解构旧有叙事，在流浪者社群中寻找新的生存意义. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/postmodern-vagrant.png"
+    },
+    {
+      "id": "portrait-it-entity-protagonist",
+      "type": "portrait",
+      "charId": "it:entity/protagonist",
+      "levelId": "postmodern-vagrant",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 主角. Level context: 后现代解构流浪. Mood: 在自动化取代一切工作的后现代社会中，主角解构旧有叙事，在流浪者社群中寻找新的生存意义. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-protagonist.png"
+    },
+    {
+      "id": "portrait-it-entity-friend",
+      "type": "portrait",
+      "charId": "it:entity/friend",
+      "levelId": "postmodern-vagrant",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 朋友. Level context: 后现代解构流浪. Mood: 在自动化取代一切工作的后现代社会中，主角解构旧有叙事，在流浪者社群中寻找新的生存意义. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-friend.png"
+    },
+    {
+      "id": "portrait-it-entity-vagrant-leader",
+      "type": "portrait",
+      "charId": "it:entity/vagrant-leader",
+      "levelId": "postmodern-vagrant",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 流浪者首领. Level context: 后现代解构流浪. Mood: 在自动化取代一切工作的后现代社会中，主角解构旧有叙事，在流浪者社群中寻找新的生存意义. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-vagrant-leader.png"
+    },
+    {
+      "id": "portrait-it-entity-vagrant-1",
+      "type": "portrait",
+      "charId": "it:entity/vagrant-1",
+      "levelId": "postmodern-vagrant",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 流浪者甲. Level context: 后现代解构流浪. Mood: 在自动化取代一切工作的后现代社会中，主角解构旧有叙事，在流浪者社群中寻找新的生存意义. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-vagrant-1.png"
+    },
+    {
+      "id": "portrait-it-entity-vagrant-2",
+      "type": "portrait",
+      "charId": "it:entity/vagrant-2",
+      "levelId": "postmodern-vagrant",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 流浪者乙. Level context: 后现代解构流浪. Mood: 在自动化取代一切工作的后现代社会中，主角解构旧有叙事，在流浪者社群中寻找新的生存意义. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-vagrant-2.png"
+    },
+    {
+      "id": "bg-smart-cat",
+      "type": "background",
+      "levelId": "smart-cat",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 聪明猫. Theme: 桑代克的迷箱实验：通过操作性条件反射，让猫学会按下正确的按钮来获取食物. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/smart-cat.png"
+    },
+    {
+      "id": "portrait-it-entity-trainer",
+      "type": "portrait",
+      "charId": "it:entity/trainer",
+      "levelId": "smart-cat",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 训练员. Level context: 聪明猫. Mood: 桑代克的迷箱实验：通过操作性条件反射，让猫学会按下正确的按钮来获取食物. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-trainer.png"
+    },
+    {
+      "id": "portrait-it-entity-cat-billi",
+      "type": "portrait",
+      "charId": "it:entity/cat-billi",
+      "levelId": "smart-cat",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 猫比利. Level context: 聪明猫. Mood: 桑代克的迷箱实验：通过操作性条件反射，让猫学会按下正确的按钮来获取食物. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-cat-billi.png"
+    },
+    {
+      "id": "bg-the-wave",
+      "type": "background",
+      "levelId": "the-wave",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 浪潮实验. Theme: 模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/the-wave.png"
+    },
+    {
+      "id": "portrait-it-entity-teacher-wenger",
+      "type": "portrait",
+      "charId": "it:entity/teacher-wenger",
+      "levelId": "the-wave",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 温格尔老师. Level context: 浪潮实验. Mood: 模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-teacher-wenger.png"
+    },
+    {
+      "id": "portrait-it-entity-tim",
+      "type": "portrait",
+      "charId": "it:entity/tim",
+      "levelId": "the-wave",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 蒂姆. Level context: 浪潮实验. Mood: 模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-tim.png"
+    },
+    {
+      "id": "portrait-it-entity-student-a",
+      "type": "portrait",
+      "charId": "it:entity/student-a",
+      "levelId": "the-wave",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 学生A. Level context: 浪潮实验. Mood: 模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-student-a.png"
+    },
+    {
+      "id": "portrait-it-entity-student-b",
+      "type": "portrait",
+      "charId": "it:entity/student-b",
+      "levelId": "the-wave",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 学生B. Level context: 浪潮实验. Mood: 模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-student-b.png"
+    },
+    {
+      "id": "bg-trigger-addiction",
+      "type": "background",
+      "levelId": "trigger-addiction",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 触发网瘾. Theme: 黑入目标的脑机接口，利用虚拟奖励机制触发网络成瘾，使其沉迷虚拟世界. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/trigger-addiction.png"
+    },
+    {
+      "id": "portrait-it-entity-enemy-target",
+      "type": "portrait",
+      "charId": "it:entity/enemy-target",
+      "levelId": "trigger-addiction",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 敌方目标. Level context: 触发网瘾. Mood: 黑入目标的脑机接口，利用虚拟奖励机制触发网络成瘾，使其沉迷虚拟世界. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-enemy-target.png"
+    },
+    {
+      "id": "bg-water-is-poison",
+      "type": "background",
+      "levelId": "water-is-poison",
+      "prompt": "anime style game scene background, no characters, cinematic wide composition, environment only. Level: 水是有毒的. Theme: 海恩斯使用思维钢印让受试者深信「水是有毒的」，观察信念如何压制本能需求. detailed lighting, strong atmosphere, no text, no watermark",
+      "output": "backgrounds/water-is-poison.png"
+    },
+    {
+      "id": "portrait-it-entity-hines",
+      "type": "portrait",
+      "charId": "it:entity/hines",
+      "levelId": "water-is-poison",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 海恩斯. Level context: 水是有毒的. Mood: 海恩斯使用思维钢印让受试者深信「水是有毒的」，观察信念如何压制本能需求. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-hines.png"
+    },
+    {
+      "id": "portrait-it-entity-subject",
+      "type": "portrait",
+      "charId": "it:entity/subject",
+      "levelId": "water-is-poison",
+      "prompt": "anime style visual novel character portrait, upper-body, centered composition. Character: 受试者. Level context: 水是有毒的. Mood: 海恩斯使用思维钢印让受试者深信「水是有毒的」，观察信念如何压制本能需求. highly detailed costume, expressive face, no text, no watermark, transparent/simple background",
+      "output": "portraits/it-entity-subject.png"
+    }
+  ]
+}

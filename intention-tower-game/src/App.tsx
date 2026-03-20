@@ -7,6 +7,9 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { LevelSelectPage } from './components/pages/LevelSelectPage';
 import { SettingsPage } from './components/pages/SettingsPage';
 import { GamePage } from './components/GamePage';
+import { setWindowResolution } from './api/tauriApi';
+
+const RESOLUTION_STORAGE_KEY = 'it-resolution';
 
 const darkTheme = createTheme({
   palette: {
@@ -22,6 +25,22 @@ const darkTheme = createTheme({
 });
 
 const App: React.FC = () => {
+  React.useEffect(() => {
+    const savedResolution = localStorage.getItem(RESOLUTION_STORAGE_KEY);
+    if (!savedResolution) return;
+
+    const matched = /^(\d+)x(\d+)$/.exec(savedResolution);
+    if (!matched) return;
+
+    const width = Number(matched[1]);
+    const height = Number(matched[2]);
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+
+    void setWindowResolution(width, height).catch(() => {
+      // Ignore in non-Tauri environment
+    });
+  }, []);
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />

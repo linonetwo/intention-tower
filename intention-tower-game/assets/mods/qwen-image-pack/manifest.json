@@ -1,0 +1,22 @@
+{
+  "id": "qwen-image-pack",
+  "name": "Qwen Image Portrait Pack",
+  "version": "1.0.0",
+  "provider": "Qwen/Qwen-Image via SiliconFlow",
+  "portraits": {
+    "left": "/assets/mods/qwen-image-pack/portraits/actor-left.png",
+    "right": "/assets/mods/qwen-image-pack/portraits/target-right.png"
+  },
+  "items": [
+    {
+      "id": "actor-left",
+      "prompt": "clean anime-style JRPG visual novel portrait, heroic protagonist, half-body, looking slightly right, dark fantasy mood, rich painterly shading, detailed costume, no text, no watermark, centered composition",
+      "output": "portraits/actor-left.png"
+    },
+    {
+      "id": "target-right",
+      "prompt": "clean anime-style JRPG visual novel portrait, mysterious rival character, half-body, looking slightly left, dark fantasy mood, rich painterly shading, detailed costume, no text, no watermark, centered composition",
+      "output": "portraits/target-right.png"
+    }
+  ]
+}

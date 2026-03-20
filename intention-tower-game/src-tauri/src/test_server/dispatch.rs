@@ -185,17 +185,90 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
         }
 
         // ---- UI tools ----
-        "take_snapshot" => run_webview_script(state, r#"
-            Array.from(document.querySelectorAll('*')).slice(0, 500).map((el, idx) => ({
-              uid: el.getAttribute('data-testid') || el.getAttribute('aria-label') || `${el.tagName.toLowerCase()}-${idx}`,
-              tag: el.tagName.toLowerCase(),
-              text: (el.textContent || '').trim().slice(0, 180),
-              role: el.getAttribute('role'),
-              testId: el.getAttribute('data-testid'),
-              ariaLabel: el.getAttribute('aria-label'),
-              visible: !!(el.getClientRects().length),
-            }))
-        "#.to_string()).await,
+                "take_snapshot" => {
+                        let limit = args["limit"].as_u64().unwrap_or(200).min(800);
+                        run_webview_script(state, format!(r#"
+                                (() => {{
+                                    const out = [];
+                                    const walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_ELEMENT);
+                                    let n = walker.currentNode;
+                                    let idx = 0;
+                                    while (n && out.length < {limit}) {{
+                                        const el = n;
+                                        const rects = el.getClientRects();
+                                        const visible = !!(rects && rects.length);
+                                        if (visible || el.getAttribute('data-testid') || el.getAttribute('aria-label')) {{
+                                            out.push({{
+                                                uid: el.getAttribute('data-testid') || el.getAttribute('aria-label') || `${{el.tagName.toLowerCase()}}-${{idx}}`,
+                                                tag: el.tagName.toLowerCase(),
+                                                text: (el.textContent || '').trim().slice(0, 90),
+                                                role: el.getAttribute('role'),
+                                                testId: el.getAttribute('data-testid'),
+                                                ariaLabel: el.getAttribute('aria-label'),
+                                                visible,
+                                            }});
+                                        }}
+                                        idx += 1;
+                                        n = walker.nextNode();
+                                    }}
+                                    return out;
+                                }})()
+                        "#)).await
+                }
+
+                "take_screenshot" => {
+                        let full_page = args["full_page"].as_bool().unwrap_or(false);
+                        let max_width = args["max_width"].as_u64().unwrap_or(1280).clamp(320, 4096);
+                        let quality = args["quality"].as_f64().unwrap_or(0.9).clamp(0.4, 1.0);
+                        run_webview_script(state, format!(r#"
+                                (async () => {{
+                                    const ensureHtml2Canvas = async () => {{
+                                        if (typeof window.html2canvas === 'function') return window.html2canvas;
+                                        await new Promise((resolve, reject) => {{
+                                            const script = document.createElement('script');
+                                            script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                                            script.onload = () => resolve();
+                                            script.onerror = () => reject(new Error('load_html2canvas_failed'));
+                                            document.head.appendChild(script);
+                                        }});
+                                        if (typeof window.html2canvas !== 'function') throw new Error('html2canvas_not_available');
+                                        return window.html2canvas;
+                                    }};
+
+                                    const h2c = await ensureHtml2Canvas();
+                                    const target = {full_page} ? document.documentElement : document.body;
+                                    const viewportW = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+                                    const viewportH = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+                                    const contentW = Math.max(viewportW, document.documentElement.scrollWidth || 0, document.body?.scrollWidth || 0);
+                                    const contentH = Math.max(viewportH, document.documentElement.scrollHeight || 0, document.body?.scrollHeight || 0);
+
+                                    const sourceW = {full_page} ? contentW : viewportW;
+                                    const sourceH = {full_page} ? contentH : viewportH;
+                                    const scale = Math.min(2, Math.max(0.2, {max_width} / sourceW));
+
+                                    const canvas = await h2c(target, {{
+                                        useCORS: true,
+                                        backgroundColor: null,
+                                        logging: false,
+                                        scale,
+                                        width: sourceW,
+                                        height: sourceH,
+                                        windowWidth: sourceW,
+                                        windowHeight: sourceH,
+                                    }});
+
+                                    const mime = 'image/jpeg';
+                                    const dataUrl = canvas.toDataURL(mime, {quality});
+                                    return {{
+                                        mime,
+                                        full_page: {full_page},
+                                        width: canvas.width,
+                                        height: canvas.height,
+                                        screenshot: dataUrl,
+                                    }};
+                                }})()
+                        "#)).await
+                }
 
         "evaluate_script" => run_webview_script(state, str_arg!("script")).await,
 
@@ -311,7 +384,7 @@ async fn run_webview_script(state: &TestServerState, script: String) -> Result<V
         return Err(format!("webview eval 注入失败: {}", ack));
     }
 
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
     loop {
         if let Some(value) = state.take_eval_result(&eval_id) {
             if let Some(error) = value.get("error").and_then(|v| v.as_str()) {
@@ -380,10 +453,36 @@ fn wrap_script_for_callback(user_script: String, eval_id: &str, callback_port: u
   const __script = {user_script_json};
   const __id = {eval_id_json};
     const __callbackUrl = 'http://127.0.0.1:{callback_port}/__mcp_eval_result';
-    const __send = (obj) => {{
-        const payload = encodeURIComponent(JSON.stringify(obj));
-        const img = new Image();
-        img.src = `${{__callbackUrl}}?payload=${{payload}}&_=${{Date.now()}}`;
+    const __sendByImg = (obj) => {{
+        const raw = JSON.stringify(obj);
+        const payload = encodeURIComponent(raw);
+        const maxLen = 3000;
+        if (payload.length <= maxLen) {{
+            const img = new Image();
+            img.src = `${{__callbackUrl}}?payload=${{payload}}&_=${{Date.now()}}`;
+            return;
+        }}
+        const rawChunkSize = 900;
+        const total = Math.ceil(raw.length / rawChunkSize);
+        for (let part = 0; part < total; part += 1) {{
+            const rawChunk = raw.slice(part * rawChunkSize, (part + 1) * rawChunkSize);
+            const chunk = encodeURIComponent(rawChunk);
+            const img = new Image();
+            img.src = `${{__callbackUrl}}?id=${{encodeURIComponent(__id)}}&part=${{part}}&total=${{total}}&chunk=${{chunk}}&_=${{Date.now()}}-${{part}}`;
+        }}
+    }};
+
+    const __send = async (obj) => {{
+        const payload = JSON.stringify(obj);
+        try {{
+            await fetch(__callbackUrl, {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: payload,
+            }});
+        }} catch (_e) {{
+            __sendByImg(obj);
+        }}
     }};
 
   Promise.resolve()

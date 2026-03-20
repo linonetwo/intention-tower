@@ -37,7 +37,16 @@ pub fn tool_list(has_webview: bool) -> Value {
 
     if has_webview {
         tools.extend([
-            json!({ "name": "take_snapshot", "description": "获取 DOM 快照（类 CDP）", "inputSchema": { "type": "object" } }),
+            json!({ "name": "take_snapshot", "description": "获取 DOM 快照（类 CDP）", "inputSchema": {
+                "type": "object", "properties": { "limit": { "type": "integer", "default": 200 } }
+            } }),
+            json!({ "name": "take_screenshot", "description": "获取页面截图（base64 data URL）", "inputSchema": {
+                "type": "object", "properties": {
+                    "full_page": { "type": "boolean", "default": false },
+                    "max_width": { "type": "integer", "default": 1280 },
+                    "quality": { "type": "number", "default": 0.9 }
+                }
+            }}),
             json!({ "name": "evaluate_script", "description": "在 webview 执行 JS，并返回真实结果", "inputSchema": {
                 "type": "object", "properties": { "script": { "type": "string" } }, "required": ["script"]
             }}),

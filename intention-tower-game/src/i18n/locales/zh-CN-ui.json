@@ -17,6 +17,11 @@
   "settings.back": "返回",
   "settings.lang.zh-CN": "简体中文",
   "settings.lang.en": "English",
+  "settings.graphics.title": "图像",
+  "settings.graphics.resolution": "分辨率",
+  "settings.graphics.current": "当前窗口: {{size}}",
+  "settings.graphics.hint": "切换后即时生效，无需重启。",
+  "settings.graphics.applyFailed": "分辨率应用失败: {{message}}",
 
   "game.unknownLevel": "未知关卡",
   "game.backToMenu": "返回关卡选择",

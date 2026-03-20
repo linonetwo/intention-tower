@@ -27,12 +27,16 @@ pub async fn run_test_server(state: SharedState, port: u16) {
     let addr = format!("127.0.0.1:{}", port);
     eprintln!("[test-server] MCP: http://{}/mcp", addr);
 
-    let listener = tokio::net::TcpListener::bind(&addr)
-        .await
-        .expect("Failed to bind test server port");
-    axum::serve(listener, app)
-        .await
-        .expect("Test server error");
+    let listener = match tokio::net::TcpListener::bind(&addr).await {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("[test-server] bind failed on {}: {}", addr, e);
+            return;
+        }
+    };
+    if let Err(e) = axum::serve(listener, app).await {
+        eprintln!("[test-server] server error: {}", e);
+    }
 }
 
 async fn health_handler() -> impl IntoResponse {
@@ -98,7 +102,11 @@ struct EvalCallback {
 
 #[derive(Deserialize)]
 struct EvalQuery {
-    payload: String,
+    payload: Option<String>,
+    id: Option<String>,
+    part: Option<usize>,
+    total: Option<usize>,
+    chunk: Option<String>,
 }
 
 async fn eval_result_handler(
@@ -118,13 +126,34 @@ async fn eval_result_query_handler(
     AxumState(state): AxumState<SharedState>,
     Query(query): Query<EvalQuery>,
 ) -> impl IntoResponse {
-    if let Ok(payload) = serde_json::from_str::<EvalCallback>(&query.payload) {
-        let value = if let Some(error) = payload.error {
-            json!({ "error": error })
-        } else {
-            json!({ "result": payload.result })
-        };
-        state.store_eval_result(payload.id, value);
+    if let Some(payload_raw) = query.payload {
+        if let Ok(payload) = serde_json::from_str::<EvalCallback>(&payload_raw) {
+            let value = if let Some(error) = payload.error {
+                json!({ "error": error })
+            } else {
+                json!({ "result": payload.result })
+            };
+            state.store_eval_result(payload.id, value);
+        }
+        return Json(json!({ "ok": true }));
+    }
+
+    if let (Some(id), Some(part), Some(total), Some(chunk)) = (query.id, query.part, query.total, query.chunk) {
+        if let Some(value) = state.push_eval_chunk(&id, part, total, chunk) {
+            if let Some(error) = value.get("error").and_then(|v| v.as_str()) {
+                state.store_eval_result(id, json!({ "error": error }));
+            } else {
+                let callback: Result<EvalCallback, _> = serde_json::from_value(value);
+                if let Ok(cb) = callback {
+                    let stored = if let Some(error) = cb.error {
+                        json!({ "error": error })
+                    } else {
+                        json!({ "result": cb.result })
+                    };
+                    state.store_eval_result(cb.id, stored);
+                }
+            }
+        }
     }
     Json(json!({ "ok": true }))
 }

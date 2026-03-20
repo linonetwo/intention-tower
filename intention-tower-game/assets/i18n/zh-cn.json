@@ -816,5 +816,7 @@
   "command.reflect-on-meaning.label": "反思意义",
   "command.reflect-on-meaning.description": "静下心来思考生命的意义",
   "command.accept-new-narrative.label": "接受新叙事",
-  "command.accept-new-narrative.description": "接受原始共产主义式的新生活叙事"
+  "command.accept-new-narrative.description": "接受原始共产主义式的新生活叙事",
+
+  "game.reloadMods": "重载 Mod 贴图"
 }

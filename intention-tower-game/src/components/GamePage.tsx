@@ -1,48 +1,63 @@
 /**
- * GamePage — main game interface with 3-panel layout.
+ * GamePage — map-centric game interface with PixiJS scene and HUD overlays.
  *
+ * Layout (desktop):
  * ┌──────────────────────────────────────────────────────────┐
- * │ TimeControls (back, level name, tick, speed)             │
- * ├─────────────┬──────────────────────┬─────────────────────┤
- * │ WorldPanel  │   MindGraphPanel     │   CommandPanel      │
- * │ (chars,     │   (selected char's   │   (available cmds)  │
- * │  items,     │    nodes & edges)    │                     │
- * │  selectors) │                      │                     │
- * ├─────────────┴──────────────────────┴─────────────────────┤
- * │ EventLog (recent events)                                 │
- * └──────────────────────────────────────────────────────────┘
+ * │ TimeControlsHud (floating top bar)                       │
+ * ├──────────┬───────────────────────────────────────────────┤
+ * │ ActorBar │  PixiJS Canvas (full screen)      MiniMap ┐  │
+ * │  (left)  │                                           │  │
+ * │          │  CharacterPortrait      CharacterPortrait  │  │
+ * │          │  (left actor)           (right target)     │  │
+ * │          ├───────────────────────────────────────────┘  │
+ * │          │  DialogueBox (bottom, Galgame-style)         │
+ * └──────────┴──────────────────────────────────────────────┘
+ *
+ * Graph mode: MindGraphOverlay covers everything (semi-transparent)
+ * Mobile: No side bars, top status bar, bottom dialogue, graph as overlay.
  */
-import React, { useEffect, useState } from 'react';
-import { Box, Paper, Snackbar, Alert, useMediaQuery, Tabs, Tab } from '@mui/material';
-import PublicIcon from '@mui/icons-material/Public';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { Box, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useGameState, gameStore } from '../store/useGameState';
 import { progressStore } from '../store/useLevelProgress';
-import { TimeControls } from './panels/TimeControls';
-import { WorldPanel } from './panels/WorldPanel';
-import { MindGraphPanel } from './panels/MindGraphPanel';
-import { CommandPanel } from './panels/CommandPanel';
-import { EventLog } from './panels/EventLog';
+
+// HUD components
+import { TimeControlsHud } from './hud/TimeControlsHud';
+import { ActorStatusBar } from './hud/ActorStatusBar';
+import { MiniMapHud } from './hud/MiniMapHud';
+import { DialogueBox } from './hud/DialogueBox';
+import { MobileStatusBar } from './hud/MobileStatusBar';
+
+// Overlay components
+import { MindGraphOverlay } from './overlay/MindGraphOverlay';
+import { CharacterPortrait } from './overlay/CharacterPortrait';
+import { SceneContextMenu } from './overlay/SceneContextMenu';
+
+// Scene
+import { GameScene } from './scene/GameScene';
+
+// Tutorial
 import { TutorialGuidePanel } from './panels/TutorialGuidePanel';
+
+// Hooks
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
+import { modAssetsStore } from '../store/useModAssets';
 
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  useResponsiveLayout(); // initialize layout detection
   const worldState = useGameState((s) => s.worldState);
   const error = useGameState((s) => s.error);
   const clearError = useGameState((s) => s.clearError);
-  const setTimeSpeed = useGameState((s) => s.setTimeSpeed);
-  const uiMode = useGameState((s) => s.uiMode);
   const currentLevelId = useGameState((s) => s.currentLevelId);
 
-  // Responsive breakpoints: mobile < 768, tablet < 1024
-  const isMobile = useMediaQuery('(max-width:767px)');
-  const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
-  const [mobileTab, setMobileTab] = useState(1); // default to graph tab on mobile
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+
+  // Unified keyboard shortcuts
+  useKeyboardShortcuts();
 
   // Track level progress
   useEffect(() => {
@@ -52,207 +67,96 @@ export const GamePage: React.FC = () => {
   }, [currentLevelId]);
 
   useEffect(() => {
+    modAssetsStore.getState().init();
+  }, []);
+
+  useEffect(() => {
     const tick = worldState?.tick;
     if (currentLevelId && tick != null && tick > 0) {
       progressStore.getState().updateTick(currentLevelId, tick);
     }
   }, [currentLevelId, worldState?.tick]);
 
-  // Keyboard shortcuts
+  // Redirect if no world state
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
-      const key = e.key.toLowerCase();
-
-      // ESC → back to menu
-      if (key === 'escape') {
-        gameStore.getState().reset();
-        navigate('/');
-        return;
-      }
-
-      // Space → toggle pause
-      if (key === ' ') {
-        e.preventDefault();
-        const speed = gameStore.getState().worldState?.time_speed ?? 1;
-        setTimeSpeed(speed === 0 ? 1 : 0);
-        return;
-      }
-
-      // 1-4 → speed
-      if (['1', '2', '3', '4'].includes(key)) {
-        setTimeSpeed(parseInt(key));
-        return;
-      }
-
-      // 0 → pause
-      if (key === '0') {
-        setTimeSpeed(0);
-        return;
-      }
-
-      // Ctrl+S → quick save
-      if ((e.ctrlKey || e.metaKey) && key === 's') {
-        e.preventDefault();
-        gameStore.getState().saveGame();
-        return;
-      }
-
-      // Hotkey-based command execution
-      const cmds = gameStore.getState().availableCommands;
-      const match = cmds.find((c) => c.hotkey?.toLowerCase() === key);
-      if (match) {
-        gameStore.getState().executeCommand(match.command_id);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate, setTimeSpeed]);
-
-  useEffect(() => {
-    if (!worldState) {
-      navigate('/');
-    }
+    if (!worldState) navigate('/');
   }, [navigate, worldState]);
 
   // Cleanup tick loop on unmount
   useEffect(() => {
-    return () => {
-      gameStore.getState().stopTickLoop();
-    };
+    return () => { gameStore.getState().stopTickLoop(); };
   }, []);
 
-  return (
-    <Box sx={{
-      width: '100vw', height: '100dvh',
-      display: 'flex', flexDirection: 'column',
-      bgcolor: '#0e0e1a', color: '#ddd',
-      overflow: 'hidden',
-    }}>
-      {/* Top bar */}
-      <TimeControls />
+  // Resize canvas to fill container
+  const updateSize = useCallback(() => {
+    if (containerRef.current) {
+      const { clientWidth, clientHeight } = containerRef.current;
+      setCanvasSize({ width: clientWidth, height: clientHeight });
+    }
+  }, []);
 
-      {/* Tutorial guide (only visible in tutorial levels) */}
+  useEffect(() => {
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [updateSize]);
+
+  return (
+    <Box
+      ref={containerRef}
+      sx={{
+        width: '100vw',
+        height: '100dvh',
+        position: 'relative',
+        overflow: 'hidden',
+        bgcolor: '#0e0e1a',
+        color: '#ddd',
+      }}
+    >
+      {/* ── Layer 0: PixiJS Scene (full screen canvas) ── */}
+      <Box sx={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+        <GameScene width={canvasSize.width} height={canvasSize.height} />
+      </Box>
+
+      {/* ── Layer 1: HUD overlay (pointer-events: none container) ── */}
+      <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}>
+        {/* Top bar */}
+        <TimeControlsHud />
+
+        {/* Left status bar (desktop/tablet) */}
+        <ActorStatusBar />
+
+        {/* Mini-map (desktop/tablet) */}
+        <MiniMapHud />
+
+        {/* Mobile status bar */}
+        <MobileStatusBar />
+
+        {/* Character portraits */}
+        <CharacterPortrait />
+
+        {/* Dialogue box (bottom) */}
+        <DialogueBox />
+      </Box>
+
+      {/* ── Layer 2: Graph overlay (when graph mode active) ── */}
+      <MindGraphOverlay />
+
+      {/* ── Layer 3: Context menus ── */}
+      <SceneContextMenu />
+
+      {/* ── Tutorial guide ── */}
       <TutorialGuidePanel />
 
-      {/* ─── Mobile layout: tab-based ─── */}
-      {isMobile && (
-        <>
-          <Box sx={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-            {mobileTab === 0 && <WorldPanel />}
-            {mobileTab === 1 && <MindGraphPanel />}
-            {mobileTab === 2 && <CommandPanel />}
-            {mobileTab === 3 && <EventLog />}
-          </Box>
-          <Tabs
-            value={mobileTab}
-            onChange={(_, v) => setMobileTab(v)}
-            variant='fullWidth'
-            sx={{
-              minHeight: 40,
-              bgcolor: '#141428',
-              borderTop: '1px solid #2a2a4e',
-              '& .MuiTab-root': {
-                minHeight: 40, fontSize: 10, textTransform: 'none',
-                color: '#888', py: 0.5,
-              },
-              '& .Mui-selected': { color: '#c5cae9 !important' },
-              '& .MuiTabs-indicator': { bgcolor: '#536dfe' },
-            }}
-          >
-            <Tab icon={<PublicIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.world')} />
-            <Tab icon={<AccountTreeIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.graph')} />
-            <Tab icon={<SportsEsportsIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.cmd')} />
-            <Tab icon={<FormatListBulletedIcon sx={{ fontSize: 16 }} />} label={t('game.mobileTab.log')} />
-          </Tabs>
-        </>
-      )}
-
-      {/* ─── Tablet layout: 2-panel (world+graph or graph+cmd) + bottom log ─── */}
-      {isTablet && (
-        <>
-          <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-            {uiMode !== 'graph' && (
-              <Paper elevation={0} sx={{ width: 220, flexShrink: 0, bgcolor: '#141428', borderRight: '1px solid #2a2a4e', overflow: 'hidden' }}>
-                <WorldPanel />
-              </Paper>
-            )}
-            <Paper elevation={0} sx={{ flex: 1, bgcolor: '#0e0e1a', overflow: 'hidden' }}>
-              <MindGraphPanel />
-            </Paper>
-            {uiMode !== 'graph' && (
-              <Paper elevation={0} sx={{ width: 200, flexShrink: 0, bgcolor: '#141428', borderLeft: '1px solid #2a2a4e', overflow: 'hidden' }}>
-                <CommandPanel />
-              </Paper>
-            )}
-          </Box>
-          <Paper elevation={0} sx={{ height: 130, flexShrink: 0, bgcolor: '#0a0a16', borderTop: '1px solid #2a2a4e', overflow: 'hidden' }}>
-            <EventLog />
-          </Paper>
-        </>
-      )}
-
-      {/* ─── Desktop layout: full 3-panel + bottom log ─── */}
-      {!isMobile && !isTablet && (
-        <>
-          <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-            {uiMode !== 'graph' && (
-              <Paper
-                elevation={0}
-                sx={{
-                  width: uiMode === 'micro' ? 270 : 240,
-                  flexShrink: 0,
-                  bgcolor: '#141428',
-                  borderRight: '1px solid #2a2a4e',
-                  overflow: 'hidden',
-                }}
-              >
-                <WorldPanel />
-              </Paper>
-            )}
-            <Paper elevation={0} sx={{ flex: 1, bgcolor: '#0e0e1a', overflow: 'hidden' }}>
-              <MindGraphPanel />
-            </Paper>
-            {uiMode !== 'graph' && (
-              <Paper
-                elevation={0}
-                sx={{
-                  width: uiMode === 'micro' ? 280 : 220,
-                  flexShrink: 0,
-                  bgcolor: '#141428',
-                  borderLeft: '1px solid #2a2a4e',
-                  overflow: 'hidden',
-                }}
-              >
-                <CommandPanel />
-              </Paper>
-            )}
-          </Box>
-          <Paper
-            elevation={0}
-            sx={{
-              height: 160, flexShrink: 0,
-              bgcolor: '#0a0a16',
-              borderTop: '1px solid #2a2a4e',
-              overflow: 'hidden',
-            }}
-          >
-            <EventLog />
-          </Paper>
-        </>
-      )}
-
-      {/* Error snackbar */}
+      {/* ── Error snackbar ── */}
       <Snackbar
         open={!!error}
         autoHideDuration={5000}
         onClose={clearError}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity="error" onClose={clearError} sx={{ fontSize: 12 }}>
+        <Alert severity="error" onClose={clearError} sx={{ width: '100%' }}>
           {error}
         </Alert>
       </Snackbar>

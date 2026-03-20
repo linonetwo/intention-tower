@@ -73,5 +73,7 @@
   "command.ring-bell.label": "Ring Bell",
   "command.ring-bell.description": "Make the metronome produce sound",
   "command.feed.label": "Feed",
-  "command.feed.description": "Feed the target character"
+  "command.feed.description": "Feed the target character",
+
+  "game.reloadMods": "Reload Mod Textures"
 }

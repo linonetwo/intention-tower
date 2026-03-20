@@ -3,6 +3,7 @@
  * All calls go to the Rust backend via invoke().
  */
 import { invoke } from '@tauri-apps/api/core';
+import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 import type { WorldState, WorldEvent, CommandDef, SaveMeta } from '../types/backend';
 
 /** Load a level by directory ID (e.g. "pavlov"). Returns initial WorldState. */
@@ -83,4 +84,23 @@ export async function listSaves(): Promise<SaveMeta[]> {
 /** Delete a save slot. */
 export async function deleteSave(slot: string): Promise<void> {
   return invoke('delete_save', { slot });
+}
+
+// ── Window / Graphics ──
+
+export interface WindowResolution {
+  width: number;
+  height: number;
+}
+
+export async function getWindowResolution(): Promise<WindowResolution> {
+  const size = await getCurrentWindow().innerSize();
+  return {
+    width: Math.round(size.width),
+    height: Math.round(size.height),
+  };
+}
+
+export async function setWindowResolution(width: number, height: number): Promise<void> {
+  await getCurrentWindow().setSize(new LogicalSize(width, height));
 }

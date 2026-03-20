@@ -73,6 +73,39 @@ interface GameActions {
 
 export type GameStore = GameState & GameActions;
 
+function pickByKeywords(ids: string[], keywords: string[]): string | null {
+  for (const id of ids) {
+    const lower = id.toLowerCase();
+    if (keywords.some((k) => lower.includes(k))) return id;
+  }
+  return null;
+}
+
+function pickInitialSelection(levelId: string, characters: Record<string, unknown>): {
+  actorId: string | null;
+  targetId: string | null;
+  inspectId: string | null;
+} {
+  const ids = Object.keys(characters).sort((a, b) => a.localeCompare(b));
+  if (ids.length === 0) return { actorId: null, targetId: null, inspectId: null };
+
+  if (levelId === 'pavlov') {
+    const actorId = pickByKeywords(ids, ['pavlov']) ?? ids[0];
+    const targetId = pickByKeywords(ids.filter((id) => id !== actorId), ['dog'])
+      ?? ids.find((id) => id !== actorId)
+      ?? null;
+    return { actorId, targetId, inspectId: targetId ?? actorId };
+  }
+
+  const actorId = pickByKeywords(ids, [
+    'player', 'protagonist', 'agent', 'capitalist', 'trainer', 'investigator', 'pavlov',
+  ]) ?? ids[0];
+  const targetId = pickByKeywords(ids.filter((id) => id !== actorId), ['target', 'enemy', 'dog', 'victim'])
+    ?? ids.find((id) => id !== actorId)
+    ?? null;
+  return { actorId, targetId, inspectId: targetId ?? actorId };
+}
+
 export const gameStore = createStore<GameStore>()((set, get) => ({
   // ── Initial State ──
   page: 'menu',
@@ -101,15 +134,14 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       // Immediately pause so the player can orient before time starts
       await api.setTimeSpeed(0);
       const pausedState = { ...state, time_speed: 0 as 0, paused: true };
-      const charIds = Object.keys(state.characters);
-      const firstCharId = charIds[0] ?? null;
+      const initial = pickInitialSelection(levelId, state.characters as Record<string, unknown>);
 
       set({
         worldState: pausedState,
         currentLevelId: levelId,
-        selectedActorId: firstCharId,
-        selectedTargetId: charIds.length > 1 ? charIds[1] : null,
-        inspectedCharacterId: charIds.length > 1 ? charIds[1] : firstCharId,
+        selectedActorId: initial.actorId,
+        selectedTargetId: initial.targetId,
+        inspectedCharacterId: initial.inspectId,
         recentEvents: [],
         page: 'game',
         loading: false,
