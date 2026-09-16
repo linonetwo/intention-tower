@@ -221,7 +221,7 @@ async fn repeat_training_with_table(
                     }),
                 )
                 .await
-                .expect(&format!("执行命令 {} 失败", cmd));
+                .unwrap_or_else(|error| panic!("执行命令 {} 失败: {}", cmd, error));
             // 再推进 tick
             world
                 .mcp_call("tick", json!({ "count": ticks, "dt": 1.0 }))
@@ -277,7 +277,7 @@ async fn node_value_gt(world: &mut GameWorld, character: String, schema: String,
         .expect("查询节点失败");
     let value = node["value"]
         .as_f64()
-        .expect(&format!("节点 {} 无 value: {:?}", schema, node));
+        .unwrap_or_else(|| panic!("节点 {} 无 value: {:?}", schema, node));
     assert!(
         value > threshold,
         "{} 的 {} 值 {:.3} 应 > {}",
@@ -296,7 +296,7 @@ async fn node_value_lt(world: &mut GameWorld, character: String, schema: String,
         .expect("查询节点失败");
     let value = node["value"]
         .as_f64()
-        .expect(&format!("节点 {} 无 value: {:?}", schema, node));
+        .unwrap_or_else(|| panic!("节点 {} 无 value: {:?}", schema, node));
     assert!(
         value < threshold,
         "{} 的 {} 值 {:.3} 应 < {}",
@@ -550,14 +550,14 @@ async fn check_nodes_table(world: &mut GameWorld, step: &Step, character: String
         let condition = &row[1];
         let threshold: f64 = row[2]
             .parse()
-            .expect(&format!("阈值 '{}' 不是数字", row[2]));
+            .unwrap_or_else(|_| panic!("阈值 '{}' 不是数字", row[2]));
         let node = world
             .get_node(&character, schema)
             .await
-            .expect(&format!("查询节点 {} 失败", schema));
+            .unwrap_or_else(|error| panic!("查询节点 {} 失败: {}", schema, error));
         let value = node["value"]
             .as_f64()
-            .expect(&format!("{} 的 {} 无 value: {:?}", character, schema, node));
+            .unwrap_or_else(|| panic!("{} 的 {} 无 value: {:?}", character, schema, node));
         match condition.as_str() {
             ">" => assert!(
                 value > threshold,
