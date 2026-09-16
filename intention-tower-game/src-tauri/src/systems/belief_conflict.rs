@@ -34,9 +34,7 @@ impl System for BeliefConflictSystem {
                 .mind_graph
                 .find_by_schema("it:concept/hunger")
                 .map_or(0.0, |hunger| hunger.value);
-            let stress = health_stress
-                .max(hunger_stress)
-                .clamp(0.0, 1.0);
+            let stress = health_stress.max(hunger_stress).clamp(0.0, 1.0);
             let overrides: Vec<(Vec<String>, f64)> = character
                 .mind_graph
                 .nodes
@@ -57,24 +55,22 @@ impl System for BeliefConflictSystem {
                         None => 0.55,
                     };
                     let conviction = ((node.strength + meme.resilience) * 0.5).clamp(0.0, 1.0);
-                    (meme.overrides_instinct.clone(), resolution_pressure * conviction)
+                    (
+                        meme.overrides_instinct.clone(),
+                        resolution_pressure * conviction,
+                    )
                 })
                 .collect();
 
             for (target_schemas, pressure) in &overrides {
                 for target_schema in target_schemas {
-                    for node in character
-                        .mind_graph
-                        .nodes
-                        .values_mut()
-                        .filter(|n| {
-                            n.node_type == NodeType::PriorInstinct
-                                && n.schema_id == *target_schema
-                                && n.prior_instinct
-                                    .as_ref()
-                                    .map_or(false, |pi| pi.overridable_by_meme)
-                        })
-                    {
+                    for node in character.mind_graph.nodes.values_mut().filter(|n| {
+                        n.node_type == NodeType::PriorInstinct
+                            && n.schema_id == *target_schema
+                            && n.prior_instinct
+                                .as_ref()
+                                .map_or(false, |pi| pi.overridable_by_meme)
+                    }) {
                         node.suppression = node.suppression.max(*pressure);
                     }
                 }
@@ -108,8 +104,8 @@ impl System for BeliefConflictSystem {
                 {
                     continue;
                 }
-                let pressure = (edge.weight * source.value * source.effective_strength())
-                    .clamp(0.0, 1.0);
+                let pressure =
+                    (edge.weight * source.value * source.effective_strength()).clamp(0.0, 1.0);
                 if source.node_type == NodeType::Meme
                     && source.meme.as_ref().is_some_and(|meme| meme.is_belief)
                 {
@@ -125,26 +121,24 @@ impl System for BeliefConflictSystem {
                     if let Some(loser) = character.mind_graph.nodes.get_mut(&loser_id) {
                         loser.suppression = loser.suppression.max(edge.weight.clamp(0.0, 1.0));
                     }
-                } else if let Some(target) = character
-                    .mind_graph
-                    .nodes
-                    .get_mut(&target.instance_id)
+                } else if let Some(target) = character.mind_graph.nodes.get_mut(&target.instance_id)
                 {
                     target.suppression = target.suppression.max(pressure);
                 }
             }
 
             for node in character.mind_graph.nodes.values() {
-                if (previous.get(&node.instance_id).copied().unwrap_or_default()
-                    - node.suppression)
+                if (previous.get(&node.instance_id).copied().unwrap_or_default() - node.suppression)
                     .abs()
                     > f64::EPSILON
                 {
-                    state.pending_events.push(WorldEvent::NodeSuppressionChanged {
-                        character_id: character_id.clone(),
-                        instance_id: node.instance_id.clone(),
-                        suppression: node.suppression,
-                    });
+                    state
+                        .pending_events
+                        .push(WorldEvent::NodeSuppressionChanged {
+                            character_id: character_id.clone(),
+                            instance_id: node.instance_id.clone(),
+                            suppression: node.suppression,
+                        });
                 }
             }
         }

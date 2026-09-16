@@ -176,8 +176,7 @@ impl LevelCondition {
                     .iter()
                     .map(|transaction| transaction.buyer_id.as_str())
                     .collect();
-                matching.len() as u32 >= *min_count
-                    && buyers.len() as u32 >= *distinct_buyers
+                matching.len() as u32 >= *min_count && buyers.len() as u32 >= *distinct_buyers
             }
             Self::TickAtLeast { tick } => world.tick >= *tick,
             Self::All { conditions } => {

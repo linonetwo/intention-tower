@@ -34,7 +34,9 @@ impl System for OperantConditioningSystem {
                     n.node_type == NodeType::Action
                         && n.active
                         && n.attended
-                        && n.action.as_ref().is_some_and(|action| action.innate || action.selected)
+                        && n.action
+                            .as_ref()
+                            .is_some_and(|action| action.innate || action.selected)
                 })
                 .map(|n| n.instance_id.clone())
                 .collect();

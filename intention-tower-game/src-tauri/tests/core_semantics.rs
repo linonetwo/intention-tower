@@ -4,13 +4,13 @@ use intention_tower_game_lib::level_loader::load_level_from_path;
 use intention_tower_game_lib::models::commands::{CommandDTO, CommandEffect};
 use intention_tower_game_lib::models::events::WorldEvent;
 use intention_tower_game_lib::movement::move_character;
-use intention_tower_game_lib::systems::command_system::CommandSystem;
 use intention_tower_game_lib::systems::action_selection::ActionSelectionSystem;
 use intention_tower_game_lib::systems::attention_allocation::AttentionAllocationSystem;
-use intention_tower_game_lib::systems::perception::PerceptionSystem;
-use intention_tower_game_lib::systems::meme_emergence::MemeEmergenceSystem;
-use intention_tower_game_lib::systems::economy::EconomySystem;
 use intention_tower_game_lib::systems::belief_conflict::BeliefConflictSystem;
+use intention_tower_game_lib::systems::command_system::CommandSystem;
+use intention_tower_game_lib::systems::economy::EconomySystem;
+use intention_tower_game_lib::systems::meme_emergence::MemeEmergenceSystem;
+use intention_tower_game_lib::systems::perception::PerceptionSystem;
 use intention_tower_game_lib::systems::social_dynamics::SocialDynamicsSystem;
 use intention_tower_game_lib::systems::System;
 
@@ -22,7 +22,10 @@ fn level_dir(level_id: &str) -> PathBuf {
         .join(level_id)
 }
 
-fn command(world: &intention_tower_game_lib::models::world_state::WorldState, id: &str) -> CommandDTO {
+fn command(
+    world: &intention_tower_game_lib::models::world_state::WorldState,
+    id: &str,
+) -> CommandDTO {
     let definition = world
         .command_defs
         .iter()
@@ -84,7 +87,10 @@ fn virtual_context_is_nested_and_stamps_observation_layer() {
     assert!(world.virtual_context_stack.is_empty());
     assert!(world.pending_events.iter().any(|event| matches!(
         event,
-        WorldEvent::VirtualContextChanged { value: false, depth: 0 }
+        WorldEvent::VirtualContextChanged {
+            value: false,
+            depth: 0
+        }
     )));
 }
 
@@ -108,7 +114,8 @@ fn attention_loss_is_recoverable_and_does_not_deactivate_nodes() {
     assert!(hunger.active, "attention must not alter lifecycle");
     assert!(!hunger.attended);
 
-    world.characters
+    world
+        .characters
         .get_mut("dog")
         .expect("dog")
         .mind_graph
@@ -118,7 +125,10 @@ fn attention_loss_is_recoverable_and_does_not_deactivate_nodes() {
     AttentionAllocationSystem.run(&mut world, 0.0);
     let hunger = &world.characters["dog"].mind_graph.nodes["dog-hunger"];
     assert!(hunger.active);
-    assert!(hunger.attended, "replenished attention must restore processing");
+    assert!(
+        hunger.attended,
+        "replenished attention must restore processing"
+    );
 }
 
 #[test]
@@ -137,11 +147,13 @@ fn action_competition_can_choose_a_different_winner_next_tick() {
     }
 
     ActionSelectionSystem.run(&mut world, 0.0);
-    assert!(world.characters["antimeme-agent"].mind_graph.nodes["agent-investigate"]
-        .action
-        .as_ref()
-        .expect("action")
-        .selected);
+    assert!(
+        world.characters["antimeme-agent"].mind_graph.nodes["agent-investigate"]
+            .action
+            .as_ref()
+            .expect("action")
+            .selected
+    );
 
     let agent = world.characters.get_mut("antimeme-agent").expect("agent");
     agent
@@ -161,16 +173,20 @@ fn action_competition_can_choose_a_different_winner_next_tick() {
     let graph = &world.characters["antimeme-agent"].mind_graph;
     assert!(graph.nodes["agent-investigate"].active);
     assert!(graph.nodes["agent-remember-location"].active);
-    assert!(!graph.nodes["agent-investigate"]
-        .action
-        .as_ref()
-        .expect("action")
-        .selected);
-    assert!(graph.nodes["agent-remember-location"]
-        .action
-        .as_ref()
-        .expect("action")
-        .selected);
+    assert!(
+        !graph.nodes["agent-investigate"]
+            .action
+            .as_ref()
+            .expect("action")
+            .selected
+    );
+    assert!(
+        graph.nodes["agent-remember-location"]
+            .action
+            .as_ref()
+            .expect("action")
+            .selected
+    );
 }
 
 #[test]
@@ -288,13 +304,12 @@ fn repeated_public_behavior_crystallizes_into_an_emergent_meme() {
         .mind_graph
         .find_by_schema("it:emergent/it_concept_public_ritual")
         .expect("emergent meme");
-    assert_eq!(emergent.node_type, intention_tower_game_lib::models::mind_node::NodeType::Meme);
     assert_eq!(
-        emergent
-            .meme
-            .as_ref()
-            .expect("meme data")
-            .spread_vector,
+        emergent.node_type,
+        intention_tower_game_lib::models::mind_node::NodeType::Meme
+    );
+    assert_eq!(
+        emergent.meme.as_ref().expect("meme data").spread_vector,
         Some(intention_tower_game_lib::models::mind_node::SpreadVector::Language)
     );
 }

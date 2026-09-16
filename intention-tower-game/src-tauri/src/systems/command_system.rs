@@ -108,7 +108,11 @@ impl System for CommandSystem {
                                     action: None,
                                     meme: None,
                                     prev_value: 0.0,
-                                    reality_layer: state.virtual_context_stack.len().min(u8::MAX as usize) as u8,
+                                    reality_layer: state
+                                        .virtual_context_stack
+                                        .len()
+                                        .min(u8::MAX as usize)
+                                        as u8,
                                     is_virtual: state.in_virtual_context,
                                 };
                                 character.mind_graph.add_node(node);
@@ -283,11 +287,8 @@ impl System for CommandSystem {
                         );
                         if let Some(char_id) = target_char {
                             if let Some(character) = state.characters.get_mut(char_id) {
-                                if let Some(existing) = character
-                                    .mind_graph
-                                    .nodes
-                                    .values_mut()
-                                    .find(|node| {
+                                if let Some(existing) =
+                                    character.mind_graph.nodes.values_mut().find(|node| {
                                         node.schema_id == *meme_schema_id
                                             && node.node_type == NodeType::Meme
                                     })
@@ -368,12 +369,10 @@ impl System for CommandSystem {
                                             },
                                         );
                                     } else if resilience > 0.0 {
-                                        if let Some(node) =
-                                            character.mind_graph.nodes.get_mut(&iid)
+                                        if let Some(node) = character.mind_graph.nodes.get_mut(&iid)
                                         {
                                             if let Some(meme) = node.meme.as_mut() {
-                                                meme.resilience =
-                                                    (meme.resilience - 0.35).max(0.0);
+                                                meme.resilience = (meme.resilience - 0.35).max(0.0);
                                                 node.strength = (node.strength - 0.2).max(0.0);
                                                 node.value = (node.value - 0.2).max(0.0);
                                                 state.pending_events.push(
@@ -426,12 +425,18 @@ impl System for CommandSystem {
                             state.virtual_context_stack.pop();
                         }
                         state.in_virtual_context = !state.virtual_context_stack.is_empty();
-                        state.pending_events.push(WorldEvent::VirtualContextChanged {
-                            value: state.in_virtual_context,
-                            depth: state.virtual_context_stack.len().min(u8::MAX as usize) as u8,
-                        });
+                        state
+                            .pending_events
+                            .push(WorldEvent::VirtualContextChanged {
+                                value: state.in_virtual_context,
+                                depth: state.virtual_context_stack.len().min(u8::MAX as usize)
+                                    as u8,
+                            });
                     }
-                    CommandEffect::SetAssetPrice { item_id, unit_price } => {
+                    CommandEffect::SetAssetPrice {
+                        item_id,
+                        unit_price,
+                    } => {
                         if let Some(asset) = state.economy.assets.get_mut(item_id) {
                             let old_price = asset.unit_price;
                             asset.unit_price = unit_price.max(0.0);
@@ -451,13 +456,10 @@ impl System for CommandSystem {
                         seller_id,
                         quantity,
                     } => {
-                        let buyer = resolve_target(
-                            Some(buyer_id),
-                            cmd.target_id.as_deref(),
-                            &cmd.actor_id,
-                        )
-                        .unwrap_or(&cmd.actor_id)
-                        .to_owned();
+                        let buyer =
+                            resolve_target(Some(buyer_id), cmd.target_id.as_deref(), &cmd.actor_id)
+                                .unwrap_or(&cmd.actor_id)
+                                .to_owned();
                         let seller = resolve_target(
                             Some(seller_id),
                             cmd.target_id.as_deref(),
@@ -479,7 +481,10 @@ impl System for CommandSystem {
                             None => Some("asset_not_found"),
                             Some(_) if *quantity <= 0.0 => Some("invalid_quantity"),
                             Some(asset)
-                                if asset.owner_id.as_deref().is_some_and(|owner| owner != seller) =>
+                                if asset
+                                    .owner_id
+                                    .as_deref()
+                                    .is_some_and(|owner| owner != seller) =>
                             {
                                 Some("seller_does_not_own_asset")
                             }
@@ -498,8 +503,10 @@ impl System for CommandSystem {
                             if let Some(asset) = state.economy.assets.get_mut(item_id) {
                                 asset.supply -= *quantity;
                             }
-                            *state.economy.accounts.entry(buyer.clone()).or_default() -= total_price;
-                            *state.economy.accounts.entry(seller.clone()).or_default() += total_price;
+                            *state.economy.accounts.entry(buyer.clone()).or_default() -=
+                                total_price;
+                            *state.economy.accounts.entry(seller.clone()).or_default() +=
+                                total_price;
                             *state
                                 .economy
                                 .holdings

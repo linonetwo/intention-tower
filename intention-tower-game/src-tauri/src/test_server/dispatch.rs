@@ -78,12 +78,8 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
             let delta_x = args["delta_x"].as_f64().ok_or("缺少参数: delta_x")?;
             let delta_y = args["delta_y"].as_f64().ok_or("缺少参数: delta_y")?;
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
-            let event = crate::movement::move_character(
-                &mut world,
-                &character_id,
-                delta_x,
-                delta_y,
-            )?;
+            let event =
+                crate::movement::move_character(&mut world, &character_id, delta_x, delta_y)?;
             serde_json::to_value(event).map_err(|error| error.to_string())
         }
 

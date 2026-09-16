@@ -63,7 +63,11 @@ impl System for ActionSelectionSystem {
             // Selection is a transient result; it must never mutate the
             // action's persistent eligibility (`active`).
             let winner_id = action_scores.first().map(|(id, _)| id.as_str());
-            for node in graph.nodes.values_mut().filter(|node| node.node_type == NodeType::Action) {
+            for node in graph
+                .nodes
+                .values_mut()
+                .filter(|node| node.node_type == NodeType::Action)
+            {
                 if let Some(action) = node.action.as_mut() {
                     if action.innate {
                         continue;

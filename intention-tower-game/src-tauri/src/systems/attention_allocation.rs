@@ -47,7 +47,8 @@ impl System for AttentionAllocationSystem {
             // lifecycle. Keep `active` untouched so replenishing attention can
             // bring a node back into working memory on the next tick.
             for node in character.mind_graph.nodes.values_mut() {
-                let next = node.is_resource() || (node.active && attended.contains(&node.instance_id));
+                let next =
+                    node.is_resource() || (node.active && attended.contains(&node.instance_id));
                 if node.attended != next {
                     node.attended = next;
                     state.pending_events.push(WorldEvent::NodeAttentionChanged {

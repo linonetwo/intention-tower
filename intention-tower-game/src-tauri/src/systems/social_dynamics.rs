@@ -38,10 +38,7 @@ impl System for SocialDynamicsSystem {
                 }
                 if node.node_type == NodeType::Action
                     && node.active
-                    && node
-                        .action
-                        .as_ref()
-                        .is_some_and(|action| action.selected)
+                    && node.action.as_ref().is_some_and(|action| action.selected)
                 {
                     selected_actions.insert(character.id.clone(), node.schema_id.clone());
                 }

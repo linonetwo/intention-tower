@@ -2,8 +2,8 @@
 pub mod api;
 pub mod command_rules;
 pub mod level_loader;
-pub mod movement;
 pub mod models;
+pub mod movement;
 pub mod save_slots;
 pub mod systems;
 #[cfg(feature = "test-server")]

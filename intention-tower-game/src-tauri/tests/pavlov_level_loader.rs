@@ -9,16 +9,15 @@
 /// 5. PerceptionSystem converts events to observations
 /// 6. NoveltyHabituationSystem reduces repeated stimulus strength
 /// 7. AttentionAllocationSystem manages attention budget
-
 use std::path::PathBuf;
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use intention_tower_game_lib::level_loader;
-    use intention_tower_game_lib::systems::runner::SimulationRunner;
-    use intention_tower_game_lib::models::mind_node::*;
     use intention_tower_game_lib::models::commands::*;
+    use intention_tower_game_lib::models::mind_node::*;
+    use intention_tower_game_lib::systems::runner::SimulationRunner;
 
     fn assets_dir() -> PathBuf {
         // Navigate from src-tauri/tests/ to assets/
@@ -36,31 +35,65 @@ mod tests {
             .expect("Should load pavlov level");
 
         // Check characters
-        assert!(world.characters.contains_key("dog"), "Should have dog character");
-        assert!(world.characters.contains_key("pavlov"), "Should have pavlov character");
+        assert!(
+            world.characters.contains_key("dog"),
+            "Should have dog character"
+        );
+        assert!(
+            world.characters.contains_key("pavlov"),
+            "Should have pavlov character"
+        );
 
         // Check items
-        assert!(world.items.contains_key("fast-metronome"), "Should have fast metronome");
-        assert!(world.items.contains_key("slow-metronome"), "Should have slow metronome");
+        assert!(
+            world.items.contains_key("fast-metronome"),
+            "Should have fast metronome"
+        );
+        assert!(
+            world.items.contains_key("slow-metronome"),
+            "Should have slow metronome"
+        );
         assert!(world.items.contains_key("meat"), "Should have meat");
 
         // Check dog mind graph
         let dog = &world.characters["dog"];
-        assert!(dog.mind_graph.nodes.contains_key("dog-hunger"), "Dog should have hunger node");
-        assert!(dog.mind_graph.nodes.contains_key("dog-salivate"), "Dog should have salivate node");
-        assert!(dog.mind_graph.nodes.contains_key("dog-attention"), "Dog should have attention resource");
-        assert!(dog.mind_graph.nodes.contains_key("dog-dopamine"), "Dog should have dopamine resource");
-        assert!(dog.mind_graph.nodes.contains_key("dog-health"), "Dog should have health resource");
+        assert!(
+            dog.mind_graph.nodes.contains_key("dog-hunger"),
+            "Dog should have hunger node"
+        );
+        assert!(
+            dog.mind_graph.nodes.contains_key("dog-salivate"),
+            "Dog should have salivate node"
+        );
+        assert!(
+            dog.mind_graph.nodes.contains_key("dog-attention"),
+            "Dog should have attention resource"
+        );
+        assert!(
+            dog.mind_graph.nodes.contains_key("dog-dopamine"),
+            "Dog should have dopamine resource"
+        );
+        assert!(
+            dog.mind_graph.nodes.contains_key("dog-health"),
+            "Dog should have health resource"
+        );
 
         // Check hunger node has correct thresholds
         let hunger = &dog.mind_graph.nodes["dog-hunger"];
-        assert_eq!(hunger.thresholds.len(), 2, "Hunger should have 2 thresholds");
+        assert_eq!(
+            hunger.thresholds.len(),
+            2,
+            "Hunger should have 2 thresholds"
+        );
         assert_eq!(hunger.thresholds[0].activate_on_rising_above, 0.6);
         assert_eq!(hunger.thresholds[0].deactivate_on_falling_below, 0.4);
 
         // Check salivate action is innate
         let salivate = &dog.mind_graph.nodes["dog-salivate"];
-        assert!(salivate.action.as_ref().unwrap().innate, "Salivate should be innate");
+        assert!(
+            salivate.action.as_ref().unwrap().innate,
+            "Salivate should be innate"
+        );
     }
 
     #[test]
@@ -68,13 +101,25 @@ mod tests {
         let world = level_loader::load_level_from_path(&pavlov_level_dir())
             .expect("Should load pavlov level");
 
-        assert_eq!(world.command_defs.len(), 2, "Should have 2 commands (ring-bell, feed)");
+        assert_eq!(
+            world.command_defs.len(),
+            2,
+            "Should have 2 commands (ring-bell, feed)"
+        );
 
-        let ring_bell = world.command_defs.iter().find(|c| c.command_id == "ring-bell").unwrap();
+        let ring_bell = world
+            .command_defs
+            .iter()
+            .find(|c| c.command_id == "ring-bell")
+            .unwrap();
         assert_eq!(ring_bell.targeting, TargetingMode::RequiresTarget);
         assert_eq!(ring_bell.effect_templates.len(), 1);
 
-        let feed = world.command_defs.iter().find(|c| c.command_id == "feed").unwrap();
+        let feed = world
+            .command_defs
+            .iter()
+            .find(|c| c.command_id == "feed")
+            .unwrap();
         assert_eq!(feed.effect_templates.len(), 2);
     }
 
@@ -92,7 +137,12 @@ mod tests {
         }
 
         let final_hunger = world.characters["dog"].mind_graph.nodes["dog-hunger"].value;
-        assert!(final_hunger > initial_hunger, "Hunger should rise: {} -> {}", initial_hunger, final_hunger);
+        assert!(
+            final_hunger > initial_hunger,
+            "Hunger should rise: {} -> {}",
+            initial_hunger,
+            final_hunger
+        );
     }
 
     #[test]
@@ -107,7 +157,11 @@ mod tests {
         }
 
         let hunger_val = world.characters["dog"].mind_graph.nodes["dog-hunger"].value;
-        assert!(hunger_val > 0.6, "Hunger should have crossed 0.6 threshold: {}", hunger_val);
+        assert!(
+            hunger_val > 0.6,
+            "Hunger should have crossed 0.6 threshold: {}",
+            hunger_val
+        );
 
         // Phase 2: Ring bell + present food (simulate classical conditioning)
         // Ring bell → spawns auditory observation on dog
@@ -115,25 +169,29 @@ mod tests {
             command_id: "ring-bell".to_string(),
             actor_id: "pavlov".to_string(),
             target_id: Some("dog".to_string()),
-            effects: vec![
-                CommandEffect::SpawnObservation {
-                    schema_id: "it:concept/hear-metronome".to_string(),
-                    modality: Modality::Auditory,
-                    about: "it:entity-type/metronome".to_string(),
-                    ttl: 300,
-                    strength: 0.8,
-                    target_character_id: Some("dog".to_string()),
-                },
-            ],
+            effects: vec![CommandEffect::SpawnObservation {
+                schema_id: "it:concept/hear-metronome".to_string(),
+                modality: Modality::Auditory,
+                about: "it:entity-type/metronome".to_string(),
+                ttl: 300,
+                strength: 0.8,
+                target_character_id: Some("dog".to_string()),
+            }],
         };
         world.pending_commands.push(bell_cmd);
         runner.tick(&mut world, 1.0);
 
         // Check observation was created on dog
-        let dog_obs: Vec<&MindNode> = world.characters["dog"].mind_graph.nodes.values()
+        let dog_obs: Vec<&MindNode> = world.characters["dog"]
+            .mind_graph
+            .nodes
+            .values()
             .filter(|n| n.node_type == NodeType::Observation)
             .collect();
-        assert!(!dog_obs.is_empty(), "Dog should have observation nodes after bell ring");
+        assert!(
+            !dog_obs.is_empty(),
+            "Dog should have observation nodes after bell ring"
+        );
 
         // Present food → spawns olfactory observation + reduces hunger
         let food_cmd = CommandDTO {
@@ -161,8 +219,12 @@ mod tests {
 
         // Hunger should have decreased
         let hunger_after_feed = world.characters["dog"].mind_graph.nodes["dog-hunger"].value;
-        assert!(hunger_after_feed < hunger_val - 0.2,
-            "Hunger should have dropped after feeding: {} -> {}", hunger_val, hunger_after_feed);
+        assert!(
+            hunger_after_feed < hunger_val - 0.2,
+            "Hunger should have dropped after feeding: {} -> {}",
+            hunger_val,
+            hunger_after_feed
+        );
     }
 
     #[test]
@@ -181,24 +243,26 @@ mod tests {
 
             // Verify hunger is high and want-to-eat exists
             let hunger_val = world.characters["dog"].mind_graph.nodes["dog-hunger"].value;
-            assert!(hunger_val > 0.5,
-                "Trial {}: hunger should be above 0.5, got {}", trial, hunger_val);
+            assert!(
+                hunger_val > 0.5,
+                "Trial {}: hunger should be above 0.5, got {}",
+                trial,
+                hunger_val
+            );
 
             // Ring bell
             world.pending_commands.push(CommandDTO {
                 command_id: "ring-bell".to_string(),
                 actor_id: "pavlov".to_string(),
                 target_id: Some("dog".to_string()),
-                effects: vec![
-                    CommandEffect::SpawnObservation {
-                        schema_id: "it:concept/hear-metronome".to_string(),
-                        modality: Modality::Auditory,
-                        about: "it:entity-type/metronome".to_string(),
-                        ttl: 300,
-                        strength: 0.8,
-                        target_character_id: Some("dog".to_string()),
-                    },
-                ],
+                effects: vec![CommandEffect::SpawnObservation {
+                    schema_id: "it:concept/hear-metronome".to_string(),
+                    modality: Modality::Auditory,
+                    about: "it:entity-type/metronome".to_string(),
+                    ttl: 300,
+                    strength: 0.8,
+                    target_character_id: Some("dog".to_string()),
+                }],
             });
             runner.tick(&mut world, 1.0);
 
@@ -228,31 +292,39 @@ mod tests {
 
         // Check that learned edges exist (from bell observation → want-to-eat motivation)
         let dog_graph = &world.characters["dog"].mind_graph;
-        let learned_edges: Vec<_> = dog_graph.edges.values()
-            .filter(|e| e.learnable)
-            .collect();
+        let learned_edges: Vec<_> = dog_graph.edges.values().filter(|e| e.learnable).collect();
 
         // Also count all edges for diagnostics
         let total_edges = dog_graph.edges.len();
-        let edges_with_classical: Vec<_> = dog_graph.edges.values()
+        let edges_with_classical: Vec<_> = dog_graph
+            .edges
+            .values()
             .filter(|e| e.learn_type == LearnType::Classical && e.learnable)
             .collect();
 
-        assert!(!learned_edges.is_empty(),
+        assert!(
+            !learned_edges.is_empty(),
             "After 5 conditioning trials, there should be learned edges. \
              Found {} total edges, {} learnable, {} classical.",
-            total_edges, learned_edges.len(), edges_with_classical.len());
+            total_edges,
+            learned_edges.len(),
+            edges_with_classical.len()
+        );
 
         // Check edge weights — new edges start at 0.1 (REINFORCE_DELTA)
         // Multiple trials should create multiple edges (one per observation instance)
-        assert!(learned_edges.len() >= 2,
+        assert!(
+            learned_edges.len() >= 2,
             "Should have at least 2 learned edges from multiple trials, got {}",
-            learned_edges.len());
+            learned_edges.len()
+        );
 
         for edge in &learned_edges {
-            assert!(edge.weight >= 0.1,
+            assert!(
+                edge.weight >= 0.1,
                 "Learned edge weight should be >= 0.1, got {}",
-                edge.weight);
+                edge.weight
+            );
         }
     }
 
@@ -262,7 +334,11 @@ mod tests {
             .expect("Should load pavlov level");
 
         // ring-bell requires EnvHasItem for metronome
-        let ring_bell = world.command_defs.iter().find(|c| c.command_id == "ring-bell").unwrap();
+        let ring_bell = world
+            .command_defs
+            .iter()
+            .find(|c| c.command_id == "ring-bell")
+            .unwrap();
         assert_eq!(ring_bell.preconditions.len(), 1);
 
         // The world has items with schema:Product type but the precondition checks for it:entity-type/metronome
@@ -310,10 +386,15 @@ mod tests {
                 action: None,
                 meme: None,
                 prev_value: 0.0,
-            reality_layer: 0,
-            is_virtual: false,
+                reality_layer: 0,
+                is_virtual: false,
             };
-            world.characters.get_mut("dog").unwrap().mind_graph.add_node(obs);
+            world
+                .characters
+                .get_mut("dog")
+                .unwrap()
+                .mind_graph
+                .add_node(obs);
         }
 
         // Tick to run AttentionAllocationSystem
@@ -321,19 +402,34 @@ mod tests {
 
         // Some observations should be skipped this tick without losing their
         // persistent active/lifecycle state.
-        let attended_count = world.characters["dog"].mind_graph.nodes.values()
+        let attended_count = world.characters["dog"]
+            .mind_graph
+            .nodes
+            .values()
             .filter(|n| n.node_type == NodeType::Observation && n.attended)
             .count();
-        let total_count = world.characters["dog"].mind_graph.nodes.values()
+        let total_count = world.characters["dog"]
+            .mind_graph
+            .nodes
+            .values()
             .filter(|n| n.node_type == NodeType::Observation)
             .count();
 
-        assert!(attended_count < total_count,
+        assert!(
+            attended_count < total_count,
             "With low attention, not all {} observations should be attended (got {} attended)",
-            total_count, attended_count);
-        assert!(world.characters["dog"].mind_graph.nodes.values()
-            .filter(|n| n.node_type == NodeType::Observation)
-            .all(|n| n.active), "attention allocation must not mutate node lifecycle");
+            total_count,
+            attended_count
+        );
+        assert!(
+            world.characters["dog"]
+                .mind_graph
+                .nodes
+                .values()
+                .filter(|n| n.node_type == NodeType::Observation)
+                .all(|n| n.active),
+            "attention allocation must not mutate node lifecycle"
+        );
     }
 
     #[test]
@@ -371,10 +467,15 @@ mod tests {
                 action: None,
                 meme: None,
                 prev_value: 0.0,
-            reality_layer: 0,
-            is_virtual: false,
+                reality_layer: 0,
+                is_virtual: false,
             };
-            world.characters.get_mut("dog").unwrap().mind_graph.add_node(obs);
+            world
+                .characters
+                .get_mut("dog")
+                .unwrap()
+                .mind_graph
+                .add_node(obs);
         }
 
         // Record initial strength
@@ -386,13 +487,19 @@ mod tests {
         }
 
         // Check that strength decreased due to habituation
-        let final_strength = world.characters["dog"].mind_graph.nodes.get("repeated-obs-0")
+        let final_strength = world.characters["dog"]
+            .mind_graph
+            .nodes
+            .get("repeated-obs-0")
             .map(|n| n.strength)
             .unwrap_or(0.0);
 
-        assert!(final_strength < initial_strength,
+        assert!(
+            final_strength < initial_strength,
             "Repeated stimulus strength should decrease: {} -> {}",
-            initial_strength, final_strength);
+            initial_strength,
+            final_strength
+        );
     }
 
     #[test]
@@ -408,15 +515,23 @@ mod tests {
             }
         }
 
-        let initial_dopa = world.characters["dog"].mind_graph.resource_value("it:concept/dopamine");
+        let initial_dopa = world.characters["dog"]
+            .mind_graph
+            .resource_value("it:concept/dopamine");
 
         // Run ticks for regeneration
         for _ in 0..20 {
             runner.tick(&mut world, 1.0);
         }
 
-        let final_dopa = world.characters["dog"].mind_graph.resource_value("it:concept/dopamine");
-        assert!(final_dopa > initial_dopa,
-            "Dopamine should regenerate: {} -> {}", initial_dopa, final_dopa);
+        let final_dopa = world.characters["dog"]
+            .mind_graph
+            .resource_value("it:concept/dopamine");
+        assert!(
+            final_dopa > initial_dopa,
+            "Dopamine should regenerate: {} -> {}",
+            initial_dopa,
+            final_dopa
+        );
     }
 }
