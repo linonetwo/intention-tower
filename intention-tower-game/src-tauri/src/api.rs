@@ -314,7 +314,7 @@ pub fn list_saves(app_handle: tauri::AppHandle) -> Result<Vec<SaveMeta>, String>
         for entry in entries {
             let entry = entry.map_err(|e| e.to_string())?;
             let path = entry.path();
-            if path.extension().map_or(false, |ext| ext == "json") {
+            if path.extension().is_some_and(|ext| ext == "json") {
                 let slot = path
                     .file_stem()
                     .and_then(|s| s.to_str())

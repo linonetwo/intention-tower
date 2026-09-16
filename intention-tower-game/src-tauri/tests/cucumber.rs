@@ -100,7 +100,7 @@ impl GameWorld {
                 .get(format!("{}/health", self.base_url))
                 .send()
                 .await
-                .map_or(false, |r| r.status().is_success())
+                .is_ok_and(|r| r.status().is_success())
             {
                 ok = true;
                 break;
@@ -361,10 +361,10 @@ async fn edge_weight_gt(
     let edge = edges.iter().find(|e| {
         e["source_instance_id"]
             .as_str()
-            .map_or(false, |s| s.contains(&source))
+            .is_some_and(|s| s.contains(&source))
             && e["target_instance_id"]
                 .as_str()
-                .map_or(false, |t| t.contains(&target))
+                .is_some_and(|t| t.contains(&target))
     });
     assert!(
         edge.is_some(),
@@ -397,10 +397,10 @@ async fn edge_weight_lt(
     let edge = edges.iter().find(|e| {
         e["source_instance_id"]
             .as_str()
-            .map_or(false, |s| s.contains(&source))
+            .is_some_and(|s| s.contains(&source))
             && e["target_instance_id"]
                 .as_str()
-                .map_or(false, |t| t.contains(&target))
+                .is_some_and(|t| t.contains(&target))
     });
     // 如果边不存在，权重视为 0
     let weight = edge
