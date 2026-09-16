@@ -1,8 +1,11 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
-use super::mind_graph::MindGraph;
-use super::events::WorldEvent;
 use super::commands::{CommandDTO, CommandDef};
+use super::economy::EconomyState;
+use super::events::WorldEvent;
+use super::mind_graph::MindGraph;
+use super::progress::LevelProgress;
+use super::social::SocialGroupState;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Position in the 2D world
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,6 +22,16 @@ pub struct WorldItem {
     pub label: String,
     pub position: Position,
     pub abstract_type: Option<String>,
+    #[serde(default)]
+    pub owner_id: Option<String>,
+    #[serde(default)]
+    pub quantity: f64,
+    #[serde(default = "default_unit_price")]
+    pub unit_price: f64,
+}
+
+const fn default_unit_price() -> f64 {
+    1.0
 }
 
 /// A character in the world
@@ -40,6 +53,16 @@ pub struct WorldState {
     /// The level directory ID (e.g. "pavlov")
     #[serde(default)]
     pub level_id: String,
+    #[serde(default)]
+    pub level_label: String,
+    #[serde(default)]
+    pub level_description: String,
+    #[serde(default = "default_ui_mode")]
+    pub initial_mode: String,
+    #[serde(default)]
+    pub default_actor_id: Option<String>,
+    #[serde(default)]
+    pub default_target_id: Option<String>,
     pub characters: HashMap<String, WorldCharacter>,
     pub items: HashMap<String, WorldItem>,
     pub event_log: Vec<WorldEvent>,
@@ -54,6 +77,22 @@ pub struct WorldState {
     pub pending_commands: Vec<CommandDTO>,
     /// Whether we are in a virtual context (cyber dream etc)
     pub in_virtual_context: bool,
+    /// Serializable nesting stack for dream-within-dream and mixed reality levels.
+    #[serde(default)]
+    pub virtual_context_stack: Vec<String>,
+    /// Derived cross-character identity groups and collective decisions.
+    #[serde(default)]
+    pub social_groups: HashMap<String, SocialGroupState>,
+    /// Serializable accounts, holdings, market assets, and transaction log.
+    #[serde(default)]
+    pub economy: EconomyState,
+    /// Authoritative, serializable objective and outcome state.
+    #[serde(default)]
+    pub progress: LevelProgress,
+}
+
+fn default_ui_mode() -> String {
+    "observe".to_string()
 }
 
 impl WorldState {
@@ -64,6 +103,11 @@ impl WorldState {
             paused: false,
             seed,
             level_id: String::new(),
+            level_label: String::new(),
+            level_description: String::new(),
+            initial_mode: default_ui_mode(),
+            default_actor_id: None,
+            default_target_id: None,
             characters: HashMap::new(),
             items: HashMap::new(),
             event_log: Vec::new(),
@@ -71,6 +115,10 @@ impl WorldState {
             pending_events: Vec::new(),
             pending_commands: Vec::new(),
             in_virtual_context: false,
+            virtual_context_stack: Vec::new(),
+            social_groups: HashMap::new(),
+            economy: EconomyState::default(),
+            progress: LevelProgress::default(),
         }
     }
 
@@ -80,7 +128,7 @@ impl WorldState {
 
     /// Flush pending events to the log and return them as StateDiff
     pub fn flush_events(&mut self) -> Vec<WorldEvent> {
-        let events: Vec<WorldEvent> = self.pending_events.drain(..).collect();
+        let events = std::mem::take(&mut self.pending_events);
         self.event_log.extend(events.clone());
         events
     }

@@ -104,14 +104,14 @@ export const LevelSelectPage: React.FC = () => {
 
   return (
     <Box sx={{
-      width: '100vw', height: '100vh',
+      width: '100vw', minHeight: '100dvh',
       bgcolor: '#0a0a1e', color: '#fff',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center',
       overflow: 'auto',
-      p: 4,
+      p: { xs: 2, sm: 4 },
     }}>
-      <Typography sx={{ fontSize: 42, fontWeight: 700, mb: 1, letterSpacing: 4 }}>
+      <Typography sx={{ fontSize: { xs: 30, sm: 42 }, fontWeight: 700, mb: 1, letterSpacing: { xs: 2, sm: 4 }, textAlign: 'center' }}>
         {t('app.title')}
       </Typography>
       <Typography sx={{ fontSize: 13, color: '#666', mb: 4 }}>

@@ -71,6 +71,22 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
       return { icon: '💧', text: `${charName(data.character_id as string)}: ${String(data.resource_schema_id)} -${(data.amount as number).toFixed(2)} (${(data.remaining as number).toFixed(2)})`, color: '#ab47bc' };
     case 'CommandExecuted':
       return { icon: '🎮', text: `${charName(data.actor_id as string)}: ${String(data.command_id)}${data.target_id ? ` → ${charName(data.target_id as string)}` : ''}`, color: '#42a5f5' };
+    case 'CharacterMoved':
+      return { icon: '🧭', text: `${charName(data.character_id as string)} → (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#80cbc4' };
+    case 'AssetTraded':
+      return { icon: '🪙', text: `${charName(data.buyer_id as string)}: ${String(data.item_id)} ×${Number(data.quantity).toFixed(0)} · ¢${Number(data.total_price).toFixed(0)}`, color: '#73d5a6' };
+    case 'AssetTradeRejected':
+      return { icon: '⛔', text: `${charName(data.buyer_id as string)}: ${String(data.reason)}`, color: '#ef5350' };
+    case 'SocialGroupUpdated':
+      return { icon: '👥', text: `${String(data.group_id)} · ${String(data.member_count)} · ${(Number(data.cohesion) * 100).toFixed(0)}%`, color: '#ba9cff' };
+    case 'NodeSuppressionChanged':
+      return { icon: '⚖️', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${(Number(data.suppression) * 100).toFixed(0)}%`, color: '#ffb74d' };
+    case 'ObjectiveCompleted':
+      return { icon: '✅', text: translateLabel(data.label as string), color: '#66bb6a' };
+    case 'LevelWon':
+      return { icon: '🏆', text: String(data.level_id), color: '#ffca28' };
+    case 'LevelLost':
+      return { icon: '💀', text: `${String(data.level_id)}: ${String(data.reason)}`, color: '#ef5350' };
     case 'SoundEmitted':
       return { icon: '🔔', text: `🔊 ${String(data.about)} (${String(data.modality)})`, color: '#ffa726' };
     case 'FoodPresented':

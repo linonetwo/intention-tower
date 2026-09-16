@@ -6,13 +6,14 @@
       "commandId": "introduce-uniform",
       "label": "command.introduce-uniform.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/group-identity",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/belonging-need"], "isIdentity": true, "groupId": "the-wave", "resilience": 0.64 }
         }
       ]
     },
@@ -20,13 +21,14 @@
       "commandId": "teach-gesture",
       "label": "command.teach-gesture.label",
       "hotkey": "2",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/discipline",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/individual-thought"], "isBelief": true, "groupId": "the-wave", "resilience": 0.68 }
         }
       ]
     },

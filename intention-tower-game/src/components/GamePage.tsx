@@ -28,11 +28,15 @@ import { ActorStatusBar } from './hud/ActorStatusBar';
 import { MiniMapHud } from './hud/MiniMapHud';
 import { DialogueBox } from './hud/DialogueBox';
 import { MobileStatusBar } from './hud/MobileStatusBar';
+import { ObjectiveHud } from './hud/ObjectiveHud';
+import { MicroControlPad } from './hud/MicroControlPad';
+import { EconomyHud } from './hud/EconomyHud';
 
 // Overlay components
 import { MindGraphOverlay } from './overlay/MindGraphOverlay';
 import { CharacterPortrait } from './overlay/CharacterPortrait';
 import { SceneContextMenu } from './overlay/SceneContextMenu';
+import { LevelOutcomeOverlay } from './overlay/LevelOutcomeOverlay';
 
 // Scene
 import { GameScene } from './scene/GameScene';
@@ -76,6 +80,12 @@ export const GamePage: React.FC = () => {
       progressStore.getState().updateTick(currentLevelId, tick);
     }
   }, [currentLevelId, worldState?.tick]);
+
+  useEffect(() => {
+    if (currentLevelId && worldState?.progress.status === 'Won') {
+      progressStore.getState().markCompleted(currentLevelId);
+    }
+  }, [currentLevelId, worldState?.progress.status]);
 
   // Redirect if no world state
   useEffect(() => {
@@ -133,6 +143,15 @@ export const GamePage: React.FC = () => {
         {/* Mobile status bar */}
         <MobileStatusBar />
 
+        {/* Backend-driven level goals */}
+        <ObjectiveHud />
+
+        {/* Touch movement in micro-control mode */}
+        <MicroControlPad />
+
+        {/* Data-driven economy appears only in levels with authored assets */}
+        <EconomyHud />
+
         {/* Character portraits */}
         <CharacterPortrait />
 
@@ -145,6 +164,9 @@ export const GamePage: React.FC = () => {
 
       {/* ── Layer 3: Context menus ── */}
       <SceneContextMenu />
+
+      {/* ── Terminal level result ── */}
+      <LevelOutcomeOverlay />
 
       {/* ── Tutorial guide ── */}
       <TutorialGuidePanel />

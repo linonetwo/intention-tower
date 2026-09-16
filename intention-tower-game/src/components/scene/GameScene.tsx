@@ -6,13 +6,16 @@
  */
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Application, Graphics, Text, TextStyle, Container, Assets, Sprite } from 'pixi.js';
-import { gameStore } from '../../store/useGameState';
+import { gameStore, useGameState } from '../../store/useGameState';
 import { translateLabel } from '../../i18n';
 import { modAssetsStore } from '../../store/useModAssets';
 
 /* ── Constants ── */
-const WORLD_SCALE = 80;
-const ZOOM_MIN = 0.3;
+// Level JSON uses a 800×600-ish design canvas measured in pixels. Treating
+// those values as grid cells (the old ×80 conversion) pushed every entity
+// thousands of pixels off screen.
+const GRID_SIZE = 80;
+const ZOOM_MIN = 0.25;
 const ZOOM_MAX = 3.0;
 const CHAR_RADIUS = 22;
 const ITEM_RADIUS = 12;
@@ -35,6 +38,7 @@ interface Viewport { x: number; y: number; scale: number; }
 
 /* ── Main component ── */
 export const GameScene: React.FC<{ width: number; height: number }> = ({ width, height }) => {
+  const currentLevelId = useGameState((state) => state.currentLevelId);
   const canvasRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const viewportRef = useRef<Viewport>({ x: 0, y: 0, scale: 1 });
@@ -102,9 +106,39 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
 
   // World ↔ screen coordinate conversion
   const worldToScreen = useCallback((wx: number, wy: number, vp: Viewport, w: number, h: number) => ({
-    x: wx * WORLD_SCALE * vp.scale + vp.x + w / 2,
-    y: wy * WORLD_SCALE * vp.scale + vp.y + h / 2,
+    x: wx * vp.scale + vp.x + w / 2,
+    y: wy * vp.scale + vp.y + h / 2,
   }), []);
+
+  const fitWorldToViewport = useCallback((w: number, h: number) => {
+    const world = gameStore.getState().worldState;
+    if (!world) return;
+    const points = [
+      ...Object.values(world.characters).map((character) => character.position),
+      ...Object.values(world.items).map((item) => item.position),
+    ];
+    if (points.length === 0) {
+      viewportRef.current = { x: 0, y: 0, scale: 1 };
+      return;
+    }
+
+    const minX = Math.min(...points.map((point) => point.x));
+    const maxX = Math.max(...points.map((point) => point.x));
+    const minY = Math.min(...points.map((point) => point.y));
+    const maxY = Math.max(...points.map((point) => point.y));
+    const worldWidth = Math.max(220, maxX - minX);
+    const worldHeight = Math.max(180, maxY - minY);
+    const padding = Math.min(120, Math.max(42, Math.min(w, h) * 0.14));
+    const scale = Math.max(
+      ZOOM_MIN,
+      Math.min(1.4, (w - padding * 2) / worldWidth, (h - padding * 2) / worldHeight),
+    );
+    viewportRef.current = {
+      x: -((minX + maxX) / 2) * scale,
+      y: -((minY + maxY) / 2) * scale,
+      scale,
+    };
+  }, []);
 
   // ── Initialize PixiJS Application once ──
   useEffect(() => {
@@ -141,6 +175,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
       labelContainer.current = labels;
 
       setupInteraction(app.canvas as HTMLCanvasElement);
+      fitWorldToViewport(width, height);
       startRenderLoop();
     };
 
@@ -159,6 +194,12 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // A new level gets a fresh camera; subsequent player pans survive normal renders.
+  useEffect(() => {
+    if (!currentLevelId || !appRef.current) return;
+    fitWorldToViewport(width, height);
+  }, [currentLevelId, fitWorldToViewport, height, width]);
 
   // ── Resize ──
   useEffect(() => {
@@ -236,7 +277,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
     } else {
       bg.rect(0, 0, w, h).fill({ color: COLORS.bg, alpha: 0.25 });
     }
-    const gridSpacing = WORLD_SCALE * vp.scale;
+    const gridSpacing = GRID_SIZE * vp.scale;
     if (gridSpacing > 15) {
       const offX = (vp.x + w / 2) % gridSpacing;
       const offY = (vp.y + h / 2) % gridSpacing;
@@ -345,12 +386,12 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
       if (!ws) return null;
 
       for (const char of Object.values(ws.characters)) {
-        const pos = { x: char.position.x * WORLD_SCALE * vp.scale + vp.x + w / 2, y: char.position.y * WORLD_SCALE * vp.scale + vp.y + h / 2 };
+        const pos = { x: char.position.x * vp.scale + vp.x + w / 2, y: char.position.y * vp.scale + vp.y + h / 2 };
         const r = CHAR_RADIUS * Math.max(0.5, vp.scale) + 5;
         if ((sx - pos.x) ** 2 + (sy - pos.y) ** 2 <= r * r) return { type: 'character', id: char.id };
       }
       for (const item of Object.values(ws.items)) {
-        const pos = { x: item.position.x * WORLD_SCALE * vp.scale + vp.x + w / 2, y: item.position.y * WORLD_SCALE * vp.scale + vp.y + h / 2 };
+        const pos = { x: item.position.x * vp.scale + vp.x + w / 2, y: item.position.y * vp.scale + vp.y + h / 2 };
         if ((sx - pos.x) ** 2 + (sy - pos.y) ** 2 <= (ITEM_RADIUS * 1.5) ** 2) return { type: 'item', id: item.id };
       }
       return null;
@@ -396,6 +437,13 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
       viewportRef.current = { ...viewportRef.current, scale: Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, viewportRef.current.scale * factor)) };
     }, { passive: false });
 
+    canvas.addEventListener('dblclick', () => {
+      const app = appRef.current;
+      if (!app) return;
+      const ratio = window.devicePixelRatio || 1;
+      fitWorldToViewport(app.renderer.width / ratio, app.renderer.height / ratio);
+    });
+
     canvas.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       const rect = canvas.getBoundingClientRect();
@@ -432,12 +480,12 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
     canvas.addEventListener('touchend', () => { lastPinchDist = 0; });
 
     canvas.style.cursor = 'grab';
-  }, []);
+  }, [fitWorldToViewport]);
 
   return (
     <div
       ref={canvasRef}
-      style={{ width, height, overflow: 'hidden', position: 'absolute', inset: 0 }}
+      style={{ width, height, overflow: 'hidden', position: 'absolute', inset: 0, touchAction: 'none' }}
     />
   );
 };

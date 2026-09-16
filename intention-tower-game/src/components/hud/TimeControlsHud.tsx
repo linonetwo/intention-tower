@@ -83,6 +83,9 @@ export const TimeControlsHud: React.FC = () => {
           borderBottom: '1px solid rgba(42,42,78,0.5)',
           zIndex: 20,
           pointerEvents: 'auto',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
         {/* Back */}
@@ -112,7 +115,7 @@ export const TimeControlsHud: React.FC = () => {
         </Tooltip>
 
         {/* Reload mods */}
-        <Tooltip title={t('game.reloadMods')} arrow>
+        {!layout.isMobile && <Tooltip title={t('game.reloadMods')} arrow>
           <span>
             <IconButton
               size="small"
@@ -125,7 +128,7 @@ export const TimeControlsHud: React.FC = () => {
               <RefreshIcon sx={{ fontSize: 16 }} />
             </IconButton>
           </span>
-        </Tooltip>
+        </Tooltip>}
 
         <Box sx={{ flex: 1 }} />
 
@@ -205,12 +208,12 @@ export const TimeControlsHud: React.FC = () => {
         >
           <ToggleButton value={0}><PauseIcon sx={{ fontSize: 13 }} /></ToggleButton>
           <ToggleButton value={1}>1×</ToggleButton>
-          <ToggleButton value={2}>2×</ToggleButton>
-          <ToggleButton value={3}>3×</ToggleButton>
+          {!layout.isMobile && <ToggleButton value={2}>2×</ToggleButton>}
+          {!layout.isMobile && <ToggleButton value={3}>3×</ToggleButton>}
           <ToggleButton value={4}>4×</ToggleButton>
         </ToggleButtonGroup>
 
-        {paused && (
+        {paused && !layout.isMobile && (
           <Chip
             icon={<PauseIcon sx={{ fontSize: 10 }} />}
             label={t('game.paused')}

@@ -22,6 +22,12 @@ struct EvalChunkBuffer {
     parts: Vec<Option<String>>,
 }
 
+impl Default for TestServerState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TestServerState {
     pub fn new() -> Self {
         Self {
@@ -63,15 +69,26 @@ impl TestServerState {
     }
 
     pub fn take_eval_result(&self, id: &str) -> Option<serde_json::Value> {
-        self.eval_results.lock().ok().and_then(|mut map| map.remove(id))
+        self.eval_results
+            .lock()
+            .ok()
+            .and_then(|mut map| map.remove(id))
     }
 
-    pub fn push_eval_chunk(&self, id: &str, part: usize, total: usize, chunk: String) -> Option<serde_json::Value> {
+    pub fn push_eval_chunk(
+        &self,
+        id: &str,
+        part: usize,
+        total: usize,
+        chunk: String,
+    ) -> Option<serde_json::Value> {
         let mut chunks = self.eval_chunks.lock().ok()?;
-        let entry = chunks.entry(id.to_string()).or_insert_with(|| EvalChunkBuffer {
-            total,
-            parts: vec![None; total],
-        });
+        let entry = chunks
+            .entry(id.to_string())
+            .or_insert_with(|| EvalChunkBuffer {
+                total,
+                parts: vec![None; total],
+            });
 
         if entry.total != total {
             entry.total = total;

@@ -1,7 +1,7 @@
 use super::System;
-use crate::models::world_state::WorldState;
-use crate::models::mind_node::{NodeType, AssociationEdge, Evidence, Polarity, LearnType};
 use crate::models::events::WorldEvent;
+use crate::models::mind_node::{AssociationEdge, Evidence, LearnType, NodeType, Polarity};
+use crate::models::world_state::WorldState;
 
 /// System #12: Classical conditioning (Pavlovian).
 ///
@@ -21,7 +21,9 @@ const CR_THRESHOLD: f64 = 0.25;
 const CR_DRIVE: f64 = 0.35;
 
 impl System for ClassicalConditioningSystem {
-    fn name(&self) -> &'static str { "ClassicalConditioningSystem" }
+    fn name(&self) -> &'static str {
+        "ClassicalConditioningSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         let current_tick = state.tick;
@@ -31,10 +33,15 @@ impl System for ClassicalConditioningSystem {
             let graph = &mut character.mind_graph;
 
             // Pass 1: Learning
-            let motivation_ids: Vec<(String, f64)> = graph.nodes.values()
-                .filter(|n| n.node_type == NodeType::Motivation && n.active)
+            let motivation_ids: Vec<(String, f64)> = graph
+                .nodes
+                .values()
+                .filter(|n| n.node_type == NodeType::Motivation && n.active && n.attended)
                 .map(|n| {
-                    let window = n.motivation.as_ref().map_or(10.0, |m| m.lookback_window_sec);
+                    let window = n
+                        .motivation
+                        .as_ref()
+                        .map_or(10.0, |m| m.lookback_window_sec);
                     (n.instance_id.clone(), window)
                 })
                 .collect();
@@ -43,25 +50,31 @@ impl System for ClassicalConditioningSystem {
                 let window_ticks = (window_sec * 10.0) as u64;
                 let cutoff = current_tick.saturating_sub(window_ticks);
 
-                let recent_obs: Vec<String> = graph.nodes.values()
+                let recent_obs: Vec<String> = graph
+                    .nodes
+                    .values()
                     .filter(|n| {
                         n.node_type == NodeType::Observation
                             && n.active
+                            && n.attended
                             && n.created_at >= cutoff
                     })
                     .map(|n| n.instance_id.clone())
                     .collect();
 
                 for obs_id in recent_obs {
-                    let existing_edge_id = graph.edges.values()
+                    let existing_edge_id = graph
+                        .edges
+                        .values()
                         .find(|e| {
-                            e.source_instance_id == obs_id
-                                && e.target_instance_id == motivation_id
+                            e.source_instance_id == obs_id && e.target_instance_id == motivation_id
                         })
                         .map(|e| e.edge_id.clone());
 
                     let has_dopamine = graph.resource_value(DOPAMINE_SCHEMA) >= LEARNING_COST;
-                    if !has_dopamine { continue; }
+                    if !has_dopamine {
+                        continue;
+                    }
 
                     if let Some(edge_id) = existing_edge_id {
                         let (old_weight, new_weight) = {
@@ -74,7 +87,10 @@ impl System for ClassicalConditioningSystem {
                         };
                         graph.consume_resource(DOPAMINE_SCHEMA, LEARNING_COST);
                         state.pending_events.push(WorldEvent::EdgeWeightChanged {
-                            character_id: char_id.clone(), edge_id, old_weight, new_weight,
+                            character_id: char_id.clone(),
+                            edge_id,
+                            old_weight,
+                            new_weight,
                         });
                         state.pending_events.push(WorldEvent::ResourceConsumed {
                             character_id: char_id.clone(),
@@ -119,18 +135,25 @@ impl System for ClassicalConditioningSystem {
             }
 
             // Pass 2: Conditioned Activation (CR)
-            let cr_activations: Vec<(String, f64)> = graph.edges.values()
+            let cr_activations: Vec<(String, f64)> = graph
+                .edges
+                .values()
                 .filter(|e| {
-                    e.learnable
-                        && e.learn_type == LearnType::Classical
-                        && e.weight >= CR_THRESHOLD
+                    e.learnable && e.learn_type == LearnType::Classical && e.weight >= CR_THRESHOLD
                 })
                 .filter_map(|e| {
                     let src = graph.nodes.get(&e.source_instance_id)?;
-                    if !src.active || src.node_type != NodeType::Observation { return None; }
+                    if !src.active || !src.attended || src.node_type != NodeType::Observation {
+                        return None;
+                    }
                     let tgt = graph.nodes.get(&e.target_instance_id)?;
-                    if tgt.node_type != NodeType::Motivation { return None; }
-                    Some((e.target_instance_id.clone(), e.weight * src.value * CR_DRIVE))
+                    if tgt.node_type != NodeType::Motivation {
+                        return None;
+                    }
+                    Some((
+                        e.target_instance_id.clone(),
+                        e.weight * src.value * CR_DRIVE,
+                    ))
                 })
                 .collect();
 

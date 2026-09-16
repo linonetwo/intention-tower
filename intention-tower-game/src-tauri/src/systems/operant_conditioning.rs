@@ -1,7 +1,7 @@
 use super::System;
-use crate::models::world_state::WorldState;
-use crate::models::mind_node::{NodeType, AssociationEdge, Evidence, Polarity, LearnType};
 use crate::models::events::WorldEvent;
+use crate::models::mind_node::NodeType;
+use crate::models::world_state::WorldState;
 
 /// System #13: Operant conditioning (Thorndike's smart cat).
 /// When an Action is executed and leads to a reward (satisfaction increase),
@@ -14,7 +14,9 @@ const LEARNING_COST: f64 = 0.03;
 const REINFORCE_DELTA: f64 = 0.08;
 
 impl System for OperantConditioningSystem {
-    fn name(&self) -> &'static str { "OperantConditioningSystem" }
+    fn name(&self) -> &'static str {
+        "OperantConditioningSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         let current_tick = state.tick;
@@ -25,26 +27,37 @@ impl System for OperantConditioningSystem {
 
             // Find recently executed actions (those that became active this tick)
             // and check if any connected PriorInstinct's satisfaction improved
-            let action_ids: Vec<String> = graph.nodes.values()
-                .filter(|n| n.node_type == NodeType::Action && n.active)
+            let action_ids: Vec<String> = graph
+                .nodes
+                .values()
+                .filter(|n| {
+                    n.node_type == NodeType::Action
+                        && n.active
+                        && n.attended
+                        && n.action
+                            .as_ref()
+                            .is_some_and(|action| action.innate || action.selected)
+                })
                 .map(|n| n.instance_id.clone())
                 .collect();
 
             for action_id in action_ids {
                 // Find incoming edges to this action (from motivations)
-                let incoming: Vec<(String, String)> = graph.edges.values()
+                let incoming: Vec<(String, String)> = graph
+                    .edges
+                    .values()
                     .filter(|e| e.target_instance_id == action_id)
                     .map(|e| (e.edge_id.clone(), e.source_instance_id.clone()))
                     .collect();
 
                 // Check if the action led to reward: look for satisfaction > 0 on recent observations
-                let has_reward = graph.nodes.values()
-                    .any(|n| {
-                        n.node_type == NodeType::Observation
-                            && n.active
-                            && n.observation.as_ref().map_or(false, |o| o.satisfaction > 0.0)
-                            && n.created_at >= current_tick.saturating_sub(5) // within last 5 ticks
-                    });
+                let has_reward = graph.nodes.values().any(|n| {
+                    n.node_type == NodeType::Observation
+                        && n.active
+                        && n.attended
+                        && n.observation.as_ref().is_some_and(|o| o.satisfaction > 0.0)
+                        && n.created_at >= current_tick.saturating_sub(5) // within last 5 ticks
+                });
 
                 if !has_reward {
                     continue;
@@ -59,7 +72,9 @@ impl System for OperantConditioningSystem {
                 for (edge_id, _source_id) in incoming {
                     let (old_w, new_w) = {
                         if let Some(edge) = graph.edges.get_mut(&edge_id) {
-                            if !edge.learnable { continue; }
+                            if !edge.learnable {
+                                continue;
+                            }
                             let old = edge.weight;
                             edge.weight = (edge.weight + REINFORCE_DELTA).min(1.0);
                             edge.evidence.co_occurrence_count += 1;

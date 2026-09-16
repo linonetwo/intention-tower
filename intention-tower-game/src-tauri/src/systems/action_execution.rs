@@ -1,7 +1,7 @@
 use super::System;
-use crate::models::world_state::WorldState;
-use crate::models::mind_node::NodeType;
 use crate::models::events::WorldEvent;
+use crate::models::mind_node::NodeType;
+use crate::models::world_state::WorldState;
 
 /// System #20: Executes the selected action's world effects.
 /// For innate actions (e.g., salivation), automatic execution when triggered by edges.
@@ -9,32 +9,44 @@ use crate::models::events::WorldEvent;
 pub struct ActionExecutionSystem;
 
 impl System for ActionExecutionSystem {
-    fn name(&self) -> &'static str { "ActionExecutionSystem" }
+    fn name(&self) -> &'static str {
+        "ActionExecutionSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         for character in state.characters.values_mut() {
             let char_id = character.id.clone();
 
             // Find innate actions that should fire based on incoming excitatory edges
-            let innate_actions: Vec<String> = character.mind_graph.nodes.values()
+            let innate_actions: Vec<String> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| {
-                    n.node_type == NodeType::Action
-                        && n.action.as_ref().map_or(false, |a| a.innate)
+                    n.node_type == NodeType::Action && n.action.as_ref().is_some_and(|a| a.innate)
                 })
                 .map(|n| n.instance_id.clone())
                 .collect();
 
             for action_id in innate_actions {
                 // Calculate total excitatory input
-                let total_input: f64 = character.mind_graph.edges.values()
+                let total_input: f64 = character
+                    .mind_graph
+                    .edges
+                    .values()
                     .filter(|e| e.target_instance_id == action_id)
                     .map(|e| {
-                        let source_val = character.mind_graph.nodes.get(&e.source_instance_id)
-                            .filter(|s| s.active)
+                        let source_val = character
+                            .mind_graph
+                            .nodes
+                            .get(&e.source_instance_id)
+                            .filter(|s| s.active && s.attended)
                             .map_or(0.0, |s| s.value);
                         match e.polarity {
                             crate::models::mind_node::Polarity::Excitatory => e.weight * source_val,
-                            crate::models::mind_node::Polarity::Inhibitory => -e.weight * source_val,
+                            crate::models::mind_node::Polarity::Inhibitory => {
+                                -e.weight * source_val
+                            }
                         }
                     })
                     .sum();

@@ -6,11 +6,16 @@ use crate::models::world_state::WorldState;
 pub struct InstinctUpdateSystem;
 
 impl System for InstinctUpdateSystem {
-    fn name(&self) -> &'static str { "InstinctUpdateSystem" }
+    fn name(&self) -> &'static str {
+        "InstinctUpdateSystem"
+    }
 
     fn run(&self, state: &mut WorldState, dt: f64) {
         for character in state.characters.values_mut() {
-            let instinct_ids: Vec<String> = character.mind_graph.nodes.values()
+            let instinct_ids: Vec<String> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| {
                     n.node_type == crate::models::mind_node::NodeType::PriorInstinct
                         && !n.is_resource()
@@ -34,7 +39,7 @@ impl System for InstinctUpdateSystem {
                                 instance_id: id.clone(),
                                 old_value,
                                 new_value: node.value,
-                            }
+                            },
                         );
                     }
                 }

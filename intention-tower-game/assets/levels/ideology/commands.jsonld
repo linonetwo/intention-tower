@@ -12,7 +12,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/ideology",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/doubt"], "isBelief": true, "isIdentity": true, "groupId": "movement", "conflictResolution": "StressDependent", "resilience": 0.78 }
         }
       ]
     },

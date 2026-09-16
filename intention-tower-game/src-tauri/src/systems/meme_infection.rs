@@ -1,7 +1,7 @@
 use super::System;
-use crate::models::world_state::WorldState;
-use crate::models::mind_node::*;
 use crate::models::events::WorldEvent;
+use crate::models::mind_node::*;
+use crate::models::world_state::WorldState;
 
 /// System #15: Meme infection — matches meme bindingSites against existing node schemas.
 /// If a character has all required binding sites, the meme "infects" and spawns.
@@ -9,17 +9,23 @@ use crate::models::events::WorldEvent;
 pub struct MemeInfectionSystem;
 
 impl System for MemeInfectionSystem {
-    fn name(&self) -> &'static str { "MemeInfectionSystem" }
+    fn name(&self) -> &'static str {
+        "MemeInfectionSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         for character in state.characters.values_mut() {
             let char_id = character.id.clone();
             // Find pending (recently spawned) meme nodes that haven't been fully integrated
-            let meme_ids: Vec<String> = character.mind_graph.nodes.values()
+            let meme_ids: Vec<String> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| {
                     n.node_type == NodeType::Meme
                         && n.active
-                        && n.meme.as_ref().map_or(false, |m| !m.binding_sites.is_empty())
+                        && n.attended
+                        && n.meme.as_ref().is_some_and(|m| !m.binding_sites.is_empty())
                 })
                 .map(|n| n.instance_id.clone())
                 .collect();
@@ -32,12 +38,14 @@ impl System for MemeInfectionSystem {
                         .unwrap_or_default()
                 };
 
-                if binding_sites.is_empty() { continue; }
+                if binding_sites.is_empty() {
+                    continue;
+                }
 
                 // Check if all binding sites are present as node schemas
-                let all_present = binding_sites.iter().all(|bs| {
-                    character.mind_graph.find_by_schema(bs).is_some()
-                });
+                let all_present = binding_sites
+                    .iter()
+                    .all(|bs| character.mind_graph.find_by_schema(bs).is_some());
 
                 if all_present {
                     // Create edges from meme to each binding site node

@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use serde::Deserialize;
-use crate::models::world_state::{WorldState, WorldCharacter, WorldItem, Position};
+use crate::models::commands::*;
+use crate::models::economy::{EconomyAsset, EconomyState};
 use crate::models::mind_graph::MindGraph;
 use crate::models::mind_node::*;
-use crate::models::commands::*;
-use crate::models::events::WorldEvent;
+use crate::models::progress::{FailureRule, LevelCondition, LevelProgress, ObjectiveState};
+use crate::models::world_state::{Position, WorldCharacter, WorldItem, WorldState};
+use serde::Deserialize;
 
 /// Errors during level loading
 #[derive(Debug)]
@@ -31,10 +31,42 @@ struct LevelJson {
     #[serde(rename = "@id")]
     id: String,
     label: Option<String>,
+    comment: Option<String>,
     characters: Vec<CharacterJson>,
     items: Option<Vec<ItemJson>>,
     #[serde(rename = "initialMode")]
     initial_mode: Option<String>,
+    objectives: Option<Vec<String>>,
+    #[serde(rename = "objectiveRules", default)]
+    objective_rules: Vec<ObjectiveRuleJson>,
+    #[serde(rename = "failureRules", default)]
+    failure_rules: Vec<FailureRuleJson>,
+    #[serde(rename = "defaultActorId")]
+    default_actor_id: Option<String>,
+    #[serde(rename = "defaultTargetId")]
+    default_target_id: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ObjectiveRuleJson {
+    #[serde(rename = "objectiveId")]
+    objective_id: String,
+    label: String,
+    #[serde(default = "default_true")]
+    required: bool,
+    condition: LevelCondition,
+}
+
+#[derive(Deserialize, Debug)]
+struct FailureRuleJson {
+    #[serde(rename = "ruleId")]
+    rule_id: String,
+    label: String,
+    condition: LevelCondition,
+}
+
+const fn default_true() -> bool {
+    true
 }
 
 #[derive(Deserialize, Debug)]
@@ -42,7 +74,7 @@ struct CharacterJson {
     #[serde(rename = "@id")]
     id: String,
     #[serde(rename = "@type")]
-    type_: Option<String>,
+    _type: Option<String>,
     label: Option<String>,
     position: Option<PositionJson>,
     #[serde(rename = "mindGraphRef")]
@@ -53,12 +85,21 @@ struct CharacterJson {
 struct ItemJson {
     #[serde(rename = "@id")]
     id: String,
-    #[serde(rename = "@type", deserialize_with = "deserialize_string_or_array", default)]
+    #[serde(
+        rename = "@type",
+        deserialize_with = "deserialize_string_or_array",
+        default
+    )]
     type_: Option<String>,
     label: Option<String>,
     position: Option<PositionJson>,
     #[serde(rename = "it:abstractType")]
     abstract_type: Option<String>,
+    #[serde(rename = "ownerId")]
+    owner_id: Option<String>,
+    quantity: Option<f64>,
+    #[serde(rename = "unitPrice")]
+    unit_price: Option<f64>,
 }
 
 /// Deserialize a field that may be a single string or an array of strings.
@@ -118,7 +159,7 @@ struct PositionJson {
 #[derive(Deserialize, Debug)]
 struct MindGraphJson {
     #[serde(rename = "belongsToCharacter")]
-    belongs_to_character: Option<String>,
+    _belongs_to_character: Option<String>,
     nodes: Vec<NodeJson>,
     edges: Option<Vec<EdgeJson>>,
 }
@@ -141,6 +182,10 @@ struct NodeJson {
     ttl: Option<u64>,
     #[serde(rename = "hiddenByDefault")]
     hidden_by_default: Option<bool>,
+    #[serde(rename = "realityLayer")]
+    reality_layer: Option<u8>,
+    #[serde(rename = "isVirtual")]
+    is_virtual: Option<bool>,
 
     // Type-specific fields
     #[serde(rename = "it:priorInstinct")]
@@ -331,26 +376,41 @@ struct EffectJson {
     character_id: Option<String>,
     #[serde(rename = "memeSchemaId")]
     meme_schema_id: Option<String>,
+    meme: Option<MemeJson>,
     #[serde(rename = "newRegenRate")]
     new_regen_rate: Option<f64>,
+    value: Option<bool>,
+    #[serde(rename = "itemId")]
+    item_id: Option<String>,
+    #[serde(rename = "unitPrice")]
+    unit_price: Option<f64>,
+    #[serde(rename = "buyerId")]
+    buyer_id: Option<String>,
+    #[serde(rename = "sellerId")]
+    seller_id: Option<String>,
+    quantity: Option<f64>,
 }
 
 // ── Loading Implementation ──
 
 /// Load a level from Tauri's asset resolver (bundled assets).
-pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<WorldState, LoadError> {
+#[cfg(feature = "desktop")]
+pub fn load_level_from_assets(
+    level_id: &str,
+    app: &tauri::AppHandle,
+) -> Result<WorldState, LoadError> {
     use tauri::Manager;
 
-    let base_path = app.path().resource_dir()
+    let base_path = app
+        .path()
+        .resource_dir()
         .map_err(|_| LoadError::NotFound("Could not find resource directory".to_string()))?;
     let level_dir = base_path.join("assets").join("levels").join(level_id);
 
     let level_path = level_dir.join("level.jsonld");
-    let level_text = std::fs::read_to_string(&level_path)
-        .map_err(LoadError::Io)?;
+    let level_text = std::fs::read_to_string(&level_path).map_err(LoadError::Io)?;
 
-    let level_json: LevelJson = serde_json::from_str(&level_text)
-        .map_err(LoadError::Json)?;
+    let level_json: LevelJson = serde_json::from_str(&level_text).map_err(LoadError::Json)?;
 
     let mut world = WorldState::new(42);
 
@@ -367,7 +427,8 @@ pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<
             let mg_path = level_dir.join(&mg_filename);
             if mg_path.exists() {
                 let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
-                let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                let mg_json: MindGraphJson =
+                    serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
                 parse_mind_graph(&char_id, &mg_json)
             } else {
                 // Fallback: try {char_id}-mind.jsonld for backwards compatibility
@@ -375,7 +436,8 @@ pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<
                 let fallback_path = level_dir.join(&fallback_filename);
                 if fallback_path.exists() {
                     let mg_text = std::fs::read_to_string(&fallback_path).map_err(LoadError::Io)?;
-                    let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                    let mg_json: MindGraphJson =
+                        serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
                     parse_mind_graph(&char_id, &mg_json)
                 } else {
                     MindGraph::new(char_id.clone())
@@ -411,6 +473,9 @@ pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<
                     y: pos.map_or(0.0, |p| p.y),
                 },
                 abstract_type: item_json.abstract_type.clone(),
+                owner_id: item_json.owner_id.as_deref().map(extract_local_id),
+                quantity: item_json.quantity.unwrap_or(0.0).max(0.0),
+                unit_price: item_json.unit_price.unwrap_or(1.0).max(0.0),
             };
             world.items.insert(item_id, item);
         }
@@ -423,6 +488,8 @@ pub fn load_level_from_assets(level_id: &str, app: &tauri::AppHandle) -> Result<
         let cmd_json: CommandsJson = serde_json::from_str(&cmd_text).map_err(LoadError::Json)?;
         world.command_defs = parse_command_defs(&cmd_json);
     }
+
+    apply_level_metadata(&mut world, &level_json);
 
     Ok(world)
 }
@@ -445,14 +512,16 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
             let mg_path = level_dir.join(&mg_filename);
             if mg_path.exists() {
                 let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
-                let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                let mg_json: MindGraphJson =
+                    serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
                 parse_mind_graph(&char_id, &mg_json)
             } else {
                 let fallback_filename = format!("{}-mind.jsonld", char_id);
                 let fallback_path = level_dir.join(&fallback_filename);
                 if fallback_path.exists() {
                     let mg_text = std::fs::read_to_string(&fallback_path).map_err(LoadError::Io)?;
-                    let mg_json: MindGraphJson = serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
+                    let mg_json: MindGraphJson =
+                        serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
                     parse_mind_graph(&char_id, &mg_json)
                 } else {
                     MindGraph::new(char_id.clone())
@@ -487,6 +556,9 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
                     y: pos.map_or(0.0, |p| p.y),
                 },
                 abstract_type: item_json.abstract_type.clone(),
+                owner_id: item_json.owner_id.as_deref().map(extract_local_id),
+                quantity: item_json.quantity.unwrap_or(0.0).max(0.0),
+                unit_price: item_json.unit_price.unwrap_or(1.0).max(0.0),
             };
             world.items.insert(item_id, item);
         }
@@ -499,6 +571,8 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
         world.command_defs = parse_command_defs(&cmd_json);
     }
 
+    apply_level_metadata(&mut world, &level_json);
+
     Ok(world)
 }
 
@@ -507,6 +581,124 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
 fn extract_local_id(full_id: &str) -> String {
     // "it:entity/dog" → "dog", "it:level/pavlov/dog-mind" → "dog-mind"
     full_id.rsplit('/').next().unwrap_or(full_id).to_string()
+}
+
+fn apply_level_metadata(world: &mut WorldState, level: &LevelJson) {
+    world.level_id = extract_local_id(&level.id);
+    world.level_label = level.label.clone().unwrap_or_default();
+    world.level_description = level.comment.clone().unwrap_or_default();
+    world.initial_mode = level
+        .initial_mode
+        .clone()
+        .unwrap_or_else(|| "observe".to_string());
+
+    let ordered_character_ids: Vec<String> = level
+        .characters
+        .iter()
+        .map(|character| extract_local_id(&character.id))
+        .collect();
+    world.default_actor_id = level
+        .default_actor_id
+        .as_deref()
+        .map(extract_local_id)
+        .or_else(|| ordered_character_ids.first().cloned());
+    world.default_target_id = level
+        .default_target_id
+        .as_deref()
+        .map(extract_local_id)
+        .or_else(|| ordered_character_ids.get(1).cloned())
+        .or_else(|| ordered_character_ids.first().cloned());
+
+    let objectives = if level.objective_rules.is_empty() {
+        // Backward-compatible migration: every legacy objective is associated with
+        // the command in the same position. Content can opt into richer predicates
+        // by declaring objectiveRules in level.jsonld.
+        level
+            .objectives
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .enumerate()
+            .filter_map(|(index, label)| {
+                let command = world
+                    .command_defs
+                    .get(index)
+                    .or_else(|| world.command_defs.last())?;
+                Some(ObjectiveState {
+                    objective_id: format!("objective-{}", index),
+                    label,
+                    condition: LevelCondition::CommandUsed {
+                        command_id: command.command_id.clone(),
+                        min_count: 1,
+                        distinct_targets: 0,
+                    },
+                    required: true,
+                    completed: false,
+                    completed_at_tick: None,
+                })
+            })
+            .collect()
+    } else {
+        level
+            .objective_rules
+            .iter()
+            .map(|rule| ObjectiveState {
+                objective_id: rule.objective_id.clone(),
+                label: rule.label.clone(),
+                condition: rule.condition.clone(),
+                required: rule.required,
+                completed: false,
+                completed_at_tick: None,
+            })
+            .collect()
+    };
+
+    world.progress = LevelProgress {
+        objectives,
+        failure_rules: level
+            .failure_rules
+            .iter()
+            .map(|rule| FailureRule {
+                rule_id: rule.rule_id.clone(),
+                label: rule.label.clone(),
+                condition: rule.condition.clone(),
+            })
+            .collect(),
+        ..LevelProgress::default()
+    };
+    initialize_economy(world);
+}
+
+fn initialize_economy(world: &mut WorldState) {
+    let mut economy = EconomyState::default();
+    for character_id in world.characters.keys() {
+        economy.accounts.insert(character_id.clone(), 100.0);
+        economy.holdings.entry(character_id.clone()).or_default();
+    }
+    for item in world.items.values() {
+        if item.quantity <= 0.0 {
+            continue;
+        }
+        economy.assets.insert(
+            item.id.clone(),
+            EconomyAsset {
+                item_id: item.id.clone(),
+                owner_id: item.owner_id.clone(),
+                supply: item.quantity,
+                unit_price: item.unit_price,
+                demand: 0.0,
+            },
+        );
+        if let Some(owner_id) = &item.owner_id {
+            *economy
+                .holdings
+                .entry(owner_id.clone())
+                .or_default()
+                .entry(item.id.clone())
+                .or_default() += item.quantity;
+        }
+    }
+    world.economy = economy;
 }
 
 fn parse_node_type(s: &str) -> NodeType {
@@ -590,34 +782,44 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
     for node_json in &mg.nodes {
         let node_type = parse_node_type(&node_json.node_type);
 
-        let thresholds: Vec<ThresholdTrigger> = node_json.thresholds.as_ref()
-            .map(|ts| ts.iter().map(|t| ThresholdTrigger {
-                trigger_id: t.trigger_id.clone(),
-                spawn_schema_id: t.spawn_schema_id.clone(),
-                spawn_node_type: parse_node_type(&t.spawn_node_type),
-                activate_on_rising_above: t.activate_on_rising_above,
-                deactivate_on_falling_below: t.deactivate_on_falling_below,
-                managed_instance_id: None,
-            }).collect())
+        let thresholds: Vec<ThresholdTrigger> = node_json
+            .thresholds
+            .as_ref()
+            .map(|ts| {
+                ts.iter()
+                    .map(|t| ThresholdTrigger {
+                        trigger_id: t.trigger_id.clone(),
+                        spawn_schema_id: t.spawn_schema_id.clone(),
+                        spawn_node_type: parse_node_type(&t.spawn_node_type),
+                        activate_on_rising_above: t.activate_on_rising_above,
+                        deactivate_on_falling_below: t.deactivate_on_falling_below,
+                        managed_instance_id: None,
+                    })
+                    .collect()
+            })
             .unwrap_or_default();
 
-        let prior_instinct = node_json.prior_instinct.as_ref().map(|pi| PriorInstinctData {
-            set_point: pi.set_point.unwrap_or(0.0),
-            satisfied_by_about: pi.satisfied_by_about.clone().unwrap_or_default(),
-            brain_region: pi.brain_region.as_deref().map(parse_brain_region),
-            overridable_by_meme: pi.overridable_by_meme.unwrap_or(false),
-            threshold_modifiers: Vec::new(),
-            is_mood: pi.is_mood.unwrap_or(false),
-            valence: None,
-            arousal: None,
-            is_resource: pi.is_resource.unwrap_or(false),
-        });
+        let prior_instinct = node_json
+            .prior_instinct
+            .as_ref()
+            .map(|pi| PriorInstinctData {
+                set_point: pi.set_point.unwrap_or(0.0),
+                satisfied_by_about: pi.satisfied_by_about.clone().unwrap_or_default(),
+                brain_region: pi.brain_region.as_deref().map(parse_brain_region),
+                overridable_by_meme: pi.overridable_by_meme.unwrap_or(false),
+                threshold_modifiers: Vec::new(),
+                is_mood: pi.is_mood.unwrap_or(false),
+                valence: None,
+                arousal: None,
+                is_resource: pi.is_resource.unwrap_or(false),
+            });
 
         let action = node_json.action.as_ref().map(|a| ActionData {
             innate: a.innate.unwrap_or(false),
             goap: a.goap.unwrap_or(false),
             sub_action_schemas: Vec::new(),
             proficiency_level: a.proficiency_level.unwrap_or(0.0),
+            selected: false,
         });
 
         let observation = node_json.observation.as_ref().map(|o| ObservationData {
@@ -642,33 +844,23 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
             suppressed_by: Vec::new(),
         });
 
-        let meme = node_json.meme.as_ref().map(|m| MemeData {
-            binding_sites: m.binding_sites.clone().unwrap_or_default(),
-            is_belief: m.is_belief.unwrap_or(false),
-            is_identity: m.is_identity.unwrap_or(false),
-            is_attention_flood: m.is_attention_flood.unwrap_or(false),
-            is_anti_meme: m.is_anti_meme.unwrap_or(false),
-            is_magic: m.is_magic.unwrap_or(false),
-            overrides_instinct: m.overrides_instinct.clone().unwrap_or_default(),
-            group_id: m.group_id.clone(),
-            conflict_resolution: m.conflict_resolution.as_deref().and_then(parse_conflict_resolution),
-            resilience: m.resilience.unwrap_or(0.0),
-            flood_node_count: m.flood_node_count,
-            flood_drain_rate_per_tick: m.flood_drain_rate_per_tick,
-            anti_meme_target_pattern: m.anti_meme_target_pattern.clone(),
-            ..Default::default()
-        });
+        let meme = node_json.meme.as_ref().map(parse_meme_data);
 
         let value = node_json.value.unwrap_or(0.0);
         let node = MindNode {
             instance_id: node_json.instance_id.clone(),
             schema_id: node_json.schema_id.clone(),
-            label: node_json.label.clone().unwrap_or_else(|| node_json.schema_id.clone()),
+            label: node_json
+                .label
+                .clone()
+                .unwrap_or_else(|| node_json.schema_id.clone()),
             node_type,
             value,
             value_velocity: node_json.value_velocity.unwrap_or(0.0),
             strength: node_json.strength.unwrap_or(0.5),
             active: node_json.active.unwrap_or(true),
+            attended: true,
+            suppression: 0.0,
             created_at: 0,
             ttl: node_json.ttl,
             hidden_by_default: node_json.hidden_by_default.unwrap_or(false),
@@ -680,8 +872,8 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
             action,
             meme,
             prev_value: value,
-            reality_layer: 0,
-            is_virtual: false,
+            reality_layer: node_json.reality_layer.unwrap_or(0),
+            is_virtual: node_json.is_virtual.unwrap_or(false),
         };
 
         graph.add_node(node);
@@ -698,11 +890,27 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
                 weight: edge_json.weight,
                 learnable: edge_json.learnable.unwrap_or(false),
                 decay_rate_per_tick: edge_json.decay_rate_per_tick.unwrap_or(0.0),
-                learn_type: edge_json.learn_type.as_deref().map(parse_learn_type).unwrap_or(LearnType::Classical),
+                learn_type: edge_json
+                    .learn_type
+                    .as_deref()
+                    .map(parse_learn_type)
+                    .unwrap_or(LearnType::Classical),
                 evidence: Evidence {
-                    co_occurrence_count: edge_json.evidence.as_ref().and_then(|e| e.co_occurrence_count).unwrap_or(0),
-                    last_co_occurred_at: edge_json.evidence.as_ref().and_then(|e| e.last_co_occurred_at).unwrap_or(0),
-                    window_sec: edge_json.evidence.as_ref().and_then(|e| e.window_sec).unwrap_or(10.0),
+                    co_occurrence_count: edge_json
+                        .evidence
+                        .as_ref()
+                        .and_then(|e| e.co_occurrence_count)
+                        .unwrap_or(0),
+                    last_co_occurred_at: edge_json
+                        .evidence
+                        .as_ref()
+                        .and_then(|e| e.last_co_occurred_at)
+                        .unwrap_or(0),
+                    window_sec: edge_json
+                        .evidence
+                        .as_ref()
+                        .and_then(|e| e.window_sec)
+                        .unwrap_or(10.0),
                 },
             };
             graph.add_edge(edge);
@@ -713,31 +921,35 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
 }
 
 fn parse_command_defs(cmd_json: &CommandsJson) -> Vec<CommandDef> {
-    cmd_json.commands.iter().map(|cd| {
-        let preconditions = cd.preconditions.as_ref()
-            .map(|pres| pres.iter().filter_map(|p| parse_precondition(p)).collect())
-            .unwrap_or_default();
+    cmd_json
+        .commands
+        .iter()
+        .map(|cd| {
+            let preconditions = cd
+                .preconditions
+                .as_ref()
+                .map(|pres| pres.iter().filter_map(parse_precondition).collect())
+                .unwrap_or_default();
 
-        let effect_templates = cd.effects.iter()
-            .filter_map(|e| parse_effect(e))
-            .collect();
+            let effect_templates = cd.effects.iter().filter_map(parse_effect).collect();
 
-        let targeting = match cd.targeting.as_deref() {
-            Some("RequiresTarget") => TargetingMode::RequiresTarget,
-            Some("NoTarget") => TargetingMode::NoTarget,
-            Some("OptionalTarget") => TargetingMode::OptionalTarget,
-            _ => TargetingMode::NoTarget,
-        };
+            let targeting = match cd.targeting.as_deref() {
+                Some("RequiresTarget") => TargetingMode::RequiresTarget,
+                Some("NoTarget") => TargetingMode::NoTarget,
+                Some("OptionalTarget") => TargetingMode::OptionalTarget,
+                _ => TargetingMode::NoTarget,
+            };
 
-        CommandDef {
-            command_id: cd.command_id.clone(),
-            label: cd.label.clone().unwrap_or_default(),
-            hotkey: cd.hotkey.clone(),
-            targeting,
-            preconditions,
-            effect_templates,
-        }
-    }).collect()
+            CommandDef {
+                command_id: cd.command_id.clone(),
+                label: cd.label.clone().unwrap_or_default(),
+                hotkey: cd.hotkey.clone(),
+                targeting,
+                preconditions,
+                effect_templates,
+            }
+        })
+        .collect()
 }
 
 fn parse_precondition(p: &PreconditionJson) -> Option<Precondition> {
@@ -814,6 +1026,7 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
         "InjectMeme" => Some(CommandEffect::InjectMeme {
             meme_schema_id: e.meme_schema_id.clone()?,
             target_character_id: e.target_character_id.clone(),
+            meme: e.meme.as_ref().map(parse_meme_data).unwrap_or_default(),
         }),
         "DeleteNode" => Some(CommandEffect::DeleteNode {
             schema_id: e.schema_id.clone()?,
@@ -824,18 +1037,55 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
             new_regen_rate: e.new_regen_rate.unwrap_or(0.0),
             target_character_id: e.target_character_id.clone(),
         }),
+        "SetVirtualContext" => Some(CommandEffect::SetVirtualContext {
+            value: e.value.unwrap_or(false),
+        }),
+        "SetAssetPrice" => Some(CommandEffect::SetAssetPrice {
+            item_id: e.item_id.as_deref().map(extract_local_id)?,
+            unit_price: e.unit_price.unwrap_or(1.0).max(0.0),
+        }),
+        "TradeAsset" => Some(CommandEffect::TradeAsset {
+            item_id: e.item_id.as_deref().map(extract_local_id)?,
+            buyer_id: e.buyer_id.clone().unwrap_or_else(|| "__target".to_owned()),
+            seller_id: e.seller_id.clone().unwrap_or_else(|| "__actor".to_owned()),
+            quantity: e.quantity.unwrap_or(1.0).max(0.0),
+        }),
         _ => None,
+    }
+}
+
+fn parse_meme_data(meme: &MemeJson) -> MemeData {
+    MemeData {
+        binding_sites: meme.binding_sites.clone().unwrap_or_default(),
+        is_belief: meme.is_belief.unwrap_or(false),
+        is_identity: meme.is_identity.unwrap_or(false),
+        is_attention_flood: meme.is_attention_flood.unwrap_or(false),
+        is_anti_meme: meme.is_anti_meme.unwrap_or(false),
+        is_magic: meme.is_magic.unwrap_or(false),
+        overrides_instinct: meme.overrides_instinct.clone().unwrap_or_default(),
+        group_id: meme.group_id.clone(),
+        conflict_resolution: meme
+            .conflict_resolution
+            .as_deref()
+            .and_then(parse_conflict_resolution),
+        resilience: meme.resilience.unwrap_or(0.0),
+        flood_node_count: meme.flood_node_count,
+        flood_drain_rate_per_tick: meme.flood_drain_rate_per_tick,
+        anti_meme_target_pattern: meme.anti_meme_target_pattern.clone(),
+        ..Default::default()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::events::WorldEvent;
     use std::path::PathBuf;
 
     fn assets_dir() -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .parent().unwrap()
+            .parent()
+            .unwrap()
             .join("assets")
             .join("levels")
     }
@@ -857,18 +1107,39 @@ mod tests {
         assert!(!dog.mind_graph.nodes.is_empty(), "dog has mind nodes");
 
         // Check that key nodes exist
-        let has_hunger = dog.mind_graph.nodes.values().any(|n| n.schema_id == "it:concept/hunger");
-        let has_attention = dog.mind_graph.nodes.values().any(|n| n.schema_id == "it:concept/attention");
+        let has_hunger = dog
+            .mind_graph
+            .nodes
+            .values()
+            .any(|n| n.schema_id == "it:concept/hunger");
+        let has_attention = dog
+            .mind_graph
+            .nodes
+            .values()
+            .any(|n| n.schema_id == "it:concept/attention");
         assert!(has_hunger, "dog has hunger node");
         assert!(has_attention, "dog has attention node");
 
         // Check that resource nodes are loaded correctly
-        let attention = dog.mind_graph.find_by_schema("it:concept/attention").unwrap();
-        assert!(attention.prior_instinct.is_some(), "attention has prior_instinct data");
-        assert!(attention.prior_instinct.as_ref().unwrap().is_resource, "attention is a resource");
+        let attention = dog
+            .mind_graph
+            .find_by_schema("it:concept/attention")
+            .unwrap();
+        assert!(
+            attention.prior_instinct.is_some(),
+            "attention has prior_instinct data"
+        );
+        assert!(
+            attention.prior_instinct.as_ref().unwrap().is_resource,
+            "attention is a resource"
+        );
 
-        println!("Pavlov level loaded: {} chars, {} items, {} commands",
-            world.characters.len(), world.items.len(), world.command_defs.len());
+        println!(
+            "Pavlov level loaded: {} chars, {} items, {} commands",
+            world.characters.len(),
+            world.items.len(),
+            world.command_defs.len()
+        );
         println!("Dog nodes: {}", dog.mind_graph.nodes.len());
         println!("Dog edges: {}", dog.mind_graph.edges.len());
     }
@@ -887,12 +1158,17 @@ mod tests {
                 match load_level_from_path(&level_dir) {
                     Ok(world) => {
                         loaded += 1;
-                        println!("✓ {}: {} chars, {} items, {} cmds, {} total nodes",
+                        println!(
+                            "✓ {}: {} chars, {} items, {} cmds, {} total nodes",
                             level_id,
                             world.characters.len(),
                             world.items.len(),
                             world.command_defs.len(),
-                            world.characters.values().map(|c| c.mind_graph.nodes.len()).sum::<usize>(),
+                            world
+                                .characters
+                                .values()
+                                .map(|c| c.mind_graph.nodes.len())
+                                .sum::<usize>(),
                         );
                     }
                     Err(e) => {
@@ -906,8 +1182,15 @@ mod tests {
         for f in &failed {
             eprintln!("  FAIL: {}", f);
         }
-        assert!(failed.is_empty(), "Some levels failed to load: {:?}", failed);
-        assert!(loaded >= 3, "Should load at least 3 levels (tutorial levels)");
+        assert!(
+            failed.is_empty(),
+            "Some levels failed to load: {:?}",
+            failed
+        );
+        assert!(
+            loaded >= 3,
+            "Should load at least 3 levels (tutorial levels)"
+        );
     }
 
     #[test]
@@ -920,8 +1203,12 @@ mod tests {
         for _ in 0..10 {
             let events = runner.tick(&mut world, 0.5);
             // Should produce at least a TickCompleted event
-            assert!(events.iter().any(|e| matches!(e, WorldEvent::TickCompleted { .. })),
-                "Each tick should emit TickCompleted");
+            assert!(
+                events
+                    .iter()
+                    .any(|e| matches!(e, WorldEvent::TickCompleted { .. })),
+                "Each tick should emit TickCompleted"
+            );
         }
 
         assert_eq!(world.tick, 10, "Should have advanced 10 ticks");
@@ -929,7 +1216,11 @@ mod tests {
         // Check that hunger has increased (velocity > 0)
         let dog = &world.characters["dog"];
         let hunger = dog.mind_graph.find_by_schema("it:concept/hunger").unwrap();
-        assert!(hunger.value > 0.3, "Hunger should have increased from initial 0.3, got {}", hunger.value);
+        assert!(
+            hunger.value > 0.3,
+            "Hunger should have increased from initial 0.3, got {}",
+            hunger.value
+        );
 
         println!("After 10 ticks: dog hunger = {:.3}", hunger.value);
     }

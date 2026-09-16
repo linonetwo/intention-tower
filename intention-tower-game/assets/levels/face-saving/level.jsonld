@@ -43,5 +43,18 @@
     "level.face-saving.objective.0",
     "level.face-saving.objective.1",
     "level.face-saving.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "shape-face", "label": "level.face-saving.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "humiliate", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "offer-respect", "minCount": 1 }
+    ] } },
+    { "objectiveId": "force-instinct-conflict", "label": "level.face-saving.objective.1", "condition": { "type": "commandUsed", "commandId": "threaten-life", "minCount": 1 } },
+    { "objectiveId": "face-over-survival", "label": "level.face-saving.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "praise-loyalty", "minCount": 1 },
+      { "type": "edgeWeight", "characterId": "minister", "sourceSchemaId": "it:concept/loyalty", "targetSchemaId": "it:concept/submit", "op": "GTE", "value": 0.7 }
+    ] } }
+  ],
+  "defaultActorId": "king",
+  "defaultTargetId": "minister"
 }

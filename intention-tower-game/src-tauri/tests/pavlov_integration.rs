@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use intention_tower_game_lib::models::mind_node::*;
     use intention_tower_game_lib::models::mind_graph::MindGraph;
-    use intention_tower_game_lib::models::world_state::{WorldState, WorldCharacter, Position};
+    use intention_tower_game_lib::models::mind_node::*;
+    use intention_tower_game_lib::models::world_state::{Position, WorldCharacter, WorldState};
     use intention_tower_game_lib::systems::runner::SimulationRunner;
 
     /// Helper: create the dog's initial mind graph for Pavlov level
@@ -19,6 +19,8 @@ mod tests {
             value_velocity: 0.02,
             strength: 0.7,
             active: true,
+            attended: true,
+            suppression: 0.0,
             created_at: 0,
             ttl: None,
             hidden_by_default: false,
@@ -71,6 +73,8 @@ mod tests {
             value_velocity: 0.0,
             strength: 0.5,
             active: false,
+            attended: true,
+            suppression: 0.0,
             created_at: 0,
             ttl: None,
             hidden_by_default: false,
@@ -84,6 +88,7 @@ mod tests {
                 goap: false,
                 sub_action_schemas: Vec::new(),
                 proficiency_level: 1.0,
+                selected: false,
             }),
             meme: None,
             prev_value: 0.0,
@@ -101,6 +106,8 @@ mod tests {
             value_velocity: 0.02,
             strength: 0.8,
             active: true,
+            attended: true,
+            suppression: 0.0,
             created_at: 0,
             ttl: None,
             hidden_by_default: false,
@@ -136,6 +143,8 @@ mod tests {
             value_velocity: 0.05,
             strength: 1.0,
             active: true,
+            attended: true,
+            suppression: 0.0,
             created_at: 0,
             ttl: None,
             hidden_by_default: false,
@@ -166,12 +175,15 @@ mod tests {
 
     fn create_pavlov_world() -> WorldState {
         let mut state = WorldState::new(42);
-        state.characters.insert("dog".to_string(), WorldCharacter {
-            id: "dog".to_string(),
-            label: "level.pavlov.character.dog.label".to_string(),
-            position: Position { x: 400.0, y: 300.0 },
-            mind_graph: create_dog_mind(),
-        });
+        state.characters.insert(
+            "dog".to_string(),
+            WorldCharacter {
+                id: "dog".to_string(),
+                label: "level.pavlov.character.dog.label".to_string(),
+                position: Position { x: 400.0, y: 300.0 },
+                mind_graph: create_dog_mind(),
+            },
+        );
         state
     }
 
@@ -187,6 +199,8 @@ mod tests {
             value_velocity: 0.0,
             strength: 0.8,
             active: true,
+            attended: true,
+            suppression: 0.0,
             created_at: tick,
             ttl: Some(300), // ~30 seconds
             hidden_by_default: false,
@@ -224,8 +238,11 @@ mod tests {
         let mut state = create_pavlov_world();
         let runner = SimulationRunner::new();
 
-        let initial = state.characters["dog"].mind_graph
-            .find_by_schema("it:concept/hunger").unwrap().value;
+        let initial = state.characters["dog"]
+            .mind_graph
+            .find_by_schema("it:concept/hunger")
+            .unwrap()
+            .value;
         assert!((initial - 0.4).abs() < f64::EPSILON);
 
         // Run 5 ticks (dt=1.0)
@@ -233,10 +250,17 @@ mod tests {
             runner.tick(&mut state, 1.0);
         }
 
-        let hunger = state.characters["dog"].mind_graph
-            .find_by_schema("it:concept/hunger").unwrap().value;
+        let hunger = state.characters["dog"]
+            .mind_graph
+            .find_by_schema("it:concept/hunger")
+            .unwrap()
+            .value;
         // 0.4 + 5*0.02 = 0.5
-        assert!((hunger - 0.5).abs() < 0.01, "Hunger should be ~0.5, got {}", hunger);
+        assert!(
+            (hunger - 0.5).abs() < 0.01,
+            "Hunger should be ~0.5, got {}",
+            hunger
+        );
     }
 
     #[test]
@@ -251,10 +275,19 @@ mod tests {
         }
 
         let dog = &state.characters["dog"];
-        let want_eat = dog.mind_graph.nodes.values()
+        let want_eat = dog
+            .mind_graph
+            .nodes
+            .values()
             .find(|n| n.schema_id == "it:concept/want-to-eat");
-        assert!(want_eat.is_some(), "Motivation 'want-to-eat' should be spawned when hunger > 0.6");
-        assert!(want_eat.unwrap().active, "Spawned motivation should be active");
+        assert!(
+            want_eat.is_some(),
+            "Motivation 'want-to-eat' should be spawned when hunger > 0.6"
+        );
+        assert!(
+            want_eat.unwrap().active,
+            "Spawned motivation should be active"
+        );
     }
 
     #[test]
@@ -266,23 +299,41 @@ mod tests {
         for _ in 0..11 {
             runner.tick(&mut state, 1.0);
         }
-        assert!(state.characters["dog"].mind_graph.nodes.values()
-            .any(|n| n.schema_id == "it:concept/want-to-eat"),
-            "want-to-eat should exist after hunger > 0.6");
+        assert!(
+            state.characters["dog"]
+                .mind_graph
+                .nodes
+                .values()
+                .any(|n| n.schema_id == "it:concept/want-to-eat"),
+            "want-to-eat should exist after hunger > 0.6"
+        );
 
         // Feed: hunger drops well below 0.4
         simulate_feeding(&mut state);
 
-        let hunger = state.characters["dog"].mind_graph
-            .find_by_schema("it:concept/hunger").unwrap().value;
-        assert!(hunger < 0.4, "Hunger should be below 0.4 after feeding, got {}", hunger);
+        let hunger = state.characters["dog"]
+            .mind_graph
+            .find_by_schema("it:concept/hunger")
+            .unwrap()
+            .value;
+        assert!(
+            hunger < 0.4,
+            "Hunger should be below 0.4 after feeding, got {}",
+            hunger
+        );
 
         // Run 1 more tick → ThresholdSystem should despawn want-to-eat
         runner.tick(&mut state, 1.0);
 
-        let want_eat = state.characters["dog"].mind_graph.nodes.values()
+        let want_eat = state.characters["dog"]
+            .mind_graph
+            .nodes
+            .values()
             .find(|n| n.schema_id == "it:concept/want-to-eat");
-        assert!(want_eat.is_none(), "Motivation 'want-to-eat' should be despawned when hunger < 0.4");
+        assert!(
+            want_eat.is_none(),
+            "Motivation 'want-to-eat' should be despawned when hunger < 0.4"
+        );
     }
 
     #[test]
@@ -303,13 +354,22 @@ mod tests {
         runner.tick(&mut state, 1.0);
 
         let dog = &state.characters["dog"];
-        let learned_edge = dog.mind_graph.edges.values()
+        let learned_edge = dog
+            .mind_graph
+            .edges
+            .values()
             .find(|e| e.source_instance_id.contains("obs-bell"));
 
-        assert!(learned_edge.is_some(), "Should create a learned edge from bell observation to motivation");
+        assert!(
+            learned_edge.is_some(),
+            "Should create a learned edge from bell observation to motivation"
+        );
         let edge = learned_edge.unwrap();
         assert_eq!(edge.learn_type, LearnType::Classical);
-        assert!(edge.weight > 0.0, "Learned edge should have positive weight");
+        assert!(
+            edge.weight > 0.0,
+            "Learned edge should have positive weight"
+        );
         assert_eq!(edge.evidence.co_occurrence_count, 1);
     }
 
@@ -331,17 +391,27 @@ mod tests {
         }
 
         let dog = &state.characters["dog"];
-        let edges: Vec<&AssociationEdge> = dog.mind_graph.edges.values()
+        let edges: Vec<&AssociationEdge> = dog
+            .mind_graph
+            .edges
+            .values()
             .filter(|e| e.source_instance_id.contains("obs-bell"))
             .collect();
 
         // We might have multiple edges (one per observation instance), but
         // each should show classical learning
-        assert!(!edges.is_empty(), "Should have learned edges from bell observations");
+        assert!(
+            !edges.is_empty(),
+            "Should have learned edges from bell observations"
+        );
 
         // Check dopamine was consumed
         let dopamine = dog.mind_graph.resource_value("it:concept/dopamine");
-        assert!(dopamine < 0.8, "Dopamine should be consumed during learning, got {}", dopamine);
+        assert!(
+            dopamine < 0.8,
+            "Dopamine should be consumed during learning, got {}",
+            dopamine
+        );
     }
 
     #[test]
@@ -355,7 +425,8 @@ mod tests {
             dog.mind_graph.consume_resource("it:concept/dopamine", 0.3);
         }
 
-        let initial_da = state.characters["dog"].mind_graph
+        let initial_da = state.characters["dog"]
+            .mind_graph
             .resource_value("it:concept/dopamine");
         assert!((initial_da - 0.5).abs() < 0.01);
 
@@ -364,7 +435,8 @@ mod tests {
             runner.tick(&mut state, 1.0);
         }
 
-        let da = state.characters["dog"].mind_graph
+        let da = state.characters["dog"]
+            .mind_graph
             .resource_value("it:concept/dopamine");
         // 0.5 + 5*0.02 = 0.6
         assert!(da > initial_da, "Dopamine should regenerate, got {}", da);
@@ -380,8 +452,12 @@ mod tests {
             let dog = state.characters.get_mut("dog").unwrap();
             dog.mind_graph.consume_resource("it:concept/dopamine", 0.8);
         }
-        assert!(state.characters["dog"].mind_graph
-            .resource_value("it:concept/dopamine") < 0.05);
+        assert!(
+            state.characters["dog"]
+                .mind_graph
+                .resource_value("it:concept/dopamine")
+                < 0.05
+        );
 
         // Run 11 ticks → want-to-eat spawned
         for _ in 0..11 {
@@ -394,7 +470,10 @@ mod tests {
         runner.tick(&mut state, 1.0);
 
         let dog = &state.characters["dog"];
-        let _learned = dog.mind_graph.edges.values()
+        let _learned = dog
+            .mind_graph
+            .edges
+            .values()
             .any(|e| e.source_instance_id.contains("obs-bell"));
 
         // Dopamine was drained but regens at 0.02/tick, so after 12 ticks = 0.24
@@ -418,12 +497,20 @@ mod tests {
         }
 
         let dog = &state.characters["dog"];
-        let irritable = dog.mind_graph.nodes.values()
+        let irritable = dog
+            .mind_graph
+            .nodes
+            .values()
             .find(|n| n.schema_id == "it:concept/hungry-irritable");
-        assert!(irritable.is_some(), "Mood 'hungry-irritable' should spawn when hunger > 0.85");
+        assert!(
+            irritable.is_some(),
+            "Mood 'hungry-irritable' should spawn when hunger > 0.85"
+        );
 
         let mood = irritable.unwrap();
-        assert!(mood.prior_instinct.as_ref().unwrap().is_mood,
-            "Irritable node should be a mood (isMood=true)");
+        assert!(
+            mood.prior_instinct.as_ref().unwrap().is_mood,
+            "Irritable node should be a mood (isMood=true)"
+        );
     }
 }

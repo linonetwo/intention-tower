@@ -64,5 +64,12 @@
     "level.antimeme-division.objective.0",
     "level.antimeme-division.objective.1",
     "level.antimeme-division.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "sustain-attention", "label": "level.antimeme-division.objective.0", "condition": { "type": "commandUsed", "commandId": "take-memory-drug", "minCount": 1 } },
+    { "objectiveId": "anchor-location", "label": "level.antimeme-division.objective.1", "condition": { "type": "commandUsed", "commandId": "remember-this-place", "minCount": 2 } },
+    { "objectiveId": "recover-clue", "label": "level.antimeme-division.objective.2", "condition": { "type": "commandUsed", "commandId": "ask-bystander", "minCount": 1 } }
+  ],
+  "defaultActorId": "antimeme-agent",
+  "defaultTargetId": "bystander"
 }

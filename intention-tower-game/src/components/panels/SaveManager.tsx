@@ -38,6 +38,7 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
   const currentLevelId = useGameState((s) => s.currentLevelId);
   const worldState = useGameState((s) => s.worldState);
   const [newSlotName, setNewSlotName] = useState('');
+  const slotIsValid = /^[A-Za-z0-9_-]{1,64}$/.test(newSlotName);
 
   useEffect(() => {
     if (open) {
@@ -84,6 +85,8 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
             size='small'
             label={t('save.slotName')}
             value={newSlotName}
+            error={newSlotName.length > 0 && !slotIsValid}
+            helperText={newSlotName.length > 0 && !slotIsValid ? t('save.slotHelp') : ' '}
             onChange={(event) => {
               setNewSlotName(event.target.value);
             }}
@@ -102,7 +105,7 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
             size='small'
             startIcon={<SaveIcon sx={{ fontSize: 14 }} />}
             onClick={handleSave}
-            disabled={!newSlotName.trim()}
+            disabled={!slotIsValid}
             sx={{
               textTransform: 'none',
               fontSize: 12,

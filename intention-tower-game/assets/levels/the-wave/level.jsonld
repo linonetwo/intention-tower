@@ -68,5 +68,19 @@
     "level.the-wave.objective.0",
     "level.the-wave.objective.1",
     "level.the-wave.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "seed-group-identity", "label": "level.the-wave.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "introduce-uniform", "minCount": 3, "distinctTargets": 3 },
+      { "type": "commandUsed", "commandId": "teach-gesture", "minCount": 3, "distinctTargets": 3 },
+      { "type": "socialGroup", "groupId": "the-wave", "minMembers": 3, "minCohesion": 0.5 }
+    ] } },
+    { "objectiveId": "enforce-obedience", "label": "level.the-wave.objective.1", "condition": { "type": "commandUsed", "commandId": "enforce-discipline", "minCount": 3, "distinctTargets": 3 } },
+    { "objectiveId": "produce-exclusion", "label": "level.the-wave.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "give-approval", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "reject-outsider", "minCount": 1 }
+    ] } }
+  ],
+  "defaultActorId": "teacher-wenger",
+  "defaultTargetId": "tim"
 }

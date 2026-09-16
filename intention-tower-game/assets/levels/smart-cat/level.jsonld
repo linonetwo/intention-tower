@@ -67,5 +67,21 @@
     "level.smart-cat.objective.0",
     "level.smart-cat.objective.1",
     "level.smart-cat.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "demonstrate-button", "label": "level.smart-cat.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "show-button", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "demonstrate-press", "minCount": 1 }
+    ] } },
+    { "objectiveId": "reinforce-correct-action", "label": "level.smart-cat.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "demonstrate-press", "minCount": 3 },
+      { "type": "commandUsed", "commandId": "feed-after-press", "minCount": 2 }
+    ] } },
+    { "objectiveId": "verify-cat-action", "label": "level.smart-cat.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "feed-after-press", "minCount": 3 },
+      { "type": "nodeValue", "characterId": "cat-billi", "schemaId": "it:concept/hunger", "op": "LTE", "value": 0.1 }
+    ] } }
+  ],
+  "defaultActorId": "trainer",
+  "defaultTargetId": "cat-billi"
 }

@@ -63,8 +63,9 @@ export function useKeyboardShortcuts() {
       return;
     }
 
-    // 0-4 → speed control
-    if (['1', '2', '3', '4'].includes(key)) { state.setTimeSpeed(parseInt(key)); return; }
+    // 0-4 → speed control outside micro mode. In micro mode 1-4 are
+    // command slots, matching the interaction specification.
+    if (uiMode !== 'micro' && ['1', '2', '3', '4'].includes(key)) { state.setTimeSpeed(parseInt(key)); return; }
     if (key === '0') { state.setTimeSpeed(0); return; }
 
     // Ctrl+S → quick save
@@ -109,9 +110,23 @@ export function useKeyboardShortcuts() {
     }
 
     if (uiMode === 'micro') {
-      // 1-4 also mapped to skill slots (first 4 commands)
-      // Already handled by speed above; micro mode uses qwer for skills
-      const skillKeys = ['q', 'w', 'e', 'r'];
+      const movement: Record<string, [number, number]> = {
+        w: [0, -28],
+        arrowup: [0, -28],
+        s: [0, 28],
+        arrowdown: [0, 28],
+        a: [-28, 0],
+        arrowleft: [-28, 0],
+        d: [28, 0],
+        arrowright: [28, 0],
+      };
+      if (movement[key]) {
+        e.preventDefault();
+        void state.moveSelectedActor(...movement[key]);
+        return;
+      }
+
+      const skillKeys = ['1', '2', '3', '4'];
       const skillIdx = skillKeys.indexOf(key);
       if (skillIdx >= 0) {
         const cmds = state.availableCommands;

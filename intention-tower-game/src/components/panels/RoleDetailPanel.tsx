@@ -29,7 +29,7 @@ export const RoleDetailPanel: React.FC = () => {
     const edges = Object.values(character.mind_graph.edges);
     return {
       totalNodes: nodes.length,
-      activeNodes: nodes.filter((node) => node.active).length,
+      activeNodes: nodes.filter((node) => node.active && node.attended).length,
       totalEdges: edges.length,
       memes: nodes.filter((node) => node.node_type === 'Meme').length,
     };

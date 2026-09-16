@@ -1,6 +1,6 @@
 use super::*;
-use crate::models::world_state::WorldState;
 use crate::models::events::WorldEvent;
+use crate::models::world_state::WorldState;
 
 /// The simulation runner. Executes all 23 systems in fixed tick order.
 pub struct SimulationRunner {
@@ -25,6 +25,8 @@ impl SimulationRunner {
             Box::new(classical_conditioning::ClassicalConditioningSystem),
             // #6 EnvironmentEventSystem
             Box::new(environment_event::EnvironmentEventSystem),
+            // Market demand and asset ledger projection
+            Box::new(economy::EconomySystem),
             // #7 PerceptionSystem
             Box::new(perception::PerceptionSystem),
             // #8 NoveltyHabituationSystem
@@ -44,8 +46,12 @@ impl SimulationRunner {
             Box::new(imprinting::ImprintingSystem),
             // #15 MemeInfectionSystem
             Box::new(meme_infection::MemeInfectionSystem),
+            // Bottom-up crystallization from repeated perceptions
+            Box::new(meme_emergence::MemeEmergenceSystem),
             // #16 SocialSignalSystem
             Box::new(social_signal::SocialSignalSystem),
+            // Cross-character group aggregation and collective decisions
+            Box::new(social_dynamics::SocialDynamicsSystem),
             // #17 BeliefConflictSystem
             Box::new(belief_conflict::BeliefConflictSystem),
             // #18 AttentionFloodSystem
@@ -60,6 +66,8 @@ impl SimulationRunner {
             Box::new(cleanup::CleanupSystem),
             // #23 EventEmissionSystem
             Box::new(event_emission::EventEmissionSystem),
+            // Final authoritative level objective/outcome evaluation
+            Box::new(level_progress::LevelProgressSystem),
         ];
 
         Self { systems }
@@ -78,9 +86,9 @@ impl SimulationRunner {
         }
 
         // Add tick completion marker
-        state.pending_events.push(WorldEvent::TickCompleted {
-            tick: state.tick,
-        });
+        state
+            .pending_events
+            .push(WorldEvent::TickCompleted { tick: state.tick });
 
         // Flush and return events
         state.flush_events()

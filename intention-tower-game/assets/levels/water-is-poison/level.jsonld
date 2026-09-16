@@ -50,5 +50,23 @@
     "level.water-is-poison.objective.0",
     "level.water-is-poison.objective.1",
     "level.water-is-poison.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "implant-poison-belief", "label": "level.water-is-poison.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "activate-mind-stamp", "minCount": 1 },
+      { "type": "nodePresent", "characterId": "subject", "schemaId": "it:concept/water-is-poison" },
+      { "type": "nodeSuppression", "characterId": "subject", "schemaId": "it:concept/thirst", "op": "GTE", "value": 0.5 }
+    ] } },
+    { "objectiveId": "test-choice", "label": "level.water-is-poison.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "offer-water", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "offer-dry-food", "minCount": 1 }
+    ] } },
+    { "objectiveId": "counter-with-reason", "label": "level.water-is-poison.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "attempt-rational-persuasion", "minCount": 3 },
+      { "type": "commandUsed", "commandId": "observe-conflict", "minCount": 1 },
+      { "type": "edgeWeight", "characterId": "subject", "sourceSchemaId": "it:concept/rational-knowledge", "targetSchemaId": "it:concept/drink", "op": "GTE", "value": 0.6 }
+    ] } }
+  ],
+  "defaultActorId": "hines",
+  "defaultTargetId": "subject"
 }

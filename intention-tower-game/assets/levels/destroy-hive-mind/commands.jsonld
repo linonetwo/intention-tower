@@ -49,7 +49,8 @@
       "hotkey": "3",
       "targeting": "RequiresTarget",
       "preconditions": [
-        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" },
+        { "type": "TargetHasNode", "schemaId": "it:concept/hive-control" }
       ],
       "effects": [
         {
@@ -97,7 +98,7 @@
       "commandId": "request-orbital-fire",
       "label": "command.request-orbital-fire.label",
       "hotkey": "6",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {

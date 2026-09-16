@@ -57,7 +57,7 @@
           "about": "it:entity/bystander",
           "ttl": 150,
           "strength": 0.5,
-          "targetCharacterId": "__target"
+          "targetCharacterId": "antimeme-agent"
         }
       ]
     },

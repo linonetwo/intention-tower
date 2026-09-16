@@ -1,7 +1,7 @@
 use super::System;
-use crate::models::world_state::WorldState;
-use crate::models::mind_node::*;
 use crate::models::events::WorldEvent;
+use crate::models::mind_node::*;
+use crate::models::world_state::WorldState;
 
 /// System #14: Imprinting (雏鹅的印刻行为).
 /// During the critical period, first Observation matching certain criteria
@@ -13,7 +13,9 @@ const DOPAMINE_SCHEMA: &str = "it:concept/dopamine";
 const IMPRINTING_COST: f64 = 0.2;
 
 impl System for ImprintingSystem {
-    fn name(&self) -> &'static str { "ImprintingSystem" }
+    fn name(&self) -> &'static str {
+        "ImprintingSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         let current_tick = state.tick;
@@ -22,10 +24,13 @@ impl System for ImprintingSystem {
             let char_id = character.id.clone();
 
             // Find motivations that have imprinting fields but no targetEntity yet
-            let imprinting_motivations: Vec<(String, u64)> = character.mind_graph.nodes.values()
+            let imprinting_motivations: Vec<(String, u64)> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| {
                     n.node_type == NodeType::Motivation
-                        && n.motivation.as_ref().map_or(false, |m| {
+                        && n.motivation.as_ref().is_some_and(|m| {
                             m.target_entity.is_none()
                                 && m.critical_period_end.is_some()
                                 && m.critical_period_end.unwrap() > current_tick
@@ -39,16 +44,25 @@ impl System for ImprintingSystem {
 
             for (mot_id, _period_end) in imprinting_motivations {
                 // Find the first new visual observation this tick
-                let first_obs = character.mind_graph.nodes.values()
+                let first_obs = character
+                    .mind_graph
+                    .nodes
+                    .values()
                     .find(|n| {
                         n.node_type == NodeType::Observation
                             && n.active
+                            && n.attended
                             && n.created_at == current_tick
-                            && n.observation.as_ref().map_or(false, |o| {
-                                o.modality == Some(Modality::Visual)
-                            })
+                            && n.observation
+                                .as_ref()
+                                .is_some_and(|o| o.modality == Some(Modality::Visual))
                     })
-                    .map(|n| (n.instance_id.clone(), n.observation.as_ref().unwrap().about.clone()));
+                    .map(|n| {
+                        (
+                            n.instance_id.clone(),
+                            n.observation.as_ref().unwrap().about.clone(),
+                        )
+                    });
 
                 if let Some((obs_id, about)) = first_obs {
                     // Check dopamine availability
@@ -57,7 +71,9 @@ impl System for ImprintingSystem {
                     }
 
                     // Consume dopamine and set target entity
-                    character.mind_graph.consume_resource(DOPAMINE_SCHEMA, IMPRINTING_COST);
+                    character
+                        .mind_graph
+                        .consume_resource(DOPAMINE_SCHEMA, IMPRINTING_COST);
 
                     if let Some(mot_node) = character.mind_graph.nodes.get_mut(&mot_id) {
                         if let Some(ref mut mot) = mot_node.motivation {

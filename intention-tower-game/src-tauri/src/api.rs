@@ -1,11 +1,10 @@
-use std::sync::Mutex;
-use std::ops::Deref;
-use tauri::State;
-use tauri::Manager;
-use crate::models::world_state::WorldState;
+use crate::models::commands::{CommandDTO, CommandDef, Precondition, TargetingMode};
 use crate::models::events::WorldEvent;
-use crate::models::commands::{CommandDTO, CommandDef, Precondition, CompareOp};
+use crate::models::world_state::WorldState;
 use crate::systems::runner::SimulationRunner;
+use std::sync::Mutex;
+use tauri::Manager;
+use tauri::State;
 
 /// Shared simulation state managed by Tauri
 pub struct SimulationState {
@@ -78,11 +77,16 @@ pub fn list_commands(
 ) -> Result<Vec<CommandDef>, String> {
     let world = sim.world.lock().map_err(|e| e.to_string())?;
 
-    let available: Vec<CommandDef> = world.command_defs.iter()
+    let available: Vec<CommandDef> = world
+        .command_defs
+        .iter()
         .filter(|cmd_def| {
-            cmd_def.preconditions.iter().all(|pre| {
-                check_precondition(pre, &actor_id, target_id.as_deref(), &world)
-            })
+            crate::command_rules::command_available(
+                cmd_def,
+                &actor_id,
+                target_id.as_deref(),
+                &world,
+            )
         })
         .cloned()
         .collect();
@@ -101,23 +105,29 @@ pub fn execute_command(
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
 
     // Find the command definition
-    let cmd_def = world.command_defs.iter()
+    let cmd_def = world
+        .command_defs
+        .iter()
         .find(|c| c.command_id == command_id)
         .cloned()
         .ok_or_else(|| format!("Command '{}' not found", command_id))?;
 
-    // Check preconditions
-    for pre in &cmd_def.preconditions {
-        if !check_precondition(pre, &actor_id, target_id.as_deref(), &world) {
-            return Err(format!("Precondition not met for command '{}'", command_id));
-        }
+    if !crate::command_rules::command_available(&cmd_def, &actor_id, target_id.as_deref(), &world) {
+        return Err(format!(
+            "Command '{}' is not available for this actor and target",
+            command_id
+        ));
     }
 
     // Queue the command for CommandSystem to process
+    let effective_target_id = match cmd_def.targeting {
+        TargetingMode::NoTarget => None,
+        TargetingMode::RequiresTarget | TargetingMode::OptionalTarget => target_id.clone(),
+    };
     let dto = CommandDTO {
         command_id: command_id.clone(),
         actor_id: actor_id.clone(),
-        target_id: target_id.clone(),
+        target_id: effective_target_id,
         effects: cmd_def.effect_templates.clone(),
     };
     world.pending_commands.push(dto);
@@ -152,6 +162,18 @@ pub fn step_tick(sim: State<'_, SimulationState>) -> Result<Vec<WorldEvent>, Str
     Ok(events)
 }
 
+/// Move a character in micro-control mode without advancing simulation time.
+#[tauri::command]
+pub fn move_character(
+    character_id: String,
+    delta_x: f64,
+    delta_y: f64,
+    sim: State<'_, SimulationState>,
+) -> Result<WorldEvent, String> {
+    let mut world = sim.world.lock().map_err(|e| e.to_string())?;
+    crate::movement::move_character(&mut world, &character_id, delta_x, delta_y)
+}
+
 /// Cancel a queued pending command by command_id.
 /// Used when the player clicks a queued command button to dequeue it.
 #[tauri::command]
@@ -160,7 +182,11 @@ pub fn cancel_pending_command(
     sim: State<'_, SimulationState>,
 ) -> Result<(), String> {
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
-    if let Some(pos) = world.pending_commands.iter().position(|c| c.command_id == command_id) {
+    if let Some(pos) = world
+        .pending_commands
+        .iter()
+        .position(|c| c.command_id == command_id)
+    {
         world.pending_commands.remove(pos);
     }
     Ok(())
@@ -173,7 +199,9 @@ pub fn get_mind_graph(
     sim: State<'_, SimulationState>,
 ) -> Result<serde_json::Value, String> {
     let world = sim.world.lock().map_err(|e| e.to_string())?;
-    let character = world.characters.get(&character_id)
+    let character = world
+        .characters
+        .get(&character_id)
         .ok_or_else(|| format!("Character '{}' not found", character_id))?;
     serde_json::to_value(&character.mind_graph).map_err(|e| e.to_string())
 }
@@ -183,6 +211,9 @@ pub fn get_mind_graph(
 pub fn set_paused(paused: bool, sim: State<'_, SimulationState>) -> Result<(), String> {
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
     world.paused = paused;
+    if !paused && world.time_speed == 0 {
+        world.time_speed = 1;
+    }
     Ok(())
 }
 
@@ -195,7 +226,8 @@ fn saves_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
         // easy to inspect and reset during development.
         std::path::PathBuf::from("userData-Dev").join("saves")
     } else {
-        app.path().app_data_dir()
+        app.path()
+            .app_data_dir()
             .map_err(|e| format!("Failed to get app data dir: {}", e))?
             .join("saves")
     };
@@ -221,17 +253,21 @@ pub fn save_game(
     sim: State<'_, SimulationState>,
     app_handle: tauri::AppHandle,
 ) -> Result<SaveMeta, String> {
+    crate::save_slots::validate_save_slot(&slot)?;
     let world = sim.world.lock().map_err(|e| e.to_string())?;
     let dir = saves_dir(&app_handle)?;
     let file_path = dir.join(format!("{}.json", slot));
 
-    let json = serde_json::to_string_pretty(&*world)
-        .map_err(|e| format!("Serialize error: {}", e))?;
-    std::fs::write(&file_path, &json)
-        .map_err(|e| format!("Write error: {}", e))?;
+    let json =
+        serde_json::to_string_pretty(&*world).map_err(|e| format!("Serialize error: {}", e))?;
+    std::fs::write(&file_path, &json).map_err(|e| format!("Write error: {}", e))?;
 
     // Extract level_id reliably from world state
-    let level_id = if world.level_id.is_empty() { "unknown".to_string() } else { world.level_id.clone() };
+    let level_id = if world.level_id.is_empty() {
+        "unknown".to_string()
+    } else {
+        world.level_id.clone()
+    };
 
     Ok(SaveMeta {
         slot: slot.clone(),
@@ -248,6 +284,7 @@ pub fn load_save(
     sim: State<'_, SimulationState>,
     app_handle: tauri::AppHandle,
 ) -> Result<serde_json::Value, String> {
+    crate::save_slots::validate_save_slot(&slot)?;
     let dir = saves_dir(&app_handle)?;
     let file_path = dir.join(format!("{}.json", slot));
 
@@ -255,10 +292,9 @@ pub fn load_save(
         return Err(format!("Save slot '{}' not found", slot));
     }
 
-    let json = std::fs::read_to_string(&file_path)
-        .map_err(|e| format!("Read error: {}", e))?;
-    let loaded: WorldState = serde_json::from_str(&json)
-        .map_err(|e| format!("Deserialize error: {}", e))?;
+    let json = std::fs::read_to_string(&file_path).map_err(|e| format!("Read error: {}", e))?;
+    let loaded: WorldState =
+        serde_json::from_str(&json).map_err(|e| format!("Deserialize error: {}", e))?;
 
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
     *world = loaded;
@@ -268,9 +304,7 @@ pub fn load_save(
 
 /// List all save slots.
 #[tauri::command]
-pub fn list_saves(
-    app_handle: tauri::AppHandle,
-) -> Result<Vec<SaveMeta>, String> {
+pub fn list_saves(app_handle: tauri::AppHandle) -> Result<Vec<SaveMeta>, String> {
     let dir = saves_dir(&app_handle)?;
     let mut saves = Vec::new();
 
@@ -279,8 +313,9 @@ pub fn list_saves(
         for entry in entries {
             let entry = entry.map_err(|e| e.to_string())?;
             let path = entry.path();
-            if path.extension().map_or(false, |ext| ext == "json") {
-                let slot = path.file_stem()
+            if path.extension().is_some_and(|ext| ext == "json") {
+                let slot = path
+                    .file_stem()
                     .and_then(|s| s.to_str())
                     .unwrap_or("unknown")
                     .to_string();
@@ -289,15 +324,21 @@ pub fn list_saves(
                 if let Ok(json) = std::fs::read_to_string(&path) {
                     if let Ok(ws) = serde_json::from_str::<WorldState>(&json) {
                         let metadata = std::fs::metadata(&path);
-                        let timestamp = metadata.ok()
+                        let timestamp = metadata
+                            .ok()
                             .and_then(|m| m.modified().ok())
                             .map(|t| {
-                                let duration = t.duration_since(std::time::UNIX_EPOCH).unwrap_or_default();
+                                let duration =
+                                    t.duration_since(std::time::UNIX_EPOCH).unwrap_or_default();
                                 format_timestamp(duration.as_secs())
                             })
                             .unwrap_or_else(|| "unknown".to_string());
 
-                        let level_id = if ws.level_id.is_empty() { "unknown".to_string() } else { ws.level_id.clone() };
+                        let level_id = if ws.level_id.is_empty() {
+                            "unknown".to_string()
+                        } else {
+                            ws.level_id.clone()
+                        };
 
                         saves.push(SaveMeta {
                             slot,
@@ -317,10 +358,8 @@ pub fn list_saves(
 
 /// Delete a save slot.
 #[tauri::command]
-pub fn delete_save(
-    slot: String,
-    app_handle: tauri::AppHandle,
-) -> Result<(), String> {
+pub fn delete_save(slot: String, app_handle: tauri::AppHandle) -> Result<(), String> {
+    crate::save_slots::validate_save_slot(&slot)?;
     let dir = saves_dir(&app_handle)?;
     let file_path = dir.join(format!("{}.json", slot));
     if file_path.exists() {
@@ -357,45 +396,5 @@ pub fn check_precondition_pub(
     target_id: Option<&str>,
     world: &WorldState,
 ) -> bool {
-    check_precondition(pre, actor_id, target_id, world)
-}
-
-fn check_precondition(
-    pre: &Precondition,
-    actor_id: &str,
-    target_id: Option<&str>,
-    world: &WorldState,
-) -> bool {
-    match pre {
-        Precondition::EnvHasItem { item_schema_id } => {
-            world.items.values().any(|i| {
-                i.schema_type == *item_schema_id
-                    || i.abstract_type.as_deref() == Some(item_schema_id.as_str())
-            })
-        }
-        Precondition::TargetHasNode { schema_id } => {
-            target_id.and_then(|tid| world.characters.get(tid))
-                .map_or(false, |c| c.mind_graph.find_by_schema(schema_id).is_some())
-        }
-        Precondition::TargetNodeActive { schema_id } => {
-            target_id.and_then(|tid| world.characters.get(tid))
-                .and_then(|c| c.mind_graph.find_by_schema(schema_id))
-                .map_or(false, |n| n.active)
-        }
-        Precondition::TargetNodeValue { schema_id, op, threshold } => {
-            target_id.and_then(|tid| world.characters.get(tid))
-                .and_then(|c| c.mind_graph.find_by_schema(schema_id))
-                .map_or(false, |n| op.evaluate(n.value, *threshold))
-        }
-        Precondition::ActorResource { resource_schema_id, op, threshold } => {
-            world.characters.get(actor_id)
-                .map_or(false, |c| {
-                    let val = c.mind_graph.resource_value(resource_schema_id);
-                    op.evaluate(val, *threshold)
-                })
-        }
-        Precondition::IsVirtualContext { value } => {
-            world.in_virtual_context == *value
-        }
-    }
+    crate::command_rules::check_precondition(pre, actor_id, target_id, world)
 }

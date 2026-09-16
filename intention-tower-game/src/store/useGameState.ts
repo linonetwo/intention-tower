@@ -58,6 +58,7 @@ interface GameActions {
   executeCommand: (commandId: string) => Promise<void>;
   cancelPendingCommand: (commandId: string) => Promise<void>;
   stepTick: () => Promise<void>;
+  moveSelectedActor: (deltaX: number, deltaY: number) => Promise<void>;
   doTick: () => Promise<void>;
   setTimeSpeed: (speed: number) => Promise<void>;
   startTickLoop: () => void;
@@ -73,36 +74,19 @@ interface GameActions {
 
 export type GameStore = GameState & GameActions;
 
-function pickByKeywords(ids: string[], keywords: string[]): string | null {
-  for (const id of ids) {
-    const lower = id.toLowerCase();
-    if (keywords.some((k) => lower.includes(k))) return id;
-  }
-  return null;
-}
-
-function pickInitialSelection(levelId: string, characters: Record<string, unknown>): {
+function pickInitialSelection(state: WorldState): {
   actorId: string | null;
   targetId: string | null;
   inspectId: string | null;
 } {
-  const ids = Object.keys(characters).sort((a, b) => a.localeCompare(b));
+  const ids = Object.keys(state.characters).sort((a, b) => a.localeCompare(b));
   if (ids.length === 0) return { actorId: null, targetId: null, inspectId: null };
-
-  if (levelId === 'pavlov') {
-    const actorId = pickByKeywords(ids, ['pavlov']) ?? ids[0];
-    const targetId = pickByKeywords(ids.filter((id) => id !== actorId), ['dog'])
-      ?? ids.find((id) => id !== actorId)
-      ?? null;
-    return { actorId, targetId, inspectId: targetId ?? actorId };
-  }
-
-  const actorId = pickByKeywords(ids, [
-    'player', 'protagonist', 'agent', 'capitalist', 'trainer', 'investigator', 'pavlov',
-  ]) ?? ids[0];
-  const targetId = pickByKeywords(ids.filter((id) => id !== actorId), ['target', 'enemy', 'dog', 'victim'])
-    ?? ids.find((id) => id !== actorId)
-    ?? null;
+  const actorId = state.default_actor_id && state.characters[state.default_actor_id]
+    ? state.default_actor_id
+    : ids[0];
+  const targetId = state.default_target_id && state.characters[state.default_target_id]
+    ? state.default_target_id
+    : ids.find((id) => id !== actorId) ?? null;
   return { actorId, targetId, inspectId: targetId ?? actorId };
 }
 
@@ -134,7 +118,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       // Immediately pause so the player can orient before time starts
       await api.setTimeSpeed(0);
       const pausedState = { ...state, time_speed: 0 as 0, paused: true };
-      const initial = pickInitialSelection(levelId, state.characters as Record<string, unknown>);
+      const initial = pickInitialSelection(state);
 
       set({
         worldState: pausedState,
@@ -142,6 +126,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
         selectedActorId: initial.actorId,
         selectedTargetId: initial.targetId,
         inspectedCharacterId: initial.inspectId,
+        uiMode: state.initial_mode ?? 'observe',
         recentEvents: [],
         page: 'game',
         loading: false,
@@ -179,8 +164,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   },
 
   refreshCommands: async () => {
-    const { selectedActorId, selectedTargetId } = get();
-    if (!selectedActorId) {
+    const { selectedActorId, selectedTargetId, worldState } = get();
+    if (!selectedActorId || worldState?.progress.status !== 'InProgress') {
       set({ availableCommands: [] });
       return;
     }
@@ -193,8 +178,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   },
 
   executeCommand: async (commandId) => {
-    const { selectedActorId, selectedTargetId, autoStepOnCommand } = get();
-    if (!selectedActorId) return;
+    const { selectedActorId, selectedTargetId, autoStepOnCommand, worldState } = get();
+    if (!selectedActorId || worldState?.progress.status !== 'InProgress') return;
     try {
       const events = await api.executeCommand(commandId, selectedActorId, selectedTargetId);
       // After executing/queueing, refresh the full state
@@ -207,11 +192,15 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
           ...prev.recentEvents,
         ].slice(0, 500),
       }));
+      if (state.progress.status !== 'InProgress') {
+        get().stopTickLoop();
+        set({ availableCommands: [] });
+      }
 
       // Auto-step: if paused and autoStep is on, advance one tick so the
       // player immediately sees the effect of the command.
       const ws = get().worldState;
-      if (autoStepOnCommand && ws?.paused) {
+      if (autoStepOnCommand && ws?.paused && ws.progress.status === 'InProgress') {
         await get().stepTick();
       }
 
@@ -240,16 +229,38 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
         worldState: state,
         recentEvents: [...meaningful, ...prev.recentEvents].slice(0, 500),
       }));
+      if (state.progress.status !== 'InProgress') {
+        get().stopTickLoop();
+        set({ availableCommands: [] });
+        return;
+      }
       await get().refreshCommands();
     } catch (err) {
       set({ error: t('app.error.executeCommand', { message: String(err) }) });
     }
   },
 
+  moveSelectedActor: async (deltaX, deltaY) => {
+    const { selectedActorId, uiMode, worldState } = get();
+    if (!selectedActorId || uiMode !== 'micro' || worldState?.progress.status !== 'InProgress') {
+      return;
+    }
+    try {
+      const event = await api.moveCharacter(selectedActorId, deltaX, deltaY);
+      const state = await api.snapshot();
+      set((previous) => ({
+        worldState: state,
+        recentEvents: [event, ...previous.recentEvents].slice(0, 500),
+      }));
+    } catch (err) {
+      set({ error: t('app.error.moveCharacter', { message: String(err) }) });
+    }
+  },
+
   doTick: async () => {
     // Skip tick when paused
     const ws = get().worldState;
-    if (ws?.paused || ws?.time_speed === 0) return;
+    if (ws?.paused || ws?.time_speed === 0 || ws?.progress.status !== 'InProgress') return;
     try {
       const dt = 0.5 * Math.max(1, ws?.time_speed ?? 1);
       const events = await api.tick(dt);
@@ -264,12 +275,17 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       } else {
         set({ worldState: state });
       }
+      if (state.progress.status !== 'InProgress') {
+        get().stopTickLoop();
+        set({ availableCommands: [] });
+      }
     } catch {
       // Silently ignore tick errors (e.g. during unmount)
     }
   },
 
   setTimeSpeed: async (speed) => {
+    if (speed > 0 && get().worldState?.progress.status !== 'InProgress') return;
     try {
       await api.setTimeSpeed(speed);
       const state = await api.snapshot();
@@ -288,7 +304,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     const existing = get().tickIntervalId;
     if (existing != null) return;
     const ws = get().worldState;
-    if (ws?.paused || ws?.time_speed === 0) return;
+    if (ws?.paused || ws?.time_speed === 0 || ws?.progress.status !== 'InProgress') return;
     const id = window.setInterval(() => {
       get().doTick();
     }, 500) as unknown as number;
@@ -321,20 +337,20 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     set({ loading: true, error: null });
     try {
       const state = await api.loadSave(slot);
-      const charIds = Object.keys(state.characters);
-      const firstCharId = charIds[0] ?? null;
+      const initial = pickInitialSelection(state);
       set({
         worldState: state,
         currentLevelId: state.level_id || slot.split('-tick')[0] || null,
-        selectedActorId: firstCharId,
-        selectedTargetId: charIds.length > 1 ? charIds[1] : null,
-        inspectedCharacterId: charIds.length > 1 ? charIds[1] : firstCharId,
+        selectedActorId: initial.actorId,
+        selectedTargetId: initial.targetId,
+        inspectedCharacterId: initial.inspectId,
+        uiMode: state.initial_mode ?? 'observe',
         recentEvents: [],
         page: 'game',
         loading: false,
       });
       await get().refreshCommands();
-      get().startTickLoop();
+      if (state.progress.status === 'InProgress') get().startTickLoop();
     } catch (err) {
       set({ error: t('app.error.loadSave', { message: String(err) }), loading: false });
     }
