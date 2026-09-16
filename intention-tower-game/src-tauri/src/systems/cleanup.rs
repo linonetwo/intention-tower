@@ -1,12 +1,14 @@
 use super::System;
-use crate::models::world_state::WorldState;
 use crate::models::events::WorldEvent;
+use crate::models::world_state::WorldState;
 
 /// System #22: Cleanup expired TTL nodes and orphaned edges.
 pub struct CleanupSystem;
 
 impl System for CleanupSystem {
-    fn name(&self) -> &'static str { "CleanupSystem" }
+    fn name(&self) -> &'static str {
+        "CleanupSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         let current_tick = state.tick;
@@ -15,7 +17,10 @@ impl System for CleanupSystem {
             let char_id = character.id.clone();
 
             // Find nodes with expired TTL
-            let expired: Vec<String> = character.mind_graph.nodes.values()
+            let expired: Vec<String> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| {
                     if let Some(ttl) = n.ttl {
                         n.created_at + ttl <= current_tick

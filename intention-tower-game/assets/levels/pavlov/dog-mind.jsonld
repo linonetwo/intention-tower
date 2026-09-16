@@ -8,8 +8,8 @@
       "instanceId": "dog-hunger",
       "schemaId": "it:concept/hunger",
       "nodeType": "PriorInstinct",
-      "value": 0.58,
-      "valueVelocity": 0.06,
+      "value": 0.4,
+      "valueVelocity": 0.02,
       "strength": 0.7,
       "active": true,
       "thresholds": [

@@ -5,3 +5,4 @@ onlyBuiltDependencies:
   - dprint
   - esbuild
   - unrs-resolver
+  - unrs-resolver

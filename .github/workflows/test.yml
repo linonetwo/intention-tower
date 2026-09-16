@@ -1,103 +1,113 @@
-name: Test
+name: Verify game
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches: [ master ]
+    branches: [master]
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - 'codex/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
-  # CI 优化：禁用增量编译（CI 从零构建，增量编译反而增加开销）
   CARGO_INCREMENTAL: 0
-  # 减少调试信息生成
-  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+  RUST_BACKTRACE: 1
 
 jobs:
-  check-and-test:
-    name: Format, Lint & Test
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    
+  verify:
+    name: Frontend, Rust core and 21-level MCP playthrough
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: intention-tower-game
+
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install Rust
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: intention-tower-game/pnpm-lock.yaml
+
+      - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
           components: rustfmt, clippy
 
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libxcb-render0-dev \
-            libxcb-shape0-dev \
-            libxcb-xfixes0-dev \
-            libxkbcommon-dev \
-            libxkbcommon-x11-0 \
-            libssl-dev \
-            clang \
-            mold \
-            libwayland-dev \
-            wayland-protocols \
-            libasound2-dev \
-            libpulse-dev \
-            libudev-dev \
-            xvfb \
-            libgl1-mesa-dri \
-            mesa-vulkan-drivers \
-            fonts-liberation \
-            fonts-noto-cjk \
-            fonts-wqy-zenhei \
-            libasound2-plugins
-
-      - name: Setup Linux linker
-        if: runner.os == 'Linux'
-        run: |
-          echo "RUSTFLAGS=-C link-arg=-fuse-ld=mold" >> $GITHUB_ENV
-
-      - name: Setup Windows linker  
-        if: runner.os == 'Windows'
-        run: |
-          echo "RUSTFLAGS=-C link-arg=-fuse-ld=lld" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Rust Cache
+      - name: Cache Rust compilation
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "build-${{ matrix.os }}"
-          cache-on-failure: true
+          workspaces: intention-tower-game/src-tauri -> target
+          shared-key: verify-core
 
-      - name: Check formatting
-        run: cargo fmt -- --check
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Run clippy
-        run: cargo clippy --all-targets -- -D warnings
+      - name: Verify production GPT Image 2 assets
+        run: pnpm test:assets
 
-      - name: Create logs directory
-        run: mkdir -p logs
-        shell: bash
+      - name: Type-check frontend
+        run: pnpm check
 
-      - name: Run tests
-        if: runner.os == 'Windows'
-        run: cargo test
+      - name: Run frontend tests
+        run: pnpm test:ui
 
-      - name: Run tests (Linux with virtual display)
-        if: runner.os == 'Linux'
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" cargo test
-        # 在没有物理 GPU 的云服务器上，可以环境变量 `WGPU_BACKEND=gl ` 强制 Bevy 使用 OpenGL llvmpipe
-        timeout-minutes: 30
+      - name: Check Rust formatting
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
-      - name: Upload test logs and screenshots
+      - name: Lint authoritative Rust core
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --all-targets -- -D warnings
+
+      - name: Test authoritative Rust core
+        run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --lib --tests
+
+      - name: Start standalone MCP core
+        run: |
+          cargo run --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --bin intention-tower-mcp > "$RUNNER_TEMP/intention-tower-mcp.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/intention-tower-mcp.pid"
+          for attempt in {1..60}; do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:9222/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/intention-tower-mcp.log"
+          exit 1
+
+      - name: Play all 21 levels through MCP
+        run: pnpm test:mcp:levels
+
+      - name: Stop standalone MCP core
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/intention-tower-mcp.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/intention-tower-mcp.pid")" 2>/dev/null || true
+          fi
+
+      - name: Upload MCP log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.os }}
-          path: logs/
-          retention-days: 7
+          name: mcp-verification-log
+          path: ${{ runner.temp }}/intention-tower-mcp.log
+          if-no-files-found: ignore
+          retention-days: 14

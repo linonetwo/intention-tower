@@ -1,6 +1,6 @@
 use super::System;
-use crate::models::world_state::WorldState;
 use crate::models::mind_node::NodeType;
+use crate::models::world_state::WorldState;
 
 /// System #16: Processes social signals — status, belonging, approval, rejection.
 /// Updates Identity and group belonging meme nodes based on incoming social observations.
@@ -8,15 +8,21 @@ use crate::models::mind_node::NodeType;
 pub struct SocialSignalSystem;
 
 impl System for SocialSignalSystem {
-    fn name(&self) -> &'static str { "SocialSignalSystem" }
+    fn name(&self) -> &'static str {
+        "SocialSignalSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         for character in state.characters.values_mut() {
             // Find social signal observations
-            let signals: Vec<(String, String, String)> = character.mind_graph.nodes.values()
+            let signals: Vec<(String, String, String)> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| {
                     n.node_type == NodeType::Observation
                         && n.active
+                        && n.attended
                         && n.observation.as_ref().map_or(false, |o| o.is_signal)
                 })
                 .filter_map(|n| {
@@ -29,12 +35,14 @@ impl System for SocialSignalSystem {
 
             for (_obs_id, signal_type, group_context) in signals {
                 // Find identity memes matching this group
-                let identity_ids: Vec<String> = character.mind_graph.nodes.values()
+                let identity_ids: Vec<String> = character
+                    .mind_graph
+                    .nodes
+                    .values()
                     .filter(|n| {
                         n.node_type == NodeType::Meme
                             && n.meme.as_ref().map_or(false, |m| {
-                                m.is_identity
-                                    && m.group_id.as_deref() == Some(&group_context)
+                                m.is_identity && m.group_id.as_deref() == Some(&group_context)
                             })
                     })
                     .map(|n| n.instance_id.clone())

@@ -19,7 +19,6 @@ mod tests {
     use intention_tower_game_lib::systems::runner::SimulationRunner;
     use intention_tower_game_lib::models::mind_node::*;
     use intention_tower_game_lib::models::commands::*;
-    use intention_tower_game_lib::models::events::WorldEvent;
 
     fn assets_dir() -> PathBuf {
         // Navigate from src-tauri/tests/ to assets/
@@ -294,6 +293,8 @@ mod tests {
                 value_velocity: 0.0,
                 strength: 0.3,
                 active: true,
+                attended: true,
+                suppression: 0.0,
                 created_at: world.tick,
                 ttl: Some(100),
                 hidden_by_default: false,
@@ -318,18 +319,21 @@ mod tests {
         // Tick to run AttentionAllocationSystem
         runner.tick(&mut world, 1.0);
 
-        // Some observations should have been deactivated due to low attention
-        let active_count = world.characters["dog"].mind_graph.nodes.values()
-            .filter(|n| n.node_type == NodeType::Observation && n.active)
+        // Some observations should be skipped this tick without losing their
+        // persistent active/lifecycle state.
+        let attended_count = world.characters["dog"].mind_graph.nodes.values()
+            .filter(|n| n.node_type == NodeType::Observation && n.attended)
             .count();
         let total_count = world.characters["dog"].mind_graph.nodes.values()
             .filter(|n| n.node_type == NodeType::Observation)
             .count();
 
-        // Not all observations should remain active with such low attention
-        assert!(active_count < total_count,
-            "With low attention, not all {} observations should be active (got {} active)",
-            total_count, active_count);
+        assert!(attended_count < total_count,
+            "With low attention, not all {} observations should be attended (got {} attended)",
+            total_count, attended_count);
+        assert!(world.characters["dog"].mind_graph.nodes.values()
+            .filter(|n| n.node_type == NodeType::Observation)
+            .all(|n| n.active), "attention allocation must not mutate node lifecycle");
     }
 
     #[test]
@@ -349,6 +353,8 @@ mod tests {
                 value_velocity: 0.0,
                 strength: 0.8,
                 active: true,
+                attended: true,
+                suppression: 0.0,
                 created_at: world.tick,
                 ttl: Some(1000),
                 hidden_by_default: false,

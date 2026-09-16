@@ -46,7 +46,7 @@ export const ActorStatusBar: React.FC = () => {
   const activeMotivations = useMemo(() => {
     if (!actor) return [];
     return Object.values(actor.mind_graph.nodes)
-      .filter(n => n.node_type === 'Motivation' && n.active)
+      .filter(n => n.node_type === 'Motivation' && n.active && n.attended)
       .slice(0, 3);
   }, [actor]);
 

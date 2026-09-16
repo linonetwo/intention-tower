@@ -25,6 +25,12 @@ function formatBrief(ev: WorldEvent, ws: WorldState | null): { icon: string; tex
       return { icon: '🍖', text: String(data.about), color: '#ffa726' };
     case 'ThresholdCrossed':
       return { icon: '📐', text: String(data.trigger_id).split('/').pop() || '', color: '#ab47bc' };
+    case 'CharacterMoved':
+      return { icon: '🧭', text: `${charName(data.character_id as string)} (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#80cbc4' };
+    case 'AssetTraded':
+      return { icon: '🪙', text: `${charName(data.buyer_id as string)}: ${String(data.item_id)}`, color: '#73d5a6' };
+    case 'ObjectiveCompleted':
+      return { icon: '✅', text: translateLabel(data.label as string), color: '#66bb6a' };
     default:
       return { icon: '📌', text: type, color: '#888' };
   }

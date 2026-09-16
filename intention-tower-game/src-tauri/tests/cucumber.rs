@@ -117,7 +117,10 @@ impl GameWorld {
 #[given(expr = "已加载关卡 {string}")]
 async fn load_level(world: &mut GameWorld, level_id: String) {
     world.ensure_server().await;
-    let result = world.mcp_call("load_level", json!({ "level_id": level_id })).await
+    let result = world.mcp_call("load_level", json!({
+        "level_id": level_id,
+        "sandbox": true,
+    })).await
         .expect("加载关卡失败");
     assert_eq!(result["success"], true, "加载关卡失败: {:?}", result);
     world.last_result = Some(result);
@@ -352,6 +355,9 @@ async fn check_nodes_table(world: &mut GameWorld, step: &Step, character: String
 #[tokio::main]
 async fn main() {
     let result = GameWorld::cucumber()
+        // Each scenario owns an in-process HTTP server. Serial execution keeps
+        // port allocation deterministic on small CI runners.
+        .max_concurrent_scenarios(1)
         .run("tests/features/")
         .await;
 

@@ -4,11 +4,29 @@ pub fn tool_list(has_webview: bool) -> Value {
     let mut tools = vec![
         json!({ "name": "health", "description": "检查服务器状态", "inputSchema": { "type": "object" } }),
         json!({ "name": "snapshot", "description": "获取完整 WorldState", "inputSchema": { "type": "object" } }),
+        json!({ "name": "get_progress", "description": "获取关卡目标、完成状态与胜负结果", "inputSchema": { "type": "object" } }),
         json!({ "name": "tick", "description": "推进仿真", "inputSchema": {
             "type": "object", "properties": { "count": { "type": "integer" }, "dt": { "type": "number" } }
         }}),
+        json!({ "name": "step_tick", "description": "暂停时单步推进仿真", "inputSchema": { "type": "object" } }),
+        json!({ "name": "set_time_speed", "description": "设置仿真速度", "inputSchema": {
+            "type": "object", "properties": { "speed": { "type": "integer", "minimum": 0, "maximum": 4 } }, "required": ["speed"]
+        }}),
+        json!({ "name": "set_paused", "description": "设置暂停状态", "inputSchema": {
+            "type": "object", "properties": { "paused": { "type": "boolean" } }, "required": ["paused"]
+        }}),
+        json!({ "name": "move_character", "description": "微操移动角色（后端边界与碰撞校验）", "inputSchema": {
+            "type": "object", "properties": {
+                "character_id": { "type": "string" },
+                "delta_x": { "type": "number" },
+                "delta_y": { "type": "number" }
+            }, "required": ["character_id", "delta_x", "delta_y"]
+        }}),
         json!({ "name": "load_level", "description": "加载关卡", "inputSchema": {
-            "type": "object", "properties": { "level_id": { "type": "string" } }, "required": ["level_id"]
+            "type": "object", "properties": {
+                "level_id": { "type": "string" },
+                "sandbox": { "type": "boolean", "default": false, "description": "仅用于机制测试：保持仿真进行，不判定关卡胜负" }
+            }, "required": ["level_id"]
         }}),
         json!({ "name": "execute_command", "description": "执行命令", "inputSchema": {
             "type": "object", "properties": {
@@ -20,6 +38,9 @@ pub fn tool_list(has_webview: bool) -> Value {
         }}),
         json!({ "name": "cancel_pending_command", "description": "取消排队中的命令", "inputSchema": {
             "type": "object", "properties": { "command_id": { "type": "string" } }, "required": ["command_id"]
+        }}),
+        json!({ "name": "restore_snapshot", "description": "恢复完整 WorldState（Web 测试存档）", "inputSchema": {
+            "type": "object", "properties": { "world": { "type": "object" } }, "required": ["world"]
         }}),
         json!({ "name": "get_node_value", "description": "查询节点", "inputSchema": {
             "type": "object", "properties": { "character_id": { "type": "string" }, "schema_id": { "type": "string" } },

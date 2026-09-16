@@ -6,7 +6,7 @@
       "commandId": "show-button",
       "label": "command.show-button.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
@@ -25,7 +25,7 @@
       "hotkey": "2",
       "targeting": "RequiresTarget",
       "preconditions": [
-        { "type": "TargetNodeActive", "schemaId": "it:concept/press-button" }
+        { "type": "TargetNodeValue", "schemaId": "it:concept/press-button", "op": "GTE", "threshold": 0.3 }
       ],
       "effects": [
         {
@@ -74,6 +74,12 @@
           "about": "schema:Food",
           "ttl": 300,
           "strength": 1.0
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/press-button",
+          "delta": 0.4,
+          "targetCharacterId": "__target"
         }
       ]
     },

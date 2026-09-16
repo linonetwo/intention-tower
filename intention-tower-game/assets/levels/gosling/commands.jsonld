@@ -6,7 +6,7 @@
       "commandId": "approach-gosling",
       "label": "command.approach-gosling.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
@@ -24,7 +24,7 @@
       "commandId": "make-sound",
       "label": "command.make-sound.label",
       "hotkey": "2",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
@@ -42,7 +42,7 @@
       "commandId": "move-away",
       "label": "command.move-away.label",
       "hotkey": "3",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {

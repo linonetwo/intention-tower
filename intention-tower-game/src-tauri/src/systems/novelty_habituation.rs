@@ -1,6 +1,6 @@
 use super::System;
-use crate::models::world_state::WorldState;
 use crate::models::mind_node::NodeType;
+use crate::models::world_state::WorldState;
 
 /// System #7: Habituation — repeated exposure to the same noveltyKey reduces strength.
 /// This is why Pavlov walking around randomly becomes an isolated node:
@@ -11,14 +11,17 @@ const HABITUATION_DECAY: f64 = 0.02;
 const MIN_STRENGTH: f64 = 0.05;
 
 impl System for NoveltyHabituationSystem {
-    fn name(&self) -> &'static str { "NoveltyHabituationSystem" }
+    fn name(&self) -> &'static str {
+        "NoveltyHabituationSystem"
+    }
 
     fn run(&self, state: &mut WorldState, dt: f64) {
         for character in state.characters.values_mut() {
             // Count active observations by novelty_key
-            let mut novelty_counts: std::collections::HashMap<String, u32> = std::collections::HashMap::new();
+            let mut novelty_counts: std::collections::HashMap<String, u32> =
+                std::collections::HashMap::new();
             for node in character.mind_graph.nodes.values() {
-                if node.node_type == NodeType::Observation && node.active {
+                if node.node_type == NodeType::Observation && node.active && node.attended {
                     if let Some(ref obs) = node.observation {
                         if let Some(ref key) = obs.novelty_key {
                             *novelty_counts.entry(key.clone()).or_insert(0) += 1;
@@ -29,8 +32,11 @@ impl System for NoveltyHabituationSystem {
 
             // For each observation, if its novelty_key has been seen multiple times,
             // decay its strength proportionally
-            let obs_ids: Vec<String> = character.mind_graph.nodes.values()
-                .filter(|n| n.node_type == NodeType::Observation && n.active)
+            let obs_ids: Vec<String> = character
+                .mind_graph
+                .nodes
+                .values()
+                .filter(|n| n.node_type == NodeType::Observation && n.active && n.attended)
                 .map(|n| n.instance_id.clone())
                 .collect();
 

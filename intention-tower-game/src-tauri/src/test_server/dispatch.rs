@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use crate::models::commands::CommandDTO;
+use crate::models::commands::{CommandDTO, TargetingMode};
 
 use super::channel::TestMessage;
 use super::state::TestServerState;
@@ -23,6 +23,11 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
             serde_json::to_value(&*world).map_err(|e| e.to_string())
         }
 
+        "get_progress" => {
+            let world = state.world.lock().map_err(|e| e.to_string())?;
+            serde_json::to_value(&world.progress).map_err(|e| e.to_string())
+        }
+
         "tick" => {
             let count = args["count"].as_u64().unwrap_or(1) as usize;
             let dt = args["dt"].as_f64().unwrap_or(1.0);
@@ -32,20 +37,76 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                 let events = state.runner.tick(&mut world, dt);
                 all_events.extend(events);
             }
-            Ok(json!({ "tick": world.tick, "events_count": all_events.len() }))
+            Ok(json!({ "tick": world.tick, "events": all_events }))
+        }
+
+        "step_tick" => {
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            let was_paused = world.paused;
+            let saved_speed = world.time_speed;
+            world.paused = false;
+            if world.time_speed == 0 {
+                world.time_speed = 1;
+            }
+            let effective_dt = 0.5 * world.time_speed as f64;
+            let events = state.runner.tick(&mut world, effective_dt);
+            world.paused = was_paused;
+            world.time_speed = saved_speed;
+            Ok(json!({ "tick": world.tick, "events": events }))
+        }
+
+        "set_time_speed" => {
+            let speed = args["speed"].as_u64().unwrap_or(0).min(4) as u8;
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            world.time_speed = speed;
+            world.paused = speed == 0;
+            Ok(json!({ "speed": speed, "paused": world.paused }))
+        }
+
+        "set_paused" => {
+            let paused = args["paused"].as_bool().unwrap_or(true);
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            world.paused = paused;
+            if !paused && world.time_speed == 0 {
+                world.time_speed = 1;
+            }
+            Ok(json!({ "paused": world.paused, "speed": world.time_speed }))
+        }
+
+        "move_character" => {
+            let character_id = str_arg!("character_id");
+            let delta_x = args["delta_x"].as_f64().ok_or("缺少参数: delta_x")?;
+            let delta_y = args["delta_y"].as_f64().ok_or("缺少参数: delta_y")?;
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            let event = crate::movement::move_character(
+                &mut world,
+                &character_id,
+                delta_x,
+                delta_y,
+            )?;
+            serde_json::to_value(event).map_err(|error| error.to_string())
         }
 
         "load_level" => {
             let level_id = str_arg!("level_id");
+            let sandbox = args["sandbox"].as_bool().unwrap_or(false);
             let level_dir = find_level_dir(&level_id)?;
             let world_data = crate::level_loader::load_level_from_path(&level_dir)
                 .map_err(|e| format!("加载关卡 '{}' 失败: {}", level_id, e))?;
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
             *world = world_data;
             world.level_id = level_id.clone();
+            // Behaviour specifications need to keep exercising a mechanic after
+            // the authored win threshold has been reached. Sandbox mode removes
+            // only outcome predicates; simulation and command rules stay intact.
+            if sandbox {
+                world.progress.objectives.clear();
+                world.progress.failure_rules.clear();
+            }
             Ok(json!({
                 "success": true,
                 "level_id": level_id,
+                "sandbox": sandbox,
                 "characters": world.characters.keys().collect::<Vec<_>>(),
                 "items": world.items.keys().collect::<Vec<_>>(),
                 "command_count": world.command_defs.len()
@@ -63,14 +124,34 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                 .find(|c| c.command_id == command_id)
                 .cloned()
                 .ok_or_else(|| format!("命令 '{}' 未找到", command_id))?;
+            if !crate::command_rules::command_available(
+                &cmd_def,
+                &actor_id,
+                target_id.as_deref(),
+                &world,
+            ) {
+                return Err(format!("命令 '{}' 的前置条件未满足", command_id));
+            }
+            let effective_target_id = match cmd_def.targeting {
+                TargetingMode::NoTarget => None,
+                TargetingMode::RequiresTarget | TargetingMode::OptionalTarget => target_id.clone(),
+            };
             world.pending_commands.push(CommandDTO {
                 command_id: command_id.clone(),
                 actor_id: actor_id.clone(),
-                target_id: target_id.clone(),
+                target_id: effective_target_id,
                 effects: cmd_def.effect_templates.clone(),
             });
-            let events = state.runner.tick(&mut world, 0.0);
-            Ok(json!({ "success": true, "events_count": events.len() }))
+            let events = if world.paused {
+                Vec::new()
+            } else {
+                state.runner.tick(&mut world, 0.0)
+            };
+            Ok(json!({
+                "success": true,
+                "queued": world.paused,
+                "events": events
+            }))
         }
 
         "list_commands" => {
@@ -81,19 +162,35 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                 .command_defs
                 .iter()
                 .filter(|cmd| {
-                    cmd.preconditions.iter().all(|pre| {
-                        crate::api::check_precondition_pub(pre, &actor_id, target_id.as_deref(), &world)
-                    })
+                    crate::command_rules::command_available(
+                        cmd,
+                        &actor_id,
+                        target_id.as_deref(),
+                        &world,
+                    )
                 })
-                .map(|c| json!({ "command_id": c.command_id, "label": c.label, "hotkey": c.hotkey }))
+                .map(|command| serde_json::to_value(command).unwrap_or(Value::Null))
                 .collect();
             Ok(json!(available))
+        }
+
+        "restore_snapshot" => {
+            let restored: crate::models::world_state::WorldState =
+                serde_json::from_value(args["world"].clone())
+                    .map_err(|error| format!("存档数据无效: {error}"))?;
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            *world = restored;
+            Ok(json!({ "success": true, "level_id": world.level_id, "tick": world.tick }))
         }
 
         "cancel_pending_command" => {
             let command_id = str_arg!("command_id");
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
-            if let Some(pos) = world.pending_commands.iter().position(|c| c.command_id == command_id) {
+            if let Some(pos) = world
+                .pending_commands
+                .iter()
+                .position(|c| c.command_id == command_id)
+            {
                 world.pending_commands.remove(pos);
                 Ok(json!({ "success": true, "removed": command_id }))
             } else {
@@ -185,9 +282,9 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
         }
 
         // ---- UI tools ----
-                "take_snapshot" => {
-                        let limit = args["limit"].as_u64().unwrap_or(200).min(800);
-                        run_webview_script(state, format!(r#"
+        "take_snapshot" => {
+            let limit = args["limit"].as_u64().unwrap_or(200).min(800);
+            run_webview_script(state, format!(r#"
                                 (() => {{
                                     const out = [];
                                     const walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_ELEMENT);
@@ -214,13 +311,13 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                                     return out;
                                 }})()
                         "#)).await
-                }
+        }
 
-                "take_screenshot" => {
-                        let full_page = args["full_page"].as_bool().unwrap_or(false);
-                        let max_width = args["max_width"].as_u64().unwrap_or(1280).clamp(320, 4096);
-                        let quality = args["quality"].as_f64().unwrap_or(0.9).clamp(0.4, 1.0);
-                        run_webview_script(state, format!(r#"
+        "take_screenshot" => {
+            let full_page = args["full_page"].as_bool().unwrap_or(false);
+            let max_width = args["max_width"].as_u64().unwrap_or(1280).clamp(320, 4096);
+            let quality = args["quality"].as_f64().unwrap_or(0.9).clamp(0.4, 1.0);
+            run_webview_script(state, format!(r#"
                                 (async () => {{
                                     const ensureHtml2Canvas = async () => {{
                                         if (typeof window.html2canvas === 'function') return window.html2canvas;
@@ -268,7 +365,7 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
                                     }};
                                 }})()
                         "#)).await
-                }
+        }
 
         "evaluate_script" => run_webview_script(state, str_arg!("script")).await,
 
@@ -325,31 +422,51 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
 
         "get_title" => run_webview_script(state, "document.title".to_string()).await,
 
-        "reload" => run_webview_script(state, "location.reload(); ({ success: true })".to_string()).await,
+        "reload" => {
+            run_webview_script(state, "location.reload(); ({ success: true })".to_string()).await
+        }
 
         "wait_for_text" => {
             let text = str_arg!("text");
             let timeout_ms = args["timeout_ms"].as_u64().unwrap_or(5000);
-            run_webview_script(state, format!(r#"
+            run_webview_script(
+                state,
+                format!(
+                    r#"
                 (() => {{
                   const found = (document.body?.innerText || '').includes({text:?});
                   return {{ found, text: {text:?}, timeout_ms: {timeout_ms} }};
                 }})()
-            "#)).await
+            "#
+                ),
+            )
+            .await
         }
 
         "list_console_messages" => {
             let limit = args["limit"].as_u64().unwrap_or(50);
-            run_webview_script(state, format!(r#"
+            run_webview_script(
+                state,
+                format!(
+                    r#"
                 (() => (window.__MCP_CONSOLE__ || []).slice(-{limit}))()
-            "#)).await
+            "#
+                ),
+            )
+            .await
         }
 
         "list_network_requests" => {
             let limit = args["limit"].as_u64().unwrap_or(50);
-            run_webview_script(state, format!(r#"
+            run_webview_script(
+                state,
+                format!(
+                    r#"
                 (() => (window.__MCP_NETWORK__ || []).slice(-{limit}))()
-            "#)).await
+            "#
+                ),
+            )
+            .await
         }
 
         _ => Err(format!("未知工具: {}", name)),
@@ -357,10 +474,7 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
 }
 
 async fn run_webview_script(state: &TestServerState, script: String) -> Result<Value, String> {
-    let tx = state
-        .webview_tx
-        .as_ref()
-        .ok_or("UI 工具仅在嵌入模式可用")?;
+    let tx = state.webview_tx.as_ref().ok_or("UI 工具仅在嵌入模式可用")?;
 
     let callback_port = state.callback_port();
     if callback_port == 0 {
@@ -401,7 +515,11 @@ async fn run_webview_script(state: &TestServerState, script: String) -> Result<V
     }
 }
 
-fn wrap_script_for_callback(user_script: String, eval_id: &str, callback_port: u16) -> Result<String, String> {
+fn wrap_script_for_callback(
+    user_script: String,
+    eval_id: &str,
+    callback_port: u16,
+) -> Result<String, String> {
     let user_script_json = serde_json::to_string(&user_script).map_err(|e| e.to_string())?;
     let eval_id_json = serde_json::to_string(eval_id).map_err(|e| e.to_string())?;
     Ok(format!(

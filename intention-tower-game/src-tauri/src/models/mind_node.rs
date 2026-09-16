@@ -173,6 +173,10 @@ pub struct ActionData {
     pub goap: bool,
     pub sub_action_schemas: Vec<String>,
     pub proficiency_level: f64,
+    /// Per-tick winner chosen by ActionSelectionSystem. Eligibility remains in
+    /// MindNode.active, so losing one tick never removes an action forever.
+    #[serde(default)]
+    pub selected: bool,
 }
 
 // ── Meme fields ──
@@ -211,6 +215,14 @@ pub struct MindNode {
     pub value_velocity: f64,
     pub strength: f64,
     pub active: bool,
+    /// Recomputed by AttentionAllocationSystem. Unlike `active`, this is a
+    /// transient working-memory budget decision and can recover next tick.
+    #[serde(default = "default_attended")]
+    pub attended: bool,
+    /// Recomputed conflict pressure. This modifies effective strength without
+    /// destructively eroding the authored/learned base strength.
+    #[serde(default)]
+    pub suppression: f64,
     pub created_at: u64,
     pub ttl: Option<u64>,
     pub hidden_by_default: bool,
@@ -234,13 +246,23 @@ pub struct MindNode {
     pub is_virtual: bool,
 }
 
+const fn default_attended() -> bool {
+    true
+}
+
 impl MindNode {
     pub fn is_resource(&self) -> bool {
-        self.prior_instinct.as_ref().map_or(false, |pi| pi.is_resource)
+        self.prior_instinct
+            .as_ref()
+            .map_or(false, |pi| pi.is_resource)
     }
 
     pub fn is_mood(&self) -> bool {
         self.prior_instinct.as_ref().map_or(false, |pi| pi.is_mood)
+    }
+
+    pub fn effective_strength(&self) -> f64 {
+        self.strength * (1.0 - self.suppression.clamp(0.0, 1.0))
     }
 }
 

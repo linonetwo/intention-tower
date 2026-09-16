@@ -1,30 +1,36 @@
 import { createStore, useStore } from 'zustand';
 
-export interface QwenImageManifestItem {
+export interface ImageAssetManifestItem {
   id: string;
   type?: 'background' | 'portrait';
   levelId?: string;
   charId?: string;
   prompt: string;
+  sourcePrompt?: string;
   output: string;
+  generator?: string;
+  model?: string;
 }
 
-export interface QwenImageManifest {
+export interface ImageAssetManifest {
   id: string;
   name?: string;
   version?: string | number;
   provider?: string;
+  model?: string;
+  generatedAt?: string;
+  artDirection?: string;
   portraits?: {
     left?: string;
     right?: string;
   };
   portraitsByCharacter?: Record<string, string>;
   backgrounds?: Record<string, string>;
-  items?: QwenImageManifestItem[];
+  items?: ImageAssetManifestItem[];
 }
 
 interface ModAssetsState {
-  manifest: QwenImageManifest | null;
+  manifest: ImageAssetManifest | null;
   revision: number;
   loading: boolean;
   error: string | null;
@@ -32,15 +38,15 @@ interface ModAssetsState {
   reload: () => Promise<void>;
 }
 
-const MANIFEST_URL = '/mods/qwen-image-pack/manifest.json';
+export const PRODUCTION_ASSET_MANIFEST_URL = '/mods/gpt-image-2-pack/manifest.json';
 
-async function loadManifest(revision: number): Promise<QwenImageManifest> {
-  const url = `${MANIFEST_URL}?rev=${revision}&t=${Date.now()}`;
+async function loadManifest(revision: number): Promise<ImageAssetManifest> {
+  const url = `${PRODUCTION_ASSET_MANIFEST_URL}?rev=${revision}&t=${Date.now()}`;
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error(`load manifest failed: ${res.status} ${res.statusText}`);
   }
-  return await res.json() as QwenImageManifest;
+  return await res.json() as ImageAssetManifest;
 }
 
 export const modAssetsStore = createStore<ModAssetsState>()((set, get) => ({

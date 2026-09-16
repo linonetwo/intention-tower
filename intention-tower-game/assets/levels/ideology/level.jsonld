@@ -36,5 +36,15 @@
     "level.ideology.objective.0",
     "level.ideology.objective.1",
     "level.ideology.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "spread-ideology", "label": "level.ideology.objective.0", "condition": { "type": "commandUsed", "commandId": "preach", "minCount": 2, "distinctTargets": 2 } },
+    { "objectiveId": "bind-faith-action", "label": "level.ideology.objective.1", "condition": { "type": "commandUsed", "commandId": "reinforce-faith", "minCount": 2 } },
+    { "objectiveId": "test-belief", "label": "level.ideology.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "challenge-belief", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "show-evidence", "minCount": 2 }
+    ] } }
+  ],
+  "defaultActorId": "ideologue",
+  "defaultTargetId": "believer"
 }

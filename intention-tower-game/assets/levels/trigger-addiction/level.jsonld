@@ -45,5 +45,23 @@
     "level.trigger-addiction.objective.0",
     "level.trigger-addiction.objective.1",
     "level.trigger-addiction.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "breach-target-bci", "label": "level.trigger-addiction.objective.0", "condition": { "type": "commandUsed", "commandId": "hack-bci", "minCount": 1 } },
+    { "objectiveId": "build-virtual-reward", "label": "level.trigger-addiction.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "inject-game-meme", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "boost-virtual-reward", "minCount": 1 },
+      { "type": "nodeValue", "characterId": "enemy-target", "schemaId": "it:concept/virtual-pleasure", "op": "GTE", "value": 0.8 }
+    ] } },
+    { "objectiveId": "collapse-body", "label": "level.trigger-addiction.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "attack-body", "minCount": 1 },
+      { "type": "nodeValue", "characterId": "enemy-target", "schemaId": "it:concept/play-game", "op": "GTE", "value": 0.5 },
+      { "type": "nodeValue", "characterId": "enemy-target", "schemaId": "it:concept/health", "op": "LTE", "value": 0.5 }
+    ] } }
+  ],
+  "failureRules": [
+    { "ruleId": "target-dies", "label": "outcome.trigger-addiction.targetDied", "condition": { "type": "nodeValue", "characterId": "enemy-target", "schemaId": "it:concept/health", "op": "LTE", "value": 0.0 } }
+  ],
+  "defaultActorId": "player-agent",
+  "defaultTargetId": "enemy-target"
 }

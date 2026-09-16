@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use super::mind_node::{AssociationEdge, MindNode};
 use serde::{Deserialize, Serialize};
-use super::mind_node::{MindNode, AssociationEdge};
+use std::collections::HashMap;
 
 /// A character's personal mind graph (their "Intention Tower")
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -59,16 +59,15 @@ impl MindGraph {
 
     /// Get all active Observation nodes
     pub fn active_observations(&self) -> Vec<&MindNode> {
-        self.nodes.values()
+        self.nodes
+            .values()
             .filter(|n| n.node_type == super::mind_node::NodeType::Observation && n.active)
             .collect()
     }
 
     /// Get all resource nodes (attention, dopamine, health)
     pub fn resource_nodes(&self) -> Vec<&MindNode> {
-        self.nodes.values()
-            .filter(|n| n.is_resource())
-            .collect()
+        self.nodes.values().filter(|n| n.is_resource()).collect()
     }
 
     /// Get the current value of a resource node by schema_id
@@ -89,14 +88,16 @@ impl MindGraph {
 
     /// Get outgoing edges from a node
     pub fn outgoing_edges(&self, instance_id: &str) -> Vec<&AssociationEdge> {
-        self.edges.values()
+        self.edges
+            .values()
             .filter(|e| e.source_instance_id == instance_id)
             .collect()
     }
 
     /// Get incoming edges to a node
     pub fn incoming_edges(&self, instance_id: &str) -> Vec<&AssociationEdge> {
-        self.edges.values()
+        self.edges
+            .values()
             .filter(|e| e.target_instance_id == instance_id)
             .collect()
     }

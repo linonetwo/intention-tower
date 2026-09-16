@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use super::mind_node::Modality;
 use super::events::WorldEvent;
+use super::mind_node::{MemeData, Modality};
+use serde::{Deserialize, Serialize};
 
 /// A command submitted by the player (or NPC AI) to be executed by CommandSystem.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -47,6 +47,8 @@ pub enum CommandEffect {
     InjectMeme {
         meme_schema_id: String,
         target_character_id: Option<String>,
+        #[serde(default)]
+        meme: MemeData,
     },
     DeleteNode {
         schema_id: String,
@@ -56,6 +58,19 @@ pub enum CommandEffect {
         resource_schema_id: String,
         new_regen_rate: f64,
         target_character_id: Option<String>,
+    },
+    SetVirtualContext {
+        value: bool,
+    },
+    SetAssetPrice {
+        item_id: String,
+        unit_price: f64,
+    },
+    TradeAsset {
+        item_id: String,
+        buyer_id: String,
+        seller_id: String,
+        quantity: f64,
     },
     EmitWorldEvent {
         event: WorldEvent,
@@ -83,12 +98,28 @@ pub enum TargetingMode {
 /// Atomic precondition — all must be satisfied (AND).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Precondition {
-    EnvHasItem { item_schema_id: String },
-    TargetHasNode { schema_id: String },
-    TargetNodeActive { schema_id: String },
-    TargetNodeValue { schema_id: String, op: CompareOp, threshold: f64 },
-    ActorResource { resource_schema_id: String, op: CompareOp, threshold: f64 },
-    IsVirtualContext { value: bool },
+    EnvHasItem {
+        item_schema_id: String,
+    },
+    TargetHasNode {
+        schema_id: String,
+    },
+    TargetNodeActive {
+        schema_id: String,
+    },
+    TargetNodeValue {
+        schema_id: String,
+        op: CompareOp,
+        threshold: f64,
+    },
+    ActorResource {
+        resource_schema_id: String,
+        op: CompareOp,
+        threshold: f64,
+    },
+    IsVirtualContext {
+        value: bool,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

@@ -71,6 +71,8 @@ assets/
 |valueVelocity|f64|每 tick 自然变化率|
 |strength|f64|显著性/注意力分配权重|
 |active|bool|是否在工作记忆中|
+|attended|bool|本 tick 是否获得注意预算；恢复注意后可重新参与运算，不改变 active 生命周期|
+|suppression|f64|本 tick 的信念/证据冲突压制；effectiveStrength = strength × (1-suppression)|
 |createdAt|u64|tick 时间戳|
 |ttl|Option<u64>|存活期限|
 |hiddenByDefault|bool|行动池默认隐藏|
@@ -114,7 +116,15 @@ assets/
 
 前提条件（AND 组合）：EnvHasItem / TargetHasNode / TargetNodeActive / TargetNodeValue / ActorResource / IsVirtualContext
 
-效果列表：SpawnObservation / SpawnNode / ModifyNodeValue / ReinforceEdge / WeakenEdge / InnerCutEdge / DeleteNode / ConsumeResource / InjectMeme / SpawnAttentionFlood / SetVirtualContext / ExitVirtualContext / ModifyResourceRegen / EmitWorldEvent
+效果列表：SpawnObservation / SpawnNode / ModifyNodeValue / ReinforceEdge / WeakenEdge / InnerCutEdge / DeleteNode / ConsumeResource / InjectMeme / SpawnAttentionFlood / SetVirtualContext / ExitVirtualContext / ModifyResourceRegen / SetAssetPrice / TradeAsset / EmitWorldEvent
+
+!! WorldState 扩展聚合
+
+* `progress`：目标谓词、失败规则、命令计数/目标集合、Won/Lost 与完成 tick
+* `virtual_context_stack`：可序列化的多层虚拟情境；Observation 保存 realityLayer/isVirtual
+* `social_groups`：由身份模因派生的成员、凝聚力和共识行动
+* `economy`：账户、持仓、资产供给/单价/需求及最多 500 条近期交易
+* 角色 `position`：权威世界坐标；移动事件走同一事件日志
 
 !! 资源节点
 

@@ -57,7 +57,7 @@
     当 对目标 "dog" 重复以下训练 10 轮
       | 命令      | 执行者 | tick间隔 |
       | ring-bell | pavlov | 1        |
-      | feed      | pavlov | 3        |
+      | feed      | pavlov | 30       |
     # 仅摇铃，验证听觉节点是否被创建
     当 执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
     当 推进 5 个 tick
@@ -69,7 +69,7 @@
     当 对目标 "dog" 重复以下训练 8 轮
       | 命令      | 执行者 | tick间隔 |
       | ring-bell | pavlov | 1        |
-      | feed      | pavlov | 3        |
+      | feed      | pavlov | 30       |
     # 然后只摇铃不喂食 20 轮（消退期）
     当 重复 20 次: 执行 "ring-bell" 由 "pavlov" 对 "dog" 然后推进 5 tick
     # 饥饿值应持续增长（因为长期不喂食）
