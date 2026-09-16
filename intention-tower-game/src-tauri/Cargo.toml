@@ -50,7 +50,7 @@ name = "intention-tower-game"
 path = "src/main.rs"
 required-features = ["desktop"]
 
-[[bin]]
+[[example]]
 name = "intention-tower-mcp"
 path = "src/bin/intention_tower_mcp.rs"
 required-features = ["test-server"]

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "tauri:dev": "tauri dev",
-    "start:mcp": "cargo run --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --bin intention-tower-mcp",
+    "start:mcp": "cargo run --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --example intention-tower-mcp",
     "start:mcp:desktop": "tauri dev --features test-server -- --test-mode",
     "tauri:test": "tauri dev --features test-server -- --test-mode",
     "test:core": "cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --lib --tests",

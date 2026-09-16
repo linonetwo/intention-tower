@@ -2,7 +2,6 @@ use crate::models::commands::{CommandDTO, CommandDef, Precondition, TargetingMod
 use crate::models::events::WorldEvent;
 use crate::models::world_state::WorldState;
 use crate::systems::runner::SimulationRunner;
-use std::ops::Deref;
 use std::sync::Mutex;
 use tauri::Manager;
 use tauri::State;
@@ -392,15 +391,6 @@ fn format_timestamp(secs: u64) -> String {
 
 /// Public wrapper for precondition checking (used by test_server).
 pub fn check_precondition_pub(
-    pre: &Precondition,
-    actor_id: &str,
-    target_id: Option<&str>,
-    world: &WorldState,
-) -> bool {
-    crate::command_rules::check_precondition(pre, actor_id, target_id, world)
-}
-
-fn check_precondition(
     pre: &Precondition,
     actor_id: &str,
     target_id: Option<&str>,

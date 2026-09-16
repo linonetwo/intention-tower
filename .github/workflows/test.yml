@@ -82,7 +82,7 @@ jobs:
 
       - name: Start standalone MCP core
         run: |
-          cargo run --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --bin intention-tower-mcp > "$RUNNER_TEMP/intention-tower-mcp.log" 2>&1 &
+          cargo run --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --example intention-tower-mcp > "$RUNNER_TEMP/intention-tower-mcp.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/intention-tower-mcp.pid"
           for attempt in {1..60}; do
             if curl --fail --silent --output /dev/null http://127.0.0.1:9222/health; then
