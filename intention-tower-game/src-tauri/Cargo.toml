@@ -52,5 +52,5 @@ required-features = ["desktop"]
 
 [[example]]
 name = "intention-tower-mcp"
-path = "src/bin/intention_tower_mcp.rs"
+path = "examples/intention_tower_mcp.rs"
 required-features = ["test-server"]
