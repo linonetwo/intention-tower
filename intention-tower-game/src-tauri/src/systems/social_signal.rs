@@ -23,7 +23,7 @@ impl System for SocialSignalSystem {
                     n.node_type == NodeType::Observation
                         && n.active
                         && n.attended
-                        && n.observation.as_ref().map_or(false, |o| o.is_signal)
+                        && n.observation.as_ref().is_some_and(|o| o.is_signal)
                 })
                 .filter_map(|n| {
                     let obs = n.observation.as_ref()?;
@@ -41,7 +41,7 @@ impl System for SocialSignalSystem {
                     .values()
                     .filter(|n| {
                         n.node_type == NodeType::Meme
-                            && n.meme.as_ref().map_or(false, |m| {
+                            && n.meme.as_ref().is_some_and(|m| {
                                 m.is_identity && m.group_id.as_deref() == Some(&group_context)
                             })
                     })

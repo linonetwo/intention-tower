@@ -17,7 +17,7 @@ impl System for EnvironmentEventSystem {
         // Active, committed actions become public signals on a restrained cadence.
         // PerceptionSystem turns these objective-world signals into each nearby
         // character's subjective observation, enabling emergent social feedback.
-        if state.tick % 5 != 0 {
+        if !state.tick.is_multiple_of(5) {
             return;
         }
         let emitted: Vec<WorldEvent> = state

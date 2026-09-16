@@ -30,7 +30,7 @@ impl System for ImprintingSystem {
                 .values()
                 .filter(|n| {
                     n.node_type == NodeType::Motivation
-                        && n.motivation.as_ref().map_or(false, |m| {
+                        && n.motivation.as_ref().is_some_and(|m| {
                             m.target_entity.is_none()
                                 && m.critical_period_end.is_some()
                                 && m.critical_period_end.unwrap() > current_tick
@@ -55,7 +55,7 @@ impl System for ImprintingSystem {
                             && n.created_at == current_tick
                             && n.observation
                                 .as_ref()
-                                .map_or(false, |o| o.modality == Some(Modality::Visual))
+                                .is_some_and(|o| o.modality == Some(Modality::Visual))
                     })
                     .map(|n| {
                         (

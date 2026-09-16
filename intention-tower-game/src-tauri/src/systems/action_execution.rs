@@ -23,7 +23,7 @@ impl System for ActionExecutionSystem {
                 .nodes
                 .values()
                 .filter(|n| {
-                    n.node_type == NodeType::Action && n.action.as_ref().map_or(false, |a| a.innate)
+                    n.node_type == NodeType::Action && n.action.as_ref().is_some_and(|a| a.innate)
                 })
                 .map(|n| n.instance_id.clone())
                 .collect();

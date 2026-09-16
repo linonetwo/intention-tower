@@ -22,6 +22,12 @@ struct EvalChunkBuffer {
     parts: Vec<Option<String>>,
 }
 
+impl Default for TestServerState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TestServerState {
     pub fn new() -> Self {
         Self {

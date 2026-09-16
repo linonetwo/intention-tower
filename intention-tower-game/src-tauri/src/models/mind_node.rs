@@ -254,11 +254,11 @@ impl MindNode {
     pub fn is_resource(&self) -> bool {
         self.prior_instinct
             .as_ref()
-            .map_or(false, |pi| pi.is_resource)
+            .is_some_and(|pi| pi.is_resource)
     }
 
     pub fn is_mood(&self) -> bool {
-        self.prior_instinct.as_ref().map_or(false, |pi| pi.is_mood)
+        self.prior_instinct.as_ref().is_some_and(|pi| pi.is_mood)
     }
 
     pub fn effective_strength(&self) -> f64 {

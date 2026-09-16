@@ -128,7 +128,7 @@ impl WorldState {
 
     /// Flush pending events to the log and return them as StateDiff
     pub fn flush_events(&mut self) -> Vec<WorldEvent> {
-        let events: Vec<WorldEvent> = self.pending_events.drain(..).collect();
+        let events = std::mem::take(&mut self.pending_events);
         self.event_log.extend(events.clone());
         events
     }

@@ -24,7 +24,7 @@ impl System for MultiLayerPropagationSystem {
                     n.node_type == NodeType::Motivation
                         && n.active
                         && n.attended
-                        && n.motivation.as_ref().map_or(false, |m| m.is_chained)
+                        && n.motivation.as_ref().is_some_and(|m| m.is_chained)
                 })
                 .filter_map(|n| {
                     let chain_target = n.motivation.as_ref()?.chain_target.as_ref()?;

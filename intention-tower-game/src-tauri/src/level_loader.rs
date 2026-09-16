@@ -928,10 +928,10 @@ fn parse_command_defs(cmd_json: &CommandsJson) -> Vec<CommandDef> {
             let preconditions = cd
                 .preconditions
                 .as_ref()
-                .map(|pres| pres.iter().filter_map(|p| parse_precondition(p)).collect())
+                .map(|pres| pres.iter().filter_map(parse_precondition).collect())
                 .unwrap_or_default();
 
-            let effect_templates = cd.effects.iter().filter_map(|e| parse_effect(e)).collect();
+            let effect_templates = cd.effects.iter().filter_map(parse_effect).collect();
 
             let targeting = match cd.targeting.as_deref() {
                 Some("RequiresTarget") => TargetingMode::RequiresTarget,

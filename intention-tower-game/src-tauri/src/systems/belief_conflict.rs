@@ -44,7 +44,7 @@ impl System for BeliefConflictSystem {
                         && n.active
                         && n.meme
                             .as_ref()
-                            .map_or(false, |m| m.is_belief && !m.overrides_instinct.is_empty())
+                            .is_some_and(|m| m.is_belief && !m.overrides_instinct.is_empty())
                 })
                 .map(|node| {
                     let meme = node.meme.as_ref().expect("belief checked above");
@@ -69,7 +69,7 @@ impl System for BeliefConflictSystem {
                             && n.schema_id == *target_schema
                             && n.prior_instinct
                                 .as_ref()
-                                .map_or(false, |pi| pi.overridable_by_meme)
+                                .is_some_and(|pi| pi.overridable_by_meme)
                     }) {
                         node.suppression = node.suppression.max(*pressure);
                     }

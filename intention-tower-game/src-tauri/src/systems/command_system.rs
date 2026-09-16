@@ -62,7 +62,7 @@ impl System for CommandSystem {
                             if let Some(character) = state.characters.get_mut(char_id) {
                                 // Use persistent schema-based ID (no tick suffix) so conditioning
                                 // can accumulate over time and edges remain valid across rerings.
-                                let sanitized = schema_id.replace(':', "_").replace('/', "_");
+                                let sanitized = schema_id.replace([':', '/'], "_");
                                 let instance_id = format!("obs_{}", sanitized);
                                 let already_exists =
                                     character.mind_graph.nodes.contains_key(&instance_id);
@@ -211,9 +211,8 @@ impl System for CommandSystem {
                                             character.mind_graph.nodes.get(&e.source_instance_id);
                                         let tgt =
                                             character.mind_graph.nodes.get(&e.target_instance_id);
-                                        src.map_or(false, |s| s.schema_id == *source_schema_id)
-                                            && tgt
-                                                .map_or(false, |t| t.schema_id == *target_schema_id)
+                                        src.is_some_and(|s| s.schema_id == *source_schema_id)
+                                            && tgt.is_some_and(|t| t.schema_id == *target_schema_id)
                                     })
                                     .map(|e| e.edge_id.clone());
 
@@ -254,9 +253,8 @@ impl System for CommandSystem {
                                             character.mind_graph.nodes.get(&e.source_instance_id);
                                         let tgt =
                                             character.mind_graph.nodes.get(&e.target_instance_id);
-                                        src.map_or(false, |s| s.schema_id == *source_schema_id)
-                                            && tgt
-                                                .map_or(false, |t| t.schema_id == *target_schema_id)
+                                        src.is_some_and(|s| s.schema_id == *source_schema_id)
+                                            && tgt.is_some_and(|t| t.schema_id == *target_schema_id)
                                     })
                                     .map(|e| e.edge_id.clone());
 
@@ -304,8 +302,7 @@ impl System for CommandSystem {
                                         new_value: existing.value,
                                     });
                                 } else {
-                                    let sanitized =
-                                        meme_schema_id.replace(':', "_").replace('/', "_");
+                                    let sanitized = meme_schema_id.replace([':', '/'], "_");
                                     let instance_id = format!("meme_{sanitized}");
                                     let node = MindNode {
                                         instance_id: instance_id.clone(),

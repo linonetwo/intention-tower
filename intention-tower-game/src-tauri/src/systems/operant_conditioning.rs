@@ -55,9 +55,7 @@ impl System for OperantConditioningSystem {
                     n.node_type == NodeType::Observation
                         && n.active
                         && n.attended
-                        && n.observation
-                            .as_ref()
-                            .map_or(false, |o| o.satisfaction > 0.0)
+                        && n.observation.as_ref().is_some_and(|o| o.satisfaction > 0.0)
                         && n.created_at >= current_tick.saturating_sub(5) // within last 5 ticks
                 });
 

@@ -27,7 +27,7 @@ impl System for AttentionFloodSystem {
                 .filter(|n| {
                     n.node_type == NodeType::Meme
                         && n.active
-                        && n.meme.as_ref().map_or(false, |m| m.is_attention_flood)
+                        && n.meme.as_ref().is_some_and(|m| m.is_attention_flood)
                 })
                 .map(|n| {
                     let drain = n

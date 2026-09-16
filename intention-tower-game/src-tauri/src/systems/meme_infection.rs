@@ -25,9 +25,7 @@ impl System for MemeInfectionSystem {
                     n.node_type == NodeType::Meme
                         && n.active
                         && n.attended
-                        && n.meme
-                            .as_ref()
-                            .map_or(false, |m| !m.binding_sites.is_empty())
+                        && n.meme.as_ref().is_some_and(|m| !m.binding_sites.is_empty())
                 })
                 .map(|n| n.instance_id.clone())
                 .collect();
