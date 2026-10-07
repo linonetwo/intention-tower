@@ -8,6 +8,7 @@ import { nodeTypeLabel, translateLabel } from '../../../i18n';
 import type { NodeType, WorldCharacter, WorldEvent } from '../../../types/backend';
 import { NODE_TYPE_COLORS } from './constants';
 import { GraphSvg } from './GraphSvg';
+import { LearningTrace, type LearningUpdate } from './LearningTrace';
 import { NodeInspector } from './NodeInspector';
 import type { GraphLayoutMode } from './types';
 import { useFixedMindGraphLayout } from './useFixedMindGraphLayout';
@@ -42,6 +43,17 @@ export function MindGraphWorkbench({
 }: Props) {
   const { t } = useTranslation();
   const graph = character.mind_graph;
+  const learningUpdates = useMemo(() => recentEvents.flatMap((event) => (
+    'LearningUpdated' in event && event.LearningUpdated.character_id === character.id
+      ? [event.LearningUpdated as LearningUpdate] : []
+  )), [character.id, recentEvents]);
+  const learningPhases = useMemo(() => {
+    const phases = new Map<string, LearningUpdate['phase']>();
+    learningUpdates.forEach((update) => {
+      if (!phases.has(update.edge_id)) phases.set(update.edge_id, update.phase);
+    });
+    return phases;
+  }, [learningUpdates]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [hiddenTypes, setHiddenTypes] = useState<Set<NodeType>>(new Set());
@@ -164,6 +176,7 @@ export function MindGraphWorkbench({
         ids.add(event.EdgeWeightChanged.edge_id);
       }
       if ('EdgeCreated' in event && event.EdgeCreated.character_id === character.id) ids.add(event.EdgeCreated.edge_id);
+      if ('LearningUpdated' in event && event.LearningUpdated.character_id === character.id) ids.add(event.LearningUpdated.edge_id);
     });
     return ids;
   }, [character.id, recentEvents, relationEdgeIds]);
@@ -260,6 +273,7 @@ export function MindGraphWorkbench({
         </Box>
       </Box>
       <Divider sx={{ borderColor: 'rgba(120,150,175,0.17)' }} />
+      <LearningTrace updates={learningUpdates.slice(0, 3)} nodes={fogNodes} />
 
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0, position: 'relative' }}>
         <GraphSvg
@@ -270,6 +284,7 @@ export function MindGraphWorkbench({
           selectedNodeId={selectedNodeId}
           selectedEdgeId={selectedEdgeId}
           highlightedEdgeIds={highlightedEdgeIds}
+          learningPhases={learningPhases}
           hiddenNodeIds={hiddenNodeIds}
           focusNodeIds={focusNodeIds}
           matchedNodeIds={matchedNodeIds}
@@ -286,6 +301,7 @@ export function MindGraphWorkbench({
             selectedEdge={selectedEdge}
             nodes={fogNodes}
             edges={edges}
+            learningUpdates={learningUpdates}
             onSelectNode={selectNode}
             onSelectEdge={selectEdge}
             onClose={clearSelection}
@@ -299,6 +315,7 @@ export function MindGraphWorkbench({
               selectedEdge={selectedEdge}
               nodes={fogNodes}
               edges={edges}
+              learningUpdates={learningUpdates}
               onSelectNode={selectNode}
               onSelectEdge={selectEdge}
               onClose={clearSelection}

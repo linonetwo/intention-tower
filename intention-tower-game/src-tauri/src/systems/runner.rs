@@ -19,10 +19,6 @@ impl SimulationRunner {
             Box::new(body_state::BodyStateSystem),
             // #4 CommandSystem
             Box::new(command_system::CommandSystem),
-            // #5 ClassicalConditioningSystem — runs here (before ThresholdSystem)
-            // so that newly-created observations can pair with still-active motivations
-            // BEFORE feeding/etc causes ThresholdSystem to despawn them.
-            Box::new(classical_conditioning::ClassicalConditioningSystem),
             // #6 EnvironmentEventSystem
             Box::new(environment_event::EnvironmentEventSystem),
             // Market demand and asset ledger projection
@@ -33,15 +29,14 @@ impl SimulationRunner {
             Box::new(novelty_habituation::NoveltyHabituationSystem),
             // #9 AttentionAllocationSystem
             Box::new(attention_allocation::AttentionAllocationSystem),
+            // Learning sees this tick's perception and actual attention budget.
+            Box::new(classical_conditioning::ClassicalConditioningSystem),
             // #10 InstinctUpdateSystem
             Box::new(instinct_update::InstinctUpdateSystem),
             // #11 ThresholdSystem
             Box::new(threshold::ThresholdSystem),
             // #12 MultiLayerPropagationSystem
             Box::new(multi_layer_propagation::MultiLayerPropagationSystem),
-            // (ClassicalConditioningSystem moved to #5)
-            // #13 OperantConditioningSystem
-            Box::new(operant_conditioning::OperantConditioningSystem),
             // #14 ImprintingSystem
             Box::new(imprinting::ImprintingSystem),
             // #15 MemeInfectionSystem
@@ -60,6 +55,8 @@ impl SimulationRunner {
             Box::new(action_selection::ActionSelectionSystem),
             // #20 ActionExecutionSystem
             Box::new(action_execution::ActionExecutionSystem),
+            // Operant credit is assigned to this tick's selected action.
+            Box::new(operant_conditioning::OperantConditioningSystem),
             // #21 MoodCascadeSystem
             Box::new(mood_cascade::MoodCascadeSystem),
             // #22 CleanupSystem

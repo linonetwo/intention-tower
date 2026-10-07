@@ -147,13 +147,13 @@ export const TimeControlsHud: React.FC = () => {
             },
           }}
         >
-          <ToggleButton value="observe">
+          <ToggleButton value="observe" data-testid="mode-observe" aria-label={t('mode.observe')}>
             <Tooltip title={`${t('mode.observe')} (F1)`} arrow>{modeIcons.observe}</Tooltip>
           </ToggleButton>
-          <ToggleButton value="micro">
+          <ToggleButton value="micro" data-testid="mode-micro" aria-label={t('mode.micro')}>
             <Tooltip title={`${t('mode.micro')} (F2)`} arrow>{modeIcons.micro}</Tooltip>
           </ToggleButton>
-          <ToggleButton value="graph">
+          <ToggleButton value="graph" data-testid="mode-graph" aria-label={t('mode.graph')}>
             <Tooltip title={`${t('mode.graph')} (F3/Tab)`} arrow>{modeIcons.graph}</Tooltip>
           </ToggleButton>
         </ToggleButtonGroup>
@@ -165,6 +165,8 @@ export const TimeControlsHud: React.FC = () => {
               <IconButton
                 size="small"
                 onClick={() => setAutoStepOnCommand(!autoStepOnCommand)}
+                data-testid="auto-step-command"
+                aria-label={t('game.autoStep')}
                 sx={{
                   color: autoStepOnCommand ? '#90caf9' : '#555',
                   border: '1px solid',
@@ -182,6 +184,9 @@ export const TimeControlsHud: React.FC = () => {
                 <IconButton
                   size="small"
                   onClick={handleStep}
+                  data-testid="step-tick"
+                  data-tutorial="step-button"
+                  aria-label={t('game.stepTick')}
                   disabled={stepping}
                   sx={{ color: '#888', border: '1px solid #333', borderRadius: 1, mx: 0.2 }}
                 >
@@ -206,7 +211,7 @@ export const TimeControlsHud: React.FC = () => {
             },
           }}
         >
-          <ToggleButton value={0}><PauseIcon sx={{ fontSize: 13 }} /></ToggleButton>
+          <ToggleButton value={0} data-testid="pause-time" aria-label={t('game.paused')}><PauseIcon sx={{ fontSize: 13 }} /></ToggleButton>
           <ToggleButton value={1}>1×</ToggleButton>
           {!layout.isMobile && <ToggleButton value={2}>2×</ToggleButton>}
           {!layout.isMobile && <ToggleButton value={3}>3×</ToggleButton>}

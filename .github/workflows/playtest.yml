@@ -2,10 +2,6 @@ name: Build playtest artifacts
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-      - 'codex/**'
 
 permissions:
   contents: read

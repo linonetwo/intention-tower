@@ -4,10 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [master]
-  push:
-    branches:
-      - master
-      - 'codex/**'
 
 permissions:
   contents: read
@@ -24,7 +20,7 @@ env:
 
 jobs:
   verify:
-    name: Frontend, Rust core and 21-level MCP playthrough
+    name: Frontend, Rust core, 21 levels and real-browser MCP
     runs-on: ubuntu-latest
     timeout-minutes: 35
     defaults:
@@ -96,9 +92,59 @@ jobs:
       - name: Play all 21 levels through MCP
         run: pnpm test:mcp:levels
 
+      - name: Build reusable web and MCP core
+        if: ${{ !cancelled() }}
+        run: |
+          pnpm build
+          cargo build --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --example intention-tower-mcp
+          mkdir -p verification-bundle/scripts verification-bundle/assets
+          cp src-tauri/target/debug/examples/intention-tower-mcp verification-bundle/
+          strip verification-bundle/intention-tower-mcp
+          cp -r dist verification-bundle/
+          cp -r assets/levels verification-bundle/assets/
+          cp scripts/browser-mcp.mjs scripts/verify-browser-mcp.mjs scripts/serve-playtest.mjs verification-bundle/scripts/
+          cp scripts/PLAYTEST.md verification-bundle/README.md
+
+      - name: Install CI-only browser tooling
+        if: ${{ !cancelled() }}
+        run: |
+          npm install --prefix .verification-tools --no-package-lock --no-save playwright@1.58.2
+          .verification-tools/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Real desktop and mobile UI playthrough via browser MCP adapter
+        if: ${{ !cancelled() }}
+        run: |
+          export PLAYWRIGHT_MODULE="$PWD/.verification-tools/node_modules/playwright/index.mjs"
+          node scripts/browser-mcp.mjs > verification-browser.log 2>&1 &
+          echo $! > verification-browser.pid
+          node scripts/verify-browser-mcp.mjs
+
+      - name: Upload screenshots and authoritative reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-browser-mcp-evidence
+          path: |
+            intention-tower-game/verification-evidence/
+            intention-tower-game/verification-browser.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload dependency-free Linux core and built web
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: standalone-mcp-web-linux
+          path: intention-tower-game/verification-bundle/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Stop standalone MCP core
         if: always()
         run: |
+          if [ -f verification-browser.pid ]; then
+            kill "$(cat verification-browser.pid)" 2>/dev/null || true
+          fi
           if [ -f "$RUNNER_TEMP/intention-tower-mcp.pid" ]; then
             kill "$(cat "$RUNNER_TEMP/intention-tower-mcp.pid")" 2>/dev/null || true
           fi

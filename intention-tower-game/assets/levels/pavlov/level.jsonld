@@ -56,15 +56,13 @@
     "level.pavlov.objective.2"
   ],
   "objectiveRules": [
-    { "objectiveId": "pair-bell-and-food", "label": "level.pavlov.objective.0", "condition": { "type": "all", "conditions": [
-      { "type": "commandUsed", "commandId": "ring-bell", "minCount": 3 },
-      { "type": "commandUsed", "commandId": "feed", "minCount": 3 }
-    ] } },
-    { "objectiveId": "learn-conditioned-edge", "label": "level.pavlov.objective.1", "condition": { "type": "edgeWeight", "characterId": "dog", "sourceSchemaId": "it:concept/hear-metronome", "targetSchemaId": "it:concept/want-to-eat", "op": "GTE", "value": 0.3 } },
-    { "objectiveId": "verify-bell-response", "label": "level.pavlov.objective.2", "condition": { "type": "all", "conditions": [
-      { "type": "commandUsed", "commandId": "ring-bell", "minCount": 4 },
-      { "type": "edgeWeight", "characterId": "dog", "sourceSchemaId": "it:concept/hear-metronome", "targetSchemaId": "it:concept/want-to-eat", "op": "GTE", "value": 0.3 }
-    ] } }
+    { "objectiveId": "pair-bell-and-food", "label": "level.pavlov.objective.0", "condition": {
+      "type": "conditioningTrials", "characterId": "dog", "sourceSchemaId": "it:concept/hear-metronome", "targetSchemaId": "it:concept/salivate", "minPaired": 3
+    } },
+    { "objectiveId": "learn-conditioned-edge", "label": "level.pavlov.objective.1", "condition": { "type": "edgeWeight", "characterId": "dog", "sourceSchemaId": "it:concept/hear-metronome", "targetSchemaId": "it:concept/salivate", "op": "GTE", "value": 0.3 } },
+    { "objectiveId": "verify-bell-response", "label": "level.pavlov.objective.2", "condition": {
+      "type": "conditioningTrials", "characterId": "dog", "sourceSchemaId": "it:concept/hear-metronome", "targetSchemaId": "it:concept/salivate", "minPaired": 3, "minIndependentResponses": 1
+    } }
   ],
   "defaultActorId": "pavlov",
   "defaultTargetId": "dog"

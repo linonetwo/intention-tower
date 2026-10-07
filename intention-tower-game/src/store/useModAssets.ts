@@ -2,7 +2,7 @@ import { createStore, useStore } from 'zustand';
 
 export interface ImageAssetManifestItem {
   id: string;
-  type?: 'background' | 'portrait';
+  type?: 'background' | 'portrait' | 'sprite';
   levelId?: string;
   charId?: string;
   prompt: string;
@@ -25,8 +25,22 @@ export interface ImageAssetManifest {
     right?: string;
   };
   portraitsByCharacter?: Record<string, string>;
+  /** Transparent full-body art; old portraits are never substituted. */
+  spritesByCharacter?: Record<string, CharacterSpriteAsset>;
   backgrounds?: Record<string, string>;
   items?: ImageAssetManifestItem[];
+}
+
+export interface CharacterSpriteAsset {
+  src: string;
+  height?: number;
+  facing?: 'left' | 'right';
+  groundAnchor?: number;
+}
+
+export function resolveCharacterSprite(manifest: ImageAssetManifest | null, id: string) {
+  return manifest?.spritesByCharacter?.[id]
+    ?? manifest?.spritesByCharacter?.[id.replace(/^it:entity\//, '')];
 }
 
 interface ModAssetsState {

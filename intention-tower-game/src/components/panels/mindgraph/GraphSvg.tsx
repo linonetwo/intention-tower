@@ -18,6 +18,7 @@ type Props = {
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
   highlightedEdgeIds: Set<string>;
+  learningPhases?: Map<string, 'created' | 'reinforced' | 'extinguished'>;
   hiddenTypes?: Set<NodeType>;
   hiddenNodeIds?: Set<string>;
   focusNodeIds?: Set<string>;
@@ -49,8 +50,8 @@ function edgeMotionConfig(edge: GraphEdge) {
     dash: `${8 + (1 - strength) * 4} ${5 + (1 - strength) * 3}`,
     duration: `${(2.8 - strength * 2.1).toFixed(2)}s`,
     reverse: !isIncrease,
-    width: 1.15 + strength * 2.5,
-    opacity: 0.30 + strength * 0.58,
+    width: 1 + strength * 0.65,
+    opacity: 0.45 + strength * 0.4,
   };
 }
 
@@ -65,6 +66,13 @@ function nodeGlyph(nodeType: NodeType) {
 }
 
 function curveForEdge(source: GraphNode, target: GraphNode, edgeId: string) {
+  if (source.instance_id === target.instance_id) {
+    const radius = source.r;
+    return {
+      path: `M ${source.x - radius * 0.7} ${source.y - radius * 0.7} C ${source.x - radius * 2.8} ${source.y - radius * 3.6}, ${source.x + radius * 2.8} ${source.y - radius * 3.6}, ${source.x + radius * 0.7} ${source.y - radius * 0.7 - 5}`,
+      label: { x: source.x, y: source.y - radius * 2.8 },
+    };
+  }
   const dx = target.x - source.x;
   const dy = target.y - source.y;
   const length = Math.max(1, Math.hypot(dx, dy));
@@ -104,6 +112,7 @@ export function GraphSvg({
   selectedNodeId,
   selectedEdgeId,
   highlightedEdgeIds,
+  learningPhases = new Map(),
   hiddenTypes,
   hiddenNodeIds = EMPTY_SET,
   focusNodeIds = EMPTY_SET,
@@ -199,8 +208,8 @@ export function GraphSvg({
   }, [visibleNodes, width, height]);
   const [viewport, setViewport] = useState<Viewport>(fitView);
   const topologyKey = useMemo(
-    () => visibleNodes.map((node) => node.instance_id).sort().join('|'),
-    [visibleNodes],
+    () => `${width}:${height}:${visibleNodes.map((node) => node.instance_id).sort().join('|')}`,
+    [visibleNodes, width, height],
   );
   const previousTopologyKey = useRef('');
   useEffect(() => {
@@ -338,7 +347,7 @@ export function GraphSvg({
   };
 
   const transform = `translate(${viewport.tx}, ${viewport.ty}) scale(${viewport.scale})`;
-  const shouldAnimateEdges = visibleEdges.length <= 80;
+  const shouldAnimateEdges = false;
   const hasFocus = focusNodeIds.size > 0;
 
   return (
@@ -379,6 +388,7 @@ export function GraphSvg({
           @keyframes graph-dash-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -120; } }
           .graph-node:focus-visible > .node-focus { stroke: white; stroke-width: 3.5px; }
           .graph-edge:focus-visible > .edge-visible { stroke-width: 5px; }
+          @media (prefers-reduced-motion: reduce) { .edge-flow { animation: none; } }
         `}</style>
         <defs>
           <filter id={`${prefix}-glow`} x='-60%' y='-60%' width='220%' height='220%'>
@@ -398,7 +408,7 @@ export function GraphSvg({
 
         <g transform={transform}>
           {clusterVisuals.map((cluster) => (
-            <g key={cluster.id} pointerEvents='none' opacity={0.62}>
+            <g key={cluster.id} pointerEvents='none' opacity={0.3}>
               <circle
                 cx={cluster.x}
                 cy={cluster.y}
@@ -421,6 +431,9 @@ export function GraphSvg({
             const target = nodeMap.get(edge.target_instance_id);
             if (!source || !target) return null;
             const motion = edgeMotionConfig(edge);
+            const phase = learningPhases.get(edge.edge_id);
+            if (phase === 'extinguished') motion.color = '#ffb37b';
+            if (phase === 'created') motion.color = '#79c7ff';
             const geometry = curveForEdge(source, target, edge.edge_id);
             const selected = selectedEdgeId === edge.edge_id;
             const highlighted = highlightedEdgeIds.has(edge.edge_id);
@@ -430,7 +443,9 @@ export function GraphSvg({
               && !matchedNodeIds.has(target.instance_id);
             const dimmed = focusDimmed || searchDimmed;
             const showLabel = selected || highlighted || visibleEdges.length <= 14;
-            const label = `${edge.polarity === 'Excitatory' ? '+' : '−'}${edge.weight.toFixed(2)} · ${edge.learn_type}`;
+            const phaseLabel = phase ? t(`graph.learning.${phase}`) : t(`graph.relation.${edge.learn_type}`, { defaultValue: t('graph.relation.association') });
+            const label = `${edge.polarity === 'Excitatory' ? '+' : '−'}${edge.weight.toFixed(2)} · ${phaseLabel}`;
+            const relationLabelWidth = Math.max(78, [...label].reduce((sum, char) => sum + (char.charCodeAt(0) > 255 ? 8.5 : 4.5), 16));
             return (
               <g
                 key={edge.edge_id}
@@ -457,7 +472,7 @@ export function GraphSvg({
                   stroke={motion.color}
                   strokeOpacity={selected || highlighted ? 1 : motion.opacity}
                   strokeWidth={selected ? motion.width + 1.4 : highlighted ? motion.width + 1.8 : motion.width}
-                  strokeDasharray={shouldAnimateEdges ? motion.dash : undefined}
+                  strokeDasharray={edge.learnable && Math.abs(edge.weight) < 0.2 ? '4 5' : undefined}
                   markerEnd={`url(#${prefix}-${edge.polarity === 'Excitatory' ? 'arrow-excite' : 'arrow-inhibit'})`}
                   style={shouldAnimateEdges ? { animationDuration: motion.duration } : undefined}
                   filter={highlighted ? `url(#${prefix}-glow)` : undefined}
@@ -467,9 +482,9 @@ export function GraphSvg({
                 {showLabel && !dimmed && (
                   <g pointerEvents='none'>
                     <rect
-                      x={geometry.label.x - 39}
+                      x={geometry.label.x - relationLabelWidth / 2}
                       y={geometry.label.y - 10}
-                      width={78}
+                      width={relationLabelWidth}
                       height={17}
                       rx={8.5}
                       fill='rgba(5,9,15,0.9)'
@@ -477,7 +492,7 @@ export function GraphSvg({
                       strokeOpacity={0.5}
                     />
                     <text x={geometry.label.x} y={geometry.label.y + 2} textAnchor='middle' fontSize={8.5} fill='#d8e2ea'>
-                      {label.slice(0, 25)}
+                      {label}
                     </text>
                   </g>
                 )}
@@ -545,7 +560,7 @@ export function GraphSvg({
                 style={{ cursor: onMoveNode ? 'grab' : 'pointer', outline: 'none' }}
                 opacity={dimmed ? 0.2 : 1}
               >
-                <circle className='node-focus' r={node.r + (selected ? 7 : 5)} fill='rgba(0,0,0,0.7)' stroke={selected ? '#fff' : color} strokeOpacity={selected ? 1 : 0.5} strokeWidth={selected ? 2.4 : 1.2} filter={`url(#${prefix}-node-shadow)`} />
+                <circle className='node-focus' r={node.r + (selected ? 7 : 5)} fill='none' stroke={selected ? '#d8ecff' : color} strokeOpacity={selected ? 1 : 0.18} strokeWidth={selected ? 2.4 : 1.2} />
                 <circle
                   r={node.r + 4}
                   fill='none'
@@ -559,7 +574,7 @@ export function GraphSvg({
                 <circle
                   r={node.r}
                   fill={unknown ? '#263642' : color}
-                  fillOpacity={unknown ? 0.8 : node.active ? (node.attended ? 0.9 : 0.55) : 0.24}
+                  fillOpacity={unknown ? 0.8 : node.active ? (node.attended ? 0.85 : 0.65) : 0.42}
                   stroke={node.suppression > 0 ? '#ffb74d' : 'rgba(255,255,255,0.22)'}
                   strokeWidth={node.suppression > 0 ? 2.2 : 0.8}
                 />

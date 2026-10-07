@@ -8,6 +8,29 @@ pub struct MindGraph {
     pub character_id: String,
     pub nodes: HashMap<String, MindNode>,
     pub edges: HashMap<String, AssociationEdge>,
+    #[serde(default)]
+    pub conditioning_trials: Vec<ConditioningTrial>,
+    #[serde(default)]
+    pub conditioning_stats: HashMap<String, ConditioningStats>,
+}
+
+/// One presentation, not one simulation tick, is a learning trial.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConditioningTrial {
+    pub source_id: String,
+    pub target_id: String,
+    pub started_at: u64,
+    pub deadline: u64,
+    pub prediction: f64,
+    pub reward: f64,
+    pub responded: bool,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ConditioningStats {
+    pub paired_trials: u32,
+    pub independent_responses: u32,
+    pub omitted_rewards: u32,
 }
 
 impl MindGraph {
@@ -16,6 +39,8 @@ impl MindGraph {
             character_id,
             nodes: HashMap::new(),
             edges: HashMap::new(),
+            conditioning_trials: Vec::new(),
+            conditioning_stats: HashMap::new(),
         }
     }
 

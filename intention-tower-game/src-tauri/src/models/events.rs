@@ -91,6 +91,19 @@ pub enum WorldEvent {
         character_id: String,
         edge_id: String,
     },
+    LearningUpdated {
+        character_id: String,
+        edge_id: String,
+        source_id: String,
+        target_id: String,
+        reward: f64,
+        prediction: f64,
+        prediction_error: f64,
+        dopamine_spent: f64,
+        old_weight: f64,
+        new_weight: f64,
+        phase: String,
+    },
 
     // ── Resource ──
     ResourceConsumed {

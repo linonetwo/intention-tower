@@ -16,7 +16,7 @@
           "schemaId": "it:concept/hear-metronome",
           "modality": "Auditory",
           "about": "it:entity-type/metronome",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
         }
       ]
@@ -35,7 +35,7 @@
           "schemaId": "it:concept/see-food",
           "modality": "Olfactory",
           "about": "schema:Food",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 1.0
         },
         {

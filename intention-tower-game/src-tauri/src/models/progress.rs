@@ -57,6 +57,16 @@ pub enum LevelCondition {
         op: CompareOp,
         value: f64,
     },
+    ConditioningTrials {
+        #[serde(default)]
+        character_id: Option<String>,
+        source_schema_id: String,
+        target_schema_id: String,
+        #[serde(default)]
+        min_paired: u32,
+        #[serde(default)]
+        min_independent_responses: u32,
+    },
     VirtualContext {
         value: bool,
     },
@@ -152,6 +162,35 @@ impl LevelCondition {
                         && target.is_some_and(|node| node.schema_id == *target_schema_id)
                         && op.evaluate(edge.weight, *value)
                 })
+            }),
+            Self::ConditioningTrials {
+                character_id,
+                source_schema_id,
+                target_schema_id,
+                min_paired,
+                min_independent_responses,
+            } => matching_characters(world, character_id.as_deref()).any(|character| {
+                character
+                    .mind_graph
+                    .conditioning_stats
+                    .iter()
+                    .any(|(edge_id, stats)| {
+                        let Some(edge) = character.mind_graph.edges.get(edge_id) else {
+                            return false;
+                        };
+                        character
+                            .mind_graph
+                            .nodes
+                            .get(&edge.source_instance_id)
+                            .is_some_and(|node| node.schema_id == *source_schema_id)
+                            && character
+                                .mind_graph
+                                .nodes
+                                .get(&edge.target_instance_id)
+                                .is_some_and(|node| node.schema_id == *target_schema_id)
+                            && stats.paired_trials >= *min_paired
+                            && stats.independent_responses >= *min_independent_responses
+                    })
             }),
             Self::VirtualContext { value } => world.in_virtual_context == *value,
             Self::SocialGroup {

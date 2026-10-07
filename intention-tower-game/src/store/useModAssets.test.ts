@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { modAssetsStore, PRODUCTION_ASSET_MANIFEST_URL } from './useModAssets';
+import { modAssetsStore, PRODUCTION_ASSET_MANIFEST_URL, resolveCharacterSprite } from './useModAssets';
 
 describe('production mod assets', () => {
+  it('resolves full-body art by canonical and short IDs without using portraits', () => {
+    const sprite = { src: '/dog.png', height: 90, groundAnchor: .96 };
+    expect(resolveCharacterSprite({ id: 'test', spritesByCharacter: { dog: sprite } }, 'it:entity/dog')).toEqual(sprite);
+    expect(resolveCharacterSprite({ id: 'test', spritesByCharacter: { 'it:entity/dog': sprite } }, 'it:entity/dog')).toEqual(sprite);
+    expect(resolveCharacterSprite({ id: 'test', portraitsByCharacter: { dog: '/portrait.png' } }, 'dog')).toBeUndefined();
+  });
   beforeEach(() => {
     modAssetsStore.setState({
       manifest: null,

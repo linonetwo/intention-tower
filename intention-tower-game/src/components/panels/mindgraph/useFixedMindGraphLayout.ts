@@ -136,7 +136,7 @@ export function computeMindGraphLayout(
     const jitterAngle = ((seed % 360) / 180) * Math.PI;
     const jitterRadius = 18 + ((seed >>> 9) % 44);
     const pinned = pinnedPositions[node.instance_id];
-    const radius = 11 + clamp(node.strength, 0, 1) * 5 + (node.attended ? 1.5 : 0);
+    const radius = 21;
 
     return {
       id: node.instance_id,
@@ -165,12 +165,12 @@ export function computeMindGraphLayout(
       'link',
       forceLink<SimNode, SimLink>(simLinks)
         .id((node) => node.id)
-        .distance((link) => 72 + (1 - clamp(Math.abs(link.edge.weight), 0, 1)) * 62)
+        .distance((link) => 125 + (1 - clamp(Math.abs(link.edge.weight), 0, 1)) * 45)
         .strength((link) => 0.2 + clamp(Math.abs(link.edge.weight), 0, 1) * 0.5),
     )
     .force('cluster-x', forceX<SimNode>((node) => node.targetX).strength(layoutMode === 'network' ? 0.055 : 0.11))
     .force('cluster-y', forceY<SimNode>((node) => node.targetY).strength(layoutMode === 'network' ? 0.055 : 0.14))
-    .force('collision', forceCollide<SimNode>().radius((node) => node.r + 18).strength(0.92).iterations(3))
+    .force('collision', forceCollide<SimNode>().radius((node) => node.r + 32).strength(0.92).iterations(3))
     .stop();
 
   for (let tickIndex = 0; tickIndex < 260; tickIndex += 1) simulation.tick();
@@ -221,11 +221,10 @@ export function useFixedMindGraphLayout(
 
   const topologyKey = useMemo(() => {
     const nodeIds = nodesInput.map((node) => node.instance_id).sort().join('|');
-    const edgeIds = edgesInput.map((edge) => edge.edge_id).sort().join('|');
-    return `${nodeIds}::${edgeIds}`;
+    return nodeIds;
   }, [nodesInput, edgesInput]);
 
-  const nodes = useMemo(
+  const positionedNodes = useMemo(
     () => computeMindGraphLayout(
       nodesInput,
       edgesInput,
@@ -239,6 +238,15 @@ export function useFixedMindGraphLayout(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [topologyKey, width, height, schemaToCell, layoutMode, pinnedPositions],
   );
+
+  // Positions are stable, but live values and activation must never be frozen with them.
+  const nodes = useMemo(() => {
+    const positions = new Map(positionedNodes.map((node) => [node.instance_id, node]));
+    return nodesInput.map((node) => {
+      const position = positions.get(node.instance_id)!;
+      return { ...node, x: position.x, y: position.y, r: position.r, cluster_id: position.cluster_id };
+    });
+  }, [nodesInput, positionedNodes]);
 
   const nodeIdSet = useMemo(() => new Set(nodes.map((node) => node.instance_id)), [nodes]);
   const edges = useMemo<GraphEdge[]>(

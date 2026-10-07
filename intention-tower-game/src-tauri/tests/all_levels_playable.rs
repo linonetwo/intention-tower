@@ -411,17 +411,30 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
             );
         }
         "pavlov" => {
-            for _ in 0..20 {
-                runner.tick(world, 1.0);
-            }
             for _ in 0..3 {
                 act(world, runner, "pavlov", Some("dog"), "ring-bell", 1);
                 act(world, runner, "pavlov", Some("dog"), "feed", 1);
-                for _ in 0..25 {
+                for _ in 0..11 {
                     runner.tick(world, 1.0);
                 }
+                assert_eq!(
+                    world.progress.status,
+                    LevelStatus::InProgress,
+                    "rewarded training must not count as an independent bell test"
+                );
             }
             act(world, runner, "pavlov", Some("dog"), "ring-bell", 1);
+            runner.tick(world, 1.0);
+            assert!(world.characters["dog"].mind_graph.nodes["dog-salivate"].active);
+            assert!(!world.characters["dog"].mind_graph.nodes["obs_it_concept_see-food"].active);
+            assert_eq!(
+                world.progress.status,
+                LevelStatus::InProgress,
+                "must wait out the no-reward window before verifying independence"
+            );
+            for _ in 0..10 {
+                runner.tick(world, 1.0);
+            }
         }
         "postmodern-vagrant" => {
             act(

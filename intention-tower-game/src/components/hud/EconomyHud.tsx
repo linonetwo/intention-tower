@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Chip, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -8,6 +8,7 @@ import { useGameState } from '../../store/useGameState';
 export const EconomyHud: React.FC = () => {
   const { t } = useTranslation();
   const layout = useResponsiveLayout();
+  const [expanded, setExpanded] = useState(false);
   const world = useGameState((state) => state.worldState);
   const actorId = useGameState((state) => state.selectedActorId);
   const assets = world ? Object.values(world.economy.assets) : [];
@@ -22,8 +23,7 @@ export const EconomyHud: React.FC = () => {
       sx={{
         position: 'absolute',
         right: 8,
-        top: layout.isMobile ? 'auto' : 56 + layout.miniMapSize.h + 8,
-        bottom: layout.isMobile ? `calc(${layout.dialogueHeight}vh + 14px)` : 'auto',
+        top: layout.isMobile ? 188 : 56 + layout.miniMapSize.h + 8,
         width: layout.isMobile ? 158 : layout.miniMapSize.w,
         p: 0.75,
         bgcolor: 'rgba(14,14,26,0.88)',
@@ -34,7 +34,7 @@ export const EconomyHud: React.FC = () => {
         zIndex: 12,
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+      <Box role="button" tabIndex={0} aria-expanded={expanded} onClick={() => setExpanded(!expanded)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(!expanded); } }} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, cursor: 'pointer' }}>
         <Typography sx={{ flex: 1, fontSize: 9, color: '#d4c37d', fontWeight: 700 }}>
           {t('economy.title')}
         </Typography>
@@ -44,7 +44,7 @@ export const EconomyHud: React.FC = () => {
           sx={{ height: 17, fontSize: 8, bgcolor: 'rgba(255,202,40,0.12)' }}
         />
       </Box>
-      {assets.slice(0, 2).map((asset) => (
+      {(!layout.isMobile || expanded) && assets.slice(0, 2).map((asset) => (
         <Box key={asset.item_id} sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
           <Typography sx={{ flex: 1, minWidth: 0, fontSize: 8.5, color: '#c7c7d4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {translateLabel(world.items[asset.item_id]?.label ?? asset.item_id)}
@@ -54,7 +54,7 @@ export const EconomyHud: React.FC = () => {
           </Typography>
         </Box>
       ))}
-      {lastTrade && (
+      {lastTrade && (!layout.isMobile || expanded) && (
         <Typography sx={{ mt: 0.4, fontSize: 8, color: '#73d5a6' }}>
           {t('economy.lastTrade', { buyer: lastTrade.buyer_id, total: lastTrade.total_price.toFixed(0) })}
         </Typography>

@@ -127,6 +127,24 @@ export interface MindGraph {
   character_id: string;
   nodes: Record<string, MindNode>;
   edges: Record<string, AssociationEdge>;
+  conditioning_trials?: ConditioningTrial[];
+  conditioning_stats?: Record<string, ConditioningStats>;
+}
+
+export interface ConditioningTrial {
+  source_id: string;
+  target_id: string;
+  started_at: number;
+  deadline: number;
+  prediction: number;
+  reward: number;
+  responded: boolean;
+}
+
+export interface ConditioningStats {
+  paired_trials: number;
+  independent_responses: number;
+  omitted_rewards: number;
 }
 
 export type NodeType = 'Observation' | 'PriorInstinct' | 'Motivation' | 'Action' | 'Meme';
@@ -295,6 +313,7 @@ export type WorldEvent =
   | { AssetTradeRejected: { item_id: string; buyer_id: string; reason: string } }
   | { EdgeCreated: { character_id: string; edge_id: string; source_id: string; target_id: string; weight: number } }
   | { EdgeWeightChanged: { character_id: string; edge_id: string; old_weight: number; new_weight: number } }
+  | { LearningUpdated: { character_id: string; edge_id: string; source_id: string; target_id: string; reward: number; prediction: number; prediction_error: number; dopamine_spent: number; old_weight: number; new_weight: number; phase: 'created' | 'reinforced' | 'extinguished' } }
   | { EdgeRemoved: { character_id: string; edge_id: string } }
   | { ResourceConsumed: { character_id: string; resource_schema_id: string; amount: number; remaining: number } }
   | { CommandExecuted: { actor_id: string; command_id: string; target_id: string | null } }

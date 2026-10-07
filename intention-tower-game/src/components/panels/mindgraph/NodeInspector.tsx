@@ -5,12 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { nodeTypeLabel, translateLabel } from '../../../i18n';
 import { NODE_TYPE_COLORS } from './constants';
 import type { GraphEdge, GraphNode } from './types';
+import { LearningTrace, type LearningUpdate } from './LearningTrace';
 
 type Props = {
   selectedNode: GraphNode | null;
   selectedEdge: GraphEdge | null;
   nodes?: GraphNode[];
   edges?: GraphEdge[];
+  learningUpdates?: LearningUpdate[];
   onSelectNode?: (nodeId: string) => void;
   onSelectEdge?: (edgeId: string) => void;
   variant?: 'side' | 'drawer';
@@ -39,6 +41,7 @@ export function NodeInspector({
   selectedEdge,
   nodes = [],
   edges = [],
+  learningUpdates = [],
   onSelectNode,
   onSelectEdge,
   variant = 'side',
@@ -169,9 +172,10 @@ export function NodeInspector({
               ))}
             </Box>
             <Metric label={t('inspector.weightLabel')} value={Math.abs(selectedEdge.weight)} color={selectedEdge.polarity === 'Excitatory' ? '#64d8a2' : '#ff6577'} />
-            <Typography sx={{ fontSize: 10.5, color: '#aebbc5' }}>{t('inspector.polarity', { value: selectedEdge.polarity })}</Typography>
-            <Typography sx={{ fontSize: 10.5, color: '#aebbc5' }}>{t('inspector.learnType', { value: selectedEdge.learn_type })}</Typography>
+            <Typography sx={{ fontSize: 10.5, color: '#aebbc5' }}>{t('inspector.polarity', { value: t(`graph.relation.${selectedEdge.polarity}`) })}</Typography>
+            <Typography sx={{ fontSize: 10.5, color: '#aebbc5' }}>{t('inspector.learnType', { value: t(`graph.relation.${selectedEdge.learn_type}`, { defaultValue: t('graph.relation.association') }) })}</Typography>
             <Typography sx={{ fontSize: 10.5, color: selectedEdge.learnable ? '#64d8a2' : '#77838c' }}>{selectedEdge.learnable ? t('inspector.learnable') : t('inspector.fixed')}</Typography>
+            <LearningTrace updates={learningUpdates.filter((update) => update.edge_id === selectedEdge.edge_id).slice(0, 5)} nodes={nodes} />
           </>
         )}
 
@@ -193,7 +197,7 @@ export function NodeInspector({
                 <Typography sx={{ color: edge.polarity === 'Excitatory' ? '#64d8a2' : '#ff6577', fontSize: 15 }}>{incoming ? '←' : '→'}</Typography>
                 <Box sx={{ minWidth: 0, flex: 1 }}>
                   <Typography noWrap sx={{ fontSize: 10.5, color: '#d0dce5' }}>{other ? translateLabel(other.label) : otherId}</Typography>
-                  <Typography sx={{ fontSize: 9.5, color: '#718392' }}>{edge.learn_type} · {edge.weight.toFixed(2)}</Typography>
+                  <Typography sx={{ fontSize: 9.5, color: '#718392' }}>{t(`graph.relation.${edge.learn_type}`, { defaultValue: t('graph.relation.association') })} · {edge.weight.toFixed(2)}</Typography>
                 </Box>
                 {edge.learnable && <Chip label={t('graph.edge.learnable')} size='small' sx={{ height: 18, fontSize: 8.5 }} />}
               </ButtonBase>

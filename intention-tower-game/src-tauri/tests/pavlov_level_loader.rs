@@ -311,11 +311,10 @@ mod tests {
             edges_with_classical.len()
         );
 
-        // Check edge weights — new edges start at 0.1 (REINFORCE_DELTA)
-        // Multiple trials should create multiple edges (one per observation instance)
+        // Repeated presentations reinforce one persistent percept identity.
         assert!(
-            learned_edges.len() >= 2,
-            "Should have at least 2 learned edges from multiple trials, got {}",
+            learned_edges.len() == 1,
+            "Should have one learned edge across repeated presentations, got {}",
             learned_edges.len()
         );
 
@@ -426,7 +425,7 @@ mod tests {
                 .mind_graph
                 .nodes
                 .values()
-                .filter(|n| n.node_type == NodeType::Observation)
+                .filter(|n| n.instance_id.starts_with("test-obs-"))
                 .all(|n| n.active),
             "attention allocation must not mutate node lifecycle"
         );

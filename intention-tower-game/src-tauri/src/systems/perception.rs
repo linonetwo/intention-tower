@@ -50,11 +50,9 @@ impl System for PerceptionSystem {
                         .collect();
                     for char_id in char_ids {
                         if let Some(character) = state.characters.get_mut(&char_id) {
-                            let instance_id = format!("perc_{}_{}", about, state.tick);
-                            // Avoid duplicates
-                            if character.mind_graph.nodes.contains_key(&instance_id) {
-                                continue;
-                            }
+                            // One percept identity survives repeated presentations;
+                            // otherwise each sound produces an untrainable new edge.
+                            let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));
                             let mod_enum = match modality.as_str() {
                                 "Auditory" => Modality::Auditory,
                                 "Visual" => Modality::Visual,
@@ -74,7 +72,7 @@ impl System for PerceptionSystem {
                                 attended: true,
                                 suppression: 0.0,
                                 created_at: state.tick,
-                                ttl: Some(300),
+                                ttl: Some(10),
                                 hidden_by_default: false,
                                 thresholds: Vec::new(),
                                 costs: Vec::new(),
@@ -111,10 +109,7 @@ impl System for PerceptionSystem {
                     let char_ids: Vec<String> = state.characters.keys().cloned().collect();
                     for char_id in char_ids {
                         if let Some(character) = state.characters.get_mut(&char_id) {
-                            let instance_id = format!("perc_food_{}_{}", about, state.tick);
-                            if character.mind_graph.nodes.contains_key(&instance_id) {
-                                continue;
-                            }
+                            let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));
                             let node = MindNode {
                                 instance_id: instance_id.clone(),
                                 schema_id: about.clone(),
@@ -127,7 +122,7 @@ impl System for PerceptionSystem {
                                 attended: true,
                                 suppression: 0.0,
                                 created_at: state.tick,
-                                ttl: Some(300),
+                                ttl: Some(10),
                                 hidden_by_default: false,
                                 thresholds: Vec::new(),
                                 costs: Vec::new(),

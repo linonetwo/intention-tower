@@ -66,6 +66,22 @@ impl System for CommandSystem {
                                 let instance_id = format!("obs_{}", sanitized);
                                 let already_exists =
                                     character.mind_graph.nodes.contains_key(&instance_id);
+                                let old_value = character
+                                    .mind_graph
+                                    .nodes
+                                    .get(&instance_id)
+                                    .map_or(0.0, |node| node.value);
+                                let was_active = character
+                                    .mind_graph
+                                    .nodes
+                                    .get(&instance_id)
+                                    .is_some_and(|node| node.active);
+                                let satisfaction = character
+                                    .mind_graph
+                                    .nodes
+                                    .get(&instance_id)
+                                    .and_then(|node| node.observation.as_ref())
+                                    .map_or(0.0, |observation| observation.satisfaction);
                                 let node = MindNode {
                                     instance_id: instance_id.clone(),
                                     schema_id: schema_id.clone(),
@@ -91,7 +107,7 @@ impl System for CommandSystem {
                                             about
                                         )),
                                         credibility: 1.0,
-                                        satisfaction: 0.0,
+                                        satisfaction,
                                         source: Some(if state.in_virtual_context {
                                             ObservationSource::Virtual
                                         } else {
@@ -120,10 +136,16 @@ impl System for CommandSystem {
                                     // Refreshed an existing obs node
                                     state.pending_events.push(WorldEvent::NodeValueChanged {
                                         character_id: char_id.to_string(),
-                                        instance_id,
-                                        old_value: 0.0,
+                                        instance_id: instance_id.clone(),
+                                        old_value,
                                         new_value: 1.0,
                                     });
+                                    if !was_active {
+                                        state.pending_events.push(WorldEvent::NodeActivated {
+                                            character_id: char_id.to_string(),
+                                            instance_id,
+                                        });
+                                    }
                                 } else {
                                     state.pending_events.push(WorldEvent::NodeSpawned {
                                         character_id: char_id.to_string(),

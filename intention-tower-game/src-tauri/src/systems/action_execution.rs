@@ -55,6 +55,16 @@ impl System for ActionExecutionSystem {
                 let threshold = 0.3;
                 if let Some(node) = character.mind_graph.nodes.get_mut(&action_id) {
                     let was_active = node.active;
+                    let old_value = node.value;
+                    node.value = total_input.clamp(0.0, 1.0);
+                    if (node.value - old_value).abs() > 1e-8 {
+                        state.pending_events.push(WorldEvent::NodeValueChanged {
+                            character_id: char_id.clone(),
+                            instance_id: action_id.clone(),
+                            old_value,
+                            new_value: node.value,
+                        });
+                    }
                     node.active = total_input >= threshold;
                     if node.active && !was_active {
                         state.pending_events.push(WorldEvent::NodeActivated {
@@ -67,6 +77,42 @@ impl System for ActionExecutionSystem {
                             instance_id: action_id.clone(),
                         });
                     }
+                }
+            }
+
+            // Evidence comes from the executed response, never from command
+            // counts or an active hunger motivation. Reward-free for the whole
+            // eligibility window is checked when the trial settles.
+            let reward_present = character.mind_graph.nodes.values().any(|node| {
+                node.active
+                    && node.attended
+                    && node.node_type == NodeType::Observation
+                    && super::classical_conditioning::intrinsic_reward(
+                        &character.mind_graph,
+                        &node.instance_id,
+                    ) > 0.0
+            });
+            for trial in &mut character.mind_graph.conditioning_trials {
+                let cue_present = character
+                    .mind_graph
+                    .nodes
+                    .get(&trial.source_id)
+                    .is_some_and(|node| {
+                        node.active && node.attended && node.created_at == trial.started_at
+                    });
+                let response = character
+                    .mind_graph
+                    .nodes
+                    .get(&trial.target_id)
+                    .is_some_and(|node| node.active && node.attended);
+                let association = character.mind_graph.edges.values().any(|edge| {
+                    edge.learnable
+                        && edge.source_instance_id == trial.source_id
+                        && edge.target_instance_id == trial.target_id
+                        && edge.weight >= 0.3
+                });
+                if cue_present && response && association && !reward_present {
+                    trial.responded = true;
                 }
             }
         }

@@ -1,8 +1,9 @@
-import { readdir } from 'node:fs/promises';
+import { readdir, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const endpoint = process.env.MCP_URL ?? 'http://127.0.0.1:9222/mcp';
 let sequence = 1;
+const results = [];
 
 async function call(name, args = {}) {
   const response = await fetch(endpoint, {
@@ -69,9 +70,18 @@ async function playLevel(levelId) {
   await call('load_level', { level_id: levelId });
   await call('set_time_speed', { speed: 0 });
   if (levelId === 'pavlov') {
-    // The dog starts below its hunger threshold. Let the physiological state
-    // become trainable before alternating bell and food commands.
-    for (let tick = 0; tick < 40; tick += 1) await call('step_tick');
+    const execute = command_id => call('execute_command', { command_id, actor_id: 'pavlov', target_id: 'dog' });
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
+    for (let trial = 0; trial < 5; trial++) {
+      await execute('ring-bell'); await advance(1);
+      await execute('feed'); await advance(11);
+    }
+    await execute('ring-bell'); await advance(11);
+    const trained = await call('snapshot');
+    if (trained.progress.status !== 'Won') throw new Error('pavlov: real independent conditioned response did not win');
+    results.push({ levelId, tick: trained.tick, status: trained.progress.status, conditioning: trained.characters.dog.mind_graph.conditioning_stats });
+    console.log(`MCP verified pavlov with paired training and independent bell in ${trained.tick} ticks`);
+    return;
   }
   let world = await call('snapshot');
   const actorId = world.default_actor_id ?? Object.keys(world.characters)[0];
@@ -138,6 +148,7 @@ async function playLevel(levelId) {
     throw new Error(`${levelId}: status=${world.progress.status}, incomplete=${incomplete.join(',')}`);
   }
   console.log(`MCP verified ${levelId} in ${world.tick} ticks`);
+  results.push({ levelId, tick: world.tick, status: world.progress.status });
 }
 
 await call('health');
@@ -147,5 +158,10 @@ const levelIds = (await readdir(levelsRoot, { withFileTypes: true }))
   .map((entry) => entry.name)
   .sort();
 if (levelIds.length !== 21) throw new Error(`expected 21 levels, found ${levelIds.length}`);
-for (const levelId of levelIds) await playLevel(levelId);
+await mkdir('verification-evidence', { recursive: true });
+try {
+  for (const levelId of levelIds) await playLevel(levelId);
+} finally {
+  await writeFile('verification-evidence/all-levels.json', JSON.stringify({ expectedLevels: levelIds.length, results }, null, 2));
+}
 console.log(`MCP verified all ${levelIds.length} levels`);

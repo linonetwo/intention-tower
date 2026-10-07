@@ -67,6 +67,16 @@ afterEach(() => {
 });
 
 describe('Neo4j/Palantir mind graph workbench', () => {
+  it('shows real extinction error and dopamine expenditure in the graph and inspector', () => {
+    render(<MindGraphWorkbench character={character} levelId='test-level' graphWidth={760} graphHeight={520}
+      recentEvents={[{ LearningUpdated: { character_id: 'player', edge_id: 'relation', source_id: 'signal', target_id: 'desire', reward: 0, prediction: 0.7, prediction_error: -0.7, dopamine_spent: 0.03, old_weight: 0.85, new_weight: 0.7, phase: 'extinguished' } }]} />);
+    expect(screen.getByTestId('graph-learning-trace').textContent).toContain('-0.700');
+    expect(screen.getByTestId('graph-learning-trace').textContent).toContain('0.030');
+    expect(screen.getByTestId('graph-learning-trace').textContent).toContain('Signal → Desire');
+    expect(screen.getByTestId('graph-learning-trace').textContent).not.toContain('signal → desire');
+    fireEvent.click(screen.getByRole('button', { name: /^从 Signal 到 Desire/ }));
+    expect(screen.getAllByTestId('graph-learning-trace')).toHaveLength(2);
+  });
   it('switches layouts, searches objects, and opens the relationship-aware inspector', async () => {
     render(
       <MindGraphWorkbench

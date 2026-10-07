@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import type { AssociationEdge, MindNode, NodeType } from '../../../types/backend';
 import {
   computeMindGraphLayout,
   loadPersistedGraphPositions,
   normalizeGraphPosition,
+  useFixedMindGraphLayout,
 } from './useFixedMindGraphLayout';
 
 function node(id: string, nodeType: NodeType, strength = 0.5): MindNode {
@@ -71,6 +73,18 @@ const schemaToCell = new Map([
 
 describe('headless mind graph layout', () => {
   beforeEach(() => localStorage.clear());
+
+  it('updates live activation without moving nodes when relationships change', () => {
+    const { result, rerender } = renderHook(({ liveNodes, liveEdges }) => useFixedMindGraphLayout(
+      liveNodes, liveEdges, 900, 620, schemaToCell, 'network',
+    ), { initialProps: { liveNodes: nodes, liveEdges: edges } });
+    const positions = result.current.nodes.map(({ x, y }) => ({ x, y }));
+    rerender({ liveNodes: nodes.map((item) => ({ ...item, value: 0.1, active: false })), liveEdges: [...edges, edge('new-learning-relation', 'observation', 'action', 0.2)] });
+    expect(result.current.nodes.map(({ x, y }) => ({ x, y }))).toEqual(positions);
+    expect(result.current.nodes.every((item) => item.value === 0.1 && !item.active)).toBe(true);
+    expect(result.current.edges).toHaveLength(edges.length + 1);
+    expect(result.current.edges.at(-1)?.edge_id).toBe('new-learning-relation');
+  });
 
   it('is deterministic and keeps every node inside the React SVG canvas', () => {
     const first = computeMindGraphLayout(nodes, edges, 900, 620, schemaToCell, 'network');

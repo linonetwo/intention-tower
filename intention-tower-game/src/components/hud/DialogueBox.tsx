@@ -121,6 +121,8 @@ export const DialogueBox: React.FC = () => {
 
   return (
     <Box
+      data-testid="dialogue-hud"
+      data-expanded={expanded}
       sx={{
         position: 'absolute',
         bottom: 0,
@@ -128,11 +130,13 @@ export const DialogueBox: React.FC = () => {
         right: 0,
         pointerEvents: 'auto',
         zIndex: 15,
+        maxHeight: `${layout.dialogueHeight}dvh`,
       }}
     >
       {/* Collapse toggle */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: -0.5 }}>
         <IconButton
+          data-testid="dialogue-toggle"
           size="small"
           onClick={() => setExpanded(!expanded)}
           sx={{
@@ -155,7 +159,9 @@ export const DialogueBox: React.FC = () => {
           borderTop: '1px solid rgba(83,109,254,0.3)',
           px: layout.isMobile ? 1 : 2,
           py: expanded ? 1.5 : 0.5,
-          maxHeight: expanded ? `${layout.dialogueHeight}vh` : 36,
+          // Include padding and the toggle in the reserved dialogue footprint.
+          boxSizing: 'border-box',
+          maxHeight: expanded ? `calc(${layout.dialogueHeight}dvh - 24px)` : 36,
           overflow: 'auto',
           transition: 'max-height 0.3s ease',
         }}
@@ -218,6 +224,7 @@ export const DialogueBox: React.FC = () => {
                 return (
                   <Box key={cmd.command_id}>
                     <Button
+                      data-testid={`command-${cmd.command_id}`}
                       variant="text"
                       size="small"
                       fullWidth

@@ -15,7 +15,7 @@ export const ObjectiveHud: React.FC = () => {
   const { t } = useTranslation();
   const layout = useResponsiveLayout();
   const progress = useGameState((state) => state.worldState?.progress);
-  const [expanded, setExpanded] = useState(!layout.isMobile);
+  const [expanded, setExpanded] = useState(false);
 
   const counts = useMemo(() => {
     const required = progress?.objectives.filter((objective) => objective.required) ?? [];
@@ -70,7 +70,7 @@ export const ObjectiveHud: React.FC = () => {
         sx={{ height: 2, bgcolor: 'rgba(255,255,255,0.05)', '& .MuiLinearProgress-bar': { bgcolor: '#7387ff' } }}
       />
       <Collapse in={expanded}>
-        <Box sx={{ px: 1.25, py: 0.8, display: 'flex', flexDirection: 'column', gap: 0.65 }}>
+        <Box sx={{ px: 1.25, py: 0.8, display: 'flex', flexDirection: 'column', gap: 0.65, maxHeight: '20dvh', overflowY: 'auto' }}>
           {progress.objectives.map((objective) => (
             <Box key={objective.objective_id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.65 }}>
               {objective.completed

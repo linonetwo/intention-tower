@@ -5,6 +5,15 @@
   "belongsToCharacter": "it:entity/dog",
   "nodes": [
     {
+      "instanceId": "obs_it_concept_see-food",
+      "schemaId": "it:concept/see-food",
+      "nodeType": "Observation",
+      "value": 0.0,
+      "strength": 1.0,
+      "active": false,
+      "it:observation": { "modality": "Olfactory", "about": "schema:Food", "satisfaction": 1.0 }
+    },
+    {
       "instanceId": "dog-hunger",
       "schemaId": "it:concept/hunger",
       "nodeType": "PriorInstinct",
@@ -115,8 +124,8 @@
       "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 10.0 }
     },
     {
-      "edgeId": "want-eat-to-salivate",
-      "sourceInstanceId": "__managed:hunger-spawn-want-eat",
+      "edgeId": "food-to-salivate",
+      "sourceInstanceId": "obs_it_concept_see-food",
       "targetInstanceId": "dog-salivate",
       "polarity": "Excitatory",
       "weight": 0.9,

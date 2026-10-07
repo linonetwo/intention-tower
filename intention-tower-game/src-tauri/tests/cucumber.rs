@@ -418,6 +418,42 @@ async fn edge_weight_lt(
 }
 
 /// 检查某角色是否至少有 N 条可学习的边
+#[then(expr = "{string} 应有阶段为 {string} 的真实奖励预测误差学习事件")]
+async fn learning_prediction_error_event(world: &mut GameWorld, character: String, phase: String) {
+    let events = world
+        .mcp_call("get_event_log", json!({ "last_n": 10000 }))
+        .await
+        .expect("查询学习事件失败");
+    let updates: Vec<_> = events
+        .as_array()
+        .expect("事件结果不是数组")
+        .iter()
+        .filter_map(|event| event.get("LearningUpdated"))
+        .filter(|event| event["character_id"] == character && event["phase"] == phase)
+        .collect();
+    assert!(
+        !updates.is_empty(),
+        "缺少 {} 的 {} RPE事件",
+        character,
+        phase
+    );
+    for event in updates {
+        let reward = event["reward"].as_f64().unwrap();
+        let prediction = event["prediction"].as_f64().unwrap();
+        let error = event["prediction_error"].as_f64().unwrap();
+        let old = event["old_weight"].as_f64().unwrap();
+        let new = event["new_weight"].as_f64().unwrap();
+        let cost = event["dopamine_spent"].as_f64().unwrap();
+        assert!((error - (reward - prediction)).abs() < 1e-9);
+        assert!(cost > 0.0 && (new - old).abs() > 0.0);
+        if phase == "extinguished" {
+            assert!(error < 0.0 && new < old);
+        } else {
+            assert!(error > 0.0 && new > old);
+        }
+    }
+}
+
 #[then(expr = "{string} 应至少有 {int} 条可学习边")]
 async fn has_learnable_edges(world: &mut GameWorld, character: String, min_count: usize) {
     let edges = world.get_edges(&character).await.expect("查询边失败");

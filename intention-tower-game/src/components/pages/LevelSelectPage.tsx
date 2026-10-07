@@ -24,6 +24,7 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
 
   return (
     <Paper
+      data-testid={`level-card-${level.id}`}
       elevation={0}
       onClick={() => !loading && onSelect(level.id)}
       sx={{

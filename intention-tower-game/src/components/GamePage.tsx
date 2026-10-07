@@ -1,5 +1,5 @@
 /**
- * GamePage — map-centric game interface with PixiJS scene and HUD overlays.
+ * GamePage — horizontal full-body world stage with HUD overlays.
  *
  * Layout (desktop):
  * ┌──────────────────────────────────────────────────────────┐
@@ -29,12 +29,10 @@ import { MiniMapHud } from './hud/MiniMapHud';
 import { DialogueBox } from './hud/DialogueBox';
 import { MobileStatusBar } from './hud/MobileStatusBar';
 import { ObjectiveHud } from './hud/ObjectiveHud';
-import { MicroControlPad } from './hud/MicroControlPad';
 import { EconomyHud } from './hud/EconomyHud';
 
 // Overlay components
 import { MindGraphOverlay } from './overlay/MindGraphOverlay';
-import { CharacterPortrait } from './overlay/CharacterPortrait';
 import { SceneContextMenu } from './overlay/SceneContextMenu';
 import { LevelOutcomeOverlay } from './overlay/LevelOutcomeOverlay';
 
@@ -124,7 +122,7 @@ export const GamePage: React.FC = () => {
         color: '#ddd',
       }}
     >
-      {/* ── Layer 0: PixiJS Scene (full screen canvas) ── */}
+      {/* ── Layer 0: world stage; safe area excludes status and dialogue HUDs ── */}
       <Box sx={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <GameScene width={canvasSize.width} height={canvasSize.height} />
       </Box>
@@ -146,14 +144,11 @@ export const GamePage: React.FC = () => {
         {/* Backend-driven level goals */}
         <ObjectiveHud />
 
-        {/* Touch movement in micro-control mode */}
-        <MicroControlPad />
+        {/* Movement controls are embedded in the stage safe area on all devices. */}
 
         {/* Data-driven economy appears only in levels with authored assets */}
         <EconomyHud />
 
-        {/* Character portraits */}
-        <CharacterPortrait />
 
         {/* Dialogue box (bottom) */}
         <DialogueBox />
