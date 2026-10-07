@@ -1,6 +1,34 @@
 # 正式素材试玩验收
 
+## 最新增量：真实雏鹅印刻与跟随
+
+验收提交：`fd2890c`。[最新 CI 全部通过](https://github.com/linonetwo/intention-tower/actions/runs/37696258785)。
+
+- [下载最新 Linux 核心＋网页试玩包](https://github.com/linonetwo/intention-tower/actions/runs/37696258785/artifacts/11515029310)：Linux、Node 22，解压后按包内 README 启动，无需编译或安装依赖。
+- [下载最新浏览器截图与权威报告](https://github.com/linonetwo/intention-tower/actions/runs/37696258785/artifacts/11515547350)。
+
+雏鹅：选择洛伦兹和雏鹅，关闭自动步进；“靠近雏鹅”后步进 1 次，
+图谱出现固定印刻对象，消耗 0.2 多巴胺。“远离”后步进 1 次，再步进 12 次，
+可看到真实位置追随并通关。Q 切换微操观察；先展示诱饵会固定错误对象，需要重开。
+实测洛伦兹从 x=200 移至 160，雏鹅从 x=400 追至 240，累计追近 160、
+8 次真实移动，最后距离 80。关键期外、资源不足、无关刺激和假命令计数不能代替印刻。
+
+34 个前端测试、58 个 Rust 测试、21 个 BDD 场景／125 个步骤通过。
+21 关现有 MCP 路线及桌面／手机视口通过；新增雏鹅学习阶段后共 104 张实际截图。
+这些证据不意味着全部关卡的 Wiki 设计已经实现，尚缺的行为机制列于 todo。
+
+以下两张截图取自首次验收 CI `37694606693`；该轮浏览器验收通过，
+随后只修复了 BDD 查询完整印刻证据的方法，游戏实现未改变。
+
+![真实印刻后的图谱与多巴胺](gosling-imprint.png)
+
+![手机雏鹅场景](mobile-gosling.png)
+
+## 三平台安装包：上一批试玩版本
+
 游戏版本：0.9.0。验收提交：`75bd230`。
+
+以下安装包不包含本次雏鹅增量；为节省 CI，本批未重复打包。
 
 - [完整 CI 与浏览器证据](https://github.com/linonetwo/intention-tower/actions/runs/37685731500)
 - [桌面安装包构建](https://github.com/linonetwo/intention-tower/actions/runs/37686641530)
