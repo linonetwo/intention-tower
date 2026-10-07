@@ -5,6 +5,8 @@ use intention_tower_game_lib::level_loader::load_level_from_path;
 use intention_tower_game_lib::models::commands::CommandDTO;
 use intention_tower_game_lib::models::events::WorldEvent;
 use intention_tower_game_lib::models::mind_node::LearnType;
+use intention_tower_game_lib::models::mind_node::{NodeType, ObservationData};
+use intention_tower_game_lib::models::progress::LevelStatus;
 use intention_tower_game_lib::models::world_state::WorldState;
 use intention_tower_game_lib::systems::runner::SimulationRunner;
 use std::path::Path;
@@ -45,7 +47,9 @@ fn pair(state: &mut WorldState) {
     command(state, "demonstrate-press");
     ticks(state, 1);
     command(state, "feed");
-    ticks(state, 11);
+    // Reward presentation tick plus eleven ordinary ticks, matching the full
+    // shipped route and its public-action cadence (not just first reward).
+    ticks(state, 12);
 }
 fn learned_count(state: &WorldState) -> usize {
     state.characters["cat-billi"]
@@ -211,4 +215,95 @@ fn unrewarded_real_presses_do_not_create_operant_credit() {
         .edges
         .values()
         .all(|edge| edge.learn_type != LearnType::Operant));
+}
+
+#[test]
+fn selected_action_gate_is_typed_and_cannot_be_shadowed_or_satisfied_by_an_observation() {
+    let mut state = world();
+    let graph = &mut state.characters.get_mut("cat-billi").unwrap().mind_graph;
+    let action = graph.nodes.get_mut("cat-press-button").unwrap();
+    action.value = 0.4;
+    action.active = true;
+    action.attended = true;
+    action.action.as_mut().unwrap().selected = true;
+    let mut echo = action.clone();
+    echo.instance_id = "obs_it_concept_press-button".into();
+    echo.node_type = NodeType::Observation;
+    echo.value = 1.0;
+    echo.action = None;
+    echo.observation = Some(ObservationData::default());
+    graph.add_node(echo);
+    assert!(
+        available(&state, "feed-after-press"),
+        "same-schema observation must not shadow the real selected action"
+    );
+    state
+        .characters
+        .get_mut("cat-billi")
+        .unwrap()
+        .mind_graph
+        .nodes
+        .get_mut("cat-press-button")
+        .unwrap()
+        .action
+        .as_mut()
+        .unwrap()
+        .selected = false;
+    assert!(
+        !available(&state, "feed-after-press"),
+        "active same-schema observation cannot impersonate an executed action"
+    );
+}
+
+#[test]
+fn full_three_contingent_reward_route_stays_valid_with_public_action_feedback() {
+    let mut state = world();
+    command(&mut state, "show-button");
+    ticks(&mut state, 1);
+    for _ in 0..3 {
+        pair(&mut state);
+    }
+    assert_eq!(state.tick, 40);
+    for trial in 1..=3 {
+        command(&mut state, "demonstrate-press");
+        ticks(&mut state, 2);
+        let graph = &state.characters["cat-billi"].mind_graph;
+        let action = &graph.nodes["cat-press-button"];
+        assert!(
+            action.active
+                && action.attended
+                && action.action.as_ref().unwrap().selected
+                && action.value >= 0.3,
+            "trial {trial} tick {}: actual press {:?}, attention {}",
+            state.tick,
+            action,
+            graph.nodes["cat-attention"].value
+        );
+        assert!(
+            available(&state, "feed-after-press"),
+            "trial {trial} tick {}: typed selected action gate rejected actual execution",
+            state.tick
+        );
+        if trial == 2 {
+            // At tick45 the real action is visible as a same-schema public
+            // observation. This was the shipped-route-only regression.
+            assert_eq!(state.tick, 45);
+            assert_eq!(
+                graph.nodes["obs_it_concept_press-button"].node_type,
+                NodeType::Observation
+            );
+        }
+        command(&mut state, "feed-after-press");
+        ticks(&mut state, 1);
+        if trial < 3 {
+            assert_eq!(state.progress.status, LevelStatus::InProgress);
+        }
+    }
+    assert_eq!(state.progress.status, LevelStatus::Won);
+    assert_eq!(state.progress.command_counts["feed-after-press"], 3);
+    assert!(state.characters["cat-billi"]
+        .mind_graph
+        .edges
+        .values()
+        .any(|edge| edge.learnable && edge.learn_type == LearnType::Operant && edge.weight > 0.0));
 }

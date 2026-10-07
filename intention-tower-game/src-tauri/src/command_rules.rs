@@ -1,4 +1,5 @@
 use crate::models::commands::{CommandDef, Precondition, TargetingMode};
+use crate::models::mind_node::NodeType;
 use crate::models::progress::LevelStatus;
 use crate::models::world_state::WorldState;
 
@@ -31,14 +32,17 @@ pub fn check_precondition(
             .is_some_and(|node| op.evaluate(node.value, *threshold)),
         Precondition::TargetActionSelected { schema_id } => target_id
             .and_then(|id| world.characters.get(id))
-            .and_then(|character| character.mind_graph.find_by_schema(schema_id))
-            .is_some_and(|node| {
-                node.active
-                    && node.attended
-                    && node
-                        .action
-                        .as_ref()
-                        .is_some_and(|action| !action.innate && action.selected)
+            .is_some_and(|character| {
+                character.mind_graph.nodes.values().any(|node| {
+                    node.schema_id == *schema_id
+                        && node.node_type == NodeType::Action
+                        && node.active
+                        && node.attended
+                        && node
+                            .action
+                            .as_ref()
+                            .is_some_and(|action| !action.innate && action.selected)
+                })
             }),
         Precondition::ActorResource {
             resource_schema_id,

@@ -2,12 +2,42 @@
 // UI tools operate the real Chromium page and screenshots capture its compositor.
 import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
+import { access } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { delimiter, resolve } from 'node:path';
 import { servePlaytest } from './serve-playtest.mjs';
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : 'playwright');
+async function launchBrowser() {
+  const configured = process.env.CHROMIUM_EXECUTABLE_PATH;
+  if (configured) {
+    console.error(`[browser] Explicit executable: ${configured}`);
+    return { browser: await chromium.launch({ headless: true, timeout: 20000, ...(configured === 'playwright-bundled' ? {} : { executablePath: configured }) }), executable: configured };
+  }
+  const candidates = [...new Set([
+    '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/opt/google/chrome/chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser',
+    ...(process.env.PATH ?? '').split(delimiter).flatMap(directory => ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'].map(name => resolve(directory, name))),
+  ])];
+  for (const executable of candidates) {
+    try { await access(executable, constants.X_OK); } catch { continue; }
+    try {
+      const browser = await chromium.launch({ executablePath: executable, headless: true, timeout: 15000 });
+      console.error(`[browser] Verified system browser: ${executable}`);
+      return { browser, executable };
+    } catch (error) { console.error(`[browser] Cannot launch ${executable}: ${String(error)}`); }
+  }
+  // The official Playwright browser is a real-browser fallback, never a mock.
+  console.error('[browser] No usable system Chrome; probing Playwright bundled Chromium');
+  return { browser: await chromium.launch({ headless: true, timeout: 20000 }), executable: 'playwright-bundled' };
+}
+if (process.argv.includes('--probe-browser')) {
+  try { const result = await launchBrowser(); await result.browser.close(); console.log(result.executable); }
+  catch (error) { console.error(`[browser] Browser unavailable: ${String(error)}`); process.exitCode = 1; }
+} else {
 const core = process.env.MCP_URL ?? 'http://127.0.0.1:9222/mcp';
+const { browser, executable } = await launchBrowser();
+console.log(`[browser] Screenshot renderer: ${executable}`);
 const web = servePlaytest();
-const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on('pageerror', error => errors.push(String(error)));
@@ -60,3 +90,4 @@ console.log('Browser MCP: http://127.0.0.1:9233/mcp');
 async function close() { server.close(); web.close(); await browser.close(); process.exit(0); }
 process.on('SIGTERM', close);
 process.on('SIGINT', close);
+}

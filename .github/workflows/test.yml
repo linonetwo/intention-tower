@@ -131,12 +131,23 @@ jobs:
 
       - name: Install CI-only browser tooling
         id: browser_dependencies
+        timeout-minutes: 7
         if: ${{ !cancelled() && steps.core_start.outcome == 'success' && steps.web_build.outcome == 'success' }}
         run: |
-          npm install --prefix .verification-tools --no-package-lock --no-save playwright@1.58.2
-          .verification-tools/node_modules/.bin/playwright install --with-deps chromium
+          timeout --kill-after=10s 120s npm install --prefix .verification-tools --no-package-lock --no-save --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000 playwright@1.58.2
+          export PLAYWRIGHT_MODULE="$PWD/.verification-tools/node_modules/playwright/index.mjs"
+          if browser_executable=$(timeout --kill-after=5s 60s node scripts/browser-mcp.mjs --probe-browser); then
+            echo "Reusing launch-verified browser: $browser_executable"
+          else
+            echo "No usable existing browser. Downloading only the real Chromium headless shell (no apt install)."
+            export PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=20000
+            timeout --kill-after=10s 180s .verification-tools/node_modules/.bin/playwright install --only-shell chromium
+            browser_executable=$(timeout --kill-after=5s 60s node scripts/browser-mcp.mjs --probe-browser)
+          fi
+          echo "CHROMIUM_EXECUTABLE_PATH=$browser_executable" >> "$GITHUB_ENV"
 
       - name: Real desktop and mobile UI playthrough via browser MCP adapter
+        timeout-minutes: 8
         if: ${{ !cancelled() && steps.core_start.outcome == 'success' && steps.web_build.outcome == 'success' && steps.browser_dependencies.outcome == 'success' }}
         run: |
           export PLAYWRIGHT_MODULE="$PWD/.verification-tools/node_modules/playwright/index.mjs"
