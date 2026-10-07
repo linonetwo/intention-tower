@@ -3,7 +3,7 @@
   "name": "Intention Tower Production Art Pack",
   "provider": "OpenAI GPT Image 2 via Codex Responses proxy",
   "model": "gpt-image-2",
-  "version": 1,
+  "version": 3,
   "generatedAt": "2026-09-16",
   "artDirection": "cinematic painterly realism, charcoal texture, restrained cyan and amber cognitive-network lighting",
   "portraits": {
@@ -961,5 +961,669 @@
       "generator": "proxy-imagegen",
       "model": "gpt-image-2"
     }
-  ]
+  ],
+  "spritesByCharacter": {
+    "it:entity/pavlov": {
+      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "pavlov": {
+      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/lorenz": {
+      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "lorenz": {
+      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/hines": {
+      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "hines": {
+      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/dog": {
+      "src": "/mods/gpt-image-2-pack/sprites/dog.png",
+      "height": 90,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "dog": {
+      "src": "/mods/gpt-image-2-pack/sprites/dog.png",
+      "height": 90,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/student-worker": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "student-worker": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/student-b": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "student-b": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/clone-b": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "clone-b": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/tim": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "tim": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/student-a": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "student-a": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/addict-teen": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "addict-teen": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/protagonist": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "protagonist": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/clone-a": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "clone-a": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/clone-c": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "clone-c": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/friend": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "friend": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/victim": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "victim": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/subject": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "subject": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/trapped-person": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "trapped-person": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/meme-target": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "meme-target": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/investigator": {
+      "src": "/mods/gpt-image-2-pack/sprites/investigator.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "investigator": {
+      "src": "/mods/gpt-image-2-pack/sprites/investigator.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/player": {
+      "src": "/mods/gpt-image-2-pack/sprites/investigator.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "player": {
+      "src": "/mods/gpt-image-2-pack/sprites/investigator.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/antimeme-agent": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "antimeme-agent": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/player-agent": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "player-agent": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/ally-agent": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "ally-agent": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/enemy-target": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "enemy-target": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/player-capitalist": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "player-capitalist": {
+      "src": "/mods/gpt-image-2-pack/sprites/agent.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/teacher-wenger": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "teacher-wenger": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/trainer": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "trainer": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/meme-engineer": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "meme-engineer": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/illusionist": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "illusionist": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/ideologue": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "ideologue": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/skeptic": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "skeptic": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/magic-merchant": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "magic-merchant": {
+      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/bystander": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "bystander": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/citizen-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "citizen-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/citizen-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "citizen-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/citizen-3": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "citizen-3": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/citizen-4": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "citizen-4": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/citizen-5": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "citizen-5": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/luddite-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "luddite-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/luddite-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "luddite-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/energy-employee": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "energy-employee": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/believer": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "believer": {
+      "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/chen-sheng": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "chen-sheng": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/wu-guang": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "wu-guang": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/soldier-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "soldier-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/soldier-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "soldier-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/soldier-3": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "soldier-3": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/vagrant-leader": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "vagrant-leader": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/vagrant-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "vagrant-1": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/vagrant-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "vagrant-2": {
+      "src": "/mods/gpt-image-2-pack/sprites/rebel.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/king": {
+      "src": "/mods/gpt-image-2-pack/sprites/king.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "king": {
+      "src": "/mods/gpt-image-2-pack/sprites/king.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/minister": {
+      "src": "/mods/gpt-image-2-pack/sprites/king.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "minister": {
+      "src": "/mods/gpt-image-2-pack/sprites/king.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/gosling": {
+      "src": "/mods/gpt-image-2-pack/sprites/gosling.png",
+      "height": 65,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "gosling": {
+      "src": "/mods/gpt-image-2-pack/sprites/gosling.png",
+      "height": 65,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/cat-billi": {
+      "src": "/mods/gpt-image-2-pack/sprites/cat.png",
+      "height": 90,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "cat-billi": {
+      "src": "/mods/gpt-image-2-pack/sprites/cat.png",
+      "height": 90,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "it:entity/hive-mind": {
+      "src": "/mods/gpt-image-2-pack/sprites/hive.png",
+      "height": 165,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
+    "hive-mind": {
+      "src": "/mods/gpt-image-2-pack/sprites/hive.png",
+      "height": 165,
+      "facing": "right",
+      "groundAnchor": 0.97
+    }
+  },
+  "spriteArtDirection": "Four-head-tall full-body anime side-scrolling characters; transparent generated RGBA atlas crops with intact feet.",
+  "spriteSource": "/mods/gpt-image-2-pack/sprites/ensemble-source.png"
 }

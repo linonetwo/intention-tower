@@ -41,6 +41,12 @@ impl System for CleanupSystem {
                     .any(|edge| edge.source_instance_id == id || edge.target_instance_id == id)
                     || character
                         .mind_graph
+                        .nodes
+                        .get(&id)
+                        .and_then(|node| node.observation.as_ref())
+                        .is_some_and(|observation| observation.presentation_count > 0)
+                    || character
+                        .mind_graph
                         .conditioning_trials
                         .iter()
                         .any(|trial| trial.source_id == id);

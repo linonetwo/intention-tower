@@ -123,6 +123,19 @@ fn forward_pairing_uses_diminishing_prediction_error_and_exact_dopamine_cost() {
         state.characters["dog"].mind_graph.conditioning_stats[EDGE].paired_trials,
         5
     );
+    let graph = &state.characters["dog"].mind_graph;
+    assert!(
+        graph
+            .edges
+            .values()
+            .filter(|edge| edge.learnable)
+            .all(|edge| edge.source_instance_id != "obs_it_concept_salivate"),
+        "public feedback about the dog's own response must not become a self-predicting cue"
+    );
+    assert!(graph
+        .conditioning_trials
+        .iter()
+        .all(|trial| trial.source_id != "obs_it_concept_salivate"));
 }
 
 #[test]

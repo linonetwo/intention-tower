@@ -29,7 +29,10 @@ impl System for MemeEmergenceSystem {
                     continue;
                 };
                 let entry = repeated.entry(about.clone()).or_insert((0, false, 0));
-                entry.0 += 1;
+                // A percept has a stable identity across refreshes. Counting
+                // node instances would erase repeated public behavior, while
+                // counting simulation ticks would fabricate repetitions.
+                entry.0 += observation.presentation_count.max(1) as usize;
                 entry.1 |= observation.is_signal;
                 entry.2 = entry.2.max(node.reality_layer);
             }

@@ -53,6 +53,12 @@ const edges: GraphEdge[] = [{
 afterEach(cleanup);
 
 describe('React-owned graph SVG', () => {
+  it('distinguishes an innate fixed reflex from a learned classical association', () => {
+    render(<GraphSvg nodes={nodes} edges={[{ ...edges[0], learnable: false, learn_type: 'Classical' }]} width={600} height={400}
+      selectedNodeId={null} selectedEdgeId={null} highlightedEdgeIds={new Set()} onSelectNode={vi.fn()} onSelectEdge={vi.fn()} onDeselect={vi.fn()} />);
+    expect(screen.getByText('+0.80 · 先天反射')).toBeTruthy();
+    expect(screen.queryByText(/条件联结/)).toBeNull();
+  });
   it('exposes keyboard-accessible nodes and relationships without D3 DOM ownership', () => {
     const onSelectNode = vi.fn();
     const onSelectEdge = vi.fn();

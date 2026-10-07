@@ -199,7 +199,7 @@ export function GraphSvg({
     const maxY = Math.max(...visibleNodes.map((node) => node.y + node.r + 45));
     const contentWidth = Math.max(1, maxX - minX);
     const contentHeight = Math.max(1, maxY - minY);
-    const scale = Math.max(0.28, Math.min(2.4, Math.min(width / contentWidth, height / contentHeight)));
+    const scale = Math.max(0.28, Math.min(1.35, Math.min(width / contentWidth, height / contentHeight)));
     return {
       scale,
       tx: width / 2 - ((minX + maxX) / 2) * scale,
@@ -443,7 +443,9 @@ export function GraphSvg({
               && !matchedNodeIds.has(target.instance_id);
             const dimmed = focusDimmed || searchDimmed;
             const showLabel = selected || highlighted || visibleEdges.length <= 14;
-            const phaseLabel = phase ? t(`graph.learning.${phase}`) : t(`graph.relation.${edge.learn_type}`, { defaultValue: t('graph.relation.association') });
+            const phaseLabel = !edge.learnable
+              ? t(edge.learn_type === 'Classical' ? 'graph.relation.innate' : 'graph.relation.fixed')
+              : phase ? t(`graph.learning.${phase}`) : t(`graph.relation.${edge.learn_type}`, { defaultValue: t('graph.relation.association') });
             const label = `${edge.polarity === 'Excitatory' ? '+' : '−'}${edge.weight.toFixed(2)} · ${phaseLabel}`;
             const relationLabelWidth = Math.max(78, [...label].reduce((sum, char) => sum + (char.charCodeAt(0) > 255 ? 8.5 : 4.5), 16));
             return (
@@ -508,7 +510,7 @@ export function GraphSvg({
             const searchDimmed = matchedNodeIds !== null && !matchedNodeIds.has(node.instance_id);
             const dimmed = focusDimmed || searchDimmed;
             const label = unknown ? t('graph.unknown') : translateLabel(node.label).slice(0, 18);
-            const labelWidth = Math.max(26, Math.min(126, label.length * 6.2 + 14));
+            const labelWidth = Math.max(26, [...label].reduce((sum, char) => sum + (char.charCodeAt(0) > 255 ? 11.5 : 6), 14));
             const circumference = 2 * Math.PI * (node.r + 4);
             return (
               <g
@@ -583,7 +585,7 @@ export function GraphSvg({
                 </text>
                 <g transform={`translate(0, ${node.r + 16})`} pointerEvents='none'>
                   <rect x={-labelWidth / 2} y={-9} width={labelWidth} height={18} rx={9} fill='rgba(4,8,13,0.9)' stroke={selected ? '#fff' : color} strokeOpacity={selected ? 0.9 : 0.42} />
-                  <text x={0} y={3.5} textAnchor='middle' fill='#e2e8f0' fontSize={9.5}>{label}</text>
+                  <text x={0} y={4} textAnchor='middle' fill='#e2e8f0' fontSize={11.5}>{label}</text>
                 </g>
               </g>
             );

@@ -48,6 +48,21 @@ impl MindGraph {
         self.nodes.insert(node.instance_id.clone(), node);
     }
 
+    pub fn next_presentation_count(&self, instance_id: &str, tick: u64) -> u32 {
+        let Some(node) = self.nodes.get(instance_id) else {
+            return 1;
+        };
+        let count = node
+            .observation
+            .as_ref()
+            .map_or(0, |observation| observation.presentation_count);
+        if count > 0 && node.created_at == tick {
+            count
+        } else {
+            count.saturating_add(1)
+        }
+    }
+
     pub fn remove_node(&mut self, instance_id: &str) -> Option<MindNode> {
         let node = self.nodes.remove(instance_id);
         // Also remove all edges connected to this node

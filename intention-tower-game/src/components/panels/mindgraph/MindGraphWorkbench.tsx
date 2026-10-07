@@ -58,6 +58,7 @@ export function MindGraphWorkbench({
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [hiddenTypes, setHiddenTypes] = useState<Set<NodeType>>(new Set());
   const [activeOnly, setActiveOnly] = useState(false);
+  const [showResources, setShowResources] = useState(false);
   const [query, setQuery] = useState('');
   const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>(readLayoutMode);
 
@@ -79,6 +80,10 @@ export function MindGraphWorkbench({
     return typeOrder[first.node_type] - typeOrder[second.node_type] || second.value - first.value;
   }), [graph.nodes]);
   const sortedEdges = useMemo(() => Object.values(graph.edges).sort((first, second) => second.weight - first.weight), [graph.edges]);
+  const compactInstinctIds = useMemo(() => {
+    const linked = new Set(sortedEdges.flatMap((edge) => [edge.source_instance_id, edge.target_instance_id]));
+    return new Set(sortedNodes.filter((node) => node.node_type === 'PriorInstinct' && !linked.has(node.instance_id)).map((node) => node.instance_id));
+  }, [sortedNodes, sortedEdges]);
 
   const discoveredNodeIds = useMemo(() => {
     const discovered = new Set<string>();
@@ -119,9 +124,9 @@ export function MindGraphWorkbench({
 
   const hiddenNodeIds = useMemo(() => new Set(
     fogNodes
-      .filter((node) => hiddenTypes.has(node.node_type) || (activeOnly && !node.active))
+      .filter((node) => hiddenTypes.has(node.node_type) || (activeOnly && !node.active) || (!showResources && compactInstinctIds.has(node.instance_id)))
       .map((node) => node.instance_id),
-  ), [activeOnly, fogNodes, hiddenTypes]);
+  ), [activeOnly, fogNodes, hiddenTypes, showResources, compactInstinctIds]);
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const matchedNodeIds = useMemo(() => {
@@ -271,6 +276,16 @@ export function MindGraphWorkbench({
             </Typography>
           )}
         </Box>
+        {compactInstinctIds.size > 0 && (
+          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mt: 0.6 }}>
+            {fogNodes.filter((node) => compactInstinctIds.has(node.instance_id) && !node.isUnknown).map((node) => (
+              <Chip key={node.instance_id} title={nodeTypeLabel(node.node_type)} label={`${translateLabel(node.label)} ${node.value.toFixed(2)}`} size='small'
+                sx={{ height: 22, fontSize: 10, color: '#c8b8dc', bgcolor: 'rgba(171,71,188,0.10)', border: '1px solid rgba(171,71,188,0.24)', fontVariantNumeric: 'tabular-nums' }} />
+            ))}
+            <Chip clickable data-testid='graph-toggle-resources' variant='outlined' size='small' onClick={() => setShowResources((value) => !value)}
+              label={t(showResources ? 'graph.resources.hide' : 'graph.resources.show')} sx={{ height: 22, fontSize: 10 }} />
+          </Box>
+        )}
       </Box>
       <Divider sx={{ borderColor: 'rgba(120,150,175,0.17)' }} />
       <LearningTrace updates={learningUpdates.slice(0, 3)} nodes={fogNodes} />

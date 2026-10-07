@@ -47,6 +47,7 @@ impl System for ClassicalConditioningSystem {
         let current_tick = state.tick;
         for character in state.characters.values_mut() {
             let graph = &mut character.mind_graph;
+            let character_id = &character.id;
             // Authored unconditioned stimulus -> response pathways determine
             // eligible targets. No character, food, bell or level ID is special.
             let mut targets: Vec<String> = graph
@@ -72,6 +73,10 @@ impl System for ClassicalConditioningSystem {
                         && node.active
                         && node.attended
                         && node.created_at == state.tick
+                        // Public feedback about our own response is not an
+                        // independent external predictor of its reward.
+                        && !node.observation.as_ref().is_some_and(|observation|
+                            observation.is_signal && observation.emitter_id.as_ref() == Some(character_id))
                         && intrinsic_reward(graph, &node.instance_id) == 0.0
                 })
                 .map(|node| node.instance_id.clone())

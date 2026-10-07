@@ -84,7 +84,7 @@ jobs:
 
       - name: Test authoritative Rust core
         if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.rust.outcome == 'success' }}
-        run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --lib --tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --lib --tests --no-fail-fast
 
       - name: Build standalone MCP core
         id: core_build

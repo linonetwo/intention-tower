@@ -67,6 +67,16 @@ afterEach(() => {
 });
 
 describe('Neo4j/Palantir mind graph workbench', () => {
+  it('keeps isolated resources as live badges while making their graph nodes opt-in', () => {
+    const resource = { ...node('dopamine', 'Dopamine'), node_type: 'PriorInstinct' as const,
+      prior_instinct: { is_resource: true, is_mood: false, set_point: 1, satisfied_by_about: [], brain_region: null, overridable_by_meme: false } };
+    const withResource = { ...character, mind_graph: { ...character.mind_graph, nodes: { ...character.mind_graph.nodes, dopamine: resource } } };
+    render(<MindGraphWorkbench character={withResource} levelId='test-level' recentEvents={[]} graphWidth={760} graphHeight={520} />);
+    expect(screen.getByText('Dopamine 0.70')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^Dopamine，/ })).toBeNull();
+    fireEvent.click(screen.getByTestId('graph-toggle-resources'));
+    expect(screen.getByRole('button', { name: /^Dopamine，/ })).toBeTruthy();
+  });
   it('shows real extinction error and dopamine expenditure in the graph and inspector', () => {
     render(<MindGraphWorkbench character={character} levelId='test-level' graphWidth={760} graphHeight={520}
       recentEvents={[{ LearningUpdated: { character_id: 'player', edge_id: 'relation', source_id: 'signal', target_id: 'desire', reward: 0, prediction: 0.7, prediction_error: -0.7, dopamine_spent: 0.03, old_weight: 0.85, new_weight: 0.7, phase: 'extinguished' } }]} />);

@@ -53,6 +53,9 @@ impl System for PerceptionSystem {
                             // One percept identity survives repeated presentations;
                             // otherwise each sound produces an untrainable new edge.
                             let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));
+                            let presentation_count = character
+                                .mind_graph
+                                .next_presentation_count(&instance_id, state.tick);
                             let mod_enum = match modality.as_str() {
                                 "Auditory" => Modality::Auditory,
                                 "Visual" => Modality::Visual,
@@ -77,6 +80,7 @@ impl System for PerceptionSystem {
                                 thresholds: Vec::new(),
                                 costs: Vec::new(),
                                 observation: Some(ObservationData {
+                                    presentation_count,
                                     modality: Some(mod_enum),
                                     about: Some(about.clone()),
                                     novelty_key: Some(format!("{}-{}", modality, about)),
@@ -110,6 +114,9 @@ impl System for PerceptionSystem {
                     for char_id in char_ids {
                         if let Some(character) = state.characters.get_mut(&char_id) {
                             let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));
+                            let presentation_count = character
+                                .mind_graph
+                                .next_presentation_count(&instance_id, state.tick);
                             let node = MindNode {
                                 instance_id: instance_id.clone(),
                                 schema_id: about.clone(),
@@ -127,6 +134,7 @@ impl System for PerceptionSystem {
                                 thresholds: Vec::new(),
                                 costs: Vec::new(),
                                 observation: Some(ObservationData {
+                                    presentation_count,
                                     modality: Some(Modality::Olfactory),
                                     about: Some(about.clone()),
                                     novelty_key: Some(format!("olfactory-{}", about)),

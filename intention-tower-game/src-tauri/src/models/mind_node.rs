@@ -122,6 +122,10 @@ pub struct ResourceCost {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ObservationData {
+    /// Number of distinct presentation ticks of this persistent percept.
+    /// Passive simulation ticks are not exposures; old saves default to zero.
+    #[serde(default)]
+    pub presentation_count: u32,
     pub modality: Option<Modality>,
     pub about: Option<String>,
     pub novelty_key: Option<String>,

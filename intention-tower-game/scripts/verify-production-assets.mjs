@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { decodeRgbaPng, alphaBounds } from './lib/png-rgba.mjs';
 
 const projectRoot = path.resolve(import.meta.dirname, '..');
 const packRoot = path.join(projectRoot, 'public/mods/gpt-image-2-pack');
@@ -69,6 +70,37 @@ for (const item of uniquePortraitItems) {
   if (typeof url === 'string') await verifyPng(url, 1254, 1254, `portrait ${item.charId}`);
 }
 
+const spriteUrls = new Set();
+for (const item of uniquePortraitItems) {
+  const sprite = manifest.spritesByCharacter?.[item.charId];
+  const shortId = item.charId.split('/').at(-1);
+  assert(sprite && typeof sprite.src === 'string', `missing full-body sprite mapping for ${item.charId}`);
+  assert(JSON.stringify(manifest.spritesByCharacter?.[shortId]) === JSON.stringify(sprite), `short sprite alias does not match for ${item.charId}`);
+  if (!sprite || typeof sprite.src !== 'string') continue;
+  assert(sprite.src.startsWith('/mods/gpt-image-2-pack/sprites/') && sprite.src.endsWith('.png'), `sprite is not production full-body PNG: ${item.charId}`);
+  assert(!sprite.src.includes('ensemble-source'), `sprite uses uncropped atlas: ${item.charId}`);
+  assert(Number.isFinite(sprite.height) && sprite.height >= 40 && sprite.height <= 240, `invalid sprite display height: ${item.charId}`);
+  assert(sprite.groundAnchor >= .9 && sprite.groundAnchor <= 1, `invalid sprite foot anchor: ${item.charId}`);
+  assert(['left', 'right'].includes(sprite.facing), `invalid sprite facing: ${item.charId}`);
+  spriteUrls.add(sprite.src);
+}
+assert(Object.keys(manifest.spritesByCharacter ?? {}).filter(id => id.startsWith('it:entity/')).length === 55, 'expected exactly 55 canonical full-body sprite mappings');
+for (const url of spriteUrls) {
+  try {
+    const image = decodeRgbaPng(await fs.readFile(path.join(packRoot, url.replace(/^\/mods\/gpt-image-2-pack\//, ''))));
+    assert(image.width >= 80 && image.height >= 80 && image.width <= 1600 && image.height <= 1600, `invalid sprite PNG dimensions ${image.width}×${image.height}: ${url}`);
+    let transparent = 0, visible = 0;
+    for (let offset = 3; offset < image.pixels.length; offset += 4) {
+      if (image.pixels[offset] === 0) transparent++;
+      if (image.pixels[offset] >= 128) visible++;
+    }
+    assert(transparent > image.width * image.height * .1, `sprite lacks a genuinely transparent background: ${url}`);
+    assert(visible > image.width * image.height * .1, `sprite lacks substantial visible character pixels: ${url}`);
+    const bounds = alphaBounds(image, 16);
+    assert(bounds && bounds.left > 0 && bounds.top > 0 && bounds.right < image.width - 1 && bounds.bottom < image.height - 1, `sprite silhouette touches crop edge: ${url}`);
+  } catch (error) { errors.push(`sprite cannot be verified: ${url} (${error.message})`); }
+}
+
 const hashes = new Map();
 for (const record of fileRecords) {
   const duplicate = hashes.get(record.hash);
@@ -85,5 +117,5 @@ if (errors.length > 0) {
   process.stderr.write(`Production asset verification failed:\n- ${errors.join('\n- ')}\n`);
   process.exitCode = 1;
 } else {
-  process.stdout.write(`Production assets verified: ${levelIds.length} backgrounds, ${uniquePortraitItems.length} portraits, ${fileRecords.length} unique PNG files.\n`);
+  process.stdout.write(`Production assets verified: ${levelIds.length} backgrounds, ${uniquePortraitItems.length} portraits, 55 mapped characters / ${spriteUrls.size} transparent full-body sprites, ${fileRecords.length} unique legacy PNG files.\n`);
 }

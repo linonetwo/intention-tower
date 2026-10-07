@@ -64,6 +64,9 @@ impl System for CommandSystem {
                                 // can accumulate over time and edges remain valid across rerings.
                                 let sanitized = schema_id.replace([':', '/'], "_");
                                 let instance_id = format!("obs_{}", sanitized);
+                                let presentation_count = character
+                                    .mind_graph
+                                    .next_presentation_count(&instance_id, state.tick);
                                 let already_exists =
                                     character.mind_graph.nodes.contains_key(&instance_id);
                                 let old_value = character
@@ -99,6 +102,7 @@ impl System for CommandSystem {
                                     thresholds: Vec::new(),
                                     costs: Vec::new(),
                                     observation: Some(ObservationData {
+                                        presentation_count,
                                         modality: Some(*modality),
                                         about: Some(about.clone()),
                                         novelty_key: Some(format!(

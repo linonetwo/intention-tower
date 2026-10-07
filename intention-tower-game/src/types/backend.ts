@@ -190,6 +190,7 @@ export interface ResourceCost {
 }
 
 export interface ObservationData {
+  presentation_count?: number;
   modality: string | null;
   about: string | null;
   novelty_key: string | null;

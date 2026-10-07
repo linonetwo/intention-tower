@@ -300,6 +300,11 @@ fn repeated_public_behavior_crystallizes_into_an_emergent_meme() {
     }
 
     MemeEmergenceSystem.run(&mut world, 0.0);
+    let percept = world.characters["dog"]
+        .mind_graph
+        .find_by_schema("it:concept/public-ritual")
+        .expect("persistent public percept");
+    assert_eq!(percept.observation.as_ref().unwrap().presentation_count, 3);
     let emergent = world.characters["dog"]
         .mind_graph
         .find_by_schema("it:emergent/it_concept_public_ritual")
@@ -312,6 +317,81 @@ fn repeated_public_behavior_crystallizes_into_an_emergent_meme() {
         emergent.meme.as_ref().expect("meme data").spread_vector,
         Some(intention_tower_game_lib::models::mind_node::SpreadVector::Language)
     );
+}
+
+#[test]
+fn one_public_presentation_and_passive_ticks_do_not_fabricate_an_emergent_meme() {
+    let mut world = load_level_from_path(&level_dir("pavlov")).expect("load pavlov");
+    world.tick = 1;
+    world.pending_events = vec![WorldEvent::SoundEmitted {
+        source_entity_id: "pavlov".to_owned(),
+        about: "it:concept/public-ritual".to_owned(),
+        modality: "Social".to_owned(),
+    }];
+    // Reprocessing/duplicate sensory events in the same tick are one exposure.
+    PerceptionSystem.run(&mut world, 0.0);
+    PerceptionSystem.run(&mut world, 0.0);
+    world.pending_events.clear();
+    for tick in 2..=30 {
+        world.tick = tick;
+        MemeEmergenceSystem.run(&mut world, 0.0);
+    }
+    let graph = &world.characters["dog"].mind_graph;
+    assert_eq!(
+        graph
+            .find_by_schema("it:concept/public-ritual")
+            .unwrap()
+            .observation
+            .as_ref()
+            .unwrap()
+            .presentation_count,
+        1
+    );
+    assert!(graph
+        .find_by_schema("it:emergent/it_concept_public_ritual")
+        .is_none());
+}
+
+#[test]
+fn spaced_public_presentations_survive_stimulus_expiry_and_save_restore() {
+    use intention_tower_game_lib::systems::cleanup::CleanupSystem;
+    let mut world = load_level_from_path(&level_dir("pavlov")).expect("load pavlov");
+    for tick in [1, 20, 40] {
+        world.tick = tick;
+        world.pending_events = vec![WorldEvent::SoundEmitted {
+            source_entity_id: "pavlov".to_owned(),
+            about: "it:concept/public-ritual".to_owned(),
+            modality: "Social".to_owned(),
+        }];
+        PerceptionSystem.run(&mut world, 0.0);
+        world.pending_events.clear();
+        MemeEmergenceSystem.run(&mut world, 0.0);
+        world.tick += 11;
+        CleanupSystem.run(&mut world, 0.0);
+        let observation = world.characters["dog"]
+            .mind_graph
+            .find_by_schema("it:concept/public-ritual")
+            .unwrap();
+        assert!(
+            !observation.active,
+            "memory must not keep the expired stimulus active"
+        );
+        world = serde_json::from_str(&serde_json::to_string(&world).unwrap()).unwrap();
+    }
+    let graph = &world.characters["dog"].mind_graph;
+    assert_eq!(
+        graph
+            .find_by_schema("it:concept/public-ritual")
+            .unwrap()
+            .observation
+            .as_ref()
+            .unwrap()
+            .presentation_count,
+        3
+    );
+    assert!(graph
+        .find_by_schema("it:emergent/it_concept_public_ritual")
+        .is_some());
 }
 
 #[test]
