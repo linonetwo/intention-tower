@@ -760,11 +760,15 @@ async fn gosling_no_imprint(world: &mut GameWorld) {
 
 #[then(expr = "雏鹅的固定印刻对象为 {string}")]
 async fn gosling_fixed_target(world: &mut GameWorld, target: String) {
-    let node = world
-        .get_node("gosling", "it:concept/imprint-target")
-        .await
-        .unwrap();
-    let motivation = &node["motivation"];
+    // get_node_value is a scalar/status projection, not the full MindNode:
+    // its response intentionally omits motivation and acquisition evidence.
+    let state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let node = &state["characters"]["gosling"]["mind_graph"]["nodes"]["gosling-imprint-target"];
+    assert_eq!(node["schema_id"], "it:concept/imprint-target");
+    let motivation = node
+        .get("motivation")
+        .filter(|motivation| motivation.is_object())
+        .expect("authoritative snapshot must contain the complete imprint motivation");
     assert_eq!(motivation["target_entity"], target);
     assert_eq!(motivation["imprinting_evidence"]["target_entity"], target);
     assert!(
