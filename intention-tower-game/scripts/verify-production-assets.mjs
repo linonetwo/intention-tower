@@ -14,6 +14,36 @@ const assert = (condition, message) => {
   if (!condition) errors.push(message);
 };
 
+// Chinese UI must render without fonts installed on the host OS or a network CDN.
+try {
+  const font = await fs.readFile(path.join(projectRoot, 'public/fonts/NotoSansSC-VF.ttf'));
+  assert(font.length > 1_000_000, `bundled CJK font is suspiciously small (${font.length} bytes)`);
+  assert(font.subarray(0, 4).toString('hex') === '00010000', 'bundled Noto Sans SC is not a TrueType font');
+  const tables = new Set();
+  const tableCount = font.readUInt16BE(4);
+  assert(12 + tableCount * 16 <= font.length, 'bundled font has an invalid SFNT directory');
+  for (let index = 0; index < tableCount && 12 + (index + 1) * 16 <= font.length; index++) {
+    const offset = 12 + index * 16;
+    tables.add(font.subarray(offset, offset + 4).toString('ascii'));
+    const tableOffset = font.readUInt32BE(offset + 8);
+    const tableLength = font.readUInt32BE(offset + 12);
+    assert(tableOffset + tableLength <= font.length, `bundled font table is truncated: ${font.subarray(offset, offset + 4).toString('ascii')}`);
+  }
+  for (const table of ['cmap', 'name', 'fvar', 'glyf']) assert(tables.has(table), `bundled variable CJK font lacks ${table}`);
+  const license = await fs.readFile(path.join(projectRoot, 'public/fonts/OFL.txt'), 'utf8');
+  assert(/SIL OPEN FONT LICENSE/i.test(license) && /Version 1\.1/i.test(license), 'bundled font lacks the SIL Open Font License 1.1');
+  const css = await fs.readFile(path.join(projectRoot, 'src/fonts.css'), 'utf8');
+  assert(css.includes('@font-face') && css.includes("font-family: 'Intention CJK'") && css.includes('/fonts/NotoSansSC-VF.ttf') && /font-weight:\s*100 900/.test(css), 'bundled CJK font is not registered as the Intention CJK variable UI face');
+  const app = await fs.readFile(path.join(projectRoot, 'src/App.tsx'), 'utf8');
+  assert(app.includes('Intention CJK'), 'MUI theme does not use the bundled CJK font alias');
+  const entry = await fs.readFile(path.join(projectRoot, 'src/main.tsx'), 'utf8');
+  assert(entry.includes("import './fonts.css'"), 'bundled CJK stylesheet is not loaded by the application entry');
+  const config = JSON.parse(await fs.readFile(path.join(projectRoot, 'src-tauri/tauri.conf.json'), 'utf8'));
+  assert(/font-src\s+[^;]*'self'/.test(config.app?.security?.csp ?? ''), 'desktop CSP does not allow self-hosted fonts');
+} catch (error) {
+  errors.push(`bundled CJK font cannot be verified: ${error.message}`);
+}
+
 assert(manifest.id === 'gpt-image-2-pack', `unexpected manifest id: ${manifest.id}`);
 assert(manifest.model === 'gpt-image-2', `unexpected image model: ${manifest.model}`);
 assert(String(manifest.provider).includes('GPT Image 2'), `unexpected provider: ${manifest.provider}`);
@@ -117,5 +147,5 @@ if (errors.length > 0) {
   process.stderr.write(`Production asset verification failed:\n- ${errors.join('\n- ')}\n`);
   process.exitCode = 1;
 } else {
-  process.stdout.write(`Production assets verified: ${levelIds.length} backgrounds, ${uniquePortraitItems.length} portraits, 55 mapped characters / ${spriteUrls.size} transparent full-body sprites, ${fileRecords.length} unique legacy PNG files.\n`);
+  process.stdout.write(`Production assets verified: bundled variable Noto Sans SC with OFL license, ${levelIds.length} backgrounds, ${uniquePortraitItems.length} portraits, 55 mapped characters / ${spriteUrls.size} transparent full-body sprites, ${fileRecords.length} unique legacy PNG files.\n`);
 }

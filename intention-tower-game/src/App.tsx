@@ -20,7 +20,7 @@ const darkTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Noto Sans SC", "Roboto", sans-serif',
+    fontFamily: '"Intention CJK", "Roboto", Arial, sans-serif',
   },
 });
 

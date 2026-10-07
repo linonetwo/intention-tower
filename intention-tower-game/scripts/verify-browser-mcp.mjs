@@ -14,13 +14,39 @@ async function call(name, args = {}) {
   return JSON.parse(rpc.result.content.find(item => item.type === 'text').text);
 }
 const evaluate = script => call('evaluate_script', { script });
-async function settle() {
+async function settle(screenshotName) {
   await evaluate(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
+  const font = await evaluate(`(async()=>{
+    const family='Intention CJK', font='12px "Intention CJK"', text='中文图谱学习奖励巴甫洛夫聪明猫';
+    let timer;
+    try {
+      const result=await Promise.race([
+        (async()=>{
+          await document.fonts.ready;
+          const faces=await document.fonts.load(font,text);
+          await document.fonts.ready;
+          const checked=document.fonts.check(font,text);
+          return {family,font,text,loadedFaces:faces.map(face=>({family:face.family,status:face.status})),checked,passed:faces.length>0&&faces.every(face=>face.status==='loaded')&&checked};
+        })(),
+        new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Self-hosted CJK font load timed out after 15 seconds')),15000)})
+      ]);
+      return result;
+    } catch(error) {return {family,font,text,passed:false,error:String(error)}}
+    finally {clearTimeout(timer)}
+  })()`);
+  const fonts = report.fonts ??= { family: 'Intention CJK', checks: 0, failures: [], passed: true };
+  fonts.checks += 1;
+  fonts.lastCheck = font;
+  if (!font.passed) {
+    fonts.passed = false;
+    fonts.failures.push({ screenshot: screenshotName, ...font });
+    process.exitCode = 1;
+  }
   await evaluate(`Promise.allSettled([...document.querySelectorAll('[data-testid="scene-background"], [data-testid^="scene-character-sprite-"]')].map(img=>img.decode()))`);
   await evaluate(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
 }
 async function shot(name) {
-  await settle();
+  await settle(name);
   const data = await call('take_screenshot');
   assert.equal(data.source, 'chromium-compositor');
   await writeFile(resolve(output, `${name}.png`), Buffer.from(data.screenshot.split(',')[1], 'base64'));

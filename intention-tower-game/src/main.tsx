@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './i18n';
+import './fonts.css';
 import { gameStore } from './store/useGameState';
 import { snapshot } from './api/tauriApi';
 
