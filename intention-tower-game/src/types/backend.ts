@@ -96,6 +96,24 @@ export interface FailureRule {
 
 export type LevelCondition = Record<string, unknown>;
 
+export interface ImprintedTargetCondition {
+  type: 'imprintedTarget';
+  characterId: string;
+  motivationSchemaId: string;
+  targetEntity: string;
+}
+
+export interface FollowedTargetCondition {
+  type: 'followedTarget';
+  characterId: string;
+  motivationSchemaId: string;
+  targetEntity: string;
+  minDistance: number;
+  minTicks: number;
+  minSeparationDistance: number;
+  maxTargetDistance: number;
+}
+
 /** A command queued for execution on the next tick. */
 export interface PendingCommand {
   command_id: string;
@@ -215,6 +233,26 @@ export interface MotivationData {
   target_entity: string | null;
   critical_period_end: number | null;
   lookback_window_sec: number;
+  imprinting?: ImprintingConfig | null;
+  imprinting_evidence?: ImprintingEvidence | null;
+}
+
+export interface ImprintingConfig {
+  observation_schemas: string[];
+  follow_action_schema: string;
+  separation_instinct_schema: string;
+  follow_speed: number;
+  comfort_radius: number;
+}
+
+export interface ImprintingEvidence {
+  target_entity: string;
+  source_id: string;
+  imprinted_at: number;
+  dopamine_spent: number;
+  followed_distance: number;
+  follow_ticks: number;
+  max_separation_distance: number;
 }
 
 export interface ActionData {
@@ -292,6 +330,7 @@ export type CommandEffect =
   | { InjectMeme: { meme_schema_id: string; target_character_id: string | null; meme: MemeData } }
   | { DeleteNode: { schema_id: string; target_character_id: string | null } }
   | { ModifyResourceRegen: { resource_schema_id: string; new_regen_rate: number; target_character_id: string | null } }
+  | { MoveCharacter: { delta_x: number; delta_y: number; target_character_id: string | null } }
   | { SetVirtualContext: { value: boolean } }
   | { SetAssetPrice: { item_id: string; unit_price: number } }
   | { TradeAsset: { item_id: string; buyer_id: string; seller_id: string; quantity: number } };

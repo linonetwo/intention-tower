@@ -28,6 +28,7 @@ function formatEventBrief(ev: WorldEvent, ws: WorldState | null): string {
 
 function describeEffect(effect: CommandEffect, t: (k: string, v?: Record<string, unknown>) => string, world: WorldState | null): string {
   const name = (id: string) => objectName(world, id);
+  if ('MoveCharacter' in effect) return t('command.effect.move', { x: effect.MoveCharacter.delta_x, y: effect.MoveCharacter.delta_y });
   if ('SpawnObservation' in effect) return t('command.effect.spawn', { schema: name(effect.SpawnObservation.schema_id), modality: t(`event.modality.${effect.SpawnObservation.modality}`, { defaultValue: t('event.modality.other') }) });
   if ('ModifyNodeValue' in effect) { const d = effect.ModifyNodeValue.delta; return t('command.effect.modify', { schema: name(effect.ModifyNodeValue.schema_id), delta: `${d > 0 ? '+' : ''}${d}` }); }
   if ('InjectMeme' in effect) return t('command.effect.meme', { schema: name(effect.InjectMeme.meme_schema_id) });

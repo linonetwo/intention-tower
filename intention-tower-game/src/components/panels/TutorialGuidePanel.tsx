@@ -77,6 +77,9 @@ export const TutorialGuidePanel: React.FC = () => {
   const pairedDone = objectiveDone('pair-bell-and-food');
   const edgeDone = objectiveDone('learn-conditioned-edge');
   const responseDone = objectiveDone('verify-bell-response');
+  const imprintContactDone = objectiveDone('critical-period-contact');
+  const imprintFollowingDone = objectiveDone('observe-imprinting');
+  const imprintVerified = objectiveDone('verify-following');
   const settled = recentEvents.some((event) => 'LearningUpdated' in event && shortId(event.LearningUpdated.character_id) === 'dog' && event.LearningUpdated.reward > 0);
 
   const conditionedWeight = useMemo(() => {
@@ -163,9 +166,10 @@ export const TutorialGuidePanel: React.FC = () => {
     }
 
     return [
-      { id: 'a', done: !!selectedActorId, text: t('tutorial.gosling.step.1'), highlightTarget: 'actor-selector' },
-      { id: 'b', done: commandHistory.length >= 1, text: t('tutorial.gosling.step.2') },
-      { id: 'c', done: commandHistory.length >= 3, text: t('tutorial.gosling.step.3') },
+      { id: 'gosling-select', done: shortId(selectedActorId) === 'lorenz' && shortId(selectedTargetId) === 'gosling' && uiMode === 'micro', text: t('tutorial.gosling.step.1'), highlightTarget: 'actor-selector' },
+      { id: 'gosling-imprint', done: imprintContactDone, text: t('tutorial.gosling.step.2'), highlightTarget: 'command-approach-gosling' },
+      { id: 'gosling-separate', done: imprintFollowingDone, text: t('tutorial.gosling.step.3'), highlightTarget: 'command-move-away' },
+      { id: 'gosling-follow', done: imprintVerified, text: t('tutorial.gosling.step.4'), highlightTarget: 'step-button' },
     ];
   }, [
     commandHistory.length,
@@ -176,6 +180,10 @@ export const TutorialGuidePanel: React.FC = () => {
     pairedDone,
     edgeDone,
     responseDone,
+    imprintContactDone,
+    imprintFollowingDone,
+    imprintVerified,
+    uiMode,
     settled,
     hasFeed,
     hasRing,
@@ -302,7 +310,7 @@ export const TutorialGuidePanel: React.FC = () => {
                       ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#ffa726' }} />
                       : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#555' }} />}
                 </Box>
-                <Typography sx={{ fontSize: 11, color: step.done ? '#c8e6c9' : isActive ? '#ffe082' : '#888', lineHeight: 1.5, ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }) }}>
+                <Typography title={step.text} sx={{ fontSize: 11, color: step.done ? '#c8e6c9' : isActive ? '#ffe082' : '#888', lineHeight: 1.5, ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }) }}>
                   {step.text}
                 </Typography>
               </Box>

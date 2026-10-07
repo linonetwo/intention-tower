@@ -45,13 +45,17 @@
     "level.gosling.objective.2"
   ],
   "objectiveRules": [
-    { "objectiveId": "critical-period-contact", "label": "level.gosling.objective.0", "condition": { "type": "commandUsed", "commandId": "approach-gosling", "minCount": 3 } },
-    { "objectiveId": "observe-imprinting", "label": "level.gosling.objective.1", "condition": { "type": "commandUsed", "commandId": "make-sound", "minCount": 2 } },
-    { "objectiveId": "verify-following", "label": "level.gosling.objective.2", "condition": { "type": "all", "conditions": [
-      { "type": "commandUsed", "commandId": "approach-gosling", "minCount": 3 },
-      { "type": "commandUsed", "commandId": "make-sound", "minCount": 2 },
-      { "type": "commandUsed", "commandId": "move-away", "minCount": 1 }
-    ] } }
+    { "objectiveId": "critical-period-contact", "label": "level.gosling.objective.0", "condition": {
+      "type": "imprintedTarget", "characterId": "gosling", "motivationSchemaId": "it:concept/imprint-target", "targetEntity": "it:entity/lorenz"
+    } },
+    { "objectiveId": "observe-imprinting", "label": "level.gosling.objective.1", "condition": {
+      "type": "followedTarget", "characterId": "gosling", "motivationSchemaId": "it:concept/imprint-target", "targetEntity": "it:entity/lorenz",
+      "minDistance": 20.0, "minTicks": 1, "minSeparationDistance": 0.0, "maxTargetDistance": 200.0
+    } },
+    { "objectiveId": "verify-following", "label": "level.gosling.objective.2", "condition": {
+      "type": "followedTarget", "characterId": "gosling", "motivationSchemaId": "it:concept/imprint-target", "targetEntity": "it:entity/lorenz",
+      "minDistance": 80.0, "minTicks": 3, "minSeparationDistance": 210.0, "maxTargetDistance": 80.0
+    } }
   ],
   "defaultActorId": "lorenz",
   "defaultTargetId": "gosling"

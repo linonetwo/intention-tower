@@ -34,6 +34,7 @@
       "comment": "Declarative command effects (no closures)",
       "it:variants": [
         { "type": "SpawnObservation", "fields": { "schemaId": "IRI", "modality": "string", "about": "IRI", "ttl": "u64", "strength": "f64" } },
+        { "type": "MoveCharacter", "fields": { "deltaX": "f64", "deltaY": "f64", "targetCharacterId": "string" } },
         { "type": "SpawnNode", "fields": { "schemaId": "IRI", "value": "f64", "targetCharacterId": "string" } },
         { "type": "ModifyNodeValue", "fields": { "schemaId": "IRI", "delta": "f64", "targetCharacterId": "string" } },
         { "type": "ReinforceEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI", "delta": "f64" } },

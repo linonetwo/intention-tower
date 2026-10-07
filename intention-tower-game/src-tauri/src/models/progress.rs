@@ -23,6 +23,20 @@ pub enum LevelStatus {
     rename_all_fields = "camelCase"
 )]
 pub enum LevelCondition {
+    ImprintedTarget {
+        character_id: String,
+        motivation_schema_id: String,
+        target_entity: String,
+    },
+    FollowedTarget {
+        character_id: String,
+        motivation_schema_id: String,
+        target_entity: String,
+        min_distance: f64,
+        min_ticks: u32,
+        min_separation_distance: f64,
+        max_target_distance: f64,
+    },
     CommandUsed {
         command_id: String,
         #[serde(default = "one")]
@@ -102,6 +116,37 @@ const fn one() -> u32 {
 impl LevelCondition {
     pub fn evaluate(&self, world: &WorldState) -> bool {
         match self {
+            Self::ImprintedTarget {
+                character_id,
+                motivation_schema_id,
+                target_entity,
+            } => imprinted_evidence(world, character_id, motivation_schema_id, target_entity)
+                .is_some(),
+            Self::FollowedTarget {
+                character_id,
+                motivation_schema_id,
+                target_entity,
+                min_distance,
+                min_ticks,
+                min_separation_distance,
+                max_target_distance,
+            } => {
+                let Some(evidence) =
+                    imprinted_evidence(world, character_id, motivation_schema_id, target_entity)
+                else {
+                    return false;
+                };
+                let Some(position) = world.entity_position(target_entity) else {
+                    return false;
+                };
+                let character = &world.characters[character_id];
+                let distance =
+                    (character.position.x - position.x).hypot(character.position.y - position.y);
+                evidence.followed_distance >= *min_distance
+                    && evidence.follow_ticks >= *min_ticks
+                    && evidence.max_separation_distance >= *min_separation_distance
+                    && distance <= *max_target_distance
+            }
             Self::CommandUsed {
                 command_id,
                 min_count,
@@ -227,6 +272,56 @@ impl LevelCondition {
             }
         }
     }
+}
+
+fn imprinted_evidence<'a>(
+    world: &'a WorldState,
+    character_id: &str,
+    motivation_schema_id: &str,
+    target_entity: &str,
+) -> Option<&'a super::mind_node::ImprintingEvidence> {
+    use super::mind_node::{LearnType, NodeType};
+    world.entity_position(target_entity)?;
+    let character = world.characters.get(character_id)?;
+    character
+        .mind_graph
+        .nodes
+        .values()
+        .filter(|node| {
+            node.node_type == NodeType::Motivation && node.schema_id == motivation_schema_id
+        })
+        .find_map(|node| {
+            let motivation = node.motivation.as_ref()?;
+            let evidence = motivation.imprinting_evidence.as_ref()?;
+            let target = motivation.target_entity.as_ref()?;
+            let canonical = |entity: &str| {
+                entity
+                    .strip_prefix("it:entity/")
+                    .unwrap_or(entity)
+                    .to_owned()
+            };
+            let valid_edge = character.mind_graph.edges.values().any(|edge| {
+                edge.source_instance_id == evidence.source_id
+                    && edge.target_instance_id == node.instance_id
+                    && edge.learn_type == LearnType::Imprinting
+                    && edge.evidence.co_occurrence_count > 0
+                    && edge.evidence.last_co_occurred_at == evidence.imprinted_at
+                    && edge.weight > 0.0
+                    && character
+                        .mind_graph
+                        .nodes
+                        .get(&evidence.source_id)
+                        .is_some_and(|source| source.node_type == NodeType::Observation)
+            });
+            (canonical(target) == canonical(target_entity)
+                && canonical(&evidence.target_entity) == canonical(target_entity)
+                && evidence.dopamine_spent > 0.0
+                && motivation
+                    .critical_period_end
+                    .is_some_and(|end| evidence.imprinted_at < end)
+                && valid_edge)
+                .then_some(evidence)
+        })
 }
 
 fn matching_characters<'a>(

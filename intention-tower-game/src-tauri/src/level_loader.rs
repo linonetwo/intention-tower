@@ -262,6 +262,7 @@ struct MotivationJson {
     target_entity: Option<String>,
     #[serde(rename = "criticalPeriodEnd")]
     critical_period_end: Option<u64>,
+    imprinting: Option<ImprintingConfig>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -363,6 +364,10 @@ struct EffectJson {
     ttl: Option<u64>,
     strength: Option<f64>,
     delta: Option<f64>,
+    #[serde(rename = "deltaX")]
+    delta_x: Option<f64>,
+    #[serde(rename = "deltaY")]
+    delta_y: Option<f64>,
     #[serde(rename = "targetCharacterId")]
     target_character_id: Option<String>,
     #[serde(rename = "resourceSchemaId")]
@@ -842,6 +847,8 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
             critical_period_end: m.critical_period_end,
             is_persistent: false,
             suppressed_by: Vec::new(),
+            imprinting: m.imprinting.clone(),
+            imprinting_evidence: None,
         });
 
         let meme = node_json.meme.as_ref().map(parse_meme_data);
@@ -1038,6 +1045,11 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
         "ModifyResourceRegen" => Some(CommandEffect::ModifyResourceRegen {
             resource_schema_id: e.resource_schema_id.clone()?,
             new_regen_rate: e.new_regen_rate.unwrap_or(0.0),
+            target_character_id: e.target_character_id.clone(),
+        }),
+        "MoveCharacter" => Some(CommandEffect::MoveCharacter {
+            delta_x: e.delta_x.unwrap_or(0.0),
+            delta_y: e.delta_y.unwrap_or(0.0),
             target_character_id: e.target_character_id.clone(),
         }),
         "SetVirtualContext" => Some(CommandEffect::SetVirtualContext {

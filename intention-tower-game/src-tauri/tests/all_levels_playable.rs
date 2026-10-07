@@ -265,10 +265,12 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                 "lorenz",
                 Some("gosling"),
                 "approach-gosling",
-                3,
+                1,
             );
-            act(world, runner, "lorenz", Some("gosling"), "make-sound", 2);
             act(world, runner, "lorenz", Some("gosling"), "move-away", 1);
+            for _ in 0..12 {
+                runner.tick(world, 0.5);
+            }
         }
         "hive-self" => {
             for target in ["clone-a", "clone-b", "clone-c"] {

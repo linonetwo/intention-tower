@@ -14,6 +14,13 @@
       "it:motivation": {
         "targetEntity": null,
         "criticalPeriodEnd": 3000,
+        "imprinting": {
+          "observationSchemas": ["it:concept/see-contact-object", "it:concept/hear-contact-object"],
+          "followActionSchema": "it:concept/follow-target",
+          "separationInstinctSchema": "it:concept/separation-distress",
+          "followSpeed": 40.0,
+          "comfortRadius": 48.0
+        },
         "lookbackWindowSec": 5.0,
         "isChained": false
       }

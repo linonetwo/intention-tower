@@ -207,6 +207,63 @@ try {
     process.exitCode = 1;
   }
 
+  try {
+    const motivation = world => world.characters.gosling.mind_graph.nodes['gosling-imprint-target'].motivation;
+    const gap = world => Math.hypot(world.characters.gosling.position.x - world.characters.lorenz.position.x, world.characters.gosling.position.y - world.characters.lorenz.position.y);
+    const capture = async label => {
+      const world = await call('snapshot');
+      (report.goslingLearning ??= []).push({ label, tick: world.tick, status: world.progress.status, motivation: motivation(world), positions: { lorenz: world.characters.lorenz.position, gosling: world.characters.gosling.position }, gap: gap(world) });
+      await evaluate(`window.__INTENTION_TEST__.setUiMode('micro')`);
+      await shot(`gosling-${label}-scene`);
+      await evaluate(`window.__INTENTION_TEST__.setUiMode('graph')`);
+      await shot(`gosling-${label}-graph`);
+      return world;
+    };
+    await load('gosling');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
+    const initial = await capture('untrained');
+    assert.equal(motivation(initial).target_entity, null);
+    assert.ok(!motivation(initial).imprinting_evidence, 'Initial Imprinting-labelled wiring is not acquisition evidence');
+    await command('show-decoy'); await advance(1);
+    const decoy = await capture('decoy-first');
+    assert.equal(motivation(decoy).target_entity, 'it:entity/mother-goose-decoy');
+    await command('approach-gosling'); await advance(1);
+    assert.equal(motivation(await call('snapshot')).target_entity, 'it:entity/mother-goose-decoy', 'Later contact cannot replace first imprint');
+    assert.equal((await call('snapshot')).progress.status, 'InProgress');
+
+    await load('gosling');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('lorenz');window.__INTENTION_TEST__.selectTarget('gosling')`);
+    if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+    await clickCommand('approach-gosling'); await advance(1);
+    const acquired = await capture('acquired-lorenz');
+    assert.equal(motivation(acquired).target_entity, 'it:entity/lorenz');
+    assert.equal(motivation(acquired).imprinting_evidence.target_entity, 'it:entity/lorenz');
+    assert.equal(motivation(acquired).imprinting_evidence.dopamine_spent, 0.2);
+    assert.equal(acquired.progress.status, 'InProgress', 'Imprinting alone is not successful following');
+    await call('click', { selector: '[data-testid="mode-micro"]' });
+    await clickCommand('move-away'); await advance(1);
+    const separated = await capture('target-moved-away');
+    assert.ok(separated.characters.lorenz.position.x < acquired.characters.lorenz.position.x, 'Target must actually move');
+    // Authoritative full-world restore, identical to the save payload: never
+    // inject learned evidence or positions; replay the core's own snapshot.
+    await call('restore_snapshot', { world: separated });
+    await evaluate(`window.__INTENTION_TEST__.refresh()`);
+    assert.deepEqual(await call('snapshot'), separated, 'Save restore must preserve complete imprint/movement state');
+    await advance(12);
+    const followed = await capture('real-following');
+    const evidence = motivation(followed).imprinting_evidence;
+    assert.ok(gap(followed) < gap(separated) && gap(followed) <= 80, 'Follower must close real entity distance');
+    assert.ok(followed.characters.gosling.position.x < separated.characters.gosling.position.x, 'Follower sprite position must come from actual Rust movement');
+    assert.ok(evidence.followed_distance >= 80 && evidence.follow_ticks >= 3 && evidence.max_separation_distance >= 210);
+    assert.equal(evidence.target_entity, 'it:entity/lorenz');
+    assert.equal(followed.progress.status, 'Won');
+    (report.realCommandButtons ??= []).push('command-approach-gosling', 'command-move-away');
+  } catch (error) {
+    report.goslingFailure = String(error);
+    await shot('gosling-failure');
+    process.exitCode = 1;
+  }
+
   const levels = (await readdir(resolve('assets/levels'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
   for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
     await call('set_viewport', viewport);

@@ -17,6 +17,26 @@ pub fn move_character(
     delta_x: f64,
     delta_y: f64,
 ) -> Result<WorldEvent, String> {
+    move_character_impl(world, character_id, delta_x, delta_y, true)
+}
+
+/// Simulation callers emit the returned event through the tick event pipeline.
+pub(crate) fn move_character_in_tick(
+    world: &mut WorldState,
+    character_id: &str,
+    delta_x: f64,
+    delta_y: f64,
+) -> Result<WorldEvent, String> {
+    move_character_impl(world, character_id, delta_x, delta_y, false)
+}
+
+fn move_character_impl(
+    world: &mut WorldState,
+    character_id: &str,
+    delta_x: f64,
+    delta_y: f64,
+    record_history: bool,
+) -> Result<WorldEvent, String> {
     if world.progress.status != LevelStatus::InProgress {
         return Err("the level is already complete".to_owned());
     }
@@ -66,6 +86,8 @@ pub fn move_character(
     };
     // Movement happens outside the simulation tick and is returned directly
     // by the API, so record it in history without re-emitting it next tick.
-    world.event_log.push(event.clone());
+    if record_history {
+        world.event_log.push(event.clone());
+    }
     Ok(event)
 }

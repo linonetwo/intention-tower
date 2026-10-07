@@ -75,5 +75,22 @@
   "command.feed.label": "Feed",
   "command.feed.description": "Feed the target character",
 
+  "level.gosling.name": "Gosling Imprinting",
+  "level.gosling.description": "Lorenz's imprinting experiment: attention and dopamine during the critical period fix an object that the Gosling then physically follows.",
+  "level.gosling.objective.0": "Use dopamine during the critical period to fix Lorenz as the imprint target",
+  "level.gosling.objective.1": "Observe the Gosling physically follow Lorenz and shorten their distance",
+  "level.gosling.objective.2": "Move Lorenz away and verify sustained pursuit of the fixed target",
+  "level.gosling.character.lorenz.label": "Lorenz",
+  "level.gosling.character.gosling.label": "Gosling",
+  "level.gosling.item.nest.label": "Nest",
+  "level.gosling.item.decoy.label": "Mother Goose Decoy",
+  "command.approach-gosling.label": "Approach Gosling",
+  "command.approach-gosling.description": "Let the Gosling attend to Lorenz during its critical period; step once to check real imprinting",
+  "command.make-sound.label": "Make Sound",
+  "command.make-sound.description": "Make a sound for the Gosling to hear",
+  "command.move-away.label": "Move Away",
+  "command.move-away.description": "Physically move Lorenz 40 units left to increase separation; this does not directly add distress",
+  "command.show-decoy.label": "Show Decoy",
+  "command.show-decoy.description": "Show the mother-goose decoy; an imprint fixed on it first cannot later switch to Lorenz",
   "game.reloadMods": "Reload Mod Textures"
 }

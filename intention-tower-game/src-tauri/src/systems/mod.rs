@@ -10,6 +10,7 @@ pub mod command_system;
 pub mod economy;
 pub mod environment_event;
 pub mod event_emission;
+pub mod follow_target;
 pub mod imprinting;
 pub mod instinct_update;
 pub mod level_progress;

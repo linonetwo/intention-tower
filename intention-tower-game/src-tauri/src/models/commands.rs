@@ -14,6 +14,11 @@ pub struct CommandDTO {
 /// Declarative command effects — no closures, fully serializable.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CommandEffect {
+    MoveCharacter {
+        delta_x: f64,
+        delta_y: f64,
+        target_character_id: Option<String>,
+    },
     SpawnObservation {
         schema_id: String,
         modality: Modality,

@@ -1,0 +1,13 @@
+{
+  "@context": { "@import": "./context.jsonld" },
+  "@id": "it:ImprintingResultCondition",
+  "@type": "rdfs:Class",
+  "comment": "Typed acquisition and executed-following evidence; all thresholds are authored per level",
+  "it:variants": [
+    { "type": "imprintedTarget", "fields": { "characterId": "string", "motivationSchemaId": "IRI", "targetEntity": "IRI" } },
+    { "type": "followedTarget", "fields": {
+      "characterId": "string", "motivationSchemaId": "IRI", "targetEntity": "IRI",
+      "minDistance": "f64", "minTicks": "u32", "minSeparationDistance": "f64", "maxTargetDistance": "f64"
+    } }
+  ]
+}

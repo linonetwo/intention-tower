@@ -167,6 +167,37 @@ pub struct MotivationData {
     pub critical_period_end: Option<u64>,
     pub is_persistent: bool,
     pub suppressed_by: Vec<String>,
+    /// Opt-in sensory and motor contract; unrelated motivations are unchanged.
+    #[serde(default)]
+    pub imprinting: Option<ImprintingConfig>,
+    /// Only real acquisition and actual movement create evidence.
+    #[serde(default)]
+    pub imprinting_evidence: Option<ImprintingEvidence>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImprintingConfig {
+    #[serde(alias = "observationSchemas")]
+    pub observation_schemas: Vec<String>,
+    #[serde(alias = "followActionSchema")]
+    pub follow_action_schema: String,
+    #[serde(alias = "separationInstinctSchema")]
+    pub separation_instinct_schema: String,
+    #[serde(alias = "followSpeed")]
+    pub follow_speed: f64,
+    #[serde(alias = "comfortRadius")]
+    pub comfort_radius: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImprintingEvidence {
+    pub target_entity: String,
+    pub source_id: String,
+    pub imprinted_at: u64,
+    pub dopamine_spent: f64,
+    pub followed_distance: f64,
+    pub follow_ticks: u32,
+    pub max_separation_distance: f64,
 }
 
 // ── Action fields ──

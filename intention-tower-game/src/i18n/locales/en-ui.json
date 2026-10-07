@@ -98,6 +98,7 @@
   "command.tip": "Tip: right-click a character in the world panel to open contextual commands",
   "command.effect.spawn": "Spawn: {{schema}} ({{modality}})",
   "command.effect.modify": "Modify {{schema}} {{delta}}",
+  "command.effect.move": "Physically move the character: horizontal {{x}}, vertical {{y}}",
   "command.effect.consume": "Consume {{schema}} ×{{amount}}",
   "command.effect.reinforce": "Reinforce {{source}}→{{target}}",
   "command.effect.weaken": "Weaken {{source}}→{{target}}",
@@ -279,7 +280,8 @@
   "tutorial.smart-cat.step.1": "Select a cat as actor first",
   "tutorial.smart-cat.step.2": "Execute at least 2 training commands",
   "tutorial.smart-cat.step.3": "Keep training and observe stable behavior",
-  "tutorial.gosling.step.1": "Select gosling and confirm imprint target",
-  "tutorial.gosling.step.2": "Execute at least 1 imprint-related action",
-  "tutorial.gosling.step.3": "Repeat actions and verify following tendency"
+  "tutorial.gosling.step.1": "Select Lorenz as actor and the Gosling as target. Press Q or the top Micro button (F2 also works): you move Lorenz, not the bird.",
+  "tutorial.gosling.step.2": "During the critical period, Approach Gosling and step once. Attention and dopamine fix Lorenz as its imprint target. A decoy shown first fixes the wrong target; restart if the window is missed.",
+  "tutorial.gosling.step.3": "Immediately move Lorenz left using Micro arrows/A or Move Away, then step. Watch the Gosling pursue him itself. If it has already caught up, move farther away before testing.",
+  "tutorial.gosling.step.4": "Keep stepping: verification requires separation reaching 210, at least 80 of pursuit over 3 movement ticks, and a final gap at most 80. Real objectives count—not sound or approach clicks."
 }

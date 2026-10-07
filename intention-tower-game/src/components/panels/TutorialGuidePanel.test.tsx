@@ -12,9 +12,44 @@ vi.mock('../../hooks/useResponsiveLayout', () => ({ useResponsiveLayout: () => (
 import { TutorialGuidePanel } from './TutorialGuidePanel';
 
 beforeEach(() => {
+  fixture.state.currentLevelId = 'pavlov';
+  fixture.state.selectedActorId = 'it:entity/pavlov';
+  fixture.state.selectedTargetId = 'it:entity/dog';
   fixture.state.uiMode = 'observe';
   fixture.state.recentEvents = [];
   fixture.state.worldState = null;
+});
+
+describe('Gosling tutorial follows real imprinting objectives', () => {
+  it('does not advance imprinting from repeated approach and sound commands', () => {
+    fixture.state.currentLevelId = 'gosling';
+    fixture.state.selectedActorId = 'it:entity/lorenz';
+    fixture.state.selectedTargetId = 'it:entity/gosling';
+    fixture.state.uiMode = 'micro';
+    fixture.state.recentEvents = Array.from({ length: 12 }, (_, index) => ({ CommandExecuted: {
+      actor_id: 'lorenz', target_id: 'gosling', command_id: index % 2 ? 'make-sound' : 'approach-gosling',
+    } }));
+    render(<TutorialGuidePanel />);
+    expect(screen.getByText('1/4')).toBeTruthy();
+    expect(screen.getByText(/关键期内「靠近雏鹅」/)).toBeTruthy();
+  });
+
+  it('advances from fixed target to actual separation and pursuit only via backend objectives', () => {
+    fixture.state.currentLevelId = 'gosling';
+    fixture.state.selectedActorId = 'lorenz'; fixture.state.selectedTargetId = 'gosling'; fixture.state.uiMode = 'micro';
+    const objective = (id: string, completed: boolean) => ({ objective_id: id, label: id, completed, condition: {}, required: true, completed_at_tick: completed ? 1 : null });
+    fixture.state.worldState = { characters: {}, pending_commands: [], progress: { objectives: [objective('critical-period-contact', true), objective('observe-imprinting', false), objective('verify-following', false)] } } as unknown as WorldState;
+    const { rerender } = render(<TutorialGuidePanel />);
+    expect(screen.getByText('2/4')).toBeTruthy();
+    expect(screen.getByText(/印刻后立即让洛伦兹向左远离/)).toBeTruthy();
+    fixture.state.worldState.progress.objectives[1].completed = true;
+    rerender(<TutorialGuidePanel />);
+    expect(screen.getByText('3/4')).toBeTruthy();
+    expect(screen.getByText(/只认真实目标完成/)).toBeTruthy();
+    fixture.state.worldState.progress.objectives[2].completed = true;
+    rerender(<TutorialGuidePanel />);
+    expect(screen.getByText('4/4')).toBeTruthy();
+  });
 });
 afterEach(cleanup);
 

@@ -98,6 +98,7 @@
   "command.tip": "提示: 可在左侧世界面板右键角色，打开动态命令菜单",
   "command.effect.spawn": "产生观察: {{schema}} ({{modality}})",
   "command.effect.modify": "修改 {{schema}} {{delta}}",
+  "command.effect.move": "移动角色的真实位置：水平 {{x}}、垂直 {{y}}",
   "command.effect.consume": "消耗 {{schema}} ×{{amount}}",
   "command.effect.reinforce": "强化 {{source}}→{{target}}",
   "command.effect.weaken": "削弱 {{source}}→{{target}}",
@@ -279,7 +280,8 @@
   "tutorial.smart-cat.step.1": "先选择一只猫作为执行者",
   "tutorial.smart-cat.step.2": "执行至少 2 次训练命令",
   "tutorial.smart-cat.step.3": "继续训练并观察行为稳定",
-  "tutorial.gosling.step.1": "选择雏鹅并确认观察对象",
-  "tutorial.gosling.step.2": "执行至少 1 次印刻相关操作",
-  "tutorial.gosling.step.3": "重复操作并验证跟随倾向"
+  "tutorial.gosling.step.1": "执行者选洛伦兹、目标选雏鹅，按Q或顶部微操按钮进入控制（F2也可）。你移动的是洛伦兹，不是雏鹅。",
+  "tutorial.gosling.step.2": "关键期内「靠近雏鹅」后单步，让它注意洛伦兹并消耗多巴胺印刻。先展示诱饵会固定错误对象；错过关键期请重开。",
+  "tutorial.gosling.step.3": "印刻后立即让洛伦兹向左远离：微操方向键/A或「远离」后单步，看到雏鹅自己追上来。若距离已缩短，继续拉开再观察。",
+  "tutorial.gosling.step.4": "继续步进，验收曾分离至少210、雏鹅累计追近至少80且移动至少3步、最后距离不超过80。只认真实目标完成，声音/靠近次数不算。"
 }

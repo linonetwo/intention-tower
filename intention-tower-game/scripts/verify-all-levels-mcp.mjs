@@ -69,6 +69,27 @@ async function findTarget(world, commandId, actorId, distinctTargets) {
 async function playLevel(levelId) {
   await call('load_level', { level_id: levelId });
   await call('set_time_speed', { speed: 0 });
+  if (levelId === 'gosling') {
+    const execute = command_id => call('execute_command', { command_id, actor_id: 'lorenz', target_id: 'gosling' });
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
+    const initial = await call('snapshot');
+    if (initial.characters.gosling.mind_graph.nodes['gosling-imprint-target'].motivation.imprinting_evidence) throw new Error('gosling: initial wiring is not newly acquired imprint evidence');
+    await execute('approach-gosling'); await advance(1);
+    const acquired = await call('snapshot');
+    const imprint = acquired.characters.gosling.mind_graph.nodes['gosling-imprint-target'].motivation;
+    if (imprint.target_entity !== 'it:entity/lorenz' || imprint.imprinting_evidence?.dopamine_spent !== 0.2) throw new Error('gosling: actual entity imprint acquisition missing');
+    await execute('move-away'); await advance(1);
+    const separated = await call('snapshot');
+    if (!(separated.characters.lorenz.position.x < acquired.characters.lorenz.position.x)) throw new Error('gosling: move-away did not move the real target');
+    await advance(12);
+    const followed = await call('snapshot');
+    const evidence = followed.characters.gosling.mind_graph.nodes['gosling-imprint-target'].motivation.imprinting_evidence;
+    const distance = world => Math.hypot(world.characters.gosling.position.x - world.characters.lorenz.position.x, world.characters.gosling.position.y - world.characters.lorenz.position.y);
+    if (followed.progress.status !== 'Won' || !(distance(followed) < distance(separated) && distance(followed) <= 80 && evidence.followed_distance >= 80 && evidence.follow_ticks >= 3 && evidence.max_separation_distance >= 210)) throw new Error('gosling: real fixed-entity following did not satisfy outcomes');
+    results.push({ levelId, tick: followed.tick, status: followed.progress.status, imprinting: evidence, separation: distance(separated), finalDistance: distance(followed) });
+    console.log(`MCP verified gosling with real entity acquisition and movement in ${followed.tick} ticks`);
+    return;
+  }
   if (levelId === 'smart-cat') {
     const execute = command_id => call('execute_command', { command_id, actor_id: 'trainer', target_id: 'cat-billi' });
     const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };

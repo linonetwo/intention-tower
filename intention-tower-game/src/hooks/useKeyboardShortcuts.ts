@@ -17,18 +17,32 @@ export function useKeyboardShortcuts() {
   const navigate = useNavigate();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Ignore if user is typing in an input
+    // Keep typing, browser shortcuts and IME input out of gameplay controls.
+    const editable = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
     if (
+      e.isComposing ||
       e.target instanceof HTMLInputElement ||
       e.target instanceof HTMLTextAreaElement ||
-      e.target instanceof HTMLSelectElement
+      e.target instanceof HTMLSelectElement ||
+      (editable !== null && editable.getAttribute('contenteditable') !== 'false')
     ) return;
 
     const key = e.key.toLowerCase();
+    const intentionalModifiedShortcut =
+      (!e.altKey && (e.ctrlKey || e.metaKey) && (key === 's' || (e.shiftKey && key === 'r'))) ||
+      (!e.ctrlKey && !e.metaKey && e.altKey && (key === 'arrowleft' || key === 'arrowright'));
+    if ((e.ctrlKey || e.metaKey || e.altKey) && !intentionalModifiedShortcut) return;
     const state = gameStore.getState();
     const { uiMode } = state;
 
     // ── Global shortcuts (all modes) ──
+
+    // Q controls the currently selected character; switching mode never selects another actor.
+    if (key === 'q') {
+      e.preventDefault();
+      if (!e.repeat) state.setUiMode(uiMode === 'micro' ? 'observe' : 'micro');
+      return;
+    }
 
     // ESC: if in graph mode → back to observe; else → menu
     if (key === 'escape') {

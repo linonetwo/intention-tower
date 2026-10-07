@@ -45,6 +45,24 @@ impl System for CommandSystem {
             // Process each effect
             for effect in &cmd.effects {
                 match effect {
+                    CommandEffect::MoveCharacter {
+                        delta_x,
+                        delta_y,
+                        target_character_id,
+                    } => {
+                        let id = resolve_target(
+                            target_character_id.as_deref(),
+                            cmd.target_id.as_deref(),
+                            &cmd.actor_id,
+                        );
+                        if let Some(id) = id {
+                            if let Ok(event) = crate::movement::move_character_in_tick(
+                                state, id, *delta_x, *delta_y,
+                            ) {
+                                state.pending_events.push(event);
+                            }
+                        }
+                    }
                     CommandEffect::SpawnObservation {
                         schema_id,
                         modality,
@@ -63,7 +81,27 @@ impl System for CommandSystem {
                                 // Use persistent schema-based ID (no tick suffix) so conditioning
                                 // can accumulate over time and edges remain valid across rerings.
                                 let sanitized = schema_id.replace([':', '/'], "_");
-                                let instance_id = format!("obs_{}", sanitized);
+                                // Species with entity-specific attachment must
+                                // retain distinct percepts for parent and decoy.
+                                // Other levels keep their existing cue identity.
+                                let entity_specific =
+                                    character.mind_graph.nodes.values().any(|node| {
+                                        node.node_type == NodeType::Motivation
+                                            && node
+                                                .motivation
+                                                .as_ref()
+                                                .and_then(|motivation| {
+                                                    motivation.imprinting.as_ref()
+                                                })
+                                                .is_some_and(|config| {
+                                                    config.observation_schemas.contains(schema_id)
+                                                })
+                                    });
+                                let instance_id = if entity_specific {
+                                    format!("obs_{}__{}", sanitized, about.replace([':', '/'], "_"))
+                                } else {
+                                    format!("obs_{}", sanitized)
+                                };
                                 let presentation_count = character
                                     .mind_graph
                                     .next_presentation_count(&instance_id, state.tick);

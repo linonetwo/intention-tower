@@ -641,6 +641,174 @@ async fn check_nodes_table(world: &mut GameWorld, step: &Step, character: String
     }
 }
 
+// ── Gosling outcome contracts, through the authoritative MCP core ──
+
+#[given(expr = "已加载雏鹅真实目标关卡")]
+async fn load_gosling_outcomes(world: &mut GameWorld) {
+    world.ensure_server().await;
+    world
+        .mcp_call("load_level", json!({"level_id":"gosling"}))
+        .await
+        .unwrap();
+    world
+        .mcp_call("set_time_speed", json!({"speed":0}))
+        .await
+        .unwrap();
+}
+
+#[given(expr = "雏鹅已过印刻关键期")]
+async fn gosling_past_critical_period(world: &mut GameWorld) {
+    let mut state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    state["tick"] = json!(4000);
+    world
+        .mcp_call("restore_snapshot", json!({"world":state}))
+        .await
+        .unwrap();
+}
+
+#[given(expr = "雏鹅的 {string} 资源为零且不再生")]
+async fn gosling_block_resource(world: &mut GameWorld, schema: String) {
+    let mut state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let node = state["characters"]["gosling"]["mind_graph"]["nodes"]
+        .as_object_mut()
+        .unwrap()
+        .values_mut()
+        .find(|node| node["schema_id"] == schema)
+        .unwrap();
+    node["value"] = json!(0.0);
+    node["value_velocity"] = json!(0.0);
+    world
+        .mcp_call("restore_snapshot", json!({"world":state}))
+        .await
+        .unwrap();
+}
+
+#[when(expr = "雏鹅仅推进 {int} 步")]
+async fn gosling_steps(world: &mut GameWorld, count: usize) {
+    for _ in 0..count {
+        world.mcp_call("step_tick", json!({})).await.unwrap();
+    }
+}
+
+#[when(expr = "雏鹅执行 {string} 后推进 {int} 步")]
+async fn gosling_command_steps(world: &mut GameWorld, command: String, count: usize) {
+    world
+        .mcp_call(
+            "execute_command",
+            json!({"command_id":command,"actor_id":"lorenz","target_id":"gosling"}),
+        )
+        .await
+        .unwrap();
+    gosling_steps(world, count).await;
+}
+
+#[when(expr = "雏鹅收到与真实对象有关但不属于接触的视觉")]
+async fn gosling_unrelated_visual(world: &mut GameWorld) {
+    use intention_tower_game_lib::models::commands::{CommandDTO, CommandEffect};
+    use intention_tower_game_lib::models::mind_node::Modality;
+    let mut state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    state["pending_commands"] = json!([CommandDTO {
+        command_id: "test-unrelated-visual".into(),
+        actor_id: "lorenz".into(),
+        target_id: Some("gosling".into()),
+        effects: vec![CommandEffect::SpawnObservation {
+            schema_id: "it:concept/see-unrelated-rock".into(),
+            modality: Modality::Visual,
+            about: "it:entity/lorenz".into(),
+            ttl: 100,
+            strength: 1.0,
+            target_character_id: Some("gosling".into()),
+        }],
+    }]);
+    world
+        .mcp_call("restore_snapshot", json!({"world":state}))
+        .await
+        .unwrap();
+    gosling_steps(world, 12).await;
+}
+
+#[when(expr = "雏鹅仅拥有旧通关命令计数")]
+async fn gosling_counts_only(world: &mut GameWorld) {
+    let mut state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    state["progress"]["command_counts"] =
+        json!({"approach-gosling":3,"make-sound":2,"move-away":1});
+    world
+        .mcp_call("restore_snapshot", json!({"world":state}))
+        .await
+        .unwrap();
+    gosling_steps(world, 1).await;
+}
+
+#[when(expr = "雏鹅保存恢复完整状态")]
+async fn gosling_round_trip_save(world: &mut GameWorld) {
+    let saved = world.mcp_call("snapshot", json!({})).await.unwrap();
+    world
+        .mcp_call("restore_snapshot", json!({"world":saved.clone()}))
+        .await
+        .unwrap();
+    assert_eq!(world.mcp_call("snapshot", json!({})).await.unwrap(), saved);
+}
+
+#[then(expr = "雏鹅没有真实印刻且未通关")]
+async fn gosling_no_imprint(world: &mut GameWorld) {
+    let state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let motivation = &state["characters"]["gosling"]["mind_graph"]["nodes"]
+        ["gosling-imprint-target"]["motivation"];
+    assert!(motivation["target_entity"].is_null() && motivation["imprinting_evidence"].is_null());
+    assert_eq!(state["progress"]["status"], "InProgress");
+}
+
+#[then(expr = "雏鹅的固定印刻对象为 {string}")]
+async fn gosling_fixed_target(world: &mut GameWorld, target: String) {
+    let node = world
+        .get_node("gosling", "it:concept/imprint-target")
+        .await
+        .unwrap();
+    let motivation = &node["motivation"];
+    assert_eq!(motivation["target_entity"], target);
+    assert_eq!(motivation["imprinting_evidence"]["target_entity"], target);
+    assert!(
+        (motivation["imprinting_evidence"]["dopamine_spent"]
+            .as_f64()
+            .unwrap()
+            - 0.2)
+            .abs()
+            < 1e-12
+    );
+}
+
+#[then(expr = "雏鹅真实移动追随洛伦兹并通关")]
+async fn gosling_followed_real_target(world: &mut GameWorld) {
+    let state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let goose = &state["characters"]["gosling"]["position"];
+    let target = &state["characters"]["lorenz"]["position"];
+    let distance = ((goose["x"].as_f64().unwrap() - target["x"].as_f64().unwrap()).powi(2)
+        + (goose["y"].as_f64().unwrap() - target["y"].as_f64().unwrap()).powi(2))
+    .sqrt();
+    assert!(
+        goose["x"].as_f64().unwrap() < 400.0
+            && target["x"].as_f64().unwrap() < 200.0
+            && distance <= 80.0
+    );
+    let evidence = &state["characters"]["gosling"]["mind_graph"]["nodes"]["gosling-imprint-target"]
+        ["motivation"]["imprinting_evidence"];
+    assert_eq!(evidence["target_entity"], "it:entity/lorenz");
+    assert!(
+        evidence["followed_distance"].as_f64().unwrap() >= 80.0
+            && evidence["follow_ticks"].as_u64().unwrap() >= 3
+            && evidence["max_separation_distance"].as_f64().unwrap() >= 210.0
+    );
+    assert_eq!(state["progress"]["status"], "Won");
+}
+
+#[then(expr = "雏鹅仍未通关")]
+async fn gosling_not_won(world: &mut GameWorld) {
+    assert_eq!(
+        world.mcp_call("snapshot", json!({})).await.unwrap()["progress"]["status"],
+        "InProgress"
+    );
+}
+
 // ── Main ──
 
 #[tokio::main]

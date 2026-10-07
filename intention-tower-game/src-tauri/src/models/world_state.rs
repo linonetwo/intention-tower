@@ -96,6 +96,16 @@ fn default_ui_mode() -> String {
 }
 
 impl WorldState {
+    /// Query a real world entity, accepting its local ID or canonical entity IRI.
+    /// Conceptual schemas are not entities and cannot be spatial targets.
+    pub fn entity_position(&self, entity: &str) -> Option<Position> {
+        let id = entity.strip_prefix("it:entity/").unwrap_or(entity);
+        self.characters
+            .get(id)
+            .map(|character| character.position.clone())
+            .or_else(|| self.items.get(id).map(|item| item.position.clone()))
+    }
+
     pub fn new(seed: u64) -> Self {
         Self {
             tick: 0,

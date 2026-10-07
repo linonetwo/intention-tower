@@ -25,6 +25,7 @@ impl SimulationRunner {
             Box::new(economy::EconomySystem),
             // #7 PerceptionSystem
             Box::new(perception::PerceptionSystem),
+            Box::new(follow_target::ImprintingDriveSystem),
             // #8 NoveltyHabituationSystem
             Box::new(novelty_habituation::NoveltyHabituationSystem),
             // #9 AttentionAllocationSystem
@@ -55,6 +56,7 @@ impl SimulationRunner {
             Box::new(action_selection::ActionSelectionSystem),
             // #20 ActionExecutionSystem
             Box::new(action_execution::ActionExecutionSystem),
+            Box::new(follow_target::FollowTargetSystem),
             // Operant credit is assigned to this tick's selected action.
             Box::new(operant_conditioning::OperantConditioningSystem),
             // #21 MoodCascadeSystem

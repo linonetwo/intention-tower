@@ -74,6 +74,12 @@
         "chainTarget": { "type": "IRI", "optional": true },
         "targetEntity": { "type": "IRI", "optional": true, "comment": "Imprinting target entity" },
         "criticalPeriodEnd": { "type": "u64", "optional": true, "comment": "Imprinting critical period end tick" },
+        "imprinting": { "type": "object", "optional": true, "fields": {
+          "observationSchemas": "array:IRI", "followActionSchema": "IRI", "separationInstinctSchema": "IRI", "followSpeed": "f64", "comfortRadius": "f64"
+        } },
+        "imprintingEvidence": { "type": "object", "optional": true, "comment": "Persisted actual acquisition and movement, never command counters", "fields": {
+          "targetEntity": "IRI", "sourceId": "string", "imprintedAt": "u64", "dopamineSpent": "f64", "followedDistance": "f64", "followTicks": "u32", "maxSeparationDistance": "f64"
+        } },
         "isPersistent": { "type": "bool", "default": false },
         "suppressedBy": { "type": "array", "items": "IRI", "optional": true }
       }
