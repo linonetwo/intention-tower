@@ -45,6 +45,7 @@ jobs:
           cache-dependency-path: intention-tower-game/pnpm-lock.yaml
 
       - name: Set up Rust
+        id: rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -54,31 +55,47 @@ jobs:
         with:
           workspaces: intention-tower-game/src-tauri -> target
           shared-key: verify-core
+          cache-on-failure: true
 
       - name: Install frontend dependencies
+        id: dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Verify production GPT Image 2 assets
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: pnpm test:assets
 
       - name: Type-check frontend
+        id: typecheck
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: pnpm check
 
       - name: Run frontend tests
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: pnpm test:ui
 
       - name: Check Rust formatting
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.rust.outcome == 'success' }}
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
       - name: Lint authoritative Rust core
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.rust.outcome == 'success' }}
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --all-targets -- -D warnings
 
       - name: Test authoritative Rust core
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.rust.outcome == 'success' }}
         run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --lib --tests
 
+      - name: Build standalone MCP core
+        id: core_build
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.rust.outcome == 'success' }}
+        run: cargo build --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --example intention-tower-mcp
+
       - name: Start standalone MCP core
+        id: core_start
+        if: ${{ !cancelled() && steps.core_build.outcome == 'success' }}
         run: |
-          cargo run --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --example intention-tower-mcp > "$RUNNER_TEMP/intention-tower-mcp.log" 2>&1 &
+          src-tauri/target/debug/examples/intention-tower-mcp > "$RUNNER_TEMP/intention-tower-mcp.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/intention-tower-mcp.pid"
           for attempt in {1..60}; do
             if curl --fail --silent --output /dev/null http://127.0.0.1:9222/health; then
@@ -90,13 +107,17 @@ jobs:
           exit 1
 
       - name: Play all 21 levels through MCP
+        if: ${{ !cancelled() && steps.core_start.outcome == 'success' }}
         run: pnpm test:mcp:levels
 
-      - name: Build reusable web and MCP core
-        if: ${{ !cancelled() }}
+      - name: Build reusable web
+        id: web_build
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.typecheck.outcome == 'success' }}
+        run: pnpm build
+
+      - name: Assemble reusable web and MCP core
+        if: ${{ !cancelled() && steps.web_build.outcome == 'success' && steps.core_build.outcome == 'success' }}
         run: |
-          pnpm build
-          cargo build --manifest-path src-tauri/Cargo.toml --no-default-features --features test-server --example intention-tower-mcp
           mkdir -p verification-bundle/scripts verification-bundle/assets
           cp src-tauri/target/debug/examples/intention-tower-mcp verification-bundle/
           strip verification-bundle/intention-tower-mcp
@@ -106,13 +127,14 @@ jobs:
           cp scripts/PLAYTEST.md verification-bundle/README.md
 
       - name: Install CI-only browser tooling
-        if: ${{ !cancelled() }}
+        id: browser_dependencies
+        if: ${{ !cancelled() && steps.core_start.outcome == 'success' && steps.web_build.outcome == 'success' }}
         run: |
           npm install --prefix .verification-tools --no-package-lock --no-save playwright@1.58.2
           .verification-tools/node_modules/.bin/playwright install --with-deps chromium
 
       - name: Real desktop and mobile UI playthrough via browser MCP adapter
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.core_start.outcome == 'success' && steps.web_build.outcome == 'success' && steps.browser_dependencies.outcome == 'success' }}
         run: |
           export PLAYWRIGHT_MODULE="$PWD/.verification-tools/node_modules/playwright/index.mjs"
           node scripts/browser-mcp.mjs > verification-browser.log 2>&1 &

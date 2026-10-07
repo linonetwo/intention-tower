@@ -19,7 +19,7 @@ interface GuideStep {
 }
 
 const TUTORIAL_LEVELS = new Set(['pavlov', 'smart-cat', 'gosling']);
-const shortId = (id: string | null) => id?.split('/').at(-1) ?? '';
+const shortId = (id: string | null) => id?.split('/').pop() ?? '';
 
 // CSS keyframe injected once for the tutorial highlight class
 let _styleInjected = false;

@@ -83,7 +83,7 @@ describe('headless mind graph layout', () => {
     expect(result.current.nodes.map(({ x, y }) => ({ x, y }))).toEqual(positions);
     expect(result.current.nodes.every((item) => item.value === 0.1 && !item.active)).toBe(true);
     expect(result.current.edges).toHaveLength(edges.length + 1);
-    expect(result.current.edges.at(-1)?.edge_id).toBe('new-learning-relation');
+    expect(result.current.edges[result.current.edges.length - 1]?.edge_id).toBe('new-learning-relation');
   });
 
   it('is deterministic and keeps every node inside the React SVG canvas', () => {
