@@ -19,6 +19,79 @@ impl System for ActionSelectionSystem {
             let character_id = character.id.clone();
             let graph = &mut character.mind_graph;
 
+            // Learned predictors can make a previously unavailable voluntary
+            // action eligible. Authored strength, demonstration commands and
+            // zero-weight repertoire maps cannot fabricate action execution.
+            let learned_drive: Vec<(String, f64)> = graph
+                .nodes
+                .values()
+                .filter(|node| {
+                    node.node_type == NodeType::Action
+                        && node.action.as_ref().is_some_and(|action| !action.innate)
+                })
+                .filter_map(|node| {
+                    let learned: Vec<_> = graph
+                        .edges
+                        .values()
+                        .filter(|edge| {
+                            edge.learnable
+                                && edge.evidence.co_occurrence_count > 0
+                                && edge.target_instance_id == node.instance_id
+                        })
+                        .collect();
+                    if learned.is_empty() {
+                        return None;
+                    }
+                    let drive = learned
+                        .iter()
+                        .map(|edge| {
+                            graph
+                                .nodes
+                                .get(&edge.source_instance_id)
+                                .filter(|source| source.active && source.attended)
+                                .map_or(0.0, |source| match edge.polarity {
+                                    crate::models::mind_node::Polarity::Excitatory => {
+                                        edge.weight * source.value
+                                    }
+                                    crate::models::mind_node::Polarity::Inhibitory => {
+                                        -edge.weight * source.value
+                                    }
+                                })
+                        })
+                        .sum::<f64>()
+                        .clamp(0.0, 1.0);
+                    Some((node.instance_id.clone(), drive))
+                })
+                .collect();
+            for (action_id, drive) in learned_drive {
+                let node = graph.nodes.get_mut(&action_id).unwrap();
+                let old_value = node.value;
+                let was_active = node.active;
+                node.value = drive;
+                node.active = drive >= 0.3;
+                if (node.value - old_value).abs() > 1e-8 {
+                    state.pending_events.push(WorldEvent::NodeValueChanged {
+                        character_id: character_id.clone(),
+                        instance_id: action_id.clone(),
+                        old_value,
+                        new_value: node.value,
+                    });
+                }
+                if node.active != was_active {
+                    state.pending_events.push(if node.active {
+                        WorldEvent::NodeActivated {
+                            character_id: character_id.clone(),
+                            instance_id: action_id,
+                        }
+                    } else {
+                        WorldEvent::NodeDeactivated {
+                            character_id: character_id.clone(),
+                            instance_id: action_id,
+                        }
+                    });
+                }
+            }
+
             // Calculate weighted score for each action:
             // score = action.strength + sum(incoming edge weights * source node value)
             let mut action_scores: Vec<(String, f64)> = Vec::new();

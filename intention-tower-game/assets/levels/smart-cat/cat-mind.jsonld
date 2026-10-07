@@ -170,6 +170,17 @@
   ],
   "edges": [
     {
+      "edgeId": "observed-press-action-map",
+      "sourceInstanceId": "obs_it_concept_hear-button-sound",
+      "targetInstanceId": "cat-press-button",
+      "polarity": "Excitatory",
+      "weight": 0.0,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Social",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 1.0 }
+    },
+    {
       "edgeId": "hunger-to-want-eat",
       "sourceInstanceId": "cat-hunger",
       "targetInstanceId": "__managed:hunger-spawn-want-eat",

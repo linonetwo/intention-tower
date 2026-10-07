@@ -963,6 +963,9 @@ fn parse_precondition(p: &PreconditionJson) -> Option<Precondition> {
         "TargetNodeActive" => Some(Precondition::TargetNodeActive {
             schema_id: p.schema_id.clone()?,
         }),
+        "TargetActionSelected" => Some(Precondition::TargetActionSelected {
+            schema_id: p.schema_id.clone()?,
+        }),
         "TargetNodeValue" => Some(Precondition::TargetNodeValue {
             schema_id: p.schema_id.clone()?,
             op: parse_compare_op(p.op.as_deref().unwrap_or("GTE")),

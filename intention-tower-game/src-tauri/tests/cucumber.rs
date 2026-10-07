@@ -358,22 +358,31 @@ async fn edge_weight_gt(
     threshold: f64,
 ) {
     let edges = world.get_edges(&character).await.expect("查询边失败");
-    let edge = edges.iter().find(|e| {
-        e["source_instance_id"]
-            .as_str()
-            .is_some_and(|s| s.contains(&source))
-            && e["target_instance_id"]
+    let matching: Vec<_> = edges
+        .iter()
+        .filter(|e| {
+            e["source_instance_id"]
                 .as_str()
-                .is_some_and(|t| t.contains(&target))
-    });
+                .is_some_and(|s| s.contains(&source))
+                && e["target_instance_id"]
+                    .as_str()
+                    .is_some_and(|t| t.contains(&target))
+        })
+        .collect();
     assert!(
-        edge.is_some(),
+        !matching.is_empty(),
         "{} 中未找到从 {} 到 {} 的边",
         character,
         source,
         target
     );
-    let weight = edge.unwrap()["weight"].as_f64().unwrap_or(0.0);
+    // Parallel learned/classical/operant links carry summed drive. Selecting
+    // an arbitrary HashMap entry could hide learning behind a zero-weight
+    // authored demonstration map, or hide a nonzero edge in a negative test.
+    let weight: f64 = matching
+        .iter()
+        .map(|edge| edge["weight"].as_f64().unwrap_or(0.0))
+        .sum();
     assert!(
         weight > threshold,
         "{} 中 {} → {} 边权重 {:.3} 应 > {}",
@@ -394,7 +403,7 @@ async fn edge_weight_lt(
     threshold: f64,
 ) {
     let edges = world.get_edges(&character).await.expect("查询边失败");
-    let edge = edges.iter().find(|e| {
+    let matching = edges.iter().filter(|e| {
         e["source_instance_id"]
             .as_str()
             .is_some_and(|s| s.contains(&source))
@@ -403,9 +412,9 @@ async fn edge_weight_lt(
                 .is_some_and(|t| t.contains(&target))
     });
     // 如果边不存在，权重视为 0
-    let weight = edge
-        .map(|e| e["weight"].as_f64().unwrap_or(0.0))
-        .unwrap_or(0.0);
+    let weight: f64 = matching
+        .map(|edge| edge["weight"].as_f64().unwrap_or(0.0))
+        .sum();
     assert!(
         weight < threshold,
         "{} 中 {} → {} 边权重 {:.3} 应 < {}",

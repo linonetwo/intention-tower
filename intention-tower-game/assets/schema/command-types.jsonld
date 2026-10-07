@@ -22,6 +22,7 @@
         { "type": "EnvHasItem", "fields": { "itemSchemaId": "IRI" } },
         { "type": "TargetHasNode", "fields": { "nodeType": "string", "schemaId": "IRI" } },
         { "type": "TargetNodeActive", "fields": { "schemaId": "IRI" } },
+        { "type": "TargetActionSelected", "fields": { "schemaId": "IRI" } },
         { "type": "TargetNodeValue", "fields": { "schemaId": "IRI", "op": "enum:GT/LT/EQ/GTE/LTE", "threshold": "f64" } },
         { "type": "ActorResource", "fields": { "resourceSchemaId": "IRI", "op": "enum:GT/LT/GTE/LTE", "threshold": "f64" } },
         { "type": "IsVirtualContext", "fields": { "value": "bool" } }

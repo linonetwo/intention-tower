@@ -65,6 +65,7 @@ impl System for ClassicalConditioningSystem {
                 .collect();
             targets.sort();
             targets.dedup();
+            let reflex_targets = targets.clone();
             let mut cues: Vec<String> = graph
                 .nodes
                 .values()
@@ -83,7 +84,37 @@ impl System for ClassicalConditioningSystem {
                 .collect();
             cues.sort();
             for source_id in cues {
-                for target_id in &targets {
+                // A zero-weight authored demonstration map identifies an
+                // observed action in the character's repertoire. It cannot
+                // drive behavior itself: only later reward creates a learned
+                // association. This also supports voluntary observational
+                // learning without pretending the observer already acted.
+                let mut cue_targets = reflex_targets.clone();
+                cue_targets.extend(
+                    graph
+                        .edges
+                        .values()
+                        .filter(|edge| {
+                            !edge.learnable
+                                && edge.weight == 0.0
+                                && edge.polarity == Polarity::Excitatory
+                                && edge.source_instance_id == source_id
+                        })
+                        .filter_map(|edge| {
+                            graph
+                                .nodes
+                                .get(&edge.target_instance_id)
+                                .filter(|node| {
+                                    node.node_type == NodeType::Action
+                                        && node.action.as_ref().is_some_and(|action| !action.innate)
+                                })
+                                .map(|node| node.instance_id.clone())
+                        }),
+                );
+                cue_targets.sort();
+                cue_targets.dedup();
+                targets.extend(cue_targets.iter().cloned());
+                for target_id in &cue_targets {
                     if graph
                         .conditioning_trials
                         .iter()
@@ -99,7 +130,10 @@ impl System for ClassicalConditioningSystem {
                         .values()
                         .filter(|edge| {
                             edge.learnable
-                                && edge.learn_type == LearnType::Classical
+                                && matches!(
+                                    edge.learn_type,
+                                    LearnType::Classical | LearnType::Operant
+                                )
                                 && edge.target_instance_id == *target_id
                                 && graph
                                     .nodes
@@ -119,26 +153,53 @@ impl System for ClassicalConditioningSystem {
                     });
                 }
             }
+            targets.extend(
+                graph
+                    .conditioning_trials
+                    .iter()
+                    .map(|trial| trial.target_id.clone()),
+            );
+            targets.sort();
+            targets.dedup();
             let rewards: std::collections::HashMap<String, f64> = targets
                 .iter()
                 .map(|target| {
-                    let reward = graph
-                        .edges
-                        .values()
-                        .filter(|edge| !edge.learnable && edge.target_instance_id == *target)
-                        .filter_map(|edge| graph.nodes.get(&edge.source_instance_id))
-                        .filter_map(|node| node.observation.as_ref()?.about.as_ref())
-                        .flat_map(|about| {
-                            graph.nodes.values().filter(move |node| {
-                                node.active
-                                    && node.attended
-                                    && node.created_at == current_tick
-                                    && node.observation.as_ref().and_then(|obs| obs.about.as_ref())
-                                        == Some(about)
+                    let has_unconditioned_path = graph.edges.values().any(|edge| {
+                        !edge.learnable
+                            && edge.target_instance_id == *target
+                            && intrinsic_reward(graph, &edge.source_instance_id) > 0.0
+                    });
+                    let reward = if has_unconditioned_path {
+                        graph
+                            .edges
+                            .values()
+                            .filter(|edge| !edge.learnable && edge.target_instance_id == *target)
+                            .filter_map(|edge| graph.nodes.get(&edge.source_instance_id))
+                            .filter_map(|node| node.observation.as_ref()?.about.as_ref())
+                            .flat_map(|about| {
+                                graph.nodes.values().filter(move |node| {
+                                    node.active
+                                        && node.attended
+                                        && node.created_at == current_tick
+                                        && node
+                                            .observation
+                                            .as_ref()
+                                            .and_then(|obs| obs.about.as_ref())
+                                            == Some(about)
+                                })
                             })
-                        })
-                        .map(|node| intrinsic_reward(graph, &node.instance_id))
-                        .fold(0.0_f64, f64::max);
+                            .map(|node| intrinsic_reward(graph, &node.instance_id))
+                            .fold(0.0_f64, f64::max)
+                    } else {
+                        graph
+                            .nodes
+                            .values()
+                            .filter(|node| {
+                                node.active && node.attended && node.created_at == current_tick
+                            })
+                            .map(|node| intrinsic_reward(graph, &node.instance_id))
+                            .fold(0.0_f64, f64::max)
+                    };
                     (target.clone(), reward)
                 })
                 .collect();

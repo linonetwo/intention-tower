@@ -426,6 +426,57 @@ fn consumer_command_creates_a_real_balanced_asset_transaction() {
 }
 
 #[test]
+fn repeated_food_and_auditory_stimuli_are_associations_not_public_memes() {
+    let mut world = load_level_from_path(&level_dir("pavlov")).unwrap();
+    for tick in 1..=4 {
+        world.tick = tick;
+        world.pending_events = vec![
+            WorldEvent::SoundEmitted {
+                source_entity_id: "pavlov".into(),
+                about: "it:concept/bell".into(),
+                modality: "Auditory".into(),
+            },
+            WorldEvent::FoodPresented {
+                source_entity_id: "pavlov".into(),
+                about: "schema:Food".into(),
+            },
+        ];
+        PerceptionSystem.run(&mut world, 0.0);
+        world.pending_events.clear();
+        MemeEmergenceSystem.run(&mut world, 0.0);
+    }
+    assert!(world.characters["dog"]
+        .mind_graph
+        .nodes
+        .values()
+        .all(|node| node.node_type != intention_tower_game_lib::models::mind_node::NodeType::Meme));
+}
+
+#[test]
+fn own_action_echo_is_not_a_meme_but_another_character_can_observe_it() {
+    let mut world = load_level_from_path(&level_dir("pavlov")).unwrap();
+    for tick in 1..=3 {
+        world.tick = tick;
+        world.pending_events = vec![WorldEvent::SoundEmitted {
+            source_entity_id: "dog".into(),
+            about: "it:concept/public-ritual".into(),
+            modality: "Social".into(),
+        }];
+        PerceptionSystem.run(&mut world, 0.0);
+        world.pending_events.clear();
+        MemeEmergenceSystem.run(&mut world, 0.0);
+    }
+    assert!(world.characters["dog"]
+        .mind_graph
+        .find_by_schema("it:emergent/it_concept_public_ritual")
+        .is_none());
+    assert!(world.characters["pavlov"]
+        .mind_graph
+        .find_by_schema("it:emergent/it_concept_public_ritual")
+        .is_some());
+}
+
+#[test]
 fn belief_suppression_is_effective_but_never_erodes_base_instinct_strength() {
     let mut world =
         load_level_from_path(&level_dir("water-is-poison")).expect("load water-is-poison");

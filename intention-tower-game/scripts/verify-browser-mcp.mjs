@@ -100,10 +100,12 @@ try {
   }
   const trained = await captureLearning('trained');
   assert.ok(weight(trained) >= 0.3, 'Paired training must establish real association');
+  assert.ok(Math.abs(weight(trained) - 0.67232) < 1e-9, 'Five isolated reward pairings must match the authoritative update rule');
   assert.ok(graph(trained).conditioning_stats[edgeId].paired_trials >= 3);
   await command('ring-bell'); await advance(11);
   const independent = await captureLearning('independent-bell');
   assert.ok(graph(independent).conditioning_stats[edgeId].independent_responses >= 1);
+  assert.ok(Math.abs(weight(independent) - 0.537856) < 1e-9, 'Independent unrewarded bell must extinguish exactly one trial');
   assert.equal(independent.progress.status, 'Won', 'Actual independent response must win tutorial');
   // Sandbox removes outcome freeze, not mechanics, so extinction can be exercised.
   await call('load_level', { level_id: 'pavlov', sandbox: true });
@@ -118,6 +120,64 @@ try {
   } catch (error) {
     report.learningFailure = String(error);
     await shot('learning-failure');
+    process.exitCode = 1;
+  }
+
+  try {
+    const catGraph = world => world.characters['cat-billi'].mind_graph;
+    const catEvidence = async label => {
+      const world = await call('snapshot');
+      (report.smartCatLearning ??= []).push({ label, tick: world.tick, status: world.progress.status, graph: catGraph(world) });
+      await evaluate(`window.__INTENTION_TEST__.setUiMode('graph')`);
+      await shot(`smart-cat-${label}`);
+      return world;
+    };
+    await load('smart-cat');
+    await evaluate(`window.__INTENTION_TEST__.selectActor('trainer');window.__INTENTION_TEST__.selectTarget('cat-billi');window.__INTENTION_TEST__.setAutoStep(false)`);
+    await command('demonstrate-press'); await advance(12);
+    const untrained = await catEvidence('unrewarded-demonstration');
+    assert.equal(Object.values(catGraph(untrained).edges).filter(edge => edge.learnable).length, 0, 'Unrewarded demonstration must not train cat');
+    assert.equal(catGraph(untrained).nodes['cat-press-button'].value, 0, 'Demonstration cannot puppet action value');
+    assert.equal(catGraph(untrained).nodes['cat-press-button'].action.selected, false);
+    const unavailable = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
+    assert.ok(!unavailable.some(command => command.command_id === 'feed-after-press'));
+
+    await load('smart-cat');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
+    await command('show-button'); await advance(1);
+    for (let trial = 0; trial < 3; trial++) {
+      if (trial === 0) {
+        await call('click', { selector: '[data-testid="mode-observe"]' });
+        if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+        await clickCommand('demonstrate-press'); await advance(1);
+        const available = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
+        assert.ok(!available.some(command => command.command_id === 'feed-after-press'), 'An untrained demonstration cannot unlock contingent food');
+        await clickCommand('feed');
+      } else { await command('demonstrate-press'); await advance(1); await command('feed'); }
+      await advance(1); await advance(11);
+    }
+    const paired = await catEvidence('rewarded-training');
+    assert.ok(Object.values(catGraph(paired).edges).some(edge => edge.learnable && edge.target_instance_id === 'cat-press-button' && edge.weight > 0));
+    for (let trial = 0; trial < 3; trial++) {
+      await command('demonstrate-press'); await advance(1);
+      const beforeSelection = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
+      if (trial === 0) assert.ok(!beforeSelection.some(command => command.command_id === 'feed-after-press'), 'Eligible value alone cannot unlock contingent food');
+      await advance(1);
+      const selected = catGraph(await call('snapshot')).nodes['cat-press-button'];
+      assert.ok(selected.active && selected.attended && selected.action.selected && selected.value >= 0.3, 'Reward requires actual attended and selected cat action');
+      if (trial === 0) {
+        await call('click', { selector: '[data-testid="mode-observe"]' });
+        await clickCommand('feed-after-press');
+        (report.realCommandButtons ??= []).push('command-demonstrate-press', 'command-feed-after-press');
+      } else await command('feed-after-press');
+      await advance(1);
+    }
+    const operant = await catEvidence('selected-action-operant-reward');
+    assert.ok(Object.values(catGraph(operant).edges).some(edge => edge.learnable && edge.learn_type === 'Operant' && edge.weight > 0), 'Rewarded selected action must create real operant credit');
+    assert.equal(operant.progress.status, 'Won');
+  } catch (error) {
+    report.smartCatFailure = String(error);
+    await shot('smart-cat-failure');
     process.exitCode = 1;
   }
 

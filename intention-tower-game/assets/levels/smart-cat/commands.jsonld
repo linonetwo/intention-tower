@@ -14,7 +14,7 @@
           "schemaId": "it:concept/see-button",
           "modality": "Visual",
           "about": "it:entity-type/sound-button",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
         }
       ]
@@ -25,6 +25,7 @@
       "hotkey": "2",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "TargetActionSelected", "schemaId": "it:concept/press-button" },
         { "type": "TargetNodeValue", "schemaId": "it:concept/press-button", "op": "GTE", "threshold": 0.3 }
       ],
       "effects": [
@@ -33,7 +34,7 @@
           "schemaId": "it:concept/see-food",
           "modality": "Olfactory",
           "about": "schema:Food",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 1.0
         },
         {
@@ -56,7 +57,7 @@
           "schemaId": "it:concept/see-button",
           "modality": "Visual",
           "about": "it:entity-type/sound-button",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
         },
         {
@@ -64,22 +65,8 @@
           "schemaId": "it:concept/hear-button-sound",
           "modality": "Auditory",
           "about": "it:entity-type/sound-button",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
-        },
-        {
-          "type": "SpawnObservation",
-          "schemaId": "it:concept/see-food",
-          "modality": "Olfactory",
-          "about": "schema:Food",
-          "ttl": 300,
-          "strength": 1.0
-        },
-        {
-          "type": "ModifyNodeValue",
-          "schemaId": "it:concept/press-button",
-          "delta": 0.4,
-          "targetCharacterId": "__target"
         }
       ]
     },
@@ -90,6 +77,14 @@
       "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-food",
+          "modality": "Olfactory",
+          "about": "schema:Food",
+          "ttl": 10,
+          "strength": 1.0
+        },
         {
           "type": "ModifyNodeValue",
           "schemaId": "it:concept/hunger",

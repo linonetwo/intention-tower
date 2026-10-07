@@ -69,6 +69,31 @@ async function findTarget(world, commandId, actorId, distinctTargets) {
 async function playLevel(levelId) {
   await call('load_level', { level_id: levelId });
   await call('set_time_speed', { speed: 0 });
+  if (levelId === 'smart-cat') {
+    const execute = command_id => call('execute_command', { command_id, actor_id: 'trainer', target_id: 'cat-billi' });
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
+    await execute('show-button'); await advance(1);
+    for (let trial = 0; trial < 3; trial++) {
+      await execute('demonstrate-press'); await advance(1);
+      if (trial === 0) {
+        const available = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
+        if (available.some(command => command.command_id === 'feed-after-press')) throw new Error('smart-cat: untrained demonstration falsely selected a cat action');
+      }
+      await execute('feed'); await advance(1); await advance(11);
+    }
+    for (let trial = 0; trial < 3; trial++) {
+      await execute('demonstrate-press'); await advance(2);
+      const selected = (await call('snapshot')).characters['cat-billi'].mind_graph.nodes['cat-press-button'];
+      if (!(selected.active && selected.attended && selected.action?.selected && selected.value >= 0.3)) throw new Error('smart-cat: contingent food lacks genuinely selected learned action');
+      await execute('feed-after-press'); await advance(1);
+    }
+    const trained = await call('snapshot');
+    const edges = Object.values(trained.characters['cat-billi'].mind_graph.edges);
+    if (trained.progress.status !== 'Won' || !edges.some(edge => edge.learnable && edge.learn_type === 'Operant' && edge.weight > 0)) throw new Error('smart-cat: actual operant learning did not win');
+    results.push({ levelId, tick: trained.tick, status: trained.progress.status, learningEdges: edges.filter(edge => edge.learnable) });
+    console.log(`MCP verified smart-cat with actual conditioned and selected-action reward in ${trained.tick} ticks`);
+    return;
+  }
   if (levelId === 'pavlov') {
     const execute = command_id => call('execute_command', { command_id, actor_id: 'pavlov', target_id: 'dog' });
     const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };

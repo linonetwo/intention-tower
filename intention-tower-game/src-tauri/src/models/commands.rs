@@ -107,6 +107,9 @@ pub enum Precondition {
     TargetNodeActive {
         schema_id: String,
     },
+    TargetActionSelected {
+        schema_id: String,
+    },
     TargetNodeValue {
         schema_id: String,
         op: CompareOp,

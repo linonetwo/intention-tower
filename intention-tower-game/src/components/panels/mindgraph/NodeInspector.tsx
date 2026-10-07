@@ -2,8 +2,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Box, ButtonBase, Chip, Divider, IconButton, LinearProgress, Tab, Tabs, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { nodeTypeLabel, translateLabel } from '../../../i18n';
-import { NODE_TYPE_COLORS } from './constants';
+import { nodeTypeLabel } from '../../../i18n';
+import { graphNodeLabel, NODE_TYPE_COLORS } from './constants';
 import type { GraphEdge, GraphNode } from './types';
 import { LearningTrace, type LearningUpdate } from './LearningTrace';
 
@@ -63,7 +63,7 @@ export function NodeInspector({
   const sourceNode = selectedEdge ? nodeMap.get(selectedEdge.source_instance_id) : null;
   const targetNode = selectedEdge ? nodeMap.get(selectedEdge.target_instance_id) : null;
   const title = selectedNode
-    ? (selectedNode.isUnknown ? t('graph.unknown') : translateLabel(selectedNode.label))
+    ? (selectedNode.isUnknown ? t('graph.unknown') : graphNodeLabel(selectedNode))
     : selectedEdge
       ? t('inspector.relationship')
       : t('inspector.title');
@@ -166,7 +166,7 @@ export function NodeInspector({
                     onClick={() => node && onSelectNode?.(node.instance_id)}
                     sx={{ minWidth: 0, px: 0.8, py: 0.5, borderRadius: 1, bgcolor: 'rgba(255,255,255,0.055)', border: '1px solid rgba(255,255,255,0.09)' }}
                   >
-                    <Typography noWrap sx={{ maxWidth: 105, fontSize: 10.5, color: '#d4e0e8' }}>{node ? translateLabel(node.label) : index === 0 ? selectedEdge.source_instance_id : selectedEdge.target_instance_id}</Typography>
+                    <Typography noWrap sx={{ maxWidth: 105, fontSize: 10.5, color: '#d4e0e8' }}>{node ? graphNodeLabel(node) : t('graph.unknown')}</Typography>
                   </ButtonBase>
                 </Box>
               ))}
@@ -196,7 +196,7 @@ export function NodeInspector({
               >
                 <Typography sx={{ color: edge.polarity === 'Excitatory' ? '#64d8a2' : '#ff6577', fontSize: 15 }}>{incoming ? '←' : '→'}</Typography>
                 <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography noWrap sx={{ fontSize: 10.5, color: '#d0dce5' }}>{other ? translateLabel(other.label) : otherId}</Typography>
+                  <Typography noWrap sx={{ fontSize: 10.5, color: '#d0dce5' }}>{other ? graphNodeLabel(other) : t('graph.unknown')}</Typography>
                   <Typography sx={{ fontSize: 9.5, color: '#718392' }}>{!edge.learnable ? t(edge.learn_type === 'Classical' ? 'graph.relation.innate' : 'graph.relation.fixed') : t(`graph.relation.${edge.learn_type}`, { defaultValue: t('graph.relation.association') })} · {edge.weight.toFixed(2)}</Typography>
                 </Box>
                 {edge.learnable && <Chip label={t('graph.edge.learnable')} size='small' sx={{ height: 18, fontSize: 8.5 }} />}

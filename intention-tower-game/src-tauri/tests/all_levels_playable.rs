@@ -466,6 +466,9 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                 "show-button",
                 1,
             );
+            // Demonstration is observation, not a command that puppets the
+            // cat's action or secretly supplies food. Establish its predictor
+            // with real, later reward before asking for a selected action.
             for _ in 0..3 {
                 act(
                     world,
@@ -475,6 +478,23 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                     "demonstrate-press",
                     1,
                 );
+                act(world, runner, "trainer", Some("cat-billi"), "feed", 1);
+                for _ in 0..11 {
+                    runner.tick(world, 0.5);
+                }
+            }
+            for _ in 0..3 {
+                act(
+                    world,
+                    runner,
+                    "trainer",
+                    Some("cat-billi"),
+                    "demonstrate-press",
+                    1,
+                );
+                // Attention must include the newly eligible learned action;
+                // rewarding a value that has not actually been selected fails.
+                runner.tick(world, 0.5);
                 act(
                     world,
                     runner,

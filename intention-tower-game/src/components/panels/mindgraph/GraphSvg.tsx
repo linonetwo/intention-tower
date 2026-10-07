@@ -5,9 +5,9 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { nodeTypeLabel, translateLabel } from '../../../i18n';
+import { nodeTypeLabel } from '../../../i18n';
 import type { NodeType } from '../../../types/backend';
-import { NODE_TYPE_COLORS } from './constants';
+import { graphNodeLabel, NODE_TYPE_COLORS } from './constants';
 import type { GraphEdge, GraphNode } from './types';
 
 type Props = {
@@ -446,15 +446,15 @@ export function GraphSvg({
             const phaseLabel = !edge.learnable
               ? t(edge.learn_type === 'Classical' ? 'graph.relation.innate' : 'graph.relation.fixed')
               : phase ? t(`graph.learning.${phase}`) : t(`graph.relation.${edge.learn_type}`, { defaultValue: t('graph.relation.association') });
-            const label = `${edge.polarity === 'Excitatory' ? '+' : '−'}${edge.weight.toFixed(2)} · ${phaseLabel}`;
-            const relationLabelWidth = Math.max(78, [...label].reduce((sum, char) => sum + (char.charCodeAt(0) > 255 ? 8.5 : 4.5), 16));
+            const label = selected ? `${edge.polarity === 'Excitatory' ? '+' : '−'}${edge.weight.toFixed(2)} · ${phaseLabel}` : phaseLabel;
+            const relationLabelWidth = Math.max(48, [...label].reduce((sum, char) => sum + (char.charCodeAt(0) > 255 ? 10 : 5), 16));
             return (
               <g
                 key={edge.edge_id}
                 className='graph-edge'
                 role='button'
                 tabIndex={0}
-                aria-label={t('graph.edge.aria', { source: translateLabel(source.label), target: translateLabel(target.label), weight: edge.weight.toFixed(2) })}
+                aria-label={t('graph.edge.aria', { source: graphNodeLabel(source), target: graphNodeLabel(target), weight: edge.weight.toFixed(2) })}
                 onMouseDown={(event) => event.stopPropagation()}
                 onClick={(event) => { event.stopPropagation(); onSelectEdge(edge.edge_id); }}
                 onKeyDown={(event) => {
@@ -487,13 +487,13 @@ export function GraphSvg({
                       x={geometry.label.x - relationLabelWidth / 2}
                       y={geometry.label.y - 10}
                       width={relationLabelWidth}
-                      height={17}
+                      height={20}
                       rx={8.5}
                       fill='rgba(5,9,15,0.9)'
                       stroke={motion.color}
                       strokeOpacity={0.5}
                     />
-                    <text x={geometry.label.x} y={geometry.label.y + 2} textAnchor='middle' fontSize={8.5} fill='#d8e2ea'>
+                    <text x={geometry.label.x} y={geometry.label.y + 3.5} textAnchor='middle' fontSize={10} fill='#d8e2ea'>
                       {label}
                     </text>
                   </g>
@@ -509,7 +509,7 @@ export function GraphSvg({
             const focusDimmed = hasFocus && !focusNodeIds.has(node.instance_id);
             const searchDimmed = matchedNodeIds !== null && !matchedNodeIds.has(node.instance_id);
             const dimmed = focusDimmed || searchDimmed;
-            const label = unknown ? t('graph.unknown') : translateLabel(node.label).slice(0, 18);
+            const label = unknown ? t('graph.unknown') : graphNodeLabel(node).slice(0, 18);
             const labelWidth = Math.max(26, [...label].reduce((sum, char) => sum + (char.charCodeAt(0) > 255 ? 11.5 : 6), 14));
             const circumference = 2 * Math.PI * (node.r + 4);
             return (
@@ -521,7 +521,7 @@ export function GraphSvg({
                 tabIndex={0}
                 aria-label={unknown
                   ? t('graph.node.unknownAria')
-                  : t('graph.node.aria', { label: translateLabel(node.label), type: nodeTypeLabel(node.node_type), value: node.value.toFixed(2) })}
+                  : t('graph.node.aria', { label: graphNodeLabel(node), type: nodeTypeLabel(node.node_type), value: node.value.toFixed(2) })}
                 onMouseDown={(event) => {
                   if (event.button !== 0) return;
                   event.stopPropagation();

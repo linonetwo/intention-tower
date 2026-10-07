@@ -17,56 +17,29 @@ import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
 import { translateLabel } from '../../i18n';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { eventType, eventPayload, type WorldEvent, type WorldState, type CommandEffect } from '../../types/backend';
+import { type WorldEvent, type WorldState, type CommandEffect } from '../../types/backend';
+import { objectName, presentEvent } from './eventPresentation';
 
 /* ── Event formatting (simplified for dialogue) ── */
 function formatEventBrief(ev: WorldEvent, ws: WorldState | null): string {
-  const type = eventType(ev);
-  const data = eventPayload(ev);
-  const charName = (id: string) => ws?.characters[id] ? translateLabel(ws.characters[id].label) : String(id);
-  const nodeName = (cid: string, iid: string) => {
-    const node = ws?.characters[cid]?.mind_graph.nodes[iid];
-    return node ? translateLabel(node.label) : String(iid);
-  };
-
-  switch (type) {
-    case 'CommandExecuted':
-      return `🎮 ${charName(data.actor_id as string)} → ${String(data.command_id)}`;
-    case 'NodeSpawned':
-      return `✨ ${charName(data.character_id as string)}: +${nodeName(data.character_id as string, data.instance_id as string)}`;
-    case 'NodeActivated':
-      return `⚡ ${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} 激活`;
-    case 'NodeValueChanged': {
-      const delta = (data.new_value as number) - (data.old_value as number);
-      const arrow = delta > 0 ? '↑' : '↓';
-      return `${arrow} ${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${(data.new_value as number).toFixed(2)}`;
-    }
-    case 'EdgeCreated':
-      return `🔗 ${charName(data.character_id as string)}: 新连接`;
-    case 'SoundEmitted':
-      return `🔔 ${String(data.about)}`;
-    case 'FoodPresented':
-      return `🍖 ${String(data.about)}`;
-    case 'ThresholdCrossed':
-      return `📐 ${charName(data.character_id as string)}: 阈值 ${String(data.trigger_id)}`;
-    default:
-      return `📌 ${type}`;
-  }
+  const presentation = presentEvent(ev, ws);
+  return `${presentation.icon} ${presentation.text}`;
 }
 
-function describeEffect(effect: CommandEffect, t: (k: string, v?: Record<string, unknown>) => string): string {
-  if ('SpawnObservation' in effect) return t('command.effect.spawn', { schema: effect.SpawnObservation.schema_id.split('/').pop(), modality: effect.SpawnObservation.modality });
-  if ('ModifyNodeValue' in effect) { const d = effect.ModifyNodeValue.delta; return t('command.effect.modify', { schema: effect.ModifyNodeValue.schema_id.split('/').pop(), delta: `${d > 0 ? '+' : ''}${d}` }); }
-  if ('InjectMeme' in effect) return t('command.effect.meme', { schema: effect.InjectMeme.meme_schema_id.split('/').pop() });
-  if ('ReinforceEdge' in effect) return t('command.effect.reinforce', { source: effect.ReinforceEdge.source_schema_id.split('/').pop(), target: effect.ReinforceEdge.target_schema_id.split('/').pop() });
-  if ('WeakenEdge' in effect) return t('command.effect.weaken', { source: effect.WeakenEdge.source_schema_id.split('/').pop(), target: effect.WeakenEdge.target_schema_id.split('/').pop() });
-  if ('ConsumeResource' in effect) return t('command.effect.consume', { schema: effect.ConsumeResource.resource_schema_id.split('/').pop(), amount: effect.ConsumeResource.amount });
-  if ('DeleteNode' in effect) return t('command.effect.delete', { schema: effect.DeleteNode.schema_id.split('/').pop() });
-  return '...';
+function describeEffect(effect: CommandEffect, t: (k: string, v?: Record<string, unknown>) => string, world: WorldState | null): string {
+  const name = (id: string) => objectName(world, id);
+  if ('SpawnObservation' in effect) return t('command.effect.spawn', { schema: name(effect.SpawnObservation.schema_id), modality: t(`event.modality.${effect.SpawnObservation.modality}`, { defaultValue: t('event.modality.other') }) });
+  if ('ModifyNodeValue' in effect) { const d = effect.ModifyNodeValue.delta; return t('command.effect.modify', { schema: name(effect.ModifyNodeValue.schema_id), delta: `${d > 0 ? '+' : ''}${d}` }); }
+  if ('InjectMeme' in effect) return t('command.effect.meme', { schema: name(effect.InjectMeme.meme_schema_id) });
+  if ('ReinforceEdge' in effect) return t('command.effect.reinforce', { source: name(effect.ReinforceEdge.source_schema_id), target: name(effect.ReinforceEdge.target_schema_id) });
+  if ('WeakenEdge' in effect) return t('command.effect.weaken', { source: name(effect.WeakenEdge.source_schema_id), target: name(effect.WeakenEdge.target_schema_id) });
+  if ('ConsumeResource' in effect) return t('command.effect.consume', { schema: name(effect.ConsumeResource.resource_schema_id), amount: effect.ConsumeResource.amount });
+  if ('DeleteNode' in effect) return t('command.effect.delete', { schema: name(effect.DeleteNode.schema_id) });
+  return t('event.updated');
 }
 
 export const DialogueBox: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const layout = useResponsiveLayout();
   const worldState = useGameState((s) => s.worldState);
   const availableCommands = useGameState((s) => s.availableCommands);
@@ -94,7 +67,7 @@ export const DialogueBox: React.FC = () => {
       .filter(e => !('TickCompleted' in e))
       .slice(0, 5)
       .map(e => formatEventBrief(e, worldState));
-  }, [recentEvents, worldState]);
+  }, [recentEvents, worldState, i18n.language]);
 
   const actorLabel = selectedActorId && worldState?.characters[selectedActorId]
     ? translateLabel(worldState.characters[selectedActorId].label)
@@ -282,7 +255,7 @@ export const DialogueBox: React.FC = () => {
                       <Box sx={{ pl: 4, pr: 1, py: 0.2 }}>
                         {cmd.effect_templates?.map((eff, i) => (
                           <Typography key={i} sx={{ fontSize: 9, color: '#7986cb', lineHeight: 1.3 }}>
-                            • {describeEffect(eff, t)}
+                            • {describeEffect(eff, t, worldState)}
                           </Typography>
                         ))}
                       </Box>

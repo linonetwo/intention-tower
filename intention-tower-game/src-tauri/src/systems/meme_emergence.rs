@@ -25,6 +25,13 @@ impl System for MemeEmergenceSystem {
                 let Some(observation) = node.observation.as_ref() else {
                     continue;
                 };
+                // Emergent memes represent socially meaningful public
+                // behavior, not repeated food/bell sensations (associations
+                // already model those), nor echoes of our own actions.
+                if !observation.is_signal || observation.emitter_id.as_ref() == Some(&character.id)
+                {
+                    continue;
+                }
                 let Some(about) = observation.about.as_ref() else {
                     continue;
                 };

@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { WorldEvent } from '../../../types/backend';
-import { translateLabel } from '../../../i18n';
+import { graphNodeLabel } from './constants';
 import type { GraphNode } from './types';
 
 export type LearningUpdate = Extract<WorldEvent, { LearningUpdated: unknown }>['LearningUpdated'];
@@ -22,7 +22,7 @@ export function LearningTrace({ updates, nodes }: { updates: LearningUpdate[]; n
             <Typography title={`${update.edge_id}: ${update.source_id} → ${update.target_id}`} sx={{ fontSize: 10, color: '#93adbf', overflowWrap: 'anywhere' }}>
               {[update.source_id, update.target_id].map((id) => {
                 const node = nodes.find((candidate) => candidate.instance_id === id);
-                return node && !node.isUnknown ? translateLabel(node.label) : t('graph.unknown');
+                return node && !node.isUnknown ? graphNodeLabel(node) : t('graph.unknown');
               }).join(' → ')}
             </Typography>
             <Typography sx={{ fontSize: 10, color: '#a9becd', fontVariantNumeric: 'tabular-nums' }}>
