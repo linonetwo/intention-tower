@@ -554,6 +554,9 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                         > before,
                     "smart-cat trial {trial}: no actual new response"
                 );
+                if world.progress.status == LevelStatus::Won {
+                    return;
+                }
                 act(
                     world,
                     runner,

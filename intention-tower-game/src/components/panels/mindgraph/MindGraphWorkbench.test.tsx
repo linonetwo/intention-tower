@@ -99,6 +99,7 @@ describe('Neo4j/Palantir mind graph workbench', () => {
     );
 
     expect(screen.getByTestId('mind-graph-workbench')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '图谱工具' }));
     fireEvent.change(screen.getByRole('textbox', { name: '搜索联结图谱' }), { target: { value: 'Signal' } });
     expect(screen.getByText('匹配 1 个节点')).toBeTruthy();
 

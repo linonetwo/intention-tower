@@ -115,6 +115,10 @@ pub enum Precondition {
     TargetActionSelected {
         schema_id: String,
     },
+    /// A real motor response is still eligible for a subsequent reward.
+    TargetActionExecuted {
+        schema_id: String,
+    },
     TargetNodeValue {
         schema_id: String,
         op: CompareOp,

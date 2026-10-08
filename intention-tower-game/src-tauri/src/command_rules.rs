@@ -33,6 +33,20 @@ pub fn check_precondition(
         Precondition::TargetActionSelected { schema_id } => target_id
             .and_then(|id| world.characters.get(id))
             .is_some_and(|character| {
+                character.mind_graph.nodes.values().any(|node| {
+                    node.schema_id == *schema_id
+                        && node.node_type == NodeType::Action
+                        && node.active
+                        && node.attended
+                        && node.action.as_ref().is_some_and(|action| action.selected)
+                })
+            }),
+        Precondition::TargetActionExecuted { schema_id } => target_id
+            .and_then(|id| world.characters.get(id))
+            .is_some_and(|character| {
+                // Feeding is processed on the next tick, when operant credit
+                // accepts responses aged at most ten ticks. Selection and
+                // activation may already have ended after the motor response.
                 character.mind_graph.action_episodes.iter().any(|episode| {
                     episode.action_schema_id == *schema_id
                         && episode.rewarded_at.is_none()

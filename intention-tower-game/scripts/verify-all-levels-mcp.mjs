@@ -93,7 +93,7 @@ async function playLevel(levelId) {
   }
   if (levelId === 'smart-cat') {
     const execute = command_id => call('execute_command', { command_id, actor_id: 'trainer', target_id: 'cat-billi' });
-    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('tick', { dt: 0.5 }); };
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
     await execute('show-button'); await advance(1);
     for (let trial = 0; trial < 3; trial++) {
       await execute('demonstrate-press'); await advance(1);
@@ -123,6 +123,7 @@ async function playLevel(levelId) {
         if (response.characters['cat-billi'].mind_graph.action_episodes.length > before) break;
       }
       if (!(response.characters['cat-billi'].mind_graph.action_episodes.length > before)) throw new Error(`smart-cat trial ${trial}: no new actual motor episode`);
+      if (response.progress.status === 'Won') break;
       await execute('feed-after-press'); await advance(1);
       const rewarded = await call('snapshot');
       if (rewarded.characters['cat-billi'].mind_graph.action_episodes.at(-1).rewarded_at == null) throw new Error('smart-cat: response did not receive subsequent reward');

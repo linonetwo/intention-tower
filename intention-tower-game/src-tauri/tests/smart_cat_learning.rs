@@ -288,7 +288,7 @@ fn unrewarded_real_presses_do_not_create_operant_credit() {
 }
 
 #[test]
-fn selected_action_gate_is_typed_and_cannot_be_shadowed_or_satisfied_by_an_observation() {
+fn executed_action_gate_cannot_be_shadowed_or_satisfied_by_selection_or_observation() {
     let mut state = world();
     let graph = &mut state.characters.get_mut("cat-billi").unwrap().mind_graph;
     let action = graph.nodes.get_mut("cat-press-button").unwrap();
@@ -326,6 +326,79 @@ fn selected_action_gate_is_typed_and_cannot_be_shadowed_or_satisfied_by_an_obser
 }
 
 #[test]
+fn executed_action_gate_requires_a_recent_unconsumed_episode_and_survives_restore() {
+    let mut state = world();
+    for _ in 0..3 {
+        pair(&mut state);
+    }
+    ticks(&mut state, 100);
+    command(&mut state, "demonstrate-press");
+    ticks(&mut state, 3);
+    assert!(available(&state, "feed-after-press"));
+    let executed_at = state.characters["cat-billi"]
+        .mind_graph
+        .action_episodes
+        .last()
+        .unwrap()
+        .executed_at;
+    // Execution remains rewardable even after the transient selection fades.
+    let action = state
+        .characters
+        .get_mut("cat-billi")
+        .unwrap()
+        .mind_graph
+        .nodes
+        .get_mut("cat-press-button")
+        .unwrap();
+    action.value = 0.0;
+    action.active = false;
+    action.attended = false;
+    action.action.as_mut().unwrap().selected = false;
+    assert!(available(&state, "feed-after-press"));
+    let saved = serde_json::to_value(&state).unwrap();
+    let restored: WorldState = serde_json::from_value(saved.clone()).unwrap();
+    assert_eq!(serde_json::to_value(&restored).unwrap(), saved);
+    assert!(available(&restored, "feed-after-press"));
+
+    let mut expired = restored.clone();
+    expired.tick = executed_at + 10;
+    assert!(!available(&expired, "feed-after-press"));
+    let mut future = restored.clone();
+    future
+        .characters
+        .get_mut("cat-billi")
+        .unwrap()
+        .mind_graph
+        .action_episodes
+        .last_mut()
+        .unwrap()
+        .executed_at = future.tick + 1;
+    assert!(!available(&future, "feed-after-press"));
+    let mut consumed = restored.clone();
+    consumed
+        .characters
+        .get_mut("cat-billi")
+        .unwrap()
+        .mind_graph
+        .action_episodes
+        .last_mut()
+        .unwrap()
+        .reward_consumed_at = Some(consumed.tick);
+    assert!(!available(&consumed, "feed-after-press"));
+    let mut rewarded = restored;
+    rewarded
+        .characters
+        .get_mut("cat-billi")
+        .unwrap()
+        .mind_graph
+        .action_episodes
+        .last_mut()
+        .unwrap()
+        .rewarded_at = Some(rewarded.tick);
+    assert!(!available(&rewarded, "feed-after-press"));
+}
+
+#[test]
 fn independent_contingent_rewards_consume_actual_hungry_motor_episodes_once() {
     let mut state = world();
     command(&mut state, "show-button");
@@ -349,7 +422,7 @@ fn independent_contingent_rewards_consume_actual_hungry_motor_episodes_once() {
         );
         assert!(
             available(&state, "feed-after-press"),
-            "trial {trial} tick {}: typed selected action gate rejected actual execution",
+            "trial {trial} tick {}: executed action gate rejected actual execution",
             state.tick
         );
         assert!(graph
@@ -451,6 +524,9 @@ fn train_to_autonomy(state: &mut WorldState) {
                 > before,
             "trial {trial}: demonstration must elicit a NEW actual motor episode"
         );
+        if state.progress.status == LevelStatus::Won {
+            return;
+        }
         command(state, "feed-after-press");
         ticks(state, 1);
         assert!(

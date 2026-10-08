@@ -18,7 +18,7 @@ use test_utilities::*;
 
 async fn cat_ticks(world: &GameWorld, count: usize) {
     for _ in 0..count {
-        world.mcp_call("tick", json!({"dt": 0.5})).await.unwrap();
+        world.mcp_call("step_tick", json!({})).await.unwrap();
     }
 }
 async fn cat_command(world: &GameWorld, command: &str) {
@@ -99,6 +99,9 @@ async fn train_real_cat_episodes(world: &mut GameWorld) {
                 > before,
             "trial {trial}: no actual new motor response"
         );
+        if response["progress"]["status"] == "Won" {
+            return;
+        }
         cat_command(world, "feed-after-press").await;
         cat_ticks(world, 1).await;
         let rewarded = world.mcp_call("snapshot", json!({})).await.unwrap();

@@ -586,7 +586,7 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
     }
 
     apply_level_metadata(&mut world, &level_json);
-    crate::scene_loader::load_scene_from_path(&mut world, &level_dir)?;
+    crate::scene_loader::load_scene_from_path(&mut world, level_dir)?;
 
     Ok(world)
 }
@@ -984,6 +984,9 @@ fn parse_precondition(p: &PreconditionJson) -> Option<Precondition> {
             schema_id: p.schema_id.clone()?,
         }),
         "TargetActionSelected" => Some(Precondition::TargetActionSelected {
+            schema_id: p.schema_id.clone()?,
+        }),
+        "TargetActionExecuted" => Some(Precondition::TargetActionExecuted {
             schema_id: p.schema_id.clone()?,
         }),
         "TargetNodeValue" => Some(Precondition::TargetNodeValue {

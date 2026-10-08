@@ -252,13 +252,25 @@ fn movement_is_authoritative_rate_limited_and_bounded() {
     assert!((after.x - before.x - 40.0).abs() < f64::EPSILON);
     assert!(matches!(event, WorldEvent::CharacterMoved { .. }));
 
+    let before_vertical = world.characters["player"].position.clone();
+    let error = move_character(&mut world, "player", 0.0, 30.0)
+        .expect_err("free vertical movement must require a connector");
+    assert!(error.contains("stairs or ladder connector"));
+    assert_eq!(world.characters["player"].position.x, before_vertical.x);
+    assert_eq!(world.characters["player"].position.y, before_vertical.y);
+
+    let ground = world
+        .scene
+        .support(before_vertical.x, before_vertical.y)
+        .unwrap()
+        .clone();
     let player = world.characters.get_mut("player").expect("player");
-    player.position.x = 795.0;
-    player.position.y = 580.0;
-    move_character(&mut world, "player", 30.0, 30.0).expect("bounded move");
+    player.position.x = ground.x_max - 5.0;
+    player.position.y = ground.y;
+    move_character(&mut world, "player", 30.0, 0.0).expect("bounded horizontal move");
     let after = &world.characters["player"].position;
-    assert!(after.x <= 800.0);
-    assert!(after.y <= 600.0);
+    assert_eq!(after.x, ground.x_max);
+    assert_eq!(after.y, ground.y);
 }
 
 #[test]

@@ -350,6 +350,7 @@ export type Precondition =
   | { TargetHasNode: { schema_id: string } }
   | { TargetNodeActive: { schema_id: string } }
   | { TargetActionSelected: { schema_id: string } }
+  | { TargetActionExecuted: { schema_id: string } }
   | { TargetNodeValue: { schema_id: string; op: string; threshold: number } }
   | { ActorResource: { resource_schema_id: string; op: string; threshold: number } }
   | { IsVirtualContext: { value: boolean } };

@@ -162,7 +162,7 @@ try {
 
   try {
     const catGraph = world => world.characters['cat-billi'].mind_graph;
-    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('tick', { dt: 0.5 }); };
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
     const catEvidence = async label => {
       const world = await call('snapshot');
       (report.smartCatLearning ??= []).push({ label, tick: world.tick, status: world.progress.status, graph: catGraph(world) });
@@ -217,8 +217,9 @@ try {
         if (catGraph(response).action_episodes.length > before) break;
       }
       assert.ok(catGraph(response).action_episodes.length > before, `trial ${trial}: new real motor episode required`);
-      const selected = catGraph(response).nodes['cat-press-button'];
-      assert.ok(selected.active && selected.attended && selected.action.selected, 'Completed response comes from actual attended selected motor execution');
+      if (response.progress.status === 'Won') break;
+      const episode = catGraph(response).action_episodes.at(-1);
+      assert.ok(episode.executed_at <= response.tick && episode.rewarded_at == null && episode.reward_consumed_at == null, 'Contingent food requires an actual unconsumed motor execution, not a persistent selected flag');
       if (trial === 0) {
         await clickCommand('feed-after-press');
         (report.realCommandButtons ??= []).push('command-demonstrate-press', 'command-feed-after-press');
