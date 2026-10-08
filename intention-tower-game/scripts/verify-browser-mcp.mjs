@@ -46,6 +46,7 @@ async function settle(screenshotName) {
   await evaluate(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
 }
 async function shot(name) {
+  await closeNotebook();
   await settle(name);
   const data = await call('take_screenshot');
   assert.equal(data.source, 'chromium-compositor');
@@ -61,6 +62,7 @@ async function waitScene() {
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(document.querySelector('[data-testid="scene-viewport"]')){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Scene not rendered'))}},50)})`);
 }
 async function load(level) {
+  await closeNotebook();
   await evaluate(`window.__INTENTION_TEST__.loadLevel(${JSON.stringify(level)})`);
   await waitScene();
 }
@@ -81,12 +83,24 @@ async function command(commandId) {
   assert.equal(error, null);
 }
 async function clickCommand(commandId) {
+  await closeNotebook();
   await call('click', { selector: `[data-testid="command-${commandId}"]` });
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().pending_commands.some(command=>command.command_id===${JSON.stringify(commandId)})){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Real command button did not queue ${commandId}'))}},50)})`);
 }
+async function closeNotebook() {
+  if (await evaluate(`!!document.querySelector('[data-testid="experiment-menu-close"]')?.getClientRects().length`)) {
+    await call('click', { selector: '[data-testid="experiment-menu-close"]' });
+  }
+  // MUI keeps the backdrop mounted during the exit transition. Wait for its
+  // removal before real pointer actions or compositor evidence, never force it.
+  await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(!document.querySelector('[data-testid="experiment-menu"]')){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Experiment notebook did not close'))}},50)})`);
+}
 async function clickMode(mode) {
-  if (!await evaluate(`!!document.querySelector('[data-testid="mode-${mode}"]')?.getClientRects().length`)) await call('click', { selector: '[data-testid="experiment-menu-open"]' });
-  await call('click', { selector: `[data-testid="mode-${mode}"]` });
+  await closeNotebook();
+  await call('click', { selector: '[data-testid="experiment-menu-open"]' });
+  await call('click', { selector: `[data-testid="experiment-menu"] [data-testid="mode-${mode}"]` });
+  // Selecting the current mode must close the notebook as well.
+  await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(!document.querySelector('[data-testid="experiment-menu"]')){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Mode selection left experiment notebook open'))}},50)})`);
 }
 async function waitPosition(character, x, y) {
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{const p=window.__INTENTION_TEST__.state().characters[${JSON.stringify(character)}].position;if(Math.abs(p.x-${x})<.01&&Math.abs(p.y-${y})<.01){clearInterval(timer);resolve(true)}else if(++n>240){clearInterval(timer);reject(new Error('Expected actual position ${character} ${x},${y}'))}},50)})`);
@@ -307,6 +321,11 @@ try {
   try {
     await load('smart-cat');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
+    // Regression: reselecting an already-active exclusive mode used to emit
+    // null and leave the modal notebook intercepting all subsequent input.
+    await clickMode('observe');
+    await clickMode('observe');
+    report.notebookFlow = { modeReselectionCloses: true, realClicks: true };
     const toolbar = await evaluate(`(()=>{const top=document.querySelector('[data-testid="game-topbar"]');return{height:top.getBoundingClientRect().height,buttons:[...top.querySelectorAll('button')].map(b=>({id:b.dataset.testid,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height})),save:!!top.querySelector('[data-testid="save-menu-open"]')}})()`);
     assert.equal(toolbar.height, 60);
     assert.equal(toolbar.save, false, 'Save belongs inside the experiment menu, not topbar');
@@ -314,7 +333,7 @@ try {
     for (const button of toolbar.buttons) assert.ok(button.width >= 44 && button.height >= 44, `${button.id} minimum touch target`);
     await call('click', { selector: '[data-testid="experiment-menu-open"]' });
     assert.equal(await evaluate(`!!document.querySelector('[data-testid="save-menu-open"]')?.getClientRects().length`), true);
-    await call('click', { selector: '[data-testid="experiment-menu-close"]' });
+    await closeNotebook();
     await call('click', { selector: '[data-testid="scene-character-cat-billi"]' });
     const initial = await call('snapshot');
     assert.equal(initial.characters['cat-billi'].position.x, 400);

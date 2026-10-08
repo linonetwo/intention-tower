@@ -40,7 +40,6 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
       sx={{
         bgcolor: completed ? '#edf1dd' : '#fff8e9',
         borderRadius: '8px 24px 24px 8px',
-        backgroundImage: 'linear-gradient(100deg, rgba(160,120,65,.09), transparent 22%)',
         boxShadow: '0 4px 0 #d3bd97, 0 9px 18px #84683a15',
         p: 2.5,
         cursor: loading ? 'wait' : 'pointer',
@@ -118,7 +117,7 @@ export const LevelSelectPage: React.FC = () => {
   return (
     <Box sx={{
       width: '100vw', minHeight: '100dvh',
-      bgcolor: '#868074', color: '#443627',
+      bgcolor: '#efe5cf', color: '#443627',
       backgroundImage: 'radial-gradient(ellipse at 50% 0%, #fffaf0 0%, #f0e4ca 70%)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center',
@@ -150,7 +149,7 @@ export const LevelSelectPage: React.FC = () => {
       )}
 
       {error && (
-        <Typography sx={{ fontSize: 12, color: '#ef5350', mb: 2 }}>
+        <Typography sx={{ fontSize: 12, color: '#9a453a', mb: 2 }}>
           {error}
         </Typography>
       )}
@@ -160,7 +159,7 @@ export const LevelSelectPage: React.FC = () => {
           <Box key={category} sx={{ mb: 4 }}>
             <Typography sx={{
               fontSize: 16, fontWeight: 600, color: '#8b5735',
-              display: 'inline-block', bgcolor: '#7f745f', px: 2, py: 1, borderRadius: '6px 18px 18px 6px', mb: 2,
+              display: 'inline-block', bgcolor: '#e9dabc', px: 2, py: 1, borderRadius: '6px 18px 18px 6px', mb: 2,
             }}>
               {t(`menu.category.${CATEGORY_KEYS[category] ?? 'finale'}`)}
             </Typography>

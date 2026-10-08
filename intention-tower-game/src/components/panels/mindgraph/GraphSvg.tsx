@@ -351,7 +351,7 @@ export function GraphSvg({
   const hasFocus = focusNodeIds.size > 0;
 
   return (
-    <Box sx={{ flex: 1, minWidth: 0, bgcolor: '#8a867b', position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ flex: 1, minWidth: 0, bgcolor: '#f7efdc', position: 'relative', overflow: 'hidden' }}>
       <svg
         ref={svgRef}
         width='100%'
@@ -408,7 +408,7 @@ export function GraphSvg({
 
         <g transform={transform}>
           {clusterVisuals.map((cluster) => (
-            <g key={cluster.id} pointerEvents='none' opacity={0.3}>
+            <g key={cluster.id} pointerEvents='none'>
               <circle
                 cx={cluster.x}
                 cy={cluster.y}
@@ -420,7 +420,7 @@ export function GraphSvg({
                 strokeWidth={1}
                 strokeDasharray='5 8'
               />
-              <text x={cluster.x} y={cluster.y - cluster.radius + 16} textAnchor='middle' fill={cluster.color} fontSize={10} letterSpacing={1.2}>
+              <text x={cluster.x} y={cluster.y - cluster.radius + 16} textAnchor='middle' fill='#725b41' fontSize={10} letterSpacing={1.2}>
                 {cluster.label.toUpperCase()} · {cluster.count}
               </text>
             </g>
@@ -560,7 +560,6 @@ export function GraphSvg({
                   }
                 }}
                 style={{ cursor: onMoveNode ? 'grab' : 'pointer', outline: 'none' }}
-                opacity={dimmed ? 0.2 : 1}
               >
                 <circle className='node-focus' r={node.r + (selected ? 7 : 5)} fill='none' stroke={selected ? '#8b5735' : color} strokeOpacity={selected ? 1 : 0.18} strokeWidth={selected ? 2.4 : 1.2} />
                 <circle
@@ -576,7 +575,7 @@ export function GraphSvg({
                 <circle
                   r={node.r}
                   fill={unknown ? '#d9cbb2' : color}
-                  fillOpacity={unknown ? 0.8 : node.active ? (node.attended ? 0.85 : 0.65) : 0.42}
+                  fillOpacity={dimmed ? 0.18 : unknown ? 0.8 : node.active ? (node.attended ? 0.85 : 0.65) : 0.42}
                   stroke={node.suppression > 0 ? '#ffb74d' : 'rgba(149,112,64,0.18)'}
                   strokeWidth={node.suppression > 0 ? 2.2 : 0.8}
                 />
@@ -608,7 +607,7 @@ export function GraphSvg({
           <Tooltip title={t('graph.layout.reset')}><span><IconButton size='small' aria-label={t('graph.layout.reset')} disabled={!canResetLayout} onClick={onResetLayout}><RestartAltIcon fontSize='small' /></IconButton></span></Tooltip>
         )}
       </Box>
-      <Box sx={{ position: 'absolute', left: 9, bottom: 10, fontSize: 10, color: 'rgba(210,225,238,0.42)', pointerEvents: 'none' }}>
+      <Box sx={{ position: 'absolute', left: 9, bottom: 10, fontSize: 10, color: '#725b41', pointerEvents: 'none' }}>
         {t('graph.pan.hint')}
       </Box>
     </Box>

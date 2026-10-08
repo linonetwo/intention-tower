@@ -62,7 +62,7 @@ export const TimeControls: React.FC = () => {
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 },
         px: { xs: 1, sm: 2 }, py: 0.5,
-        bgcolor: '#8f8b82',
+        bgcolor: '#f4ead5',
         borderBottom: '1px solid #d6bf99',
         minHeight: 44,
         flexWrap: 'wrap',
@@ -106,7 +106,7 @@ export const TimeControls: React.FC = () => {
             mr: 1,
             display: { xs: 'none', sm: 'flex' },
             '& .MuiToggleButton-root': {
-              color: '#4d5a65', borderColor: '#2f3540',
+              color: '#66523d', borderColor: '#d6bf99',
               fontSize: 11, textTransform: 'none', px: 0.9, py: 0.25,
               '&.Mui-selected': { color: '#443627', bgcolor: 'rgba(154,113,62,0.28)' },
             },

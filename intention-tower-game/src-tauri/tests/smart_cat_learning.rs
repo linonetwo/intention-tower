@@ -649,6 +649,14 @@ fn command_counts_or_forged_selected_flags_cannot_replace_real_motor_evidence() 
 }
 
 #[test]
+fn snapshot_json_preserves_f64_learning_values_exactly() {
+    let value = 0.9443999999999999_f64;
+    let json = serde_json::to_string(&value).unwrap();
+    let restored: f64 = serde_json::from_str(&json).unwrap();
+    assert_eq!(restored.to_bits(), value.to_bits());
+}
+
+#[test]
 fn complete_snapshot_restore_preserves_motor_episodes_and_deterministic_future_learning() {
     let mut state = world();
     for _ in 0..3 {
@@ -662,6 +670,11 @@ fn complete_snapshot_restore_preserves_motor_episodes_and_deterministic_future_l
         .action_episodes
         .is_empty());
     let saved = serde_json::to_value(&state).unwrap();
+    // Exercise the textual JSON boundary used by MCP snapshots too; converting
+    // directly through Value does not test the decimal-to-f64 parser.
+    let snapshot_json = serde_json::to_string(&state).unwrap();
+    let parsed_snapshot: serde_json::Value = serde_json::from_str(&snapshot_json).unwrap();
+    assert_eq!(parsed_snapshot, saved);
     let mut restored: WorldState = serde_json::from_value(saved.clone()).unwrap();
     assert_eq!(serde_json::to_value(&restored).unwrap(), saved);
     command(&mut state, "feed-after-press");

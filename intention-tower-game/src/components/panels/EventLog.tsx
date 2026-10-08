@@ -134,7 +134,7 @@ export const EventLog: React.FC = () => {
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Filter bar */}
-      <Box sx={{ display: 'flex', gap: 0.5, px: 1, py: 0.4, borderBottom: '1px solid #1e1e36', flexShrink: 0, alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', gap: 0.5, px: 1, py: 0.4, borderBottom: '1px solid #d6bf99', flexShrink: 0, alignItems: 'center' }}>
         {CATEGORIES.map(({ key, label }) => (
           <Chip
             key={key}

@@ -10,9 +10,9 @@ export function LearningTrace({ updates, nodes }: { updates: LearningUpdate[]; n
   const { t } = useTranslation();
   if (updates.length === 0) return null;
   return (
-    <Box data-testid='graph-learning-trace' sx={{ px: 1.25, py: 0.8, borderBottom: '1px solid rgba(154,113,62,0.16)', bgcolor: '#898379', maxHeight: 112, overflowY: 'auto' }}>
+    <Box data-testid='graph-learning-trace' sx={{ px: 1.25, py: 0.8, borderBottom: '1px solid rgba(154,113,62,0.16)', bgcolor: '#fff8e9', maxHeight: 112, overflowY: 'auto' }}>
       {updates.map((update, index) => {
-        const color = update.phase === 'extinguished' ? '#ffb37b' : update.phase === 'created' ? '#527c86' : '#477c54';
+        const color = update.phase === 'extinguished' ? '#965124' : update.phase === 'created' ? '#38616a' : '#35633f';
         return (
           <Box key={`${update.edge_id}:${index}`} sx={{ mb: 0.35 }}>
             <Typography sx={{ fontSize: 11, color, overflowWrap: 'anywhere' }}>

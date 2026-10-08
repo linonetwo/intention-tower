@@ -57,7 +57,7 @@ export const RoleDetailPanel: React.FC = () => {
   }, [character, worldState]);
 
   return (
-    <Box sx={{ borderTop: '1px solid #d6bf99', bgcolor: '#8f8b85' }}>
+    <Box sx={{ borderTop: '1px solid #d6bf99', bgcolor: '#fff8e9', color: '#584431' }}>
       <Box sx={{ px: 1, py: 0.6 }}>
         <Typography sx={{ fontSize: 10, color: '#79644d' }}>{t('role.title')}</Typography>
         <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#584431' }}>

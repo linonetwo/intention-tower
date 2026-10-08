@@ -88,7 +88,7 @@ export const ActorStatusBar: React.FC = () => {
         </Box>
         {!isCompact && (
           <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#4caf50', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#476b3f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {actor ? translateLabel(actor.label) : t('world.none')}
             </Typography>
             <Typography sx={{ fontSize: 9, color: '#79644d' }}>
@@ -131,7 +131,7 @@ export const ActorStatusBar: React.FC = () => {
             {t('node-type.motivation.label')}
           </Typography>
           {activeMotivations.map((mot) => (
-            <Typography key={mot.instance_id} sx={{ fontSize: 10, color: '#ef5350', pl: 0.5 }}>
+            <Typography key={mot.instance_id} sx={{ fontSize: 10, color: '#9a453a', pl: 0.5 }}>
               ⚡ {translateLabel(mot.label)}
             </Typography>
           ))}
@@ -147,7 +147,7 @@ export const ActorStatusBar: React.FC = () => {
                 width: isCompact ? 28 : 36,
                 height: isCompact ? 28 : 36,
                 borderRadius: '50%',
-                bgcolor: '#7f6d5a',
+                bgcolor: '#e9dabc',
                 border: '2px solid #ff9800',
                 display: 'flex',
                 alignItems: 'center',
@@ -159,7 +159,7 @@ export const ActorStatusBar: React.FC = () => {
             </Box>
             {!isCompact && (
               <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#ff9800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#855b23', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {translateLabel(target.label)}
                 </Typography>
                 <Typography sx={{ fontSize: 9, color: '#79644d' }}>

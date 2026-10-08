@@ -66,7 +66,7 @@ export const WorldSceneMiniMap: React.FC = () => {
           height: 120,
           border: '1px solid #d6bf99',
           borderRadius: 1,
-          bgcolor: '#868071',
+          bgcolor: '#f4ead5',
           overflow: 'hidden',
         }}
       >

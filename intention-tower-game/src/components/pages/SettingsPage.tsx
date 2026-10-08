@@ -87,7 +87,7 @@ export const SettingsPage: React.FC = () => {
       sx={{
         width: '100vw',
         minHeight: '100dvh',
-        bgcolor: '#868074',
+        bgcolor: '#efe5cf',
         color: '#443627',
         p: 3,
       }}
@@ -99,7 +99,7 @@ export const SettingsPage: React.FC = () => {
         <Typography sx={{ fontSize: 22, fontWeight: 700 }}>{t('settings.title')}</Typography>
       </Box>
 
-      <Paper sx={{ p: 2, maxWidth: 480, bgcolor: '#8f8c86', border: '1px solid #d6bf99' }}>
+      <Paper sx={{ p: 2, maxWidth: 480, bgcolor: '#fff8e9', color: '#443627', border: '1px solid #d6bf99' }}>
         <FormControl fullWidth size='small'>
           <InputLabel sx={{ fontSize: 12 }}>{t('settings.language')}</InputLabel>
           <Select

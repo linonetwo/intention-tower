@@ -267,13 +267,13 @@ export function MindGraphWorkbench({
                   onClick={() => toggleType(type)}
                   label={nodeTypeLabel(type)}
                   size='small'
-                  sx={{ height: 24, fontSize: 9, bgcolor: hidden ? '#e3d7c1' : NODE_TYPE_COLORS[type], color: hidden ? '#73818c' : '#443627', opacity: hidden ? 0.7 : 1 }}
+                  sx={{ height: 24, fontSize: 9, bgcolor: hidden ? '#eee5d4' : NODE_TYPE_COLORS[type], color: hidden ? '#725f48' : '#443627' }}
                 />
               </Tooltip>
             );
           })}
           {matchedNodeIds !== null && (
-            <Typography sx={{ fontSize: 9.5, color: matchedNodeIds.size > 0 ? '#7fc7f2' : '#ff7d87' }}>
+            <Typography sx={{ fontSize: 9.5, color: matchedNodeIds.size > 0 ? '#356578' : '#9a453a' }}>
               {t('graph.search.results', { count: matchedNodeIds.size })}
             </Typography>
           )}

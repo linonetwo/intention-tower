@@ -1,17 +1,20 @@
 use super::mind_node::{AssociationEdge, MindNode};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// A character's personal mind graph (their "Intention Tower")
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MindGraph {
     pub character_id: String,
-    pub nodes: HashMap<String, MindNode>,
-    pub edges: HashMap<String, AssociationEdge>,
+    // Stable traversal is part of snapshot determinism: floating-point sums,
+    // resource allocation and tied selections must not depend on a map's
+    // randomized hash seed (which changes when a saved graph is restored).
+    pub nodes: BTreeMap<String, MindNode>,
+    pub edges: BTreeMap<String, AssociationEdge>,
     #[serde(default)]
     pub conditioning_trials: Vec<ConditioningTrial>,
     #[serde(default)]
-    pub conditioning_stats: HashMap<String, ConditioningStats>,
+    pub conditioning_stats: BTreeMap<String, ConditioningStats>,
     #[serde(default)]
     pub action_episodes: Vec<ActionEpisode>,
     /// Survives percept TTL expiry so a short cue cannot bypass the quiet window.
@@ -66,10 +69,10 @@ impl MindGraph {
     pub fn new(character_id: String) -> Self {
         Self {
             character_id,
-            nodes: HashMap::new(),
-            edges: HashMap::new(),
+            nodes: BTreeMap::new(),
+            edges: BTreeMap::new(),
             conditioning_trials: Vec::new(),
-            conditioning_stats: HashMap::new(),
+            conditioning_stats: BTreeMap::new(),
             action_episodes: Vec::new(),
             last_external_observation_at: None,
         }

@@ -99,7 +99,7 @@ export const ContextCommandMenu: React.FC<ContextCommandMenuProps> = ({
         paper: {
           sx: {
             minWidth: 260,
-            bgcolor: '#8f8b85',
+            bgcolor: '#fff8e9',
             border: '1px solid #d6bf99',
             color: '#584431',
           },
@@ -144,7 +144,7 @@ export const ContextCommandMenu: React.FC<ContextCommandMenuProps> = ({
             key={cmd.command_id}
             disabled={cmd.disabled}
             onClick={() => runCommand(cmd.command_id)}
-            sx={{ gap: 1, minHeight: 30 }}
+            sx={{ gap: 1, minHeight: 44 }}
           >
             <PlayArrowIcon sx={{ fontSize: 14, color: cmd.disabled ? '#666' : '#537d86' }} />
             <ListItemText

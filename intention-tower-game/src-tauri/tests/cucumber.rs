@@ -32,6 +32,13 @@ async fn cat_command(world: &GameWorld, command: &str) {
 }
 #[when("用真实饥饿按键回合训练聪明猫并恢复完整存档")]
 async fn train_real_cat_episodes(world: &mut GameWorld) {
+    // Match the paused public route: commands queue, then each explicit step
+    // executes one real 0.5-second tick. Unpaused commands also run a dt=0 tick,
+    // which advances trial windows without advancing hunger or resource recovery.
+    world
+        .mcp_call("set_time_speed", json!({"speed":0}))
+        .await
+        .unwrap();
     for _ in 0..3 {
         cat_command(world, "demonstrate-press").await;
         cat_ticks(world, 1).await;
@@ -39,9 +46,8 @@ async fn train_real_cat_episodes(world: &mut GameWorld) {
         cat_ticks(world, 12).await;
     }
     for trial in 0..80 {
-        let mut ready = Value::Null;
         for _ in 0..300 {
-            ready = world.mcp_call("snapshot", json!({})).await.unwrap();
+            let ready = world.mcp_call("snapshot", json!({})).await.unwrap();
             let graph = &ready["characters"]["cat-billi"]["mind_graph"];
             if graph["action_episodes"]
                 .as_array()
@@ -58,7 +64,7 @@ async fn train_real_cat_episodes(world: &mut GameWorld) {
             }
             cat_ticks(world, 1).await;
         }
-        ready = world.mcp_call("snapshot", json!({})).await.unwrap();
+        let ready = world.mcp_call("snapshot", json!({})).await.unwrap();
         if ready["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
             .as_array()
             .unwrap()
@@ -140,7 +146,11 @@ async fn train_real_cat_episodes(world: &mut GameWorld) {
 #[then("聪明猫应凭无提示自主按键回合完成关卡")]
 async fn cat_autonomous_outcome(world: &mut GameWorld) {
     let state = world.mcp_call("snapshot", json!({})).await.unwrap();
-    assert_eq!(state["progress"]["status"], "Won");
+    assert_eq!(
+        state["progress"]["status"], "Won",
+        "cat training must satisfy every objective: {}",
+        state["progress"]
+    );
     assert!(
         state["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
             .as_array()

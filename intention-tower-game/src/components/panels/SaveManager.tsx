@@ -71,7 +71,7 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
       maxWidth='sm'
       fullWidth
       slotProps={{
-        paper: { sx: { bgcolor: '#8f8b82', color: '#584431' } },
+        paper: { sx: { bgcolor: '#fff8e9', color: '#584431' } },
       }}
     >
       <DialogTitle sx={{ fontSize: 16, fontWeight: 600 }}>
@@ -94,7 +94,7 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
               flex: 1,
               '& .MuiInputBase-root': { color: '#584431', fontSize: 13 },
               '& .MuiInputLabel-root': { color: '#79644d', fontSize: 12 },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#444' },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#b79871' },
             }}
             onKeyDown={(event) => {
               if (event.key === 'Enter') void handleSave();

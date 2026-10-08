@@ -114,7 +114,7 @@ export const GamePage: React.FC = () => {
         height: '100dvh',
         position: 'relative',
         overflow: 'hidden',
-        bgcolor: '#898276',
+        bgcolor: '#efe5cf',
         color: '#584431',
       }}
     >
