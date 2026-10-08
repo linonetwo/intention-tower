@@ -7,7 +7,11 @@
       "label": "command.show-button.label",
       "hotkey": "1",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -25,6 +29,9 @@
       "hotkey": "2",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" },
         { "type": "TargetActionExecuted", "schemaId": "it:concept/press-button" }
       ],
       "effects": [
@@ -49,7 +56,11 @@
       "label": "command.demonstrate-press.label",
       "hotkey": "3",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -74,7 +85,11 @@
       "label": "command.feed.label",
       "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",

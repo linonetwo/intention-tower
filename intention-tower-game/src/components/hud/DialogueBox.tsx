@@ -11,7 +11,6 @@ import {
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
@@ -65,8 +64,9 @@ export const DialogueBox: React.FC = () => {
   // Recent event text (last 5 meaningful events)
   const recentText = useMemo(() => {
     const meaningful = recentEvents.filter(e => !('TickCompleted' in e));
+    const rejections = meaningful.filter(e => 'CommandRejected' in e);
     const prominent: WorldEvent[] = meaningful.filter(e => 'ActionExecuted' in e || 'LearningUpdated' in e || 'ObjectiveCompleted' in e);
-    return [...prominent, ...meaningful.filter(e => !prominent.includes(e))]
+    return [...rejections, ...prominent, ...meaningful.filter(e => !prominent.includes(e) && !rejections.includes(e))]
       .slice(0, 5)
       .map(e => formatEventBrief(e, worldState));
   }, [recentEvents, worldState, i18n.language]);
@@ -209,7 +209,7 @@ export const DialogueBox: React.FC = () => {
                       onMouseEnter={() => setHoveredCmd(cmd.command_id)}
                       onMouseLeave={() => setHoveredCmd(null)}
                       startIcon={
-                        wasExecuted ? <CheckCircleIcon sx={{ fontSize: 13, color: '#66bb6a' }} />
+                        wasExecuted ? <HourglassEmptyIcon sx={{ fontSize: 13, color: '#ffa726' }} />
                         : isQueued ? <HourglassEmptyIcon sx={{ fontSize: 13, color: '#ffa726' }} />
                         : <PlayArrowIcon sx={{ fontSize: 13, color: '#9b693b' }} />
                       }
@@ -223,10 +223,10 @@ export const DialogueBox: React.FC = () => {
                         bgcolor: isQueued
                           ? 'rgba(255,167,38,0.1)'
                           : wasExecuted
-                            ? 'rgba(76,175,80,0.1)'
+                            ? 'rgba(255,167,38,0.1)'
                             : 'rgba(154,113,62,0.08)',
                         border: '1px solid',
-                        borderColor: isQueued ? '#c79d55' : wasExecuted ? '#7b9761' : '#cfb68d',
+                        borderColor: isQueued || wasExecuted ? '#c79d55' : '#cfb68d',
                         boxShadow: '0 2px 0 #bfa17b',
                         borderRadius: 2,
                         '&:hover': { bgcolor: 'rgba(154,113,62,0.18)' },

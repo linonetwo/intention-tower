@@ -8,6 +8,8 @@ use intention_tower_game_lib::models::world_state::WorldState;
 use intention_tower_game_lib::systems::runner::SimulationRunner;
 use std::path::Path;
 
+mod support;
+
 const EDGE: &str = "learned_obs_it_concept_hear-metronome_dog-salivate";
 fn world() -> WorldState {
     load_level_from_path(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../assets/levels/pavlov"))
@@ -269,20 +271,30 @@ fn cue_identity_is_generic_and_conditioning_does_not_spread_to_other_cues() {
     for _ in 0..3 {
         pair(&mut state);
     }
-    state.pending_commands.push(CommandDTO {
-        command_id: "other-cue".into(),
-        actor_id: "pavlov".into(),
-        target_id: Some("dog".into()),
-        effects: vec![CommandEffect::SpawnObservation {
-            schema_id: "test:slow-metronome".into(),
-            modality: Modality::Auditory,
-            about: "test:slow-sound".into(),
-            ttl: 10,
-            strength: 0.8,
-            target_character_id: None,
-        }],
-    });
+    support::queue_fixture_command(
+        &mut state,
+        CommandDTO {
+            command_id: "test-other-cue".into(),
+            actor_id: "pavlov".into(),
+            target_id: Some("dog".into()),
+            effects: vec![CommandEffect::SpawnObservation {
+                schema_id: "test:slow-metronome".into(),
+                modality: Modality::Auditory,
+                about: "test:slow-sound".into(),
+                ttl: 10,
+                strength: 0.8,
+                target_character_id: None,
+            }],
+        },
+    );
     ticks(&mut state, 3);
+    assert!(
+        state.characters["dog"]
+            .mind_graph
+            .find_by_schema("test:slow-metronome")
+            .is_some(),
+        "the unrelated cue must actually be presented"
+    );
     assert!(!state.characters["dog"].mind_graph.nodes["dog-salivate"].active);
     ticks(&mut state, 9);
     assert_eq!(state.progress.status, LevelStatus::InProgress);
@@ -328,19 +340,22 @@ fn compound_cues_share_prediction_and_do_not_each_learn_full_reward() {
     let mut state = world();
     for index in 1..=8 {
         command(&mut state, "ring-bell");
-        state.pending_commands.push(CommandDTO {
-            command_id: "light".into(),
-            actor_id: "pavlov".into(),
-            target_id: Some("dog".into()),
-            effects: vec![CommandEffect::SpawnObservation {
-                schema_id: "test:light".into(),
-                modality: Modality::Visual,
-                about: "test:light".into(),
-                ttl: 10,
-                strength: 0.8,
-                target_character_id: None,
-            }],
-        });
+        support::queue_fixture_command(
+            &mut state,
+            CommandDTO {
+                command_id: format!("test-light-{index}"),
+                actor_id: "pavlov".into(),
+                target_id: Some("dog".into()),
+                effects: vec![CommandEffect::SpawnObservation {
+                    schema_id: "test:light".into(),
+                    modality: Modality::Visual,
+                    about: "test:light".into(),
+                    ttl: 10,
+                    strength: 0.8,
+                    target_character_id: None,
+                }],
+            },
+        );
         ticks(&mut state, 1);
         command(&mut state, "feed");
         ticks(&mut state, 11);

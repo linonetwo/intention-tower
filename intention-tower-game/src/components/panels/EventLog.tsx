@@ -8,12 +8,13 @@ import { useGameState } from '../../store/useGameState';
 import { t as translateLabel } from '../../i18n';
 import { eventType, eventPayload, type WorldEvent } from '../../types/backend';
 import type { WorldState } from '../../types/backend';
+import { presentEvent } from '../hud/eventPresentation';
 
 type EventCategory = 'all' | 'command' | 'node' | 'edge' | 'resource' | 'env';
 
 function eventCategory(ev: WorldEvent): EventCategory {
   const type = eventType(ev);
-  if (type === 'CommandExecuted') return 'command';
+  if (type === 'CommandExecuted' || type === 'CommandRejected') return 'command';
   if (type.startsWith('Node') || type === 'ThresholdCrossed') return 'node';
   if (type.startsWith('Edge')) return 'edge';
   if (type === 'ResourceConsumed') return 'resource';
@@ -70,7 +71,8 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
     case 'ResourceConsumed':
       return { icon: '💧', text: `${charName(data.character_id as string)}: ${String(data.resource_schema_id)} -${(data.amount as number).toFixed(2)} (${(data.remaining as number).toFixed(2)})`, color: '#ab47bc' };
     case 'CommandExecuted':
-      return { icon: '🎮', text: `${charName(data.actor_id as string)}: ${String(data.command_id)}${data.target_id ? ` → ${charName(data.target_id as string)}` : ''}`, color: '#255c89' };
+    case 'CommandRejected':
+      return presentEvent(ev, worldState);
     case 'CharacterMoved':
       return { icon: '🧭', text: `${charName(data.character_id as string)} → (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#48726e' };
     case 'AssetTraded':

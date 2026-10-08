@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use intention_tower_game_lib::command_rules::command_available;
 use intention_tower_game_lib::level_loader::load_level_from_path;
 use intention_tower_game_lib::models::commands::{CommandDTO, TargetingMode};
+use intention_tower_game_lib::models::events::WorldEvent;
 use intention_tower_game_lib::models::progress::LevelStatus;
 use intention_tower_game_lib::models::world_state::WorldState;
 use intention_tower_game_lib::systems::runner::SimulationRunner;
@@ -57,7 +58,16 @@ fn act(
             target_id: effective_target,
             effects: command.effect_templates,
         });
-        let _events = runner.tick(world, 0.5);
+        let events = runner.tick(world, 0.5);
+        assert!(
+            events.iter().any(|event| matches!(event,
+                WorldEvent::CommandExecuted { command_id: executed, .. } if executed == command_id
+            )),
+            "{}: authored route command {} must apply a real effect; events={:?}",
+            world.level_id,
+            command_id,
+            events
+        );
     }
 }
 

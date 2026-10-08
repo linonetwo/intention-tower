@@ -11,7 +11,7 @@
         "hotkey": { "type": "string", "optional": true },
         "targeting": { "type": "enum", "values": ["RequiresTarget", "NoTarget", "OptionalTarget"] },
         "preconditions": { "type": "array", "items": "it:Precondition" },
-        "effects": { "type": "array", "items": "it:Effect" }
+        "effects": { "type": "array", "items": "it:Effect", "minItems": 1 }
       }
     },
     {
@@ -19,13 +19,16 @@
       "@type": "rdfs:Class",
       "comment": "AND-combined atomic predicates",
       "it:variants": [
+        { "type": "ActorIs", "fields": { "characterIds": "non-empty array<string>" } },
+        { "type": "TargetIs", "fields": { "characterIds": "non-empty array<string>" } },
+        { "type": "TargetIsNotActor", "fields": {} },
         { "type": "EnvHasItem", "fields": { "itemSchemaId": "IRI" } },
-        { "type": "TargetHasNode", "fields": { "nodeType": "string", "schemaId": "IRI" } },
+        { "type": "TargetHasNode", "fields": { "schemaId": "IRI" } },
         { "type": "TargetNodeActive", "fields": { "schemaId": "IRI" } },
         { "type": "TargetActionSelected", "fields": { "schemaId": "IRI" } },
         { "type": "TargetActionExecuted", "fields": { "schemaId": "IRI" } },
         { "type": "TargetNodeValue", "fields": { "schemaId": "IRI", "op": "enum:GT/LT/EQ/GTE/LTE", "threshold": "f64" } },
-        { "type": "ActorResource", "fields": { "resourceSchemaId": "IRI", "op": "enum:GT/LT/GTE/LTE", "threshold": "f64" } },
+        { "type": "ActorResource", "fields": { "resourceSchemaId": "IRI", "op": "enum:GT/LT/EQ/GTE/LTE", "threshold": "f64" } },
         { "type": "IsVirtualContext", "fields": { "value": "bool" } }
       ]
     },
@@ -36,19 +39,16 @@
       "it:variants": [
         { "type": "SpawnObservation", "fields": { "schemaId": "IRI", "modality": "string", "about": "IRI", "ttl": "u64", "strength": "f64" } },
         { "type": "MoveCharacter", "fields": { "deltaX": "f64", "deltaY": "f64", "targetCharacterId": "string" } },
-        { "type": "SpawnNode", "fields": { "schemaId": "IRI", "value": "f64", "targetCharacterId": "string" } },
         { "type": "ModifyNodeValue", "fields": { "schemaId": "IRI", "delta": "f64", "targetCharacterId": "string" } },
         { "type": "ReinforceEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI", "delta": "f64" } },
         { "type": "WeakenEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI", "delta": "f64" } },
-        { "type": "InnerCutEdge", "fields": { "sourceSchemaId": "IRI", "targetSchemaId": "IRI" } },
         { "type": "DeleteNode", "fields": { "schemaId": "IRI", "targetCharacterId": "string" } },
         { "type": "ConsumeResource", "fields": { "resourceSchemaId": "IRI", "amount": "f64" } },
         { "type": "InjectMeme", "fields": { "memeSchemaId": "IRI", "targetCharacterId": "string" } },
-        { "type": "SpawnAttentionFlood", "fields": { "trapSchemaId": "IRI", "targetCharacterId": "string" } },
-        { "type": "SetVirtualContext", "fields": { "contextSchemaId": "IRI" } },
-        { "type": "ExitVirtualContext", "fields": {} },
+        { "type": "SetVirtualContext", "fields": { "value": "bool" } },
         { "type": "ModifyResourceRegen", "fields": { "resourceSchemaId": "IRI", "newRegenRate": "f64", "targetCharacterId": "string" } },
-        { "type": "EmitWorldEvent", "fields": { "eventType": "string", "params": "object" } }
+        { "type": "SetAssetPrice", "fields": { "itemId": "IRI", "unitPrice": "f64" } },
+        { "type": "TradeAsset", "fields": { "itemId": "IRI", "buyerId": "string (optional; defaults to __target)", "sellerId": "string (optional; defaults to __actor)", "quantity": "f64" } }
       ]
     }
   ]

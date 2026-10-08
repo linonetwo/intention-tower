@@ -13,6 +13,7 @@ use serde_json::{json, Value};
 use std::sync::Arc;
 use std::time::Duration;
 
+mod support;
 mod test_utilities;
 use test_utilities::*;
 
@@ -882,25 +883,39 @@ async fn gosling_command_steps(world: &mut GameWorld, command: String, count: us
 async fn gosling_unrelated_visual(world: &mut GameWorld) {
     use intention_tower_game_lib::models::commands::{CommandDTO, CommandEffect};
     use intention_tower_game_lib::models::mind_node::Modality;
-    let mut state = world.mcp_call("snapshot", json!({})).await.unwrap();
-    state["pending_commands"] = json!([CommandDTO {
-        command_id: "test-unrelated-visual".into(),
-        actor_id: "lorenz".into(),
-        target_id: Some("gosling".into()),
-        effects: vec![CommandEffect::SpawnObservation {
-            schema_id: "it:concept/see-unrelated-rock".into(),
-            modality: Modality::Visual,
-            about: "it:entity/lorenz".into(),
-            ttl: 100,
-            strength: 1.0,
-            target_character_id: Some("gosling".into()),
-        }],
-    }]);
+    let snapshot = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let mut state = serde_json::from_value(snapshot).unwrap();
+    support::queue_fixture_command(
+        &mut state,
+        CommandDTO {
+            command_id: "test-unrelated-visual".into(),
+            actor_id: "lorenz".into(),
+            target_id: Some("gosling".into()),
+            effects: vec![CommandEffect::SpawnObservation {
+                schema_id: "it:concept/see-unrelated-rock".into(),
+                modality: Modality::Visual,
+                about: "it:entity/lorenz".into(),
+                ttl: 100,
+                strength: 1.0,
+                target_character_id: Some("gosling".into()),
+            }],
+        },
+    );
     world
         .mcp_call("restore_snapshot", json!({"world":state}))
         .await
         .unwrap();
     gosling_steps(world, 12).await;
+    let snapshot = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let state: intention_tower_game_lib::models::world_state::WorldState =
+        serde_json::from_value(snapshot).unwrap();
+    assert!(
+        state.characters["gosling"]
+            .mind_graph
+            .find_by_schema("it:concept/see-unrelated-rock")
+            .is_some(),
+        "unrelated visual fixture must actually execute"
+    );
 }
 
 #[when(expr = "雏鹅仅拥有旧通关命令计数")]

@@ -1,6 +1,7 @@
 use serde_json::{json, Value};
 
-use crate::models::commands::{CommandDTO, TargetingMode};
+use crate::models::commands::CommandDTO;
+use crate::models::events::WorldEvent;
 
 use super::channel::TestMessage;
 use super::state::TestServerState;
@@ -147,24 +148,53 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
             ) {
                 return Err(format!("命令 '{}' 的前置条件未满足", command_id));
             }
-            let effective_target_id = match cmd_def.targeting {
-                TargetingMode::NoTarget => None,
-                TargetingMode::RequiresTarget | TargetingMode::OptionalTarget => target_id.clone(),
-            };
+            let effective_target_id =
+                crate::command_rules::normalized_target_id(cmd_def.targeting, target_id.as_deref())
+                    .map(str::to_owned);
             world.pending_commands.push(CommandDTO {
                 command_id: command_id.clone(),
                 actor_id: actor_id.clone(),
-                target_id: effective_target_id,
+                target_id: effective_target_id.clone(),
                 effects: cmd_def.effect_templates.clone(),
             });
-            let events = if world.paused {
+            let queued = world.paused;
+            let events = if queued {
                 Vec::new()
             } else {
                 state.runner.tick(&mut world, 0.0)
             };
+            let executed = events
+                .iter()
+                .rev()
+                .find_map(|event| match event {
+                    WorldEvent::CommandExecuted {
+                        command_id: id,
+                        actor_id: actor,
+                        target_id: target,
+                    } if id == &command_id
+                        && actor == &actor_id
+                        && target == &effective_target_id =>
+                    {
+                        Some(true)
+                    }
+                    WorldEvent::CommandRejected {
+                        command_id: id,
+                        actor_id: actor,
+                        target_id: target,
+                        ..
+                    } if id == &command_id
+                        && actor == &actor_id
+                        && target == &effective_target_id =>
+                    {
+                        Some(false)
+                    }
+                    _ => None,
+                })
+                .unwrap_or(false);
             Ok(json!({
-                "success": true,
-                "queued": world.paused,
+                "success": queued || executed,
+                "queued": queued,
+                "executed": executed,
                 "events": events
             }))
         }

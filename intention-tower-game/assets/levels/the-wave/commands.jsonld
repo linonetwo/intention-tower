@@ -7,7 +7,11 @@
       "label": "command.introduce-uniform.label",
       "hotkey": "1",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "InjectMeme",
@@ -22,7 +26,11 @@
       "label": "command.teach-gesture.label",
       "hotkey": "2",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "InjectMeme",
@@ -37,7 +45,11 @@
       "label": "command.enforce-discipline.label",
       "hotkey": "3",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "ReinforceEdge",
@@ -58,7 +70,11 @@
       "label": "command.give-approval.label",
       "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -76,7 +92,11 @@
       "label": "command.reject-outsider.label",
       "hotkey": "5",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",

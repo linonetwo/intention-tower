@@ -3,6 +3,14 @@ use crate::models::mind_node::NodeType;
 use crate::models::progress::LevelStatus;
 use crate::models::world_state::WorldState;
 
+/// Canonical DTO target: NoTarget ignores even invalid supplied targets.
+pub fn normalized_target_id(targeting: TargetingMode, target_id: Option<&str>) -> Option<&str> {
+    match targeting {
+        TargetingMode::NoTarget => None,
+        _ => target_id,
+    }
+}
+
 /// Platform-independent command availability rules shared by Tauri and MCP.
 pub fn check_precondition(
     precondition: &Precondition,
@@ -11,6 +19,11 @@ pub fn check_precondition(
     world: &WorldState,
 ) -> bool {
     match precondition {
+        Precondition::ActorIs { character_ids } => character_ids.iter().any(|id| id == actor_id),
+        Precondition::TargetIs { character_ids } => {
+            target_id.is_some_and(|target| character_ids.iter().any(|id| id == target))
+        }
+        Precondition::TargetIsNotActor => target_id.is_some_and(|target| target != actor_id),
         Precondition::EnvHasItem { item_schema_id } => world.items.values().any(|item| {
             item.schema_type == *item_schema_id
                 || item.abstract_type.as_deref() == Some(item_schema_id.as_str())
@@ -75,6 +88,7 @@ pub fn command_available(
     target_id: Option<&str>,
     world: &WorldState,
 ) -> bool {
+    let target_id = normalized_target_id(command.targeting, target_id);
     if world.progress.status != LevelStatus::InProgress || !world.characters.contains_key(actor_id)
     {
         return false;
@@ -87,8 +101,7 @@ pub fn command_available(
     if target_id.is_some_and(|id| !world.characters.contains_key(id)) {
         return false;
     }
-    command
-        .preconditions
-        .iter()
-        .all(|precondition| check_precondition(precondition, actor_id, target_id, world))
+    command.preconditions.iter().all(|precondition| {
+        check_precondition(precondition, actor_id, target_id.or(Some(actor_id)), world)
+    })
 }

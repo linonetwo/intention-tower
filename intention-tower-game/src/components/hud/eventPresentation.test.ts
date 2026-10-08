@@ -13,6 +13,35 @@ const world = {
 afterEach(async () => { await i18n.changeLanguage('zh-CN'); });
 
 describe('human-readable event presentation', () => {
+  const rejectionReasons = [
+    'unknown_command', 'preconditions_failed', 'no_effect_applied', 'character_not_found',
+    'invalid_effect_value', 'movement_rejected', 'resource_not_found', 'invalid_resource_amount',
+    'insufficient_resource', 'trade_party_not_found', 'asset_not_found', 'invalid_quantity',
+    'invalid_trade_value', 'seller_does_not_own_asset', 'insufficient_supply', 'insufficient_funds', 'self_trade',
+  ];
+  it.each(['zh-CN', 'en'])('localizes every rejection reason in %s', async (language) => {
+    await i18n.changeLanguage(language);
+    for (const reason of rejectionReasons) {
+      const { text, icon } = presentEvent({ CommandRejected: {
+        actor_id: 'dog', command_id: 'ring-bell', target_id: null, reason,
+      } }, world);
+      expect(text).toContain('Dog');
+      expect(text).toContain('Ring Bell');
+      expect(text).toContain(i18n.t(`event.commandRejection.${reason}`));
+      expect(text).not.toContain(reason);
+      expect(text).not.toContain('event.');
+      expect(icon).toBe('⚠️');
+    }
+  });
+  it('uses a readable fallback for unknown rejection reasons and command IDs', () => {
+    const { text } = presentEvent({ CommandRejected: {
+      actor_id: 'dog', command_id: 'missing-command', target_id: null, reason: 'future_reason',
+    } }, world);
+    expect(text).toContain(i18n.t('event.commandName'));
+    expect(text).toContain(i18n.t('event.commandRejection.unknown'));
+    expect(text).not.toContain('future_reason');
+    expect(text).not.toContain('missing-command');
+  });
   it('distinguishes an executed need-driven action from mere selection', () => {
     const { text } = presentEvent({ ActionExecuted: { character_id: 'dog', instance_id: 'bell', executed_at: 5, autonomous: true } }, world);
     expect(text).toContain('自身需求');

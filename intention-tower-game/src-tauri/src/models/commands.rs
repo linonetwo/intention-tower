@@ -103,6 +103,13 @@ pub enum TargetingMode {
 /// Atomic precondition — all must be satisfied (AND).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Precondition {
+    ActorIs {
+        character_ids: Vec<String>,
+    },
+    TargetIs {
+        character_ids: Vec<String>,
+    },
+    TargetIsNotActor,
     EnvHasItem {
         item_schema_id: String,
     },

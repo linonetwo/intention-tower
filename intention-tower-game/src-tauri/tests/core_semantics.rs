@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+mod support;
+
 use intention_tower_game_lib::level_loader::load_level_from_path;
 use intention_tower_game_lib::models::commands::{CommandDTO, CommandEffect};
 use intention_tower_game_lib::models::events::WorldEvent;
@@ -201,15 +203,18 @@ fn thought_seal_resists_deletion() {
     system.run(&mut world, 0.0);
     world.pending_events.clear();
 
-    world.pending_commands.push(CommandDTO {
-        command_id: "erase-thought-seal".to_owned(),
-        actor_id: "hines".to_owned(),
-        target_id: Some("subject".to_owned()),
-        effects: vec![CommandEffect::DeleteNode {
-            schema_id: "it:concept/water-is-poison".to_owned(),
-            target_character_id: Some("__target".to_owned()),
-        }],
-    });
+    support::queue_fixture_command(
+        &mut world,
+        CommandDTO {
+            command_id: "erase-thought-seal".to_owned(),
+            actor_id: "hines".to_owned(),
+            target_id: Some("subject".to_owned()),
+            effects: vec![CommandEffect::DeleteNode {
+                schema_id: "it:concept/water-is-poison".to_owned(),
+                target_character_id: Some("__target".to_owned()),
+            }],
+        },
+    );
     system.run(&mut world, 0.0);
 
     let node = world.characters["subject"]

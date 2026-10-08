@@ -12,6 +12,8 @@ use intention_tower_game_lib::systems::System;
 use serde_json::Value;
 use std::path::Path;
 
+mod support;
+
 fn world() -> WorldState {
     load_level_from_path(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../assets/levels/gosling"))
         .unwrap()
@@ -155,20 +157,30 @@ fn separation_distress_tracks_actual_distance_and_clears_inside_comfort_radius()
 #[test]
 fn unrelated_visual_observation_even_about_a_real_entity_cannot_imprint() {
     let mut state = world();
-    state.pending_commands.push(CommandDTO {
-        command_id: "test-unrelated-visual".into(),
-        actor_id: "lorenz".into(),
-        target_id: Some("gosling".into()),
-        effects: vec![CommandEffect::SpawnObservation {
-            schema_id: "it:concept/see-unrelated-rock".into(),
-            modality: Modality::Visual,
-            about: "it:entity/lorenz".into(),
-            ttl: 100,
-            strength: 1.0,
-            target_character_id: Some("gosling".into()),
-        }],
-    });
+    support::queue_fixture_command(
+        &mut state,
+        CommandDTO {
+            command_id: "test-unrelated-visual".into(),
+            actor_id: "lorenz".into(),
+            target_id: Some("gosling".into()),
+            effects: vec![CommandEffect::SpawnObservation {
+                schema_id: "it:concept/see-unrelated-rock".into(),
+                modality: Modality::Visual,
+                about: "it:entity/lorenz".into(),
+                ttl: 100,
+                strength: 1.0,
+                target_character_id: Some("gosling".into()),
+            }],
+        },
+    );
     ticks(&mut state, 12);
+    assert!(
+        state.characters["gosling"]
+            .mind_graph
+            .find_by_schema("it:concept/see-unrelated-rock")
+            .is_some(),
+        "the synthetic visual command must actually execute"
+    );
     assert_unimprinted(&state);
 }
 

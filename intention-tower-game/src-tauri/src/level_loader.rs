@@ -12,6 +12,7 @@ pub enum LoadError {
     Io(std::io::Error),
     Json(serde_json::Error),
     NotFound(String),
+    InvalidCommand(String),
 }
 
 impl std::fmt::Display for LoadError {
@@ -20,6 +21,7 @@ impl std::fmt::Display for LoadError {
             LoadError::Io(e) => write!(f, "IO error: {}", e),
             LoadError::Json(e) => write!(f, "JSON parse error: {}", e),
             LoadError::NotFound(s) => write!(f, "Not found: {}", s),
+            LoadError::InvalidCommand(s) => write!(f, "Invalid command: {}", s),
         }
     }
 }
@@ -332,7 +334,7 @@ struct EvidenceJson {
 
 #[derive(Deserialize, Debug)]
 struct CommandsJson {
-    commands: Vec<CommandDefJson>,
+    commands: Vec<serde_json::Value>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -350,6 +352,8 @@ struct CommandDefJson {
 struct PreconditionJson {
     #[serde(rename = "type")]
     type_: String,
+    #[serde(rename = "characterIds")]
+    character_ids: Option<Vec<String>>,
     #[serde(rename = "itemSchemaId")]
     item_schema_id: Option<String>,
     #[serde(rename = "schemaId")]
@@ -499,7 +503,7 @@ pub fn load_level_from_assets(
     if commands_path.exists() {
         let cmd_text = std::fs::read_to_string(&commands_path).map_err(LoadError::Io)?;
         let cmd_json: CommandsJson = serde_json::from_str(&cmd_text).map_err(LoadError::Json)?;
-        world.command_defs = parse_command_defs(&cmd_json);
+        world.command_defs = parse_command_defs(&cmd_json)?;
     }
 
     apply_level_metadata(&mut world, &level_json);
@@ -582,7 +586,7 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
     if commands_path.exists() {
         let cmd_text = std::fs::read_to_string(&commands_path).map_err(LoadError::Io)?;
         let cmd_json: CommandsJson = serde_json::from_str(&cmd_text).map_err(LoadError::Json)?;
-        world.command_defs = parse_command_defs(&cmd_json);
+        world.command_defs = parse_command_defs(&cmd_json)?;
     }
 
     apply_level_metadata(&mut world, &level_json);
@@ -940,40 +944,89 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
     graph
 }
 
-fn parse_command_defs(cmd_json: &CommandsJson) -> Vec<CommandDef> {
+fn parse_command_defs(cmd_json: &CommandsJson) -> Result<Vec<CommandDef>, LoadError> {
+    let mut ids = std::collections::HashSet::new();
     cmd_json
         .commands
         .iter()
-        .map(|cd| {
+        .map(|raw| {
+            let id = raw
+                .get("commandId")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("<missing commandId>");
+            let invalid = |reason: String| {
+                LoadError::InvalidCommand(format!("commandId '{}': {}", id, reason))
+            };
+            let cd: CommandDefJson =
+                serde_json::from_value(raw.clone()).map_err(|error| invalid(error.to_string()))?;
+            if cd.command_id.is_empty() || !ids.insert(cd.command_id.clone()) {
+                return Err(invalid("empty or duplicate commandId".into()));
+            }
+            if cd.effects.is_empty() {
+                return Err(invalid("effects must not be empty".into()));
+            }
             let preconditions = cd
                 .preconditions
                 .as_ref()
-                .map(|pres| pres.iter().filter_map(parse_precondition).collect())
+                .map(|pres| {
+                    pres.iter()
+                        .map(|pre| {
+                            parse_precondition(pre).ok_or_else(|| {
+                                invalid(format!(
+                                    "unknown or incomplete precondition '{}'",
+                                    pre.type_
+                                ))
+                            })
+                        })
+                        .collect::<Result<Vec<_>, _>>()
+                })
+                .transpose()?
                 .unwrap_or_default();
 
-            let effect_templates = cd.effects.iter().filter_map(parse_effect).collect();
+            let effect_templates = cd
+                .effects
+                .iter()
+                .map(|effect| {
+                    parse_effect(effect).ok_or_else(|| {
+                        invalid(format!("unknown or incomplete effect '{}'", effect.type_))
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()?;
 
             let targeting = match cd.targeting.as_deref() {
                 Some("RequiresTarget") => TargetingMode::RequiresTarget,
                 Some("NoTarget") => TargetingMode::NoTarget,
                 Some("OptionalTarget") => TargetingMode::OptionalTarget,
-                _ => TargetingMode::NoTarget,
+                None => TargetingMode::NoTarget,
+                Some(other) => return Err(invalid(format!("unknown targeting '{}'", other))),
             };
 
-            CommandDef {
+            Ok(CommandDef {
                 command_id: cd.command_id.clone(),
                 label: cd.label.clone().unwrap_or_default(),
                 hotkey: cd.hotkey.clone(),
                 targeting,
                 preconditions,
                 effect_templates,
-            }
+            })
         })
         .collect()
 }
 
 fn parse_precondition(p: &PreconditionJson) -> Option<Precondition> {
     match p.type_.as_str() {
+        "ActorIs" | "TargetIs" => {
+            let character_ids = p.character_ids.clone()?;
+            if character_ids.is_empty() || character_ids.iter().any(|id| id.is_empty()) {
+                return None;
+            }
+            Some(if p.type_ == "ActorIs" {
+                Precondition::ActorIs { character_ids }
+            } else {
+                Precondition::TargetIs { character_ids }
+            })
+        }
+        "TargetIsNotActor" => Some(Precondition::TargetIsNotActor),
         "EnvHasItem" => Some(Precondition::EnvHasItem {
             item_schema_id: p.item_schema_id.clone()?,
         }),
@@ -991,62 +1044,64 @@ fn parse_precondition(p: &PreconditionJson) -> Option<Precondition> {
         }),
         "TargetNodeValue" => Some(Precondition::TargetNodeValue {
             schema_id: p.schema_id.clone()?,
-            op: parse_compare_op(p.op.as_deref().unwrap_or("GTE")),
-            threshold: p.threshold.unwrap_or(0.0),
+            op: parse_compare_op(p.op.as_deref()?)?,
+            threshold: p.threshold?,
         }),
         "ActorResource" => Some(Precondition::ActorResource {
             resource_schema_id: p.resource_schema_id.clone()?,
-            op: parse_compare_op(p.op.as_deref().unwrap_or("GTE")),
-            threshold: p.threshold.unwrap_or(0.0),
+            op: parse_compare_op(p.op.as_deref()?)?,
+            threshold: p.threshold?,
         }),
-        "IsVirtualContext" => Some(Precondition::IsVirtualContext {
-            value: p.value.unwrap_or(false),
-        }),
+        "IsVirtualContext" => Some(Precondition::IsVirtualContext { value: p.value? }),
         _ => None,
     }
 }
 
-fn parse_compare_op(s: &str) -> CompareOp {
-    match s {
+fn parse_compare_op(s: &str) -> Option<CompareOp> {
+    Some(match s {
         "GT" => CompareOp::GT,
         "LT" => CompareOp::LT,
         "GTE" => CompareOp::GTE,
         "LTE" => CompareOp::LTE,
         "EQ" => CompareOp::EQ,
-        _ => CompareOp::GTE,
-    }
+        _ => return None,
+    })
 }
 
 fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
     match e.type_.as_str() {
         "SpawnObservation" => Some(CommandEffect::SpawnObservation {
             schema_id: e.schema_id.clone()?,
-            modality: parse_modality(e.modality.as_deref().unwrap_or("Visual")),
+            modality: match e.modality.as_deref()? {
+                "Visual" | "Auditory" | "Olfactory" | "Gustatory" | "Tactile" | "Interoceptive"
+                | "Chemical" | "Social" => parse_modality(e.modality.as_deref()?),
+                _ => return None,
+            },
             about: e.about.clone()?,
-            ttl: e.ttl.unwrap_or(300),
-            strength: e.strength.unwrap_or(0.5),
+            ttl: e.ttl?,
+            strength: e.strength?,
             target_character_id: e.target_character_id.clone(),
         }),
         "ModifyNodeValue" => Some(CommandEffect::ModifyNodeValue {
             schema_id: e.schema_id.clone()?,
-            delta: e.delta.unwrap_or(0.0),
+            delta: e.delta?,
             target_character_id: e.target_character_id.clone(),
         }),
         "ConsumeResource" => Some(CommandEffect::ConsumeResource {
             resource_schema_id: e.resource_schema_id.clone()?,
-            amount: e.amount.unwrap_or(0.0),
+            amount: e.amount?,
             target_character_id: e.target_character_id.clone(),
         }),
         "ReinforceEdge" => Some(CommandEffect::ReinforceEdge {
             source_schema_id: e.source_schema_id.clone()?,
             target_schema_id: e.target_schema_id.clone()?,
-            delta: e.delta.unwrap_or(0.1),
+            delta: e.delta?,
             character_id: e.character_id.clone(),
         }),
         "WeakenEdge" => Some(CommandEffect::WeakenEdge {
             source_schema_id: e.source_schema_id.clone()?,
             target_schema_id: e.target_schema_id.clone()?,
-            delta: e.delta.unwrap_or(0.1),
+            delta: e.delta?,
             character_id: e.character_id.clone(),
         }),
         "InjectMeme" => Some(CommandEffect::InjectMeme {
@@ -1060,26 +1115,24 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
         }),
         "ModifyResourceRegen" => Some(CommandEffect::ModifyResourceRegen {
             resource_schema_id: e.resource_schema_id.clone()?,
-            new_regen_rate: e.new_regen_rate.unwrap_or(0.0),
+            new_regen_rate: e.new_regen_rate?,
             target_character_id: e.target_character_id.clone(),
         }),
         "MoveCharacter" => Some(CommandEffect::MoveCharacter {
-            delta_x: e.delta_x.unwrap_or(0.0),
-            delta_y: e.delta_y.unwrap_or(0.0),
+            delta_x: e.delta_x?,
+            delta_y: e.delta_y?,
             target_character_id: e.target_character_id.clone(),
         }),
-        "SetVirtualContext" => Some(CommandEffect::SetVirtualContext {
-            value: e.value.unwrap_or(false),
-        }),
+        "SetVirtualContext" => Some(CommandEffect::SetVirtualContext { value: e.value? }),
         "SetAssetPrice" => Some(CommandEffect::SetAssetPrice {
             item_id: e.item_id.as_deref().map(extract_local_id)?,
-            unit_price: e.unit_price.unwrap_or(1.0).max(0.0),
+            unit_price: e.unit_price?.max(0.0),
         }),
         "TradeAsset" => Some(CommandEffect::TradeAsset {
             item_id: e.item_id.as_deref().map(extract_local_id)?,
             buyer_id: e.buyer_id.clone().unwrap_or_else(|| "__target".to_owned()),
             seller_id: e.seller_id.clone().unwrap_or_else(|| "__actor".to_owned()),
-            quantity: e.quantity.unwrap_or(1.0).max(0.0),
+            quantity: e.quantity?.max(0.0),
         }),
         _ => None,
     }

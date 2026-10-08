@@ -27,10 +27,19 @@ export function presentEvent(event: WorldEvent, world: WorldState | null): { ico
   let text = i18n.t(`event.type.${type}`, { defaultValue: i18n.t('event.updated') });
   let color = '#9aaebd';
   switch (type) {
-    case 'CommandExecuted': {
+    case 'CommandExecuted':
+    case 'CommandRejected': {
       const command = world?.command_defs.find((candidate) => candidate.command_id === data.command_id);
       const commandLabel = command?.label ?? `command.${String(data.command_id)}.label`;
-      text = `${name} → ${readable(commandLabel, 'event.command')}`;
+      const label = readable(commandLabel, 'event.commandName');
+      if (type === 'CommandRejected') {
+        text = i18n.t('event.commandRejected', {
+          name, command: label,
+          reason: i18n.t(`event.commandRejection.${String(data.reason)}`, { defaultValue: i18n.t('event.commandRejection.unknown') }),
+        });
+        icon = '⚠️'; color = '#d88943'; break;
+      }
+      text = `${name} → ${label}`;
       icon = '🎮'; color = '#42a5f5'; break;
     }
     case 'NodeSpawned': icon = '✨'; color = '#66bb6a'; text = `${name}: +${node}`; break;

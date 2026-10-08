@@ -120,6 +120,12 @@ pub enum WorldEvent {
     },
 
     // ── Commands ──
+    CommandRejected {
+        actor_id: String,
+        command_id: String,
+        target_id: Option<String>,
+        reason: String,
+    },
     CommandExecuted {
         actor_id: String,
         command_id: String,

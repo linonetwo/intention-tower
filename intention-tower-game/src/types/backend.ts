@@ -346,6 +346,9 @@ export interface CommandDef {
 }
 
 export type Precondition =
+  | { ActorIs: { character_ids: string[] } }
+  | { TargetIs: { character_ids: string[] } }
+  | 'TargetIsNotActor'
   | { EnvHasItem: { item_schema_id: string } }
   | { TargetHasNode: { schema_id: string } }
   | { TargetNodeActive: { schema_id: string } }
@@ -393,6 +396,7 @@ export type WorldEvent =
   | { EdgeRemoved: { character_id: string; edge_id: string } }
   | { ResourceConsumed: { character_id: string; resource_schema_id: string; amount: number; remaining: number } }
   | { CommandExecuted: { actor_id: string; command_id: string; target_id: string | null } }
+  | { CommandRejected: { actor_id: string; command_id: string; target_id: string | null; reason: string } }
   | { NodeDeletionResisted: { character_id: string; instance_id: string; remaining_resilience: number } }
   | { SoundEmitted: { source_entity_id: string; about: string; modality: string } }
   | { FoodPresented: { source_entity_id: string; about: string } }

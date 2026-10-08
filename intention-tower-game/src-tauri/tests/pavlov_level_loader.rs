@@ -17,6 +17,7 @@ mod tests {
     use intention_tower_game_lib::level_loader;
     use intention_tower_game_lib::models::commands::*;
     use intention_tower_game_lib::models::mind_node::*;
+    use intention_tower_game_lib::models::world_state::WorldState;
     use intention_tower_game_lib::systems::runner::SimulationRunner;
 
     fn assets_dir() -> PathBuf {
@@ -27,6 +28,26 @@ mod tests {
 
     fn pavlov_level_dir() -> PathBuf {
         assets_dir().join("levels").join("pavlov")
+    }
+
+    fn command(world: &WorldState, id: &str) -> CommandDTO {
+        let definition = world
+            .command_defs
+            .iter()
+            .find(|def| def.command_id == id)
+            .expect("authored Pavlov command");
+        assert!(intention_tower_game_lib::command_rules::command_available(
+            definition,
+            "pavlov",
+            Some("dog"),
+            world
+        ));
+        CommandDTO {
+            command_id: id.to_owned(),
+            actor_id: "pavlov".to_owned(),
+            target_id: Some("dog".to_owned()),
+            effects: Vec::new(),
+        }
     }
 
     #[test]
@@ -165,19 +186,7 @@ mod tests {
 
         // Phase 2: Ring bell + present food (simulate classical conditioning)
         // Ring bell → spawns auditory observation on dog
-        let bell_cmd = CommandDTO {
-            command_id: "ring-bell".to_string(),
-            actor_id: "pavlov".to_string(),
-            target_id: Some("dog".to_string()),
-            effects: vec![CommandEffect::SpawnObservation {
-                schema_id: "it:concept/hear-metronome".to_string(),
-                modality: Modality::Auditory,
-                about: "it:entity-type/metronome".to_string(),
-                ttl: 300,
-                strength: 0.8,
-                target_character_id: Some("dog".to_string()),
-            }],
-        };
+        let bell_cmd = command(&world, "ring-bell");
         world.pending_commands.push(bell_cmd);
         runner.tick(&mut world, 1.0);
 
@@ -194,26 +203,7 @@ mod tests {
         );
 
         // Present food → spawns olfactory observation + reduces hunger
-        let food_cmd = CommandDTO {
-            command_id: "feed".to_string(),
-            actor_id: "pavlov".to_string(),
-            target_id: Some("dog".to_string()),
-            effects: vec![
-                CommandEffect::SpawnObservation {
-                    schema_id: "it:concept/see-food".to_string(),
-                    modality: Modality::Olfactory,
-                    about: "schema:Food".to_string(),
-                    ttl: 300,
-                    strength: 1.0,
-                    target_character_id: Some("dog".to_string()),
-                },
-                CommandEffect::ModifyNodeValue {
-                    schema_id: "it:concept/hunger".to_string(),
-                    delta: -0.4,
-                    target_character_id: Some("dog".to_string()),
-                },
-            ],
-        };
+        let food_cmd = command(&world, "feed");
         world.pending_commands.push(food_cmd);
         runner.tick(&mut world, 1.0);
 
@@ -251,42 +241,11 @@ mod tests {
             );
 
             // Ring bell
-            world.pending_commands.push(CommandDTO {
-                command_id: "ring-bell".to_string(),
-                actor_id: "pavlov".to_string(),
-                target_id: Some("dog".to_string()),
-                effects: vec![CommandEffect::SpawnObservation {
-                    schema_id: "it:concept/hear-metronome".to_string(),
-                    modality: Modality::Auditory,
-                    about: "it:entity-type/metronome".to_string(),
-                    ttl: 300,
-                    strength: 0.8,
-                    target_character_id: Some("dog".to_string()),
-                }],
-            });
+            world.pending_commands.push(command(&world, "ring-bell"));
             runner.tick(&mut world, 1.0);
 
             // Feed
-            world.pending_commands.push(CommandDTO {
-                command_id: "feed".to_string(),
-                actor_id: "pavlov".to_string(),
-                target_id: Some("dog".to_string()),
-                effects: vec![
-                    CommandEffect::SpawnObservation {
-                        schema_id: "it:concept/see-food".to_string(),
-                        modality: Modality::Olfactory,
-                        about: "schema:Food".to_string(),
-                        ttl: 300,
-                        strength: 1.0,
-                        target_character_id: Some("dog".to_string()),
-                    },
-                    CommandEffect::ModifyNodeValue {
-                        schema_id: "it:concept/hunger".to_string(),
-                        delta: -0.4,
-                        target_character_id: Some("dog".to_string()),
-                    },
-                ],
-            });
+            world.pending_commands.push(command(&world, "feed"));
             runner.tick(&mut world, 1.0);
         }
 

@@ -7,7 +7,11 @@
       "label": "command.approach-gosling.label",
       "hotkey": "1",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -25,7 +29,11 @@
       "label": "command.make-sound.label",
       "hotkey": "2",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -43,7 +51,11 @@
       "label": "command.move-away.label",
       "hotkey": "3",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "MoveCharacter",
@@ -59,6 +71,9 @@
       "hotkey": "4",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" },
         { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
       ],
       "effects": [

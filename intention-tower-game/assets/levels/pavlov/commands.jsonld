@@ -8,6 +8,9 @@
       "hotkey": "1",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["pavlov"] },
+        { "type": "TargetIs", "characterIds": ["dog"] },
+        { "type": "TargetIsNotActor" },
         { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/metronome" }
       ],
       "effects": [
@@ -27,6 +30,9 @@
       "hotkey": "2",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["pavlov"] },
+        { "type": "TargetIs", "characterIds": ["dog"] },
+        { "type": "TargetIsNotActor" },
         { "type": "EnvHasItem", "itemSchemaId": "schema:Food" }
       ],
       "effects": [

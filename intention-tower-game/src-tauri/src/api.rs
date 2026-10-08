@@ -1,4 +1,4 @@
-use crate::models::commands::{CommandDTO, CommandDef, Precondition, TargetingMode};
+use crate::models::commands::{CommandDTO, CommandDef, Precondition};
 use crate::models::events::WorldEvent;
 use crate::models::world_state::WorldState;
 use crate::systems::runner::SimulationRunner;
@@ -120,10 +120,9 @@ pub fn execute_command(
     }
 
     // Queue the command for CommandSystem to process
-    let effective_target_id = match cmd_def.targeting {
-        TargetingMode::NoTarget => None,
-        TargetingMode::RequiresTarget | TargetingMode::OptionalTarget => target_id.clone(),
-    };
+    let effective_target_id =
+        crate::command_rules::normalized_target_id(cmd_def.targeting, target_id.as_deref())
+            .map(str::to_owned);
     let dto = CommandDTO {
         command_id: command_id.clone(),
         actor_id: actor_id.clone(),
