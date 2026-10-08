@@ -6,7 +6,15 @@
 - [下载 Linux 核心＋网页试玩包](https://github.com/linonetwo/intention-tower/actions/runs/37802386457/artifacts/11561448522)
 - [下载实际浏览器截图与权威报告](https://github.com/linonetwo/intention-tower/actions/runs/37802386457/artifacts/11561188173)
 - [代码审阅 PR](https://github.com/linonetwo/intention-tower/pull/2)
-- [本批 Windows／macOS／Linux 安装包构建](https://github.com/linonetwo/intention-tower/actions/runs/37807724392)：正在构建；请等待对应平台成功上传后下载。
+- [本批 Windows／macOS／Linux 安装包构建：全部成功](https://github.com/linonetwo/intention-tower/actions/runs/37807724392)
+
+直接下载本批安装包（保留至 2026-10-22）：
+
+- [Windows：MSI／EXE](https://github.com/linonetwo/intention-tower/actions/runs/37807724392/artifacts/11564985250)
+- [macOS Apple Silicon：DMG／App](https://github.com/linonetwo/intention-tower/actions/runs/37807724392/artifacts/11564236018)
+- [Linux amd64：AppImage／DEB](https://github.com/linonetwo/intention-tower/actions/runs/37807724392/artifacts/11563712364)
+
+三平台均基于同一已验收代码 `c205e8c`；这是未完成商店签名和公证的试玩版本。
 
 Linux 包要求 Linux amd64 和 Node 22。解压后按包内 README 启动已编译核心和网页服务，
 浏览器打开本机 4173 端口；无需编译或安装依赖。网页并非独立模拟器，所有操作由 Rust 核心执行。
