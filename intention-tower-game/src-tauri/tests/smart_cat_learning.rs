@@ -649,6 +649,19 @@ fn command_counts_or_forged_selected_flags_cannot_replace_real_motor_evidence() 
 }
 
 #[test]
+fn first_demonstration_has_positive_zero_prediction_without_learned_inputs() {
+    let mut state = world();
+    assert_eq!(learned_count(&state), 0);
+    command(&mut state, "demonstrate-press");
+    ticks(&mut state, 1);
+    let trials = &state.characters["cat-billi"].mind_graph.conditioning_trials;
+    assert!(!trials.is_empty());
+    for trial in trials {
+        assert_eq!(trial.prediction.to_bits(), 0.0_f64.to_bits());
+    }
+}
+
+#[test]
 fn snapshot_json_preserves_f64_learning_values_exactly() {
     let value = 0.9443999999999999_f64;
     let json = serde_json::to_string(&value).unwrap();

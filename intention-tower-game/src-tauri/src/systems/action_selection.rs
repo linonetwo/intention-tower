@@ -58,7 +58,7 @@ impl System for ActionSelectionSystem {
                                     }
                                 })
                         })
-                        .sum::<f64>()
+                        .fold(0.0_f64, |total, input| total + input)
                         .clamp(0.0, 1.0);
                     Some((node.instance_id.clone(), drive))
                 })

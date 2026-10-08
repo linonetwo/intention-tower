@@ -85,7 +85,7 @@ impl System for ImprintingDriveSystem {
                             && edge.polarity == crate::models::mind_node::Polarity::Excitatory
                     })
                     .map(|edge| edge.weight * drive)
-                    .sum();
+                    .fold(0.0_f64, |total, input| total + input);
                 updates.push((action_id, input.clamp(0.0, 1.0), input >= 0.3));
             }
             updates.extend(

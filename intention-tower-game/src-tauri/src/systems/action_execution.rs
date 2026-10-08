@@ -215,7 +215,7 @@ impl System for ActionExecutionSystem {
                             }
                         }
                     })
-                    .sum();
+                    .fold(0.0_f64, |total, input| total + input);
 
                 // If total input exceeds firing threshold, activate the action
                 let threshold = 0.3;

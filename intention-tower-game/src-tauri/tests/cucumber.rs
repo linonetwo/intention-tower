@@ -143,6 +143,32 @@ async fn train_real_cat_episodes(world: &mut GameWorld) {
     }
     cat_ticks(world, 300).await;
 }
+
+#[given("已加载聪明猫真实目标关卡")]
+async fn load_cat_outcomes(world: &mut GameWorld) {
+    world.ensure_server().await;
+    world
+        .mcp_call("load_level", json!({"level_id":"smart-cat"}))
+        .await
+        .unwrap();
+    let state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    let objectives = state["progress"]["objectives"].as_array().unwrap();
+    assert_eq!(
+        objectives.len(),
+        3,
+        "real cat objectives must not be sandboxed away"
+    );
+    for id in [
+        "demonstrate-button",
+        "reinforce-correct-action",
+        "verify-cat-action",
+    ] {
+        assert!(objectives
+            .iter()
+            .any(|objective| objective["objective_id"] == id));
+    }
+}
+
 #[then("聪明猫应凭无提示自主按键回合完成关卡")]
 async fn cat_autonomous_outcome(world: &mut GameWorld) {
     let state = world.mcp_call("snapshot", json!({})).await.unwrap();

@@ -343,6 +343,7 @@ try {
     const sitting = await call('snapshot');
     assert.equal(sitting.character_postures['cat-billi'], 'sitting');
     assert.deepEqual(sitting.characters['cat-billi'].position, { x: 520, y: 300 });
+    await shot('smart-cat-real-sitting');
     await call('click', { selector: '[data-testid="scene-posture"]' });
     assert.equal((await call('snapshot')).character_postures['cat-billi'], 'standing');
     await call('click', { selector: '[data-testid="scene-traverse"]' });
@@ -355,7 +356,21 @@ try {
     await load('the-wave');
     const wave = await call('snapshot');
     assert.deepEqual([...new Set(Object.values(wave.characters).map(c => c.position.y))], [300], 'All classroom characters share one authored floor');
-    report.sceneInteraction = { toolbar, sitting: sitting.characters['cat-billi'], wavePositions: Object.fromEntries(Object.entries(wave.characters).map(([id,c])=>[id,c.position])), passed: true };
+    await clickMode('observe');
+    await call('click', { selector: '[data-testid="scene-character-tim"]' });
+    await call('click', { selector: '[data-testid="scene-posture"]' });
+    assert.equal((await call('snapshot')).character_postures.tim, 'sitting');
+    await shot('wave-real-sitting');
+    const seatedArt = await evaluate(`(async()=>{const manifest=await fetch('/mods/gpt-image-2-pack/manifest.json').then(r=>r.json()),asset=manifest.spritesByCharacter.tim,img=document.querySelector('[data-testid="scene-character-sprite-tim"]'),chair=document.querySelector('[data-testid="scene-chair-tim"]');if(chair)await chair.decode();const r=chair?.getBoundingClientRect();return{src:img.currentSrc,expectedSrc:new URL(asset.sittingSrc,location.href).href,chairVisible:!!chair&&chair.naturalWidth>0&&r.width>0&&r.height>0&&r.right>0&&r.left<innerWidth&&r.bottom>0&&r.top<innerHeight}})()`);
+    assert.equal(seatedArt.src.split('?')[0], seatedArt.expectedSrc.split('?')[0], 'Tim displays the authored sitting sprite');
+    assert.equal(seatedArt.chairVisible, true, 'Tim has a loaded visible chair');
+    await clickWorldX(160, .2); await waitPosition('tim', 160, 300);
+    const waveWalk = await call('snapshot');
+    assert.equal(waveWalk.character_postures.tim, 'standing', 'Walking stands Tim up automatically');
+    assert.deepEqual([...new Set(Object.values(waveWalk.characters).map(c => c.position.y))], [300], 'Walking keeps all classroom actors on one floor');
+    assert.equal(await evaluate(`!!document.querySelector('[data-testid="scene-chair-tim"]')`), false, 'Standing removes Tim’s chair');
+    await shot('wave-standing-after-walk');
+    report.sceneInteraction = { toolbar, sitting: sitting.characters['cat-billi'], wavePositions: Object.fromEntries(Object.entries(wave.characters).map(([id,c])=>[id,c.position])), waveSeatedArt: seatedArt, waveAfterWalk: waveWalk.characters.tim.position, passed: true };
   } catch (error) {
     report.sceneInteractionFailure = String(error); process.exitCode = 1;
     await shot('scene-interaction-failure');
@@ -372,6 +387,20 @@ try {
       // Capture both views before assessing assets: missing art must not hide the
       // independent graph/layout evidence needed for human aesthetic review.
       await shot(`${viewport.name}-${level}-scene`);
+      if (viewport.name !== 'desktop' && level === 'pavlov') {
+        const touchTargets = await evaluate(`[...document.querySelector('[data-testid="game-topbar"]').querySelectorAll('button')].map(b=>({id:b.dataset.testid,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height}))`);
+        for (const button of touchTargets) assert.ok(button.width >= 44 && button.height >= 44, `${viewport.name} ${button.id} minimum touch target`);
+        await call('click', { selector: '[data-testid="scene-character-pavlov"]' });
+        const beforeMove = (await call('snapshot')).characters.pavlov.position;
+        await call('click', { selector: '[data-testid="scene-move-right"]' });
+        await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().characters.pavlov.position.x>${beforeMove.x}){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Mobile real movement did not update'))}},50)})`);
+        const afterMove = (await call('snapshot')).characters.pavlov.position;
+        assert.ok(afterMove.x > beforeMove.x, 'Mobile movement changes x');
+        assert.equal(afterMove.y, beforeMove.y, 'Mobile movement preserves authored floor y');
+        assert.equal(afterMove.y, 300, 'Mobile movement remains on the ground platform');
+        (report.mobileInteraction ??= []).push({ viewport: viewport.name, touchTargets, beforeMove, afterMove, passed: true });
+        await shot(`${viewport.name}-real-movement`);
+      }
       await evaluate(`window.__INTENTION_TEST__.setUiMode('graph')`);
       await shot(`${viewport.name}-${level}-graph`);
       const scene = await evaluate(`(()=>({viewport:{width:innerWidth,height:innerHeight},characters:[...document.querySelectorAll('[data-testid^="scene-character-sprite-"]')].map(img=>({id:img.dataset.testid,src:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight,assetMissing:img.closest('button')?.dataset.assetMissing,rect:img.getBoundingClientRect().toJSON()})),overflow:document.documentElement.scrollWidth>innerWidth+1}))()`);

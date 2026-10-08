@@ -72,7 +72,7 @@ impl System for OperantConditioningSystem {
                                 .any(|context| context.instance_id == edge.source_instance_id)
                     })
                     .map(|edge| edge.weight)
-                    .sum();
+                    .fold(0.0_f64, |total, weight| total + weight);
                 let error = reward - prediction;
                 let delta = LEARNING_RATE * error / sources.len() as f64;
                 for source_id in sources {

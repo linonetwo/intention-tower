@@ -125,6 +125,8 @@ impl System for ClassicalConditioningSystem {
                     // Compound stimuli share ONE predicted outcome. Giving
                     // every simultaneously present cue its own full reward
                     // would let total expectation grow without bound.
+                    // f64::sum uses -0.0 as its empty identity. A missing
+                    // prediction is positive zero, including at JS JSON boundaries.
                     let prediction: f64 = graph
                         .edges
                         .values()
@@ -141,7 +143,7 @@ impl System for ClassicalConditioningSystem {
                                     .is_some_and(|node| node.active && node.attended)
                         })
                         .map(|edge| edge.weight)
-                        .sum();
+                        .fold(0.0_f64, |total, weight| total + weight);
                     graph.conditioning_trials.push(ConditioningTrial {
                         source_id: source_id.clone(),
                         target_id: target_id.clone(),
