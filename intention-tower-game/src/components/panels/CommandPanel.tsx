@@ -104,7 +104,7 @@ export const CommandPanel: React.FC = () => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header: Actor → Target */}
       <Box sx={{ p: 1, pb: 0.5 }}>
-        <Typography sx={{ fontSize: 10, color: '#888', mb: 0.5 }}>{t('command.panel')}</Typography>
+        <Typography sx={{ fontSize: 10, color: '#79644d', mb: 0.5 }}>{t('command.panel')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
           <Chip label={actorLabel} size="small" color="success" variant="outlined" sx={{ height: 20, fontSize: 10 }} />
           <Typography sx={{ fontSize: 12, color: '#666' }}>→</Typography>
@@ -171,17 +171,17 @@ export const CommandPanel: React.FC = () => {
                         ? 'rgba(255,167,38,0.14)'
                         : wasExecuted
                           ? 'rgba(76,175,80,0.18)'
-                          : 'rgba(100, 100, 255, 0.15)',
-                      color: isQueued ? '#ffcc80' : '#ccc',
+                          : 'rgba(154,113,62,0.15)',
+                      color: isQueued ? '#92622f' : '#68543f',
                       borderColor: isQueued ? 'rgba(255,167,38,0.5)' : undefined,
                       transition: 'all 0.2s',
                       '&:hover': {
                         bgcolor: isQueued
                           ? 'rgba(255,167,38,0.22)'
-                          : 'rgba(100, 100, 255, 0.3)',
+                          : 'rgba(154,113,62,0.3)',
                         borderColor: isQueued ? 'rgba(255,167,38,0.7)' : undefined,
                       },
-                      '&.Mui-disabled': { color: '#555', bgcolor: 'rgba(255,255,255,0.03)' },
+                      '&.Mui-disabled': { color: '#555', bgcolor: 'rgba(149,112,64,0.03)' },
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%' }}>
@@ -192,7 +192,7 @@ export const CommandPanel: React.FC = () => {
                         <Chip
                           label={cmd.hotkey}
                           size="small"
-                          sx={{ height: 16, fontSize: 9, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.1)' }}
+                          sx={{ height: 16, fontSize: 9, fontFamily: 'monospace', bgcolor: 'rgba(149,112,64,0.1)' }}
                         />
                       )}
                       {needsTarget && (
@@ -207,7 +207,7 @@ export const CommandPanel: React.FC = () => {
                         <Chip
                           label={t('command.queued')}
                           size="small"
-                          sx={{ height: 16, fontSize: 9, bgcolor: 'rgba(255,167,38,0.3)', color: '#ffcc80' }}
+                          sx={{ height: 16, fontSize: 9, bgcolor: 'rgba(255,167,38,0.3)', color: '#92622f' }}
                         />
                       )}
                     </Box>

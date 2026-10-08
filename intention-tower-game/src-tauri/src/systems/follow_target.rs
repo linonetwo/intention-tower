@@ -197,6 +197,11 @@ impl System for FollowTargetSystem {
             let character = &state.characters[&id];
             let dx = position.x - character.position.x;
             let dy = position.y - character.position.y;
+            // Ground following cannot fly between floors. A connector must be
+            // traversed explicitly before horizontal following can resume.
+            if dy.abs() > 1e-8 {
+                continue;
+            }
             let before = dx.hypot(dy);
             let step = (config.follow_speed.max(0.0) * dt)
                 .min((before - config.comfort_radius.max(32.0)).max(0.0))
@@ -204,12 +209,9 @@ impl System for FollowTargetSystem {
             if before <= 0.0 || step <= 0.0 {
                 continue;
             }
-            let Ok(event) = crate::movement::move_character_in_tick(
-                state,
-                &id,
-                dx / before * step,
-                dy / before * step,
-            ) else {
+            let Ok(event) =
+                crate::movement::move_character_in_tick(state, &id, dx / before * step, 0.0)
+            else {
                 continue;
             };
             let character = state.characters.get_mut(&id).expect("collected character");

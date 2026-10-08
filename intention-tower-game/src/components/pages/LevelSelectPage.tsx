@@ -16,6 +16,12 @@ import { useLevelProgress } from '../../store/useLevelProgress';
 import { allLevels, type LevelMeta } from '../../data/levels/allLevels';
 import { t as translate } from '../../i18n';
 
+const CATEGORY_KEYS: Record<string, string> = {
+  '教程': 'tutorial', '先验本能': 'instinct', '社交与归属': 'belonging',
+  '动机链': 'motivation', '虚拟与现实': 'reality', '信念': 'belief',
+  '地位与面子': 'status', '模因': 'meme', '终局': 'finale',
+};
+
 const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; loading: boolean; progress: { played: boolean; maxTick: number; completed: boolean } | undefined }> = ({ level, onSelect, loading, progress }) => {
   const { t } = useTranslation();
   const played = progress?.played ?? false;
@@ -26,21 +32,27 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
     <Paper
       data-testid={`level-card-${level.id}`}
       elevation={0}
+      role="button"
+      tabIndex={loading ? -1 : 0}
+      aria-disabled={loading}
       onClick={() => !loading && onSelect(level.id)}
+      onKeyDown={event => { if (!loading && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onSelect(level.id); } }}
       sx={{
-        bgcolor: completed ? '#1a2e1a' : '#1a1a3e',
-        borderRadius: 2,
+        bgcolor: completed ? '#edf1dd' : '#fff8e9',
+        borderRadius: '8px 24px 24px 8px',
+        backgroundImage: 'linear-gradient(100deg, rgba(160,120,65,.09), transparent 22%)',
+        boxShadow: '0 4px 0 #d3bd97, 0 9px 18px #84683a15',
         p: 2.5,
         cursor: loading ? 'wait' : 'pointer',
         transition: 'all 0.2s',
-        border: completed ? '1px solid #2e7d32' : '1px solid #2a2a5e',
+        border: completed ? '2px solid #93aa75' : '2px solid #d6bf99',
         position: 'relative',
         '&:hover': {
           transform: 'translateY(-4px)',
           boxShadow: completed
             ? '0 8px 24px rgba(46, 125, 50, 0.2)'
-            : '0 8px 24px rgba(100, 100, 255, 0.2)',
-          borderColor: completed ? '#43a047' : '#4a4aff',
+            : '0 8px 24px rgba(154,113,62,0.2)',
+          borderColor: completed ? '#779257' : '#a57949',
         },
       }}
     >
@@ -52,10 +64,10 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
         <PlayCircleOutlineIcon sx={{ position: 'absolute', top: 10, right: 10, fontSize: 20, color: '#ffa726' }} />
       )}
 
-      <Typography sx={{ fontSize: 18, fontWeight: 600, mb: 1, color: '#fff', pr: 3 }}>
+      <Typography sx={{ fontSize: 18, fontWeight: 600, mb: 1, color: '#443627', pr: 3 }}>
         {translate(`level.${level.id}.name`) !== `level.${level.id}.name` ? translate(`level.${level.id}.name`) : level.name}
       </Typography>
-      <Typography sx={{ fontSize: 12, color: '#999', lineHeight: 1.5, mb: 1.5 }}>
+      <Typography sx={{ fontSize: 12, color: '#806c55', lineHeight: 1.5, mb: 1.5 }}>
         {translate(`level.${level.id}.description`) !== `level.${level.id}.description` ? translate(`level.${level.id}.description`) : level.description}
       </Typography>
 
@@ -66,14 +78,14 @@ const LevelCard: React.FC<{ level: LevelMeta; onSelect: (id: string) => void; lo
             label={translate(`level.${level.id}.objective.${i}`) !== `level.${level.id}.objective.${i}` ? translate(`level.${level.id}.objective.${i}`) : obj}
             size="small"
             variant="outlined"
-            sx={{ height: 20, fontSize: 10, borderColor: '#3a3a6e', color: '#888' }}
+            sx={{ height: 20, fontSize: 10, borderColor: '#d6bf99', color: '#79644d' }}
           />
         ))}
         {played && maxTick > 0 && (
           <Chip
             label={t('menu.maxTick', { tick: maxTick })}
             size="small"
-            sx={{ height: 18, fontSize: 9, bgcolor: 'rgba(255,255,255,0.05)', color: '#666' }}
+            sx={{ height: 18, fontSize: 9, bgcolor: 'rgba(149,112,64,0.05)', color: '#666' }}
           />
         )}
       </Box>
@@ -106,12 +118,15 @@ export const LevelSelectPage: React.FC = () => {
   return (
     <Box sx={{
       width: '100vw', minHeight: '100dvh',
-      bgcolor: '#0a0a1e', color: '#fff',
+      bgcolor: '#868074', color: '#443627',
+      backgroundImage: 'radial-gradient(ellipse at 50% 0%, #fffaf0 0%, #f0e4ca 70%)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center',
       overflow: 'auto',
       p: { xs: 2, sm: 4 },
+      pt: { xs: 8, sm: 7 },
     }}>
+      <Box aria-hidden sx={{ fontSize: 46, lineHeight: 1, color: '#a37b46', mb: 2 }}>♜</Box>
       <Typography sx={{ fontSize: { xs: 30, sm: 42 }, fontWeight: 700, mb: 1, letterSpacing: { xs: 2, sm: 4 }, textAlign: 'center' }}>
         {t('app.title')}
       </Typography>
@@ -121,7 +136,7 @@ export const LevelSelectPage: React.FC = () => {
 
       <IconButton
         onClick={() => navigate('/settings')}
-        sx={{ position: 'fixed', top: 16, right: 16, color: '#bbb' }}
+        sx={{ position: 'fixed', top: 16, right: 16, color: '#78634d' }}
         aria-label={t('menu.settings')}
       >
         <SettingsIcon />
@@ -130,7 +145,7 @@ export const LevelSelectPage: React.FC = () => {
       {loading && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <CircularProgress size={20} />
-          <Typography sx={{ fontSize: 13, color: '#aaa' }}>{t('app.loading')}</Typography>
+          <Typography sx={{ fontSize: 13, color: '#806c55' }}>{t('app.loading')}</Typography>
         </Box>
       )}
 
@@ -144,10 +159,10 @@ export const LevelSelectPage: React.FC = () => {
         {Array.from(grouped.entries()).map(([category, levels]) => (
           <Box key={category} sx={{ mb: 4 }}>
             <Typography sx={{
-              fontSize: 16, fontWeight: 600, color: '#8888ff',
-              borderBottom: '1px solid #2a2a5e', pb: 0.5, mb: 2,
+              fontSize: 16, fontWeight: 600, color: '#8b5735',
+              display: 'inline-block', bgcolor: '#7f745f', px: 2, py: 1, borderRadius: '6px 18px 18px 6px', mb: 2,
             }}>
-              {category}
+              {t(`menu.category.${CATEGORY_KEYS[category] ?? 'finale'}`)}
             </Typography>
             <Box sx={{
               display: 'grid',

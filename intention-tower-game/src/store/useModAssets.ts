@@ -28,6 +28,7 @@ export interface ImageAssetManifest {
   /** Transparent full-body art; old portraits are never substituted. */
   spritesByCharacter?: Record<string, CharacterSpriteAsset>;
   backgrounds?: Record<string, string>;
+  backgroundsMetadata?: Record<string, { width: number; height: number; floorY: number }>;
   items?: ImageAssetManifestItem[];
 }
 
@@ -36,6 +37,9 @@ export interface CharacterSpriteAsset {
   height?: number;
   facing?: 'left' | 'right';
   groundAnchor?: number;
+  walkFrames?: string[];
+  sittingSrc?: string;
+  chairSrc?: string;
 }
 
 export function resolveCharacterSprite(manifest: ImageAssetManifest | null, id: string) {

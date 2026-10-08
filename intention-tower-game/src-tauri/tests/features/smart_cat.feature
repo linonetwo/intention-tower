@@ -59,3 +59,8 @@
     那么 执行者 "trainer" 对目标 "cat-billi" 的可用命令应包含 "feed-after-press"
     当 执行命令 "feed-after-press" 执行者 "trainer" 目标 "cat-billi"
     那么 "cat-billi" 应有 "Operant" 类型的学习边
+
+  场景: 实际饥饿需求训练后无提示自主按键求食并保持完整存档
+    假如 已加载关卡 "smart-cat"
+    当 用真实饥饿按键回合训练聪明猫并恢复完整存档
+    那么 聪明猫应凭无提示自主按键回合完成关卡

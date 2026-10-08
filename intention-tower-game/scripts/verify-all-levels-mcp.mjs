@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { readdir, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -92,7 +93,7 @@ async function playLevel(levelId) {
   }
   if (levelId === 'smart-cat') {
     const execute = command_id => call('execute_command', { command_id, actor_id: 'trainer', target_id: 'cat-billi' });
-    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('tick', { dt: 0.5 }); };
     await execute('show-button'); await advance(1);
     for (let trial = 0; trial < 3; trial++) {
       await execute('demonstrate-press'); await advance(1);
@@ -102,15 +103,40 @@ async function playLevel(levelId) {
       }
       await execute('feed'); await advance(1); await advance(11);
     }
-    for (let trial = 0; trial < 3; trial++) {
-      await execute('demonstrate-press'); await advance(2);
-      const selected = (await call('snapshot')).characters['cat-billi'].mind_graph.nodes['cat-press-button'];
-      if (!(selected.active && selected.attended && selected.action?.selected && selected.value >= 0.3)) throw new Error('smart-cat: contingent food lacks genuinely selected learned action');
+    for (let trial = 0; trial < 80; trial++) {
+      let ready;
+      for (let wait = 0; wait < 300; wait++) {
+        ready = await call('snapshot');
+        const graph = ready.characters['cat-billi'].mind_graph;
+        if (graph.action_episodes.some(episode => episode.autonomous)) break;
+        if (graph.nodes['cat-hunger'].value >= .65 && !graph.nodes['cat-press-button'].action.selected) break;
+        await advance(1);
+      }
+      ready = await call('snapshot');
+      if (ready.characters['cat-billi'].mind_graph.action_episodes.some(episode => episode.autonomous)) break;
+      assert.ok(ready.characters['cat-billi'].mind_graph.nodes['cat-hunger'].value >= .65 && !ready.characters['cat-billi'].mind_graph.nodes['cat-press-button'].action.selected, `smart-cat trial ${trial}: hungry response failed to reset within 300 ticks`);
+      const before = ready.characters['cat-billi'].mind_graph.action_episodes.length;
+      await execute('demonstrate-press');
+      let response;
+      for (let wait = 0; wait < 6; wait++) {
+        await advance(1); response = await call('snapshot');
+        if (response.characters['cat-billi'].mind_graph.action_episodes.length > before) break;
+      }
+      if (!(response.characters['cat-billi'].mind_graph.action_episodes.length > before)) throw new Error(`smart-cat trial ${trial}: no new actual motor episode`);
       await execute('feed-after-press'); await advance(1);
+      const rewarded = await call('snapshot');
+      if (rewarded.characters['cat-billi'].mind_graph.action_episodes.at(-1).rewarded_at == null) throw new Error('smart-cat: response did not receive subsequent reward');
+      assert.ok(rewarded.characters['cat-billi'].mind_graph.action_episodes.at(-1).reinforcement_dopamine_spent > 0, 'Real reinforcement must pay dopamine');
+      if (trial === 0) {
+        await call('restore_snapshot', { world: rewarded });
+        assert.deepEqual(await call('snapshot'), rewarded, 'Complete motor-episode save restore');
+      }
+      await advance(12);
     }
+    await advance(300);
     const trained = await call('snapshot');
     const edges = Object.values(trained.characters['cat-billi'].mind_graph.edges);
-    if (trained.progress.status !== 'Won' || !edges.some(edge => edge.learnable && edge.learn_type === 'Operant' && edge.weight > 0)) throw new Error('smart-cat: actual operant learning did not win');
+    if (trained.progress.status !== 'Won' || !edges.some(edge => edge.learnable && edge.learn_type === 'Operant' && edge.source_instance_id === 'cat-hunger' && edge.weight > 0) || !trained.characters['cat-billi'].mind_graph.action_episodes.some(episode => episode.autonomous && episode.contexts.some(context => context.schema_id === 'it:concept/hunger' && context.value >= .6))) throw new Error('smart-cat: true unprompted hungry food seeking did not win');
     results.push({ levelId, tick: trained.tick, status: trained.progress.status, learningEdges: edges.filter(edge => edge.learnable) });
     console.log(`MCP verified smart-cat with actual conditioned and selected-action reward in ${trained.tick} ticks`);
     return;

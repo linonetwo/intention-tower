@@ -84,6 +84,17 @@ async function clickCommand(commandId) {
   await call('click', { selector: `[data-testid="command-${commandId}"]` });
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().pending_commands.some(command=>command.command_id===${JSON.stringify(commandId)})){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Real command button did not queue ${commandId}'))}},50)})`);
 }
+async function clickMode(mode) {
+  if (!await evaluate(`!!document.querySelector('[data-testid="mode-${mode}"]')?.getClientRects().length`)) await call('click', { selector: '[data-testid="experiment-menu-open"]' });
+  await call('click', { selector: `[data-testid="mode-${mode}"]` });
+}
+async function waitPosition(character, x, y) {
+  await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{const p=window.__INTENTION_TEST__.state().characters[${JSON.stringify(character)}].position;if(Math.abs(p.x-${x})<.01&&Math.abs(p.y-${y})<.01){clearInterval(timer);resolve(true)}else if(++n>240){clearInterval(timer);reject(new Error('Expected actual position ${character} ${x},${y}'))}},50)})`);
+}
+async function clickWorldX(x, fractionY) {
+  const position = await evaluate(`(()=>{const r=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect(),d=window.__itSceneDebug();return{x:${x}*d.scale+d.cameraX,y:r.height*${fractionY}}})()`);
+  await call('click', { selector: '[data-testid="scene-viewport"]', position });
+}
 async function advance(count) { for (let i = 0; i < count; i++) await call('step_tick'); }
 try {
   await waitReady();
@@ -92,7 +103,7 @@ try {
   await call('click', { selector: '[data-testid="level-card-pavlov"]' });
   await waitScene();
   await shot('desktop-pavlov-menu-entry');
-  await call('click', { selector: '[data-testid="mode-micro"]' });
+  await clickMode('micro');
   const movementBefore = await call('snapshot');
   await call('click', { selector: '[data-testid="scene-move-right"]' });
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().characters.pavlov.position.x>${movementBefore.characters.pavlov.position.x}){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Movement did not update authoritative UI'))}},50)})`);
@@ -101,7 +112,7 @@ try {
   await shot('desktop-pavlov-real-movement');
   await call('click', { selector: '[data-testid="scene-move-left"]' });
   await call('click', { selector: '[data-testid="step-tick"]' });
-  await call('click', { selector: '[data-testid="mode-observe"]' });
+  await clickMode('observe');
   await evaluate(`window.__INTENTION_TEST__.selectActor('pavlov');window.__INTENTION_TEST__.selectTarget('dog');window.__INTENTION_TEST__.setAutoStep(false)`);
   await command('ring-bell'); await advance(11);
   const baseline = await captureLearning('untrained');
@@ -109,7 +120,7 @@ try {
   assert.notEqual(baseline.progress.status, 'Won');
   for (let trial = 0; trial < 5; trial++) {
     if (trial === 0) {
-      await call('click', { selector: '[data-testid="mode-observe"]' });
+      await clickMode('observe');
       if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) {
         await call('click', { selector: '[data-testid="dialogue-toggle"]' });
       }
@@ -151,6 +162,7 @@ try {
 
   try {
     const catGraph = world => world.characters['cat-billi'].mind_graph;
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('tick', { dt: 0.5 }); };
     const catEvidence = async label => {
       const world = await call('snapshot');
       (report.smartCatLearning ??= []).push({ label, tick: world.tick, status: world.progress.status, graph: catGraph(world) });
@@ -173,7 +185,7 @@ try {
     await command('show-button'); await advance(1);
     for (let trial = 0; trial < 3; trial++) {
       if (trial === 0) {
-        await call('click', { selector: '[data-testid="mode-observe"]' });
+        await clickMode('observe');
         if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) await call('click', { selector: '[data-testid="dialogue-toggle"]' });
         await clickCommand('demonstrate-press'); await advance(1);
         const available = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
@@ -184,22 +196,49 @@ try {
     }
     const paired = await catEvidence('rewarded-training');
     assert.ok(Object.values(catGraph(paired).edges).some(edge => edge.learnable && edge.target_instance_id === 'cat-press-button' && edge.weight > 0));
-    for (let trial = 0; trial < 3; trial++) {
-      await command('demonstrate-press'); await advance(1);
-      const beforeSelection = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
-      if (trial === 0) assert.ok(!beforeSelection.some(command => command.command_id === 'feed-after-press'), 'Eligible value alone cannot unlock contingent food');
-      await advance(1);
-      const selected = catGraph(await call('snapshot')).nodes['cat-press-button'];
-      assert.ok(selected.active && selected.attended && selected.action.selected && selected.value >= 0.3, 'Reward requires actual attended and selected cat action');
+    for (let trial = 0; trial < 80; trial++) {
+      let ready;
+      for (let wait = 0; wait < 300; wait++) {
+        ready = await call('snapshot');
+        const graph = catGraph(ready);
+        if (graph.action_episodes.some(episode => episode.autonomous)) break;
+        if (graph.nodes['cat-hunger'].value >= .65 && !graph.nodes['cat-press-button'].action.selected) break;
+        await advance(1);
+      }
+      ready = await call('snapshot');
+      if (catGraph(ready).action_episodes.some(episode => episode.autonomous)) break;
+      assert.ok(catGraph(ready).nodes['cat-hunger'].value >= .65 && !catGraph(ready).nodes['cat-press-button'].action.selected, `trial ${trial}: hungry response failed to reset within 300 ticks`);
+      const before = catGraph(ready).action_episodes.length;
+      if (trial === 0) { await clickMode('observe'); await clickCommand('demonstrate-press'); }
+      else await command('demonstrate-press');
+      let response;
+      for (let wait = 0; wait < 6; wait++) {
+        await advance(1); response = await call('snapshot');
+        if (catGraph(response).action_episodes.length > before) break;
+      }
+      assert.ok(catGraph(response).action_episodes.length > before, `trial ${trial}: new real motor episode required`);
+      const selected = catGraph(response).nodes['cat-press-button'];
+      assert.ok(selected.active && selected.attended && selected.action.selected, 'Completed response comes from actual attended selected motor execution');
       if (trial === 0) {
-        await call('click', { selector: '[data-testid="mode-observe"]' });
         await clickCommand('feed-after-press');
         (report.realCommandButtons ??= []).push('command-demonstrate-press', 'command-feed-after-press');
       } else await command('feed-after-press');
       await advance(1);
+      const rewarded = await call('snapshot');
+      assert.ok(catGraph(rewarded).action_episodes.at(-1).rewarded_at != null);
+      assert.ok(catGraph(rewarded).action_episodes.at(-1).reinforcement_dopamine_spent > 0, 'Real reinforcement must pay dopamine');
+      const available = await call('list_commands', { actor_id: 'trainer', target_id: 'cat-billi' });
+      assert.ok(!available.some(command => command.command_id === 'feed-after-press'), 'A persistent selected flag cannot reward one episode twice');
+      if (trial === 0) {
+        await call('restore_snapshot', { world: rewarded }); await evaluate(`window.__INTENTION_TEST__.refresh()`);
+        assert.deepEqual(await call('snapshot'), rewarded, 'Save restore preserves complete cat motor and learning state');
+      }
+      await advance(12);
     }
+    await advance(300);
     const operant = await catEvidence('selected-action-operant-reward');
-    assert.ok(Object.values(catGraph(operant).edges).some(edge => edge.learnable && edge.learn_type === 'Operant' && edge.weight > 0), 'Rewarded selected action must create real operant credit');
+    assert.ok(Object.values(catGraph(operant).edges).some(edge => edge.learnable && edge.learn_type === 'Operant' && edge.source_instance_id === 'cat-hunger' && edge.weight > 0), 'Food need must learn real motor credit');
+    assert.ok(catGraph(operant).action_episodes.some(episode => episode.autonomous && episode.contexts.some(context => context.schema_id === 'it:concept/hunger' && context.value >= .6)), 'Won requires a real unprompted hungry press, not command counts');
     assert.equal(operant.progress.status, 'Won');
   } catch (error) {
     report.smartCatFailure = String(error);
@@ -240,7 +279,7 @@ try {
     assert.equal(motivation(acquired).imprinting_evidence.target_entity, 'it:entity/lorenz');
     assert.equal(motivation(acquired).imprinting_evidence.dopamine_spent, 0.2);
     assert.equal(acquired.progress.status, 'InProgress', 'Imprinting alone is not successful following');
-    await call('click', { selector: '[data-testid="mode-micro"]' });
+    await clickMode('micro');
     await clickCommand('move-away'); await advance(1);
     const separated = await capture('target-moved-away');
     assert.ok(separated.characters.lorenz.position.x < acquired.characters.lorenz.position.x, 'Target must actually move');
@@ -264,10 +303,49 @@ try {
     process.exitCode = 1;
   }
 
+  try {
+    await load('smart-cat');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
+    const toolbar = await evaluate(`(()=>{const top=document.querySelector('[data-testid="game-topbar"]');return{height:top.getBoundingClientRect().height,buttons:[...top.querySelectorAll('button')].map(b=>({id:b.dataset.testid,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height})),save:!!top.querySelector('[data-testid="save-menu-open"]')}})()`);
+    assert.equal(toolbar.height, 60);
+    assert.equal(toolbar.save, false, 'Save belongs inside the experiment menu, not topbar');
+    assert.equal(toolbar.buttons.length, 4, 'Topbar has exactly four primary controls');
+    for (const button of toolbar.buttons) assert.ok(button.width >= 44 && button.height >= 44, `${button.id} minimum touch target`);
+    await call('click', { selector: '[data-testid="experiment-menu-open"]' });
+    assert.equal(await evaluate(`!!document.querySelector('[data-testid="save-menu-open"]')?.getClientRects().length`), true);
+    await call('click', { selector: '[data-testid="experiment-menu-close"]' });
+    await call('click', { selector: '[data-testid="scene-character-cat-billi"]' });
+    const initial = await call('snapshot');
+    assert.equal(initial.characters['cat-billi'].position.x, 400);
+    await clickWorldX(460, .2); await waitPosition('cat-billi', 460, 300);
+    await clickWorldX(520, .72); await waitPosition('cat-billi', 520, 300);
+    await call('click', { selector: '[data-testid="scene-posture"]' });
+    const sitting = await call('snapshot');
+    assert.equal(sitting.character_postures['cat-billi'], 'sitting');
+    assert.deepEqual(sitting.characters['cat-billi'].position, { x: 520, y: 300 });
+    await call('click', { selector: '[data-testid="scene-posture"]' });
+    assert.equal((await call('snapshot')).character_postures['cat-billi'], 'standing');
+    await call('click', { selector: '[data-testid="scene-traverse"]' });
+    await waitPosition('cat-billi', 580, 180);
+    assert.equal((await call('snapshot')).characters['cat-billi'].position.y, 180);
+    await shot('smart-cat-real-stairs-up');
+    await call('click', { selector: '[data-testid="scene-traverse"]' });
+    await waitPosition('cat-billi', 520, 300);
+    await shot('smart-cat-real-stairs-down');
+    await load('the-wave');
+    const wave = await call('snapshot');
+    assert.deepEqual([...new Set(Object.values(wave.characters).map(c => c.position.y))], [300], 'All classroom characters share one authored floor');
+    report.sceneInteraction = { toolbar, sitting: sitting.characters['cat-billi'], wavePositions: Object.fromEntries(Object.entries(wave.characters).map(([id,c])=>[id,c.position])), passed: true };
+  } catch (error) {
+    report.sceneInteractionFailure = String(error); process.exitCode = 1;
+    await shot('scene-interaction-failure');
+  }
+
   const levels = (await readdir(resolve('assets/levels'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
-  for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
+  for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }, { name: 'mobile-landscape', width: 844, height: 390 }]) {
     await call('set_viewport', viewport);
     for (const level of levels) {
+      if (viewport.name === 'mobile-landscape' && !['pavlov', 'smart-cat', 'gosling', 'the-wave'].includes(level)) continue;
       try {
       await load(level);
       await evaluate(`window.__INTENTION_TEST__.setUiMode('observe')`);

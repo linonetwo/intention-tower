@@ -10,7 +10,7 @@
       "@id": "it:entity/teacher-wenger",
       "@type": "schema:Person",
       "label": "level.the-wave.character.teacher-wenger.label",
-      "position": { "x": 300, "y": 100 },
+      "position": { "x": 300, "y": 300 },
       "fallbackChar": "@",
       "mindGraphRef": "it:level/the-wave/teacher-mind"
     },
@@ -18,7 +18,7 @@
       "@id": "it:entity/tim",
       "@type": "schema:Person",
       "label": "level.the-wave.character.tim.label",
-      "position": { "x": 200, "y": 400 },
+      "position": { "x": 200, "y": 300 },
       "fallbackChar": "T",
       "mindGraphRef": "it:level/the-wave/tim-mind"
     },
@@ -34,7 +34,7 @@
       "@id": "it:entity/student-b",
       "@type": "schema:Person",
       "label": "level.the-wave.character.student-b.label",
-      "position": { "x": 400, "y": 500 },
+      "position": { "x": 520, "y": 300 },
       "fallbackChar": "B",
       "mindGraphRef": "it:level/the-wave/student-b-mind"
     }

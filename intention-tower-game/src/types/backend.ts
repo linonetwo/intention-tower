@@ -10,6 +10,11 @@ export interface Position {
   y: number;
 }
 
+export type CharacterPosture = 'standing' | 'sitting';
+export interface ScenePlatform { id: string; x_min: number; x_max: number; y: number }
+export interface SceneConnector { id: string; kind: 'stairs' | 'ladder'; from_platform: string; to_platform: string; from_x: number; to_x: number }
+export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[] }
+
 // ── World State ──
 
 export interface WorldState {
@@ -25,6 +30,8 @@ export interface WorldState {
   default_actor_id: string | null;
   default_target_id: string | null;
   characters: Record<string, WorldCharacter>;
+  scene?: SceneDefinition;
+  character_postures?: Record<string, CharacterPosture>;
   items: Record<string, WorldItem>;
   event_log: WorldEvent[];
   command_defs: CommandDef[];
@@ -96,6 +103,15 @@ export interface FailureRule {
 
 export type LevelCondition = Record<string, unknown>;
 
+export interface ActionEpisodesCondition {
+  type: 'actionEpisodes';
+  characterId: string;
+  actionSchemaId: string;
+  minCount?: number;
+  rewarded?: boolean;
+  autonomous?: boolean;
+}
+
 export interface ImprintedTargetCondition {
   type: 'imprintedTarget';
   characterId: string;
@@ -147,6 +163,19 @@ export interface MindGraph {
   edges: Record<string, AssociationEdge>;
   conditioning_trials?: ConditioningTrial[];
   conditioning_stats?: Record<string, ConditioningStats>;
+  action_episodes?: ActionEpisode[];
+  last_external_observation_at?: number | null;
+}
+
+export interface ActionEpisode {
+  action_id: string;
+  action_schema_id: string;
+  executed_at: number;
+  contexts: { instance_id: string; schema_id: string; value: number }[];
+  autonomous: boolean;
+  reward_consumed_at?: number | null;
+  reinforcement_dopamine_spent?: number;
+  rewarded_at: number | null;
 }
 
 export interface ConditioningTrial {
@@ -256,6 +285,10 @@ export interface ImprintingEvidence {
 }
 
 export interface ActionData {
+  sub_action_schemas?: string[];
+  emitted_observation_schemas?: string[];
+  autonomous_need_schema_ids?: string[];
+  autonomous_need_min_value?: number | null;
   innate: boolean;
   goap: boolean;
   proficiency_level: number;
@@ -347,6 +380,7 @@ export type WorldEvent =
   | { NodeAttentionChanged: { character_id: string; instance_id: string; attended: boolean } }
   | { NodeSuppressionChanged: { character_id: string; instance_id: string; suppression: number } }
   | { ActionSelected: { character_id: string; instance_id: string } }
+  | { ActionExecuted: { character_id: string; instance_id: string; executed_at: number; autonomous: boolean } }
   | { CharacterMoved: { character_id: string; from_x: number; from_y: number; to_x: number; to_y: number } }
   | { SocialGroupUpdated: { group_id: string; member_count: number; cohesion: number; consensus_action: string | null } }
   | { AssetPriceChanged: { item_id: string; old_price: number; new_price: number } }

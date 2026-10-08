@@ -99,15 +99,15 @@ export const ContextCommandMenu: React.FC<ContextCommandMenuProps> = ({
         paper: {
           sx: {
             minWidth: 260,
-            bgcolor: '#17172e',
-            border: '1px solid #2a2a4e',
-            color: '#ddd',
+            bgcolor: '#8f8b85',
+            border: '1px solid #d6bf99',
+            color: '#584431',
           },
         },
       }}
     >
       <Box sx={{ px: 1.25, py: 0.75 }}>
-        <Typography sx={{ fontSize: 11, color: '#888' }}>
+        <Typography sx={{ fontSize: 11, color: '#79644d' }}>
           {t('command.contextTitle')}
         </Typography>
         <Typography sx={{ fontSize: 12 }}>
@@ -146,7 +146,7 @@ export const ContextCommandMenu: React.FC<ContextCommandMenuProps> = ({
             onClick={() => runCommand(cmd.command_id)}
             sx={{ gap: 1, minHeight: 30 }}
           >
-            <PlayArrowIcon sx={{ fontSize: 14, color: cmd.disabled ? '#666' : '#90caf9' }} />
+            <PlayArrowIcon sx={{ fontSize: 14, color: cmd.disabled ? '#666' : '#537d86' }} />
             <ListItemText
               primary={label}
               primaryTypographyProps={{ fontSize: 12 }}
@@ -155,7 +155,7 @@ export const ContextCommandMenu: React.FC<ContextCommandMenuProps> = ({
               <Chip
                 label={cmd.hotkey}
                 size="small"
-                sx={{ height: 16, fontSize: 9, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.1)' }}
+                sx={{ height: 16, fontSize: 9, fontFamily: 'monospace', bgcolor: 'rgba(149,112,64,0.1)' }}
               />
             )}
             {cmd.targeting === 'RequiresTarget' && (
@@ -163,7 +163,7 @@ export const ContextCommandMenu: React.FC<ContextCommandMenuProps> = ({
                 label={t('command.needTargetTag')}
                 size="small"
                 variant="outlined"
-                sx={{ height: 16, fontSize: 9, borderColor: '#666', color: '#aaa' }}
+                sx={{ height: 16, fontSize: 9, borderColor: '#666', color: '#806c55' }}
               />
             )}
           </MenuItem>

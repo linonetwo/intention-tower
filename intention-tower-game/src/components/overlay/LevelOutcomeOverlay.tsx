@@ -45,8 +45,8 @@ export const LevelOutcomeOverlay: React.FC = () => {
       PaperProps={{
         sx: {
           width: 'min(92vw, 480px)',
-          bgcolor: 'rgba(16,16,36,0.98)',
-          backgroundImage: 'linear-gradient(145deg, rgba(83,109,254,0.14), rgba(15,15,32,0.2))',
+          bgcolor: 'rgba(255,248,232,0.98)',
+          backgroundImage: 'linear-gradient(145deg, rgba(154,113,62,0.14), rgba(255,248,232,0.94))',
           border: `1px solid ${status === 'Won' ? 'rgba(101,212,138,0.6)' : 'rgba(239,83,80,0.55)'}`,
         },
       }}
@@ -65,7 +65,7 @@ export const LevelOutcomeOverlay: React.FC = () => {
         </Box>
       </DialogTitle>
       <DialogContent>
-        <Typography sx={{ fontSize: 13, color: '#c6c9d8', lineHeight: 1.7 }}>
+        <Typography sx={{ fontSize: 13, color: '#6f7179', lineHeight: 1.7 }}>
           {status === 'Won'
             ? t('outcome.wonDescription')
             : (translateLabel(worldState?.progress.outcome_label ?? '') || t('outcome.lostDescription'))}

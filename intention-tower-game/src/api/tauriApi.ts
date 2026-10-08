@@ -153,6 +153,16 @@ export async function moveCharacter(
 
 // ── Save / Load ──
 
+export async function setCharacterPosture(characterId: string, posture: 'standing' | 'sitting'): Promise<void> {
+  if (isTauri()) return invoke<void>('set_character_posture', { characterId, posture });
+  await mcpCall('set_character_posture', { character_id: characterId, posture });
+}
+
+export async function traverseConnector(characterId: string, connectorId: string): Promise<WorldEvent> {
+  return isTauri() ? invoke<WorldEvent>('traverse_connector', { characterId, connectorId })
+    : mcpCall<WorldEvent>('traverse_connector', { character_id: characterId, connector_id: connectorId });
+}
+
 /** Save current game state to a named slot. */
 export async function saveGame(slot: string): Promise<SaveMeta> {
   validateSaveSlot(slot);

@@ -99,7 +99,12 @@ impl System for ActionSelectionSystem {
             let action_ids: Vec<String> = graph
                 .nodes
                 .values()
-                .filter(|n| n.node_type == NodeType::Action && n.active && n.attended)
+                .filter(|n| {
+                    n.node_type == NodeType::Action
+                        && n.active
+                        && n.attended
+                        && n.action.as_ref().is_some_and(|action| !action.innate)
+                })
                 .map(|n| n.instance_id.clone())
                 .collect();
 

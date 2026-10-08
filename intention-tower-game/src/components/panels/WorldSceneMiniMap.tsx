@@ -59,23 +59,23 @@ export const WorldSceneMiniMap: React.FC = () => {
 
   return (
     <Box sx={{ px: 1, pt: 0.7, pb: 0.8 }}>
-      <Typography sx={{ fontSize: 10, color: '#888', mb: 0.4 }}>{t('world.scene')}</Typography>
+      <Typography sx={{ fontSize: 10, color: '#79644d', mb: 0.4 }}>{t('world.scene')}</Typography>
       <Box
         sx={{
           position: 'relative',
           height: 120,
-          border: '1px solid #2a2a4e',
+          border: '1px solid #d6bf99',
           borderRadius: 1,
-          bgcolor: '#0f1022',
+          bgcolor: '#868071',
           overflow: 'hidden',
         }}
       >
         {/* Grid lines for reference */}
         <Box sx={{ position: 'absolute', inset: 0, opacity: 0.08 }}>
-          <Box sx={{ position: 'absolute', left: '25%', top: 0, bottom: 0, borderLeft: '1px dashed #fff' }} />
-          <Box sx={{ position: 'absolute', left: '50%', top: 0, bottom: 0, borderLeft: '1px dashed #fff' }} />
-          <Box sx={{ position: 'absolute', left: '75%', top: 0, bottom: 0, borderLeft: '1px dashed #fff' }} />
-          <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, borderTop: '1px dashed #fff' }} />
+          <Box sx={{ position: 'absolute', left: '25%', top: 0, bottom: 0, borderLeft: '1px dashed #443627' }} />
+          <Box sx={{ position: 'absolute', left: '50%', top: 0, bottom: 0, borderLeft: '1px dashed #443627' }} />
+          <Box sx={{ position: 'absolute', left: '75%', top: 0, bottom: 0, borderLeft: '1px dashed #443627' }} />
+          <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, borderTop: '1px dashed #443627' }} />
         </Box>
 
         {/* Items as small dots */}
@@ -87,7 +87,7 @@ export const WorldSceneMiniMap: React.FC = () => {
                 width: 7,
                 height: 7,
                 borderRadius: '50%',
-                bgcolor: '#ffca28',
+                bgcolor: '#8f7116',
                 left: `${toPercent(item.position.x, scene.minX, scene.maxX)}%`,
                 top: `${toPercent(item.position.y, scene.minY, scene.maxY)}%`,
                 transform: 'translate(-50%, -50%)',
@@ -118,7 +118,7 @@ export const WorldSceneMiniMap: React.FC = () => {
                     : isTarget
                       ? '2px solid #ffa726'
                       : '1.5px solid #9fa8da',
-                  bgcolor: '#3949ab',
+                  bgcolor: '#78694f',
                   left: `${toPercent(char.position.x, scene.minX, scene.maxX)}%`,
                   top: `${toPercent(char.position.y, scene.minY, scene.maxY)}%`,
                   transform: 'translate(-50%, -50%)',
@@ -127,7 +127,7 @@ export const WorldSceneMiniMap: React.FC = () => {
                   '&:hover': {
                     transform: 'translate(-50%, -50%) scale(1.4)',
                     bgcolor: '#5c6bc0',
-                    boxShadow: '0 0 8px rgba(92,107,192,0.6)',
+                    boxShadow: '0 0 8px rgba(154,113,62,0.6)',
                   },
                   zIndex: isActor || isTarget ? 2 : 1,
                 }}

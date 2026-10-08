@@ -6,7 +6,9 @@ use intention_tower_game_lib::models::commands::{CommandDTO, CommandEffect};
 use intention_tower_game_lib::models::mind_node::Modality;
 use intention_tower_game_lib::models::progress::LevelStatus;
 use intention_tower_game_lib::models::world_state::WorldState;
+use intention_tower_game_lib::systems::follow_target::ImprintingDriveSystem;
 use intention_tower_game_lib::systems::runner::SimulationRunner;
+use intention_tower_game_lib::systems::System;
 use serde_json::Value;
 use std::path::Path;
 
@@ -116,6 +118,38 @@ fn zero_attention_with_regeneration_blocked_cannot_imprint_or_follow() {
     assert_unimprinted(&state);
     assert_eq!(state.characters["gosling"].position.x, before.x);
     assert_eq!(state.characters["gosling"].position.y, before.y);
+}
+
+#[test]
+fn separation_distress_tracks_actual_distance_and_clears_inside_comfort_radius() {
+    let mut state = world();
+    command(&mut state, "approach-gosling");
+    ticks(&mut state, 1);
+    assert_eq!(motivation(&state)["target_entity"], "it:entity/lorenz");
+    let goose = state.characters["gosling"].position.clone();
+    // Isolate the distance-driven system from locomotion: each input below is
+    // an actual entity position, not synthetic motivation or command counts.
+    let mut values = Vec::new();
+    for distance in [48.0, 72.0, 96.0, 60.0, 24.0] {
+        let target = &mut state.characters.get_mut("lorenz").unwrap().position;
+        target.x = goose.x + distance;
+        target.y = goose.y;
+        ImprintingDriveSystem.run(&mut state, 0.5);
+        let distress = &state.characters["gosling"].mind_graph.nodes["gosling-separation-distress"];
+        values.push(distress.value);
+        assert_eq!(distress.active, distance > 48.0);
+        assert!((distress.value - ((distance - 48.0) / 48.0).clamp(0.0, 1.0)).abs() < 1e-12);
+    }
+    assert!(values[0] < values[1] && values[1] < values[2]);
+    assert!(values[2] > values[3] && values[3] > values[4]);
+    assert_eq!(
+        values[4], 0.0,
+        "comfort must remove present distress, despite historic separation evidence"
+    );
+    assert_eq!(
+        motivation(&state)["imprinting_evidence"]["max_separation_distance"],
+        96.0
+    );
 }
 
 #[test]

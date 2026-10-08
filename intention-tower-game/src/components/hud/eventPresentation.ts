@@ -38,6 +38,7 @@ export function presentEvent(event: WorldEvent, world: WorldState | null): { ico
     case 'NodeDeactivated': text = `${name}: ${node} · ${i18n.t('event.deactivated')}`; break;
     case 'NodeDespawned': text = `${name}: ${node} · ${i18n.t('event.expired')}`; break;
     case 'NodeValueChanged': text = `${Number(data.new_value) > Number(data.old_value) ? '↑' : '↓'} ${name}: ${node} ${Number(data.new_value).toFixed(2)}`; break;
+    case 'ActionExecuted': icon = '🐾'; color = '#557647'; text = i18n.t(data.autonomous ? 'event.actionAutonomous' : 'event.actionExecuted', { name, action: node }); break;
     case 'LearningUpdated': icon = '🔗'; color = '#64d8a2'; text = `${name}: ${i18n.t(`graph.learning.${String(data.phase)}`)} ${Number(data.old_weight).toFixed(2)} → ${Number(data.new_weight).toFixed(2)}`; break;
     case 'EdgeCreated': icon = '🔗'; text = `${name}: ${i18n.t('graph.learning.created')}`; break;
     case 'EdgeWeightChanged': icon = '🔗'; text = `${name}: ${i18n.t('event.relationChanged')} ${Number(data.new_weight).toFixed(2)}`; break;

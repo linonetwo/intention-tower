@@ -125,17 +125,15 @@ export function useKeyboardShortcuts() {
 
     if (uiMode === 'micro') {
       const movement: Record<string, [number, number]> = {
-        w: [0, -28],
-        arrowup: [0, -28],
-        s: [0, 28],
-        arrowdown: [0, 28],
         a: [-28, 0],
         arrowleft: [-28, 0],
         d: [28, 0],
         arrowright: [28, 0],
       };
       if (movement[key]) {
+        if (e.shiftKey) return;
         e.preventDefault();
+        window.dispatchEvent(new Event('scene-cancel-walk'));
         void state.moveSelectedActor(...movement[key]);
         return;
       }

@@ -34,4 +34,24 @@ describe('full-body world character', () => {
     rerender(<WorldCharacterSprite {...props} asset={undefined} />);
     expect(screen.queryByTestId('scene-character-sprite-dog')).toBeNull();
   });
+  it('renders a supported sitting pose with a visible chair', () => {
+    render(<WorldCharacterSprite {...props} posture="sitting" asset={{ ...props.asset, sittingSrc: '/dog-sit.png', chairSrc: '/chair.png' }} />);
+    expect(screen.getByTestId('scene-character-dog').getAttribute('data-posture')).toBe('sitting');
+    expect(screen.getByTestId('scene-chair-dog')).toBeTruthy();
+    expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/dog-sit.png?rev=1');
+  });
+  it('lets a ground-sitting animal sit without inventing a chair', () => {
+    render(<WorldCharacterSprite {...props} posture="sitting" asset={{ ...props.asset, sittingSrc: '/dog-sit.png' }} />);
+    expect(screen.queryByTestId('scene-chair-dog')).toBeNull();
+    expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/dog-sit.png?rev=1');
+  });
+  it('cycles generated walk frames after authoritative movement', () => {
+    vi.useFakeTimers();
+    const asset = { ...props.asset, walkFrames: ['/walk1.png', '/walk2.png'] };
+    const { rerender } = render(<WorldCharacterSprite {...props} asset={asset} />);
+    rerender(<WorldCharacterSprite {...props} asset={asset} character={{ ...character, position: { x: 118, y: 300 } }} />);
+    expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/walk1.png?rev=1');
+    act(() => { vi.advanceTimersByTime(90); });
+    expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/walk2.png?rev=1');
+  });
 });

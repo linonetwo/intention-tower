@@ -175,6 +175,27 @@ pub fn move_character(
 }
 
 /// Cancel a queued pending command by command_id.
+#[tauri::command]
+pub fn traverse_connector(
+    character_id: String,
+    connector_id: String,
+    sim: State<'_, SimulationState>,
+) -> Result<WorldEvent, String> {
+    let mut world = sim.world.lock().map_err(|e| e.to_string())?;
+    crate::movement::traverse_connector(&mut world, &character_id, &connector_id)
+}
+
+#[tauri::command]
+pub fn set_character_posture(
+    character_id: String,
+    posture: crate::models::scene::CharacterPosture,
+    sim: State<'_, SimulationState>,
+) -> Result<(), String> {
+    let mut world = sim.world.lock().map_err(|e| e.to_string())?;
+    crate::movement::set_character_posture(&mut world, &character_id, posture)
+}
+
+/// Cancel a queued pending command by command_id.
 /// Used when the player clicks a queued command button to dequeue it.
 #[tauri::command]
 pub fn cancel_pending_command(
@@ -293,8 +314,10 @@ pub fn load_save(
     }
 
     let json = std::fs::read_to_string(&file_path).map_err(|e| format!("Read error: {}", e))?;
-    let loaded: WorldState =
+    let mut loaded: WorldState =
         serde_json::from_str(&json).map_err(|e| format!("Deserialize error: {}", e))?;
+    loaded.scene.validate()?;
+    crate::models::scene::normalize_positions(&mut loaded);
 
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
     *world = loaded;

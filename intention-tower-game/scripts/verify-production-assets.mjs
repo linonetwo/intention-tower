@@ -88,8 +88,10 @@ async function verifyPng(relativePath, expectedWidth, expectedHeight, label) {
 
 for (const levelId of levelIds) {
   const url = manifest.backgrounds?.[levelId];
+  const geometry = manifest.backgroundsMetadata?.[levelId];
   assert(typeof url === 'string', `missing background mapping for ${levelId}`);
-  if (typeof url === 'string') await verifyPng(url, 1672, 941, `background ${levelId}`);
+  if (geometry) assert(Number.isFinite(geometry.floorY) && geometry.floorY > 0 && geometry.floorY < geometry.height, `invalid room floor anchor: ${levelId}`);
+  if (typeof url === 'string') await verifyPng(url, geometry?.width ?? 1672, geometry?.height ?? 941, `background ${levelId}`);
 }
 
 for (const item of uniquePortraitItems) {
@@ -107,12 +109,20 @@ for (const item of uniquePortraitItems) {
   assert(sprite && typeof sprite.src === 'string', `missing full-body sprite mapping for ${item.charId}`);
   assert(JSON.stringify(manifest.spritesByCharacter?.[shortId]) === JSON.stringify(sprite), `short sprite alias does not match for ${item.charId}`);
   if (!sprite || typeof sprite.src !== 'string') continue;
-  assert(sprite.src.startsWith('/mods/gpt-image-2-pack/sprites/') && sprite.src.endsWith('.png'), `sprite is not production full-body PNG: ${item.charId}`);
+  assert(/^\/mods\/gpt-image-2-pack\/(sprites|sideview)(\/[\w-]+)+\.png$/.test(sprite.src), `sprite is not production full-body PNG: ${item.charId}`);
   assert(!sprite.src.includes('ensemble-source'), `sprite uses uncropped atlas: ${item.charId}`);
   assert(Number.isFinite(sprite.height) && sprite.height >= 40 && sprite.height <= 240, `invalid sprite display height: ${item.charId}`);
   assert(sprite.groundAnchor >= .9 && sprite.groundAnchor <= 1, `invalid sprite foot anchor: ${item.charId}`);
   assert(['left', 'right'].includes(sprite.facing), `invalid sprite facing: ${item.charId}`);
   spriteUrls.add(sprite.src);
+  if (sprite.walkFrames || sprite.sittingSrc) {
+    assert(Array.isArray(sprite.walkFrames) && sprite.walkFrames.length === 4, `animated sprite needs four walk frames: ${item.charId}`);
+    assert(typeof sprite.sittingSrc === 'string', `animated sprite needs a sitting frame: ${item.charId}`);
+    for (const frame of [...(sprite.walkFrames ?? []), sprite.sittingSrc].filter(Boolean)) {
+      assert(/^\/mods\/gpt-image-2-pack\/sideview(\/[\w-]+)+\.png$/.test(frame), `invalid animation frame URL: ${frame}`);
+      spriteUrls.add(frame);
+    }
+  }
 }
 assert(Object.keys(manifest.spritesByCharacter ?? {}).filter(id => id.startsWith('it:entity/')).length === 55, 'expected exactly 55 canonical full-body sprite mappings');
 for (const url of spriteUrls) {
@@ -134,8 +144,34 @@ for (const url of spriteUrls) {
 const hashes = new Map();
 for (const record of fileRecords) {
   const duplicate = hashes.get(record.hash);
-  assert(!duplicate, `duplicate image content: ${duplicate} and ${record.normalized}`);
+  assert(!duplicate || duplicate === record.normalized, `duplicate image content: ${duplicate} and ${record.normalized}`);
   hashes.set(record.hash, record.normalized);
+}
+
+// Side-view room geometry and animation anchors are part of the rendered asset
+// contract, not inferred from a successful image-generation response.
+try {
+  const sideview = JSON.parse(await fs.readFile(path.join(packRoot, 'sideview/manifest.json'), 'utf8'));
+  assert(sideview.model === 'gpt-image-2' && sideview.generator === 'proxy-imagegen', 'side-view asset provenance does not identify the requested generator');
+  for (const room of Object.values(sideview.backgrounds)) {
+    for (const level of room.levels) {
+      assert(manifest.backgrounds?.[level] === `${sideview.urlRoot}${room.file}`, `side-view room is not used by ${level}`);
+      const meta = manifest.backgroundsMetadata?.[level];
+      assert(meta?.width === room.size[0] && meta?.height === room.size[1] && meta?.floorY === room.groundY, `side-view room floor mapping differs for ${level}`);
+    }
+  }
+  for (const [id, character] of Object.entries(sideview.characters)) {
+    assert(character.frames.length === 6 && character.animations.walk.length === 4, `invalid six-pose animation: ${id}`);
+    for (const frame of character.frames) {
+      const image = decodeRgbaPng(await fs.readFile(path.join(packRoot, 'sideview', frame.file)));
+      assert(image.width === character.cellSize[0] && image.height === character.cellSize[1], `animation cell dimensions differ: ${frame.file}`);
+      const bounds = alphaBounds(image, 16);
+      assert(bounds && Math.abs(bounds.bottom - frame.anchor[1]) <= 2, `animation feet do not align with ground anchor: ${frame.file}`);
+      assert(spriteUrls.has(`${sideview.urlRoot}${frame.file}`), `generated animation is not connected to a playable character: ${frame.file}`);
+    }
+  }
+} catch (error) {
+  errors.push(`side-view production assets cannot be verified: ${error.message}`);
 }
 
 const backgroundFiles = (await fs.readdir(path.join(packRoot, 'backgrounds'))).filter((name) => name.endsWith('.png'));

@@ -23,6 +23,16 @@ pub enum LevelStatus {
     rename_all_fields = "camelCase"
 )]
 pub enum LevelCondition {
+    ActionEpisodes {
+        character_id: String,
+        action_schema_id: String,
+        #[serde(default = "one")]
+        min_count: u32,
+        #[serde(default)]
+        rewarded: bool,
+        #[serde(default)]
+        autonomous: bool,
+    },
     ImprintedTarget {
         character_id: String,
         motivation_schema_id: String,
@@ -116,6 +126,27 @@ const fn one() -> u32 {
 impl LevelCondition {
     pub fn evaluate(&self, world: &WorldState) -> bool {
         match self {
+            Self::ActionEpisodes {
+                character_id,
+                action_schema_id,
+                min_count,
+                rewarded,
+                autonomous,
+            } => world.characters.get(character_id).is_some_and(|character| {
+                character
+                    .mind_graph
+                    .action_episodes
+                    .iter()
+                    .filter(|episode| {
+                        episode.action_schema_id == *action_schema_id
+                            && (!rewarded
+                                || (episode.rewarded_at.is_some()
+                                    && episode.reinforcement_dopamine_spent > 0.0))
+                            && (!autonomous || episode.autonomous)
+                    })
+                    .count()
+                    >= *min_count as usize
+            }),
             Self::ImprintedTarget {
                 character_id,
                 motivation_schema_id,

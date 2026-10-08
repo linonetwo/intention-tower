@@ -35,7 +35,7 @@ export function MindGraphOverlay() {
 
   const viewportWidth = typeof window === 'undefined' ? 1280 : window.innerWidth;
   const viewportHeight = typeof window === 'undefined' ? 800 : window.innerHeight;
-  const panelHeight = layout.isMobile ? viewportHeight : Math.max(520, Math.floor(viewportHeight * 0.76));
+  const panelHeight = layout.isMobile ? viewportHeight : Math.min(viewportHeight - 60, Math.max(400, Math.floor(viewportHeight * 0.84)));
   const availableWidth = layout.isMobile
     ? viewportWidth
     : Math.max(620, viewportWidth - layout.statusBarWidth);
@@ -51,15 +51,15 @@ export function MindGraphOverlay() {
         aria-label={t('graph.workbench.aria')}
         sx={{
           position: 'absolute',
-          top: layout.isMobile ? 0 : 44,
+          top: layout.isMobile ? 0 : 60,
           left: layout.isMobile ? 0 : layout.statusBarWidth,
           right: 0,
           height: layout.isMobile ? '100%' : `${panelHeight}px`,
           zIndex: 30,
-          bgcolor: 'rgba(5,8,13,0.93)',
+          bgcolor: 'rgba(255,248,232,0.94)',
           backdropFilter: 'blur(9px)',
-          borderBottom: layout.isMobile ? 'none' : '1px solid rgba(120,150,175,0.24)',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.42)',
+          borderBottom: layout.isMobile ? 'none' : '1px solid rgba(154,113,62,0.24)',
+          boxShadow: '0 20px 50px rgba(255,248,232,0.94)',
           overflow: 'hidden',
           pointerEvents: 'auto',
         }}
@@ -67,7 +67,7 @@ export function MindGraphOverlay() {
         <IconButton
           aria-label={t('inspector.close')}
           onClick={() => setUiMode('observe')}
-          sx={{ position: 'absolute', top: 8, right: 10, color: '#aab7c1', zIndex: 5 }}
+          sx={{ position: 'absolute', top: 8, right: 10, color: '#75674f', zIndex: 5 }}
         >
           <CloseIcon />
         </IconButton>

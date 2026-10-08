@@ -8,7 +8,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useTranslation } from 'react-i18next';
 import { useGameState } from '../../store/useGameState';
 import { translateLabel } from '../../i18n';
-import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const RESOURCE_COLORS: Record<string, string> = {
   'health': '#66bb6a',
@@ -25,7 +24,6 @@ function getResourceColor(schemaId: string): string {
 
 export const ActorStatusBar: React.FC = () => {
   const { t } = useTranslation();
-  const layout = useResponsiveLayout();
   const worldState = useGameState((s) => s.worldState);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
@@ -50,22 +48,18 @@ export const ActorStatusBar: React.FC = () => {
       .slice(0, 3);
   }, [actor]);
 
-  if (layout.statusBarWidth === 0) return null;
-
-  const isCompact = layout.isTablet;
-  const barWidth = layout.statusBarWidth;
+  const isCompact = false;
 
   return (
     <Box
       sx={{
-        position: 'absolute',
-        left: 0,
-        top: 48,
-        bottom: 0,
-        width: barWidth,
-        bgcolor: 'rgba(14,14,26,0.85)',
+        position: 'relative',
+        width: '100%',
+        mb: 2,
+        bgcolor: 'rgba(255,248,232,0.94)',
         backdropFilter: 'blur(8px)',
-        borderRight: '1px solid rgba(42,42,78,0.6)',
+        border: '1px solid #d4bc96',
+        borderRadius: 2,
         display: 'flex',
         flexDirection: 'column',
         gap: 1,
@@ -82,7 +76,7 @@ export const ActorStatusBar: React.FC = () => {
             width: isCompact ? 32 : 40,
             height: isCompact ? 32 : 40,
             borderRadius: '50%',
-            bgcolor: actor ? '#3949ab' : '#333',
+            bgcolor: actor ? '#d7bc8d' : '#ad9271',
             border: '2px solid #4caf50',
             display: 'flex',
             alignItems: 'center',
@@ -90,14 +84,14 @@ export const ActorStatusBar: React.FC = () => {
             flexShrink: 0,
           }}
         >
-          <PersonIcon sx={{ fontSize: isCompact ? 16 : 20, color: '#ddd' }} />
+          <PersonIcon sx={{ fontSize: isCompact ? 16 : 20, color: '#584431' }} />
         </Box>
         {!isCompact && (
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#4caf50', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {actor ? translateLabel(actor.label) : t('world.none')}
             </Typography>
-            <Typography sx={{ fontSize: 9, color: '#888' }}>
+            <Typography sx={{ fontSize: 9, color: '#79644d' }}>
               {t('world.actor')}
             </Typography>
           </Box>
@@ -113,7 +107,7 @@ export const ActorStatusBar: React.FC = () => {
           <Tooltip key={res.instance_id} title={`${label}: ${res.value.toFixed(2)}`} placement="right" arrow>
             <Box sx={{ px: isCompact ? 0.3 : 0 }}>
               {!isCompact && (
-                <Typography sx={{ fontSize: 9, color: '#999', mb: 0.2 }}>{label}</Typography>
+                <Typography sx={{ fontSize: 9, color: '#806c55', mb: 0.2 }}>{label}</Typography>
               )}
               <LinearProgress
                 variant="determinate"
@@ -121,7 +115,7 @@ export const ActorStatusBar: React.FC = () => {
                 sx={{
                   height: isCompact ? 6 : 8,
                   borderRadius: 1,
-                  bgcolor: 'rgba(255,255,255,0.08)',
+                  bgcolor: 'rgba(149,112,64,0.08)',
                   '& .MuiLinearProgress-bar': { bgcolor: color, borderRadius: 1 },
                 }}
               />
@@ -133,7 +127,7 @@ export const ActorStatusBar: React.FC = () => {
       {/* Active motivations */}
       {!isCompact && activeMotivations.length > 0 && (
         <Box sx={{ mt: 0.5 }}>
-          <Typography sx={{ fontSize: 9, color: '#888', mb: 0.3 }}>
+          <Typography sx={{ fontSize: 9, color: '#79644d', mb: 0.3 }}>
             {t('node-type.motivation.label')}
           </Typography>
           {activeMotivations.map((mot) => (
@@ -147,13 +141,13 @@ export const ActorStatusBar: React.FC = () => {
       {/* Target section */}
       {target && (
         <>
-          <Box sx={{ borderTop: '1px solid rgba(42,42,78,0.4)', pt: 1, mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box sx={{ borderTop: '1px solid rgba(255,248,232,0.94)', pt: 1, mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Box
               sx={{
                 width: isCompact ? 28 : 36,
                 height: isCompact ? 28 : 36,
                 borderRadius: '50%',
-                bgcolor: '#5d4037',
+                bgcolor: '#7f6d5a',
                 border: '2px solid #ff9800',
                 display: 'flex',
                 alignItems: 'center',
@@ -161,14 +155,14 @@ export const ActorStatusBar: React.FC = () => {
                 flexShrink: 0,
               }}
             >
-              <PersonIcon sx={{ fontSize: isCompact ? 14 : 18, color: '#ddd' }} />
+              <PersonIcon sx={{ fontSize: isCompact ? 14 : 18, color: '#584431' }} />
             </Box>
             {!isCompact && (
               <Box sx={{ minWidth: 0, flex: 1 }}>
                 <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#ff9800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {translateLabel(target.label)}
                 </Typography>
-                <Typography sx={{ fontSize: 9, color: '#888' }}>
+                <Typography sx={{ fontSize: 9, color: '#79644d' }}>
                   {t('world.target')}
                 </Typography>
               </Box>

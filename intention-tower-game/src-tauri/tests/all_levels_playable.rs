@@ -485,7 +485,48 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                     runner.tick(world, 0.5);
                 }
             }
-            for _ in 0..3 {
+            for trial in 0..80 {
+                for _ in 0..300 {
+                    let graph = &world.characters["cat-billi"].mind_graph;
+                    if graph
+                        .action_episodes
+                        .iter()
+                        .any(|episode| episode.autonomous)
+                    {
+                        return;
+                    }
+                    if graph.nodes["cat-hunger"].value >= 0.65
+                        && !graph.nodes["cat-press-button"]
+                            .action
+                            .as_ref()
+                            .unwrap()
+                            .selected
+                    {
+                        break;
+                    }
+                    runner.tick(world, 0.5);
+                }
+                if world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .iter()
+                    .any(|episode| episode.autonomous)
+                {
+                    return;
+                }
+                let before = world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .len();
+                assert!(
+                    world.characters["cat-billi"].mind_graph.nodes["cat-hunger"].value >= 0.65
+                        && !world.characters["cat-billi"].mind_graph.nodes["cat-press-button"]
+                            .action
+                            .as_ref()
+                            .unwrap()
+                            .selected,
+                    "smart-cat trial {trial}: hungry response failed to reset within 300 ticks"
+                );
                 act(
                     world,
                     runner,
@@ -494,9 +535,25 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                     "demonstrate-press",
                     1,
                 );
-                // Attention must include the newly eligible learned action;
-                // rewarding a value that has not actually been selected fails.
-                runner.tick(world, 0.5);
+                for _ in 0..6 {
+                    if world.characters["cat-billi"]
+                        .mind_graph
+                        .action_episodes
+                        .len()
+                        > before
+                    {
+                        break;
+                    }
+                    runner.tick(world, 0.5);
+                }
+                assert!(
+                    world.characters["cat-billi"]
+                        .mind_graph
+                        .action_episodes
+                        .len()
+                        > before,
+                    "smart-cat trial {trial}: no actual new response"
+                );
                 act(
                     world,
                     runner,
@@ -505,7 +562,37 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                     "feed-after-press",
                     1,
                 );
+                assert!(world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .last()
+                    .unwrap()
+                    .rewarded_at
+                    .is_some());
+                assert!(
+                    world.characters["cat-billi"]
+                        .mind_graph
+                        .action_episodes
+                        .last()
+                        .unwrap()
+                        .reinforcement_dopamine_spent
+                        > 0.0
+                );
+                for _ in 0..12 {
+                    runner.tick(world, 0.5);
+                }
             }
+            for _ in 0..300 {
+                runner.tick(world, 0.5);
+            }
+            assert!(
+                world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .iter()
+                    .any(|episode| episode.autonomous),
+                "smart-cat: only real unprompted hungry motor evidence completes the route"
+            );
         }
         "the-wave" => {
             for target in ["tim", "student-a", "student-b"] {

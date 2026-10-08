@@ -11,7 +11,7 @@ vi.mock('@tauri-apps/api/window', () => ({
   LogicalSize: class LogicalSize {},
 }));
 
-import { listCommands, loadLevel, loadSave, saveGame } from './tauriApi';
+import { listCommands, loadLevel, loadSave, saveGame, setCharacterPosture, traverseConnector } from './tauriApi';
 
 function world(): WorldState {
   return {
@@ -74,6 +74,16 @@ describe('browser MCP transport', () => {
     await expect(listCommands('pavlov', 'dog')).resolves.toEqual([]);
     const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
     expect(body.params.arguments).toEqual({ actor_id: 'pavlov', target_id: 'dog' });
+  });
+
+  it('routes supported posture and connector actions to the authority', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(mcpResponse({ posture: 'sitting' }))
+      .mockResolvedValueOnce(mcpResponse({ CharacterMoved: { character_id: 'cat' } }));
+    await setCharacterPosture('cat', 'sitting');
+    await traverseConnector('cat', 'stairs');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body)).params).toEqual({ name: 'set_character_posture', arguments: { character_id: 'cat', posture: 'sitting' } });
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body)).params).toEqual({ name: 'traverse_connector', arguments: { character_id: 'cat', connector_id: 'stairs' } });
   });
 
   it('round-trips a browser save through the Rust restore endpoint', async () => {

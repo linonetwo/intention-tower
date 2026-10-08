@@ -236,6 +236,14 @@ struct ActionJson {
     goap: Option<bool>,
     #[serde(rename = "proficiencyLevel")]
     proficiency_level: Option<f64>,
+    #[serde(rename = "subActionSchemas", default)]
+    sub_action_schemas: Vec<String>,
+    #[serde(rename = "emittedObservationSchemas", default)]
+    emitted_observation_schemas: Vec<String>,
+    #[serde(rename = "autonomousNeedSchemaIds", default)]
+    autonomous_need_schema_ids: Vec<String>,
+    #[serde(rename = "autonomousNeedMinValue")]
+    autonomous_need_min_value: Option<f64>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -495,6 +503,7 @@ pub fn load_level_from_assets(
     }
 
     apply_level_metadata(&mut world, &level_json);
+    crate::scene_loader::load_scene_from_path(&mut world, &level_dir)?;
 
     Ok(world)
 }
@@ -577,6 +586,7 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
     }
 
     apply_level_metadata(&mut world, &level_json);
+    crate::scene_loader::load_scene_from_path(&mut world, &level_dir)?;
 
     Ok(world)
 }
@@ -822,7 +832,10 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
         let action = node_json.action.as_ref().map(|a| ActionData {
             innate: a.innate.unwrap_or(false),
             goap: a.goap.unwrap_or(false),
-            sub_action_schemas: Vec::new(),
+            sub_action_schemas: a.sub_action_schemas.clone(),
+            emitted_observation_schemas: a.emitted_observation_schemas.clone(),
+            autonomous_need_schema_ids: a.autonomous_need_schema_ids.clone(),
+            autonomous_need_min_value: a.autonomous_need_min_value,
             proficiency_level: a.proficiency_level.unwrap_or(0.0),
             selected: false,
         });

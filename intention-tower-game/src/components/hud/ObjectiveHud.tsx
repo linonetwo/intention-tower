@@ -34,12 +34,12 @@ export const ObjectiveHud: React.FC = () => {
       data-testid="objective-hud"
       sx={{
         position: 'absolute',
-        top: layout.isMobile ? 72 : 54,
-        left: layout.isMobile ? 8 : `max(${layout.statusBarWidth + 10}px, 18vw)`,
-        width: layout.isMobile ? 'calc(100vw - 16px)' : 'min(360px, 38vw)',
-        bgcolor: 'rgba(10,10,24,0.88)',
+        top: 68,
+        right: 8,
+        width: layout.isMobile ? 'min(240px, 65vw)' : 280,
+        bgcolor: 'rgba(255,248,232,0.94)',
         backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(105,118,255,0.42)',
+        border: '1px solid rgba(154,113,62,0.42)',
         borderRadius: 1.5,
         pointerEvents: 'auto',
         overflow: 'hidden',
@@ -47,8 +47,12 @@ export const ObjectiveHud: React.FC = () => {
       }}
     >
       <Box
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
         onClick={() => setExpanded((value) => !value)}
-        sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1.25, py: 0.75, cursor: 'pointer' }}
+        onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(value => !value); } }}
+        sx={{ display: 'flex', minHeight: 44, alignItems: 'center', gap: 0.75, px: 1.25, py: 0.25, cursor: 'pointer' }}
       >
         <Typography sx={{ flex: 1, fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>
           {t('objective.title')}
@@ -56,9 +60,9 @@ export const ObjectiveHud: React.FC = () => {
         <Chip
           label={t('objective.progress', counts)}
           size="small"
-          sx={{ height: 18, fontSize: 9, bgcolor: 'rgba(83,109,254,0.18)' }}
+          sx={{ height: 18, fontSize: 9, bgcolor: 'rgba(154,113,62,0.18)' }}
         />
-        <IconButton size="small" aria-label={t('objective.toggle')} sx={{ p: 0.15, color: '#8794d8' }}>
+        <IconButton size="small" aria-label={t('objective.toggle')} sx={{ p: 0.15, color: '#4c5379' }}>
           <ExpandMoreIcon
             sx={{ fontSize: 16, transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
           />
@@ -67,7 +71,7 @@ export const ObjectiveHud: React.FC = () => {
       <LinearProgress
         variant="determinate"
         value={ratio}
-        sx={{ height: 2, bgcolor: 'rgba(255,255,255,0.05)', '& .MuiLinearProgress-bar': { bgcolor: '#7387ff' } }}
+        sx={{ height: 2, bgcolor: 'rgba(149,112,64,0.05)', '& .MuiLinearProgress-bar': { bgcolor: '#8c9c56' } }}
       />
       <Collapse in={expanded}>
         <Box sx={{ px: 1.25, py: 0.8, display: 'flex', flexDirection: 'column', gap: 0.65, maxHeight: '20dvh', overflowY: 'auto' }}>

@@ -59,6 +59,8 @@ interface GameActions {
   cancelPendingCommand: (commandId: string) => Promise<void>;
   stepTick: () => Promise<void>;
   moveSelectedActor: (deltaX: number, deltaY: number) => Promise<void>;
+  setSelectedPosture: (posture: 'standing' | 'sitting') => Promise<void>;
+  traverseSelectedConnector: (connectorId: string) => Promise<void>;
   doTick: () => Promise<void>;
   setTimeSpeed: (speed: number) => Promise<void>;
   startTickLoop: () => void;
@@ -255,6 +257,25 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     } catch (err) {
       set({ error: t('app.error.moveCharacter', { message: String(err) }) });
     }
+  },
+
+  setSelectedPosture: async (posture) => {
+    const id = get().selectedActorId;
+    if (!id || get().worldState?.progress.status !== 'InProgress') return;
+    try {
+      await api.setCharacterPosture(id, posture);
+      set({ worldState: await api.snapshot() });
+    } catch (err) { set({ error: t('app.error.moveCharacter', { message: String(err) }) }); }
+  },
+
+  traverseSelectedConnector: async (connectorId) => {
+    const id = get().selectedActorId;
+    if (!id || get().worldState?.progress.status !== 'InProgress') return;
+    try {
+      const event = await api.traverseConnector(id, connectorId);
+      const state = await api.snapshot();
+      set(previous => ({ worldState: state, recentEvents: [event, ...previous.recentEvents].slice(0, 500) }));
+    } catch (err) { set({ error: t('app.error.moveCharacter', { message: String(err) }) }); }
   },
 
   doTick: async () => {

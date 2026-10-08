@@ -4,5 +4,6 @@ pub mod events;
 pub mod mind_graph;
 pub mod mind_node;
 pub mod progress;
+pub mod scene;
 pub mod social;
 pub mod world_state;

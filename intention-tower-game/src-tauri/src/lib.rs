@@ -5,6 +5,7 @@ pub mod level_loader;
 pub mod models;
 pub mod movement;
 pub mod save_slots;
+pub mod scene_loader;
 pub mod systems;
 #[cfg(feature = "test-server")]
 pub mod test_server;
@@ -39,6 +40,8 @@ pub fn run() {
             api::set_paused,
             api::step_tick,
             api::move_character,
+            api::traverse_connector,
+            api::set_character_posture,
             api::save_game,
             api::load_save,
             api::list_saves,

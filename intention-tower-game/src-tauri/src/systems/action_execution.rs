@@ -1,6 +1,7 @@
 use super::System;
 use crate::models::events::WorldEvent;
-use crate::models::mind_node::NodeType;
+use crate::models::mind_graph::{ActionContext, ActionEpisode};
+use crate::models::mind_node::{Modality, NodeType, ObservationData};
 use crate::models::world_state::WorldState;
 
 /// System #20: Executes the selected action's world effects.
@@ -16,6 +17,171 @@ impl System for ActionExecutionSystem {
     fn run(&self, state: &mut WorldState, _dt: f64) {
         for character in state.characters.values_mut() {
             let char_id = character.id.clone();
+            let graph = &mut character.mind_graph;
+            if let Some(tick) = graph
+                .nodes
+                .values()
+                .filter(|node| {
+                    node.node_type == NodeType::Observation
+                        && !node.observation.as_ref().is_some_and(|observation| {
+                            observation.emitter_id.as_ref() == Some(&char_id)
+                        })
+                })
+                .map(|node| node.created_at)
+                .max()
+            {
+                graph.last_external_observation_at = Some(
+                    graph
+                        .last_external_observation_at
+                        .map_or(tick, |previous| previous.max(tick)),
+                );
+            }
+            let executed: Vec<_> = state
+                .pending_events
+                .iter()
+                .filter_map(|event| match event {
+                    WorldEvent::ActionSelected {
+                        character_id,
+                        instance_id,
+                    } if character_id == &char_id => Some(instance_id.clone()),
+                    _ => None,
+                })
+                .collect();
+            for action_id in executed {
+                let Some(action) = graph.nodes.get(&action_id).filter(|node| {
+                    node.active
+                        && node.attended
+                        && node
+                            .action
+                            .as_ref()
+                            .is_some_and(|a| !a.innate && a.selected)
+                }) else {
+                    continue;
+                };
+                let action_schema_id = action.schema_id.clone();
+                let output_schemas = action
+                    .action
+                    .as_ref()
+                    .unwrap()
+                    .emitted_observation_schemas
+                    .clone();
+                let output_template = action.clone();
+                let need_schemas = action
+                    .action
+                    .as_ref()
+                    .unwrap()
+                    .autonomous_need_schema_ids
+                    .clone();
+                let need_minimum = action
+                    .action
+                    .as_ref()
+                    .unwrap()
+                    .autonomous_need_min_value
+                    .unwrap_or(0.6)
+                    .clamp(0.0, 1.0);
+                let mut contexts: Vec<_> = graph
+                    .nodes
+                    .values()
+                    .filter(|node| {
+                        node.active
+                            && node.attended
+                            && (node.node_type == NodeType::Motivation
+                                || node.prior_instinct.as_ref().is_some_and(|data| {
+                                    !data.is_resource && !data.satisfied_by_about.is_empty()
+                                })
+                                || (node.node_type == NodeType::Observation
+                                    && node.created_at >= state.tick.saturating_sub(10)
+                                    && super::classical_conditioning::intrinsic_reward(
+                                        graph,
+                                        &node.instance_id,
+                                    ) == 0.0
+                                    && !node
+                                        .observation
+                                        .as_ref()
+                                        .is_some_and(|o| o.emitter_id.as_ref() == Some(&char_id))
+                                    && graph.edges.values().any(|edge| {
+                                        edge.source_instance_id == node.instance_id
+                                            && edge.target_instance_id == action_id
+                                    })))
+                    })
+                    .map(|node| ActionContext {
+                        instance_id: node.instance_id.clone(),
+                        schema_id: node.schema_id.clone(),
+                        value: node.value,
+                    })
+                    .collect();
+                contexts.sort_by(|a, b| a.instance_id.cmp(&b.instance_id));
+                let recent_prompt = graph
+                    .last_external_observation_at
+                    .is_some_and(|tick| state.tick.saturating_sub(tick) <= 10);
+                let learned_need = contexts.iter().any(|context| {
+                    graph.nodes.get(&context.instance_id).is_some_and(|node| {
+                        context.value >= need_minimum
+                            && (need_schemas.is_empty()
+                                || need_schemas.contains(&context.schema_id))
+                            && node.prior_instinct.as_ref().is_some_and(|data| {
+                                !data.is_resource && !data.satisfied_by_about.is_empty()
+                            })
+                    }) && graph.edges.values().any(|edge| {
+                        edge.source_instance_id == context.instance_id
+                            && edge.target_instance_id == action_id
+                            && edge.learnable
+                            && edge.learn_type == crate::models::mind_node::LearnType::Operant
+                            && edge.polarity == crate::models::mind_node::Polarity::Excitatory
+                            && edge.weight > 0.0
+                            && edge.evidence.co_occurrence_count > 0
+                    })
+                });
+                let autonomous = learned_need && !recent_prompt;
+                graph.action_episodes.push(ActionEpisode {
+                    action_id: action_id.clone(),
+                    action_schema_id,
+                    executed_at: state.tick,
+                    contexts,
+                    autonomous,
+                    reward_consumed_at: None,
+                    reinforcement_dopamine_spent: 0.0,
+                    rewarded_at: None,
+                });
+                state.pending_events.push(WorldEvent::ActionExecuted {
+                    character_id: char_id.clone(),
+                    instance_id: action_id,
+                    executed_at: state.tick,
+                    autonomous,
+                });
+                for schema_id in output_schemas {
+                    // Public motor feedback is observable but never acts as
+                    // the actor's own demonstration/reward predictor.
+                    let mut output = output_template.clone();
+                    output.instance_id = format!("action-output:{}:{}", char_id, schema_id);
+                    output.schema_id = schema_id.clone();
+                    output.label = schema_id.clone();
+                    output.node_type = NodeType::Observation;
+                    output.value = 1.0;
+                    output.strength = 0.8;
+                    output.active = true;
+                    output.created_at = state.tick;
+                    output.ttl = Some(10);
+                    output.action = None;
+                    output.costs.clear();
+                    output.thresholds.clear();
+                    output.observation = Some(ObservationData {
+                        modality: Some(Modality::Auditory),
+                        credibility: 1.0,
+                        is_signal: true,
+                        emitter_id: Some(char_id.clone()),
+                        presentation_count: 1,
+                        ..Default::default()
+                    });
+                    state.pending_events.push(WorldEvent::NodeSpawned {
+                        character_id: char_id.clone(),
+                        instance_id: output.instance_id.clone(),
+                        schema_id,
+                        node_type: "Observation".into(),
+                    });
+                    graph.add_node(output);
+                }
+            }
 
             // Find innate actions that should fire based on incoming excitatory edges
             let innate_actions: Vec<String> = character
@@ -104,7 +270,18 @@ impl System for ActionExecutionSystem {
                     .mind_graph
                     .nodes
                     .get(&trial.target_id)
-                    .is_some_and(|node| node.active && node.attended);
+                    .is_some_and(|node| {
+                        node.active
+                            && node.attended
+                            && node.action.as_ref().is_some_and(|action| {
+                                action.innate
+                                    || character.mind_graph.action_episodes.iter().any(|episode| {
+                                        episode.action_id == trial.target_id
+                                            && episode.executed_at >= trial.started_at
+                                            && episode.executed_at <= trial.deadline
+                                    })
+                            })
+                    });
                 let association = character.mind_graph.edges.values().any(|edge| {
                     edge.learnable
                         && edge.source_instance_id == trial.source_id

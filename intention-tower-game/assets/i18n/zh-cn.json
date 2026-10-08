@@ -13,7 +13,7 @@
   "node-type.meme.description": "学会的东西，强化学习后学会的能带来奖励的知识",
 
   "edge-type.association-edge.label": "关联边",
-  "edge-type.association-edge.description": "心智图谱中两个节点之间的连接",
+  "edge-type.association-edge.description": "联结图谱中两个节点之间的连接",
 
   "threshold-type.trigger.label": "阈值触发器",
   "threshold-type.modifier.label": "阈值修改器",

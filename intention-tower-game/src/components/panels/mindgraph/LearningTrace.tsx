@@ -10,22 +10,22 @@ export function LearningTrace({ updates, nodes }: { updates: LearningUpdate[]; n
   const { t } = useTranslation();
   if (updates.length === 0) return null;
   return (
-    <Box data-testid='graph-learning-trace' sx={{ px: 1.25, py: 0.8, borderBottom: '1px solid rgba(130,160,190,0.16)', bgcolor: '#101c27', maxHeight: 112, overflowY: 'auto' }}>
+    <Box data-testid='graph-learning-trace' sx={{ px: 1.25, py: 0.8, borderBottom: '1px solid rgba(154,113,62,0.16)', bgcolor: '#898379', maxHeight: 112, overflowY: 'auto' }}>
       {updates.map((update, index) => {
-        const color = update.phase === 'extinguished' ? '#ffb37b' : update.phase === 'created' ? '#79c7ff' : '#64d8a2';
+        const color = update.phase === 'extinguished' ? '#ffb37b' : update.phase === 'created' ? '#527c86' : '#477c54';
         return (
           <Box key={`${update.edge_id}:${index}`} sx={{ mb: 0.35 }}>
             <Typography sx={{ fontSize: 11, color, overflowWrap: 'anywhere' }}>
               {t(`graph.learning.${update.phase}`)}
               {' · '}{update.old_weight.toFixed(3)} → {update.new_weight.toFixed(3)}
             </Typography>
-            <Typography title={`${update.edge_id}: ${update.source_id} → ${update.target_id}`} sx={{ fontSize: 10, color: '#93adbf', overflowWrap: 'anywhere' }}>
+            <Typography title={`${update.edge_id}: ${update.source_id} → ${update.target_id}`} sx={{ fontSize: 10, color: '#52616b', overflowWrap: 'anywhere' }}>
               {[update.source_id, update.target_id].map((id) => {
                 const node = nodes.find((candidate) => candidate.instance_id === id);
                 return node && !node.isUnknown ? graphNodeLabel(node) : t('graph.unknown');
               }).join(' → ')}
             </Typography>
-            <Typography sx={{ fontSize: 10, color: '#a9becd', fontVariantNumeric: 'tabular-nums' }}>
+            <Typography sx={{ fontSize: 10, color: '#5f6a73', fontVariantNumeric: 'tabular-nums' }}>
               {t('graph.learning.prediction')} {update.prediction.toFixed(3)}
               {' · '}{t('graph.learning.reward')} {update.reward.toFixed(3)}
               {' · '}{t('graph.learning.error')} {update.prediction_error > 0 ? '+' : ''}{update.prediction_error.toFixed(3)}

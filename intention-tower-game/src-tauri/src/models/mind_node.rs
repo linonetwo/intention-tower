@@ -207,6 +207,14 @@ pub struct ActionData {
     pub innate: bool,
     pub goap: bool,
     pub sub_action_schemas: Vec<String>,
+    /// Observable sensory consequences produced once per execution episode.
+    #[serde(default)]
+    pub emitted_observation_schemas: Vec<String>,
+    /// Optional authored restriction on which learned need can prove autonomy.
+    #[serde(default)]
+    pub autonomous_need_schema_ids: Vec<String>,
+    #[serde(default)]
+    pub autonomous_need_min_value: Option<f64>,
     pub proficiency_level: f64,
     /// Per-tick winner chosen by ActionSelectionSystem. Eligibility remains in
     /// MindNode.active, so losing one tick never removes an action forever.

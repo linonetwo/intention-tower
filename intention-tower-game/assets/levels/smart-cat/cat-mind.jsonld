@@ -74,11 +74,14 @@
       "schemaId": "it:concept/press-button",
       "nodeType": "Action",
       "value": 0.0,
-      "strength": 0.1,
+      "strength": 0.2,
       "active": false,
       "it:action": {
         "innate": false,
         "goap": false,
+        "emittedObservationSchemas": ["it:concept/hear-button-sound"],
+        "autonomousNeedSchemaIds": ["it:concept/hunger"],
+        "autonomousNeedMinValue": 0.6,
         "proficiencyLevel": 0.0
       }
     },

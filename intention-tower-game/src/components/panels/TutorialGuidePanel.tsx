@@ -80,6 +80,9 @@ export const TutorialGuidePanel: React.FC = () => {
   const imprintContactDone = objectiveDone('critical-period-contact');
   const imprintFollowingDone = objectiveDone('observe-imprinting');
   const imprintVerified = objectiveDone('verify-following');
+  const catPaired = objectiveDone('demonstrate-button');
+  const catRewarded = objectiveDone('reinforce-correct-action');
+  const catAutonomous = objectiveDone('verify-cat-action');
   const settled = recentEvents.some((event) => 'LearningUpdated' in event && shortId(event.LearningUpdated.character_id) === 'dog' && event.LearningUpdated.reward > 0);
 
   const conditionedWeight = useMemo(() => {
@@ -159,9 +162,10 @@ export const TutorialGuidePanel: React.FC = () => {
 
     if (currentLevelId === 'smart-cat') {
       return [
-        { id: 'a', done: !!selectedActorId, text: t('tutorial.smart-cat.step.1'), highlightTarget: 'actor-selector' },
-        { id: 'b', done: commandHistory.length >= 2, text: t('tutorial.smart-cat.step.2') },
-        { id: 'c', done: commandHistory.length >= 4, text: t('tutorial.smart-cat.step.3') },
+        { id: 'cat-select', done: shortId(selectedActorId) === 'trainer' && shortId(selectedTargetId) === 'cat-billi', text: t('tutorial.smart-cat.step.1'), highlightTarget: 'actor-selector' },
+        { id: 'cat-pair', done: catPaired, text: t('tutorial.smart-cat.step.2') },
+        { id: 'cat-reward', done: catRewarded, text: t('tutorial.smart-cat.step.3') },
+        { id: 'cat-autonomous', done: catAutonomous, text: t('tutorial.smart-cat.step.4'), highlightTarget: 'step-button' },
       ];
     }
 
@@ -172,7 +176,9 @@ export const TutorialGuidePanel: React.FC = () => {
       { id: 'gosling-follow', done: imprintVerified, text: t('tutorial.gosling.step.4'), highlightTarget: 'step-button' },
     ];
   }, [
-    commandHistory.length,
+    catPaired,
+    catRewarded,
+    catAutonomous,
     conditionedWeight,
     currentLevelId,
     cueRegistered,
@@ -224,8 +230,8 @@ export const TutorialGuidePanel: React.FC = () => {
   }
 
   const doneCount = steps.filter((step) => step.done).length;
-  const panelTop = layout.isMobile ? 116 : 92;
-  const panelLeft = layout.isMobile ? 8 : layout.statusBarWidth + 8;
+  const panelTop = 72;
+  const panelLeft = 12;
   const panelRight = layout.isMobile ? 8 : undefined;
 
   return (
@@ -237,7 +243,7 @@ export const TutorialGuidePanel: React.FC = () => {
         left: panelLeft,
         right: panelRight,
         zIndex: 18,
-        width: layout.isMobile ? 'auto' : 290,
+        width: layout.isMobile ? 'auto' : 280,
         pointerEvents: 'auto',
       }}
     >
@@ -245,19 +251,20 @@ export const TutorialGuidePanel: React.FC = () => {
         elevation={0}
         sx={{
           p: expanded ? 1 : 0.65,
-          bgcolor: '#141428',
-          border: '1px solid #2a2a4e',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+          bgcolor: '#fffdf4',
+          border: '2px solid #ead9ab',
+          borderRadius: 3,
+          boxShadow: '0 5px 0 #ead9ab, 0 10px 24px rgba(104,85,41,0.12)',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: expanded ? 0.6 : 0 }}>
-          <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#ddd' }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 800, color: '#594628' }}>
             {t('tutorial.title')}
           </Typography>
           <Chip
             size='small'
             label={t('tutorial.progress', { done: doneCount, total: steps.length })}
-            sx={{ height: 18, fontSize: 10, bgcolor: 'rgba(255,255,255,0.06)' }}
+            sx={{ height: 22, fontSize: 11, fontWeight: 800, color: '#655329', bgcolor: '#ffeab0' }}
           />
           <IconButton size='small' data-testid='tutorial-expand' aria-label={expanded ? t('tutorial.collapse') : t('tutorial.expand')} onClick={() => setExpanded((value) => !value)}>
             {expanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
@@ -275,7 +282,7 @@ export const TutorialGuidePanel: React.FC = () => {
             overflowY: 'auto',
             pr: 0.3,
             '&::-webkit-scrollbar': { width: 3 },
-            '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.18)', borderRadius: 2 },
+            '&::-webkit-scrollbar-thumb': { bgcolor: '#dac89f', borderRadius: 2 },
             '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
           }}
         >
@@ -294,23 +301,23 @@ export const TutorialGuidePanel: React.FC = () => {
                   gap: 0.8,
                   px: 0.5,
                   py: expanded ? 0.4 : 0.2,
-                  borderRadius: 0.5,
+                  borderRadius: 2,
                   bgcolor: step.done
-                    ? 'rgba(76,175,80,0.12)'
+                    ? '#edf5d9'
                     : isActive
-                      ? 'rgba(255,167,38,0.1)'
+                      ? '#fff0c6'
                       : 'transparent',
                   border: isActive ? '1px solid rgba(255,167,38,0.35)' : '1px solid transparent',
                 }}
               >
                 <Box sx={{ mt: 0.15, flexShrink: 0 }}>
                   {step.done
-                    ? <CheckCircleIcon sx={{ fontSize: 14, color: '#66bb6a' }} />
+                    ? <CheckCircleIcon sx={{ fontSize: 14, color: '#638337' }} />
                     : isActive
-                      ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#ffa726' }} />
-                      : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#555' }} />}
+                      ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#a46815' }} />
+                      : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#9b947f' }} />}
                 </Box>
-                <Typography title={step.text} sx={{ fontSize: 11, color: step.done ? '#c8e6c9' : isActive ? '#ffe082' : '#888', lineHeight: 1.5, ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }) }}>
+                <Typography title={step.text} sx={{ fontSize: 11, color: step.done ? '#536a32' : isActive ? '#735019' : '#746b59', lineHeight: 1.5, ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }) }}>
                   {step.text}
                 </Typography>
               </Box>

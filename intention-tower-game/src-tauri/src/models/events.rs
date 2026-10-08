@@ -42,6 +42,12 @@ pub enum WorldEvent {
         character_id: String,
         instance_id: String,
     },
+    ActionExecuted {
+        character_id: String,
+        instance_id: String,
+        executed_at: u64,
+        autonomous: bool,
+    },
     CharacterMoved {
         character_id: String,
         from_x: f64,

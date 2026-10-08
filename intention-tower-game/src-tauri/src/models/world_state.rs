@@ -3,6 +3,7 @@ use super::economy::EconomyState;
 use super::events::WorldEvent;
 use super::mind_graph::MindGraph;
 use super::progress::LevelProgress;
+use super::scene::{CharacterPosture, SceneDefinition};
 use super::social::SocialGroupState;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -63,6 +64,10 @@ pub struct WorldState {
     pub default_actor_id: Option<String>,
     #[serde(default)]
     pub default_target_id: Option<String>,
+    #[serde(default)]
+    pub scene: SceneDefinition,
+    #[serde(default)]
+    pub character_postures: HashMap<String, CharacterPosture>,
     pub characters: HashMap<String, WorldCharacter>,
     pub items: HashMap<String, WorldItem>,
     pub event_log: Vec<WorldEvent>,
@@ -118,6 +123,8 @@ impl WorldState {
             initial_mode: default_ui_mode(),
             default_actor_id: None,
             default_target_id: None,
+            scene: SceneDefinition::default(),
+            character_postures: HashMap::new(),
             characters: HashMap::new(),
             items: HashMap::new(),
             event_log: Vec::new(),

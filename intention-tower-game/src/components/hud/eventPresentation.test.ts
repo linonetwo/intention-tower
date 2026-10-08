@@ -13,6 +13,12 @@ const world = {
 afterEach(async () => { await i18n.changeLanguage('zh-CN'); });
 
 describe('human-readable event presentation', () => {
+  it('distinguishes an executed need-driven action from mere selection', () => {
+    const { text } = presentEvent({ ActionExecuted: { character_id: 'dog', instance_id: 'bell', executed_at: 5, autonomous: true } }, world);
+    expect(text).toContain('自身需求');
+    expect(text).toContain('Bell');
+    expect(text).not.toContain('ActionExecuted');
+  });
   it('names dormant nodes instead of exposing enum names', () => {
     const { text } = presentEvent({ NodeDeactivated: { character_id: 'dog', instance_id: 'bell' } }, world);
     expect(text).toContain('Bell');

@@ -46,7 +46,7 @@ function edgeMotionConfig(edge: GraphEdge) {
   const isIncrease = edge.polarity === 'Excitatory';
   const strength = Math.max(0.05, Math.min(1, Math.abs(edge.weight)));
   return {
-    color: isIncrease ? '#64d8a2' : '#ff6577',
+    color: isIncrease ? '#477c54' : '#a24e4b',
     dash: `${8 + (1 - strength) * 4} ${5 + (1 - strength) * 3}`,
     duration: `${(2.8 - strength * 2.1).toFixed(2)}s`,
     reverse: !isIncrease,
@@ -351,7 +351,7 @@ export function GraphSvg({
   const hasFocus = focusNodeIds.size > 0;
 
   return (
-    <Box sx={{ flex: 1, minWidth: 0, bgcolor: '#080b10', position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ flex: 1, minWidth: 0, bgcolor: '#8a867b', position: 'relative', overflow: 'hidden' }}>
       <svg
         ref={svgRef}
         width='100%'
@@ -376,7 +376,7 @@ export function GraphSvg({
         onClick={onDeselect}
         style={{
           display: 'block',
-          background: 'radial-gradient(circle at 48% 44%, #151d28 0%, #0b1018 54%, #06080d 100%)',
+          background: 'radial-gradient(circle at 48% 44%, #fffaf0 0%, #f7efdc 54%, #ebddc0 100%)',
           cursor: panRef.current ? 'grabbing' : 'grab',
           touchAction: 'none',
         }}
@@ -399,10 +399,10 @@ export function GraphSvg({
             <feDropShadow dx='0' dy='2' stdDeviation='3' floodColor='#000' floodOpacity='0.75' />
           </filter>
           <marker id={`${prefix}-arrow-excite`} viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto'>
-            <path d='M 0 0 L 10 5 L 0 10 z' fill='#64d8a2' />
+            <path d='M 0 0 L 10 5 L 0 10 z' fill='#477c54' />
           </marker>
           <marker id={`${prefix}-arrow-inhibit`} viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto'>
-            <path d='M 0 0 L 10 5 L 0 10 z' fill='#ff6577' />
+            <path d='M 0 0 L 10 5 L 0 10 z' fill='#a24e4b' />
           </marker>
         </defs>
 
@@ -432,8 +432,8 @@ export function GraphSvg({
             if (!source || !target) return null;
             const motion = edgeMotionConfig(edge);
             const phase = learningPhases.get(edge.edge_id);
-            if (phase === 'extinguished') motion.color = '#ffb37b';
-            if (phase === 'created') motion.color = '#79c7ff';
+            if (phase === 'extinguished') motion.color = '#8f6445';
+            if (phase === 'created') motion.color = '#527c86';
             const geometry = curveForEdge(source, target, edge.edge_id);
             const selected = selectedEdgeId === edge.edge_id;
             const highlighted = highlightedEdgeIds.has(edge.edge_id);
@@ -489,11 +489,11 @@ export function GraphSvg({
                       width={relationLabelWidth}
                       height={20}
                       rx={8.5}
-                      fill='rgba(5,9,15,0.9)'
+                      fill='rgba(255,248,232,0.94)'
                       stroke={motion.color}
                       strokeOpacity={0.5}
                     />
-                    <text x={geometry.label.x} y={geometry.label.y + 3.5} textAnchor='middle' fontSize={10} fill='#d8e2ea'>
+                    <text x={geometry.label.x} y={geometry.label.y + 3.5} textAnchor='middle' fontSize={10} fill='#594733'>
                       {label}
                     </text>
                   </g>
@@ -562,7 +562,7 @@ export function GraphSvg({
                 style={{ cursor: onMoveNode ? 'grab' : 'pointer', outline: 'none' }}
                 opacity={dimmed ? 0.2 : 1}
               >
-                <circle className='node-focus' r={node.r + (selected ? 7 : 5)} fill='none' stroke={selected ? '#d8ecff' : color} strokeOpacity={selected ? 1 : 0.18} strokeWidth={selected ? 2.4 : 1.2} />
+                <circle className='node-focus' r={node.r + (selected ? 7 : 5)} fill='none' stroke={selected ? '#8b5735' : color} strokeOpacity={selected ? 1 : 0.18} strokeWidth={selected ? 2.4 : 1.2} />
                 <circle
                   r={node.r + 4}
                   fill='none'
@@ -575,17 +575,17 @@ export function GraphSvg({
                 />
                 <circle
                   r={node.r}
-                  fill={unknown ? '#263642' : color}
+                  fill={unknown ? '#d9cbb2' : color}
                   fillOpacity={unknown ? 0.8 : node.active ? (node.attended ? 0.85 : 0.65) : 0.42}
-                  stroke={node.suppression > 0 ? '#ffb74d' : 'rgba(255,255,255,0.22)'}
+                  stroke={node.suppression > 0 ? '#ffb74d' : 'rgba(149,112,64,0.18)'}
                   strokeWidth={node.suppression > 0 ? 2.2 : 0.8}
                 />
-                <text x={0} y={4} textAnchor='middle' fill='#fff' fontSize={unknown ? 15 : 11} fontWeight={700} pointerEvents='none'>
+                <text x={0} y={4} textAnchor='middle' fill='#443627' fontSize={unknown ? 15 : 11} fontWeight={700} pointerEvents='none'>
                   {unknown ? '?' : nodeGlyph(node.node_type)}
                 </text>
                 <g transform={`translate(0, ${node.r + 16})`} pointerEvents='none'>
-                  <rect x={-labelWidth / 2} y={-9} width={labelWidth} height={18} rx={9} fill='rgba(4,8,13,0.9)' stroke={selected ? '#fff' : color} strokeOpacity={selected ? 0.9 : 0.42} />
-                  <text x={0} y={4} textAnchor='middle' fill='#e2e8f0' fontSize={11.5}>{label}</text>
+                  <rect x={-labelWidth / 2} y={-9} width={labelWidth} height={18} rx={9} fill='rgba(255,248,232,0.94)' stroke={selected ? '#443627' : color} strokeOpacity={selected ? 0.9 : 0.42} />
+                  <text x={0} y={4} textAnchor='middle' fill='#594733' fontSize={11.5}>{label}</text>
                 </g>
               </g>
             );
@@ -597,11 +597,11 @@ export function GraphSvg({
         position: 'absolute', right: 10, bottom: 10,
         display: 'flex', alignItems: 'center', gap: 0.25,
         p: 0.35, borderRadius: 1.5,
-        bgcolor: 'rgba(5,8,13,0.84)', border: '1px solid rgba(130,160,190,0.2)',
+        bgcolor: 'rgba(255,248,232,0.94)', border: '1px solid rgba(154,113,62,0.2)',
         backdropFilter: 'blur(8px)', userSelect: 'none',
       }}>
         <Tooltip title={t('graph.zoomIn')}><IconButton size='small' aria-label={t('graph.zoomIn')} onClick={() => setViewport((current) => ({ ...current, scale: clampScale(current.scale * 1.2) }))}><ZoomInIcon fontSize='small' /></IconButton></Tooltip>
-        <Box sx={{ fontSize: 10, color: '#aebbc7', minWidth: 34, textAlign: 'center' }}>{Math.round(viewport.scale * 100)}%</Box>
+        <Box sx={{ fontSize: 10, color: '#61696f', minWidth: 34, textAlign: 'center' }}>{Math.round(viewport.scale * 100)}%</Box>
         <Tooltip title={t('graph.zoomOut')}><IconButton size='small' aria-label={t('graph.zoomOut')} onClick={() => setViewport((current) => ({ ...current, scale: clampScale(current.scale * 0.83) }))}><ZoomOutIcon fontSize='small' /></IconButton></Tooltip>
         <Tooltip title={t('graph.fit')}><IconButton size='small' aria-label={t('graph.fit')} onClick={() => setViewport(fitView)}><CenterFocusStrongIcon fontSize='small' /></IconButton></Tooltip>
         {onResetLayout && (

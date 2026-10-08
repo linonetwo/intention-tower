@@ -83,6 +83,25 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
             serde_json::to_value(event).map_err(|error| error.to_string())
         }
 
+        "traverse_connector" => {
+            let character_id = str_arg!("character_id");
+            let connector_id = str_arg!("connector_id");
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            serde_json::to_value(crate::movement::traverse_connector(
+                &mut world,
+                &character_id,
+                &connector_id,
+            )?)
+            .map_err(|e| e.to_string())
+        }
+        "set_character_posture" => {
+            let character_id = str_arg!("character_id");
+            let posture =
+                serde_json::from_value(args["posture"].clone()).map_err(|e| e.to_string())?;
+            let mut world = state.world.lock().map_err(|e| e.to_string())?;
+            crate::movement::set_character_posture(&mut world, &character_id, posture)?;
+            Ok(json!({"character_id": character_id, "posture": posture}))
+        }
         "load_level" => {
             let level_id = str_arg!("level_id");
             let sandbox = args["sandbox"].as_bool().unwrap_or(false);
@@ -171,9 +190,11 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
         }
 
         "restore_snapshot" => {
-            let restored: crate::models::world_state::WorldState =
+            let mut restored: crate::models::world_state::WorldState =
                 serde_json::from_value(args["world"].clone())
                     .map_err(|error| format!("存档数据无效: {error}"))?;
+            restored.scene.validate()?;
+            crate::models::scene::normalize_positions(&mut restored);
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
             *world = restored;
             Ok(json!({ "success": true, "level_id": world.level_id, "tick": world.tick }))

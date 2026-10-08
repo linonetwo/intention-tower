@@ -53,13 +53,47 @@ describe('Gosling tutorial follows real imprinting objectives', () => {
 });
 afterEach(cleanup);
 
+describe('Smart cat tutorial uses real behavioral objectives', () => {
+  it('does not mistake repeated training commands for learned or autonomous behavior', () => {
+    fixture.state.currentLevelId = 'smart-cat';
+    fixture.state.selectedActorId = 'trainer';
+    fixture.state.selectedTargetId = 'cat-billi';
+    fixture.state.recentEvents = Array.from({ length: 20 }, () => ({ CommandExecuted: {
+      actor_id: 'trainer', target_id: 'cat-billi', command_id: 'feed-cat',
+    } }));
+    render(<TutorialGuidePanel />);
+    expect(screen.getByText('1/4')).toBeTruthy();
+    expect(screen.getByText(/命令点击次数不算/)).toBeTruthy();
+  });
+
+  it('advances only when pairing, rewarded actions and autonomous action are verified', () => {
+    fixture.state.currentLevelId = 'smart-cat';
+    fixture.state.selectedActorId = 'it:entity/trainer';
+    fixture.state.selectedTargetId = 'it:entity/cat-billi';
+    fixture.state.worldState = { characters: {}, pending_commands: [], progress: { objectives: [
+      { objective_id: 'demonstrate-button', completed: true },
+      { objective_id: 'reinforce-correct-action', completed: false },
+      { objective_id: 'verify-cat-action', completed: false },
+    ] } } as unknown as WorldState;
+    const { rerender } = render(<TutorialGuidePanel />);
+    expect(screen.getByText('2/4')).toBeTruthy();
+    fixture.state.worldState.progress.objectives[1].completed = true;
+    rerender(<TutorialGuidePanel />);
+    expect(screen.getByText('3/4')).toBeTruthy();
+    expect(screen.getByText(/停止提示声和喂食至少10刻/)).toBeTruthy();
+    fixture.state.worldState.progress.objectives[2].completed = true;
+    rerender(<TutorialGuidePanel />);
+    expect(screen.getByText('4/4')).toBeTruthy();
+  });
+});
+
 describe('Pavlov tutorial evidence and unobstructed graph', () => {
   it('recognizes full RDF character ids and starts with only the current step', () => {
     render(<TutorialGuidePanel />);
     expect(screen.getByText('2/9')).toBeTruthy();
-    expect(screen.queryByText(/查看它的思维图谱/)).toBeNull();
+    expect(screen.queryByText(/查看它的联结图谱/)).toBeNull();
     fireEvent.click(screen.getByTestId('tutorial-expand'));
-    expect(screen.getByText(/查看它的思维图谱/)).toBeTruthy();
+    expect(screen.getByText(/查看它的联结图谱/)).toBeTruthy();
   });
 
   it('does not complete learning or verification from repeated commands', () => {

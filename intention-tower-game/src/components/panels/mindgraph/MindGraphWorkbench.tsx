@@ -1,7 +1,7 @@
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SearchIcon from '@mui/icons-material/Search';
 import ViewStreamIcon from '@mui/icons-material/ViewStream';
-import { Box, Chip, Divider, InputAdornment, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, Divider, InputAdornment, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { nodeTypeLabel, translateLabel } from '../../../i18n';
@@ -60,6 +60,7 @@ export function MindGraphWorkbench({
   const [activeOnly, setActiveOnly] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [query, setQuery] = useState('');
+  const [showTools, setShowTools] = useState(false);
   const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>(readLayoutMode);
 
   useEffect(() => {
@@ -216,29 +217,30 @@ export function MindGraphWorkbench({
   }, []);
 
   return (
-    <Box data-testid='mind-graph-workbench' sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'rgba(6,9,14,0.78)' }}>
+    <Box data-testid='mind-graph-workbench' sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'rgba(255,248,232,0.94)' }}>
       <Box sx={{ px: mobile ? 1 : 1.4, pt: compact ? 0.7 : 1, pb: 0.65 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flexWrap: 'wrap', pr: mobile ? 5 : 0 }}>
-          <Typography sx={{ fontSize: compact ? 13 : 14.5, fontWeight: 650, color: '#e2eaf0' }}>
+          <Typography sx={{ fontSize: compact ? 13 : 14.5, fontWeight: 750, color: '#594733' }}>
             {t('graph.title', { name: translateLabel(character.label) })}
           </Typography>
           <Chip label={t('graph.nodes', { count: fogNodes.length - hiddenNodeIds.size })} size='small' sx={{ height: 19, fontSize: 9 }} />
           <Chip label={t('graph.edges', { count: edges.length })} size='small' sx={{ height: 19, fontSize: 9 }} />
           <Box sx={{ flex: 1 }} />
+          <Button onClick={() => setShowTools(value => !value)} aria-expanded={showTools} startIcon={<SearchIcon />} sx={{ fontSize: 12 }}>{t('graph.tools')}</Button>
           <ToggleButtonGroup
             exclusive
             size='small'
             value={layoutMode}
             onChange={(_, next: GraphLayoutMode | null) => next && setLayoutMode(next)}
             aria-label={t('graph.layout.aria')}
-            sx={{ height: 29, '& .MuiToggleButton-root': { px: mobile ? 0.7 : 1, fontSize: 9, gap: 0.45 } }}
+            sx={{ minHeight: 44, '& .MuiToggleButton-root': { px: mobile ? 0.7 : 1, fontSize: 11, gap: 0.45 } }}
           >
             <ToggleButton value='network' aria-label={t('graph.layout.network')}><AccountTreeIcon sx={{ fontSize: 15 }} />{!mobile && t('graph.layout.network')}</ToggleButton>
             <ToggleButton value='tower' aria-label={t('graph.layout.tower')}><ViewStreamIcon sx={{ fontSize: 15 }} />{!mobile && t('graph.layout.tower')}</ToggleButton>
           </ToggleButtonGroup>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mt: 0.7, flexWrap: 'wrap' }}>
+        <Box sx={{ display: showTools ? 'flex' : 'none', alignItems: 'center', gap: 0.6, mt: 0.7, flexWrap: 'wrap', maxHeight: '28dvh', overflowY: 'auto', '& .MuiChip-clickable': { minHeight: 44, fontSize: 11 } }}>
           <TextField
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -246,7 +248,7 @@ export function MindGraphWorkbench({
             size='small'
             inputProps={{ 'aria-label': t('graph.search.aria') }}
             InputProps={{ startAdornment: <InputAdornment position='start'><SearchIcon sx={{ fontSize: 15, color: '#718696' }} /></InputAdornment> }}
-            sx={{ width: mobile ? '100%' : 220, '& .MuiInputBase-root': { height: 29, fontSize: 10.5, bgcolor: 'rgba(255,255,255,0.035)' } }}
+            sx={{ width: mobile ? '100%' : 220, '& .MuiInputBase-root': { minHeight: 44, fontSize: 12, bgcolor: 'rgba(149,112,64,0.035)' } }}
           />
           <Chip
             clickable
@@ -265,7 +267,7 @@ export function MindGraphWorkbench({
                   onClick={() => toggleType(type)}
                   label={nodeTypeLabel(type)}
                   size='small'
-                  sx={{ height: 24, fontSize: 9, bgcolor: hidden ? '#242b32' : NODE_TYPE_COLORS[type], color: hidden ? '#73818c' : '#fff', opacity: hidden ? 0.7 : 1 }}
+                  sx={{ height: 24, fontSize: 9, bgcolor: hidden ? '#e3d7c1' : NODE_TYPE_COLORS[type], color: hidden ? '#73818c' : '#443627', opacity: hidden ? 0.7 : 1 }}
                 />
               </Tooltip>
             );
@@ -280,14 +282,14 @@ export function MindGraphWorkbench({
           <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mt: 0.6 }}>
             {fogNodes.filter((node) => compactInstinctIds.has(node.instance_id) && !node.isUnknown).map((node) => (
               <Chip key={node.instance_id} title={nodeTypeLabel(node.node_type)} label={`${translateLabel(node.label)} ${node.value.toFixed(2)}`} size='small'
-                sx={{ height: 22, fontSize: 10, color: '#c8b8dc', bgcolor: 'rgba(171,71,188,0.10)', border: '1px solid rgba(171,71,188,0.24)', fontVariantNumeric: 'tabular-nums' }} />
+                sx={{ height: 22, fontSize: 10, color: '#7f5d8d', bgcolor: 'rgba(171,71,188,0.10)', border: '1px solid rgba(171,71,188,0.24)', fontVariantNumeric: 'tabular-nums' }} />
             ))}
             <Chip clickable data-testid='graph-toggle-resources' variant='outlined' size='small' onClick={() => setShowResources((value) => !value)}
-              label={t(showResources ? 'graph.resources.hide' : 'graph.resources.show')} sx={{ height: 22, fontSize: 10 }} />
+              label={t(showResources ? 'graph.resources.hide' : 'graph.resources.show')} sx={{ minHeight: 44, fontSize: 11 }} />
           </Box>
         )}
       </Box>
-      <Divider sx={{ borderColor: 'rgba(120,150,175,0.17)' }} />
+      <Divider sx={{ borderColor: 'rgba(154,113,62,0.17)' }} />
       <LearningTrace updates={learningUpdates.slice(0, 3)} nodes={fogNodes} />
 
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0, position: 'relative' }}>

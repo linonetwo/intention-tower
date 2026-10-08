@@ -33,7 +33,7 @@ export const EventStrip: React.FC = () => {
         alignItems: 'center',
         gap: 2,
         px: 1,
-        bgcolor: 'rgba(10,10,22,0.6)',
+        bgcolor: 'rgba(255,248,232,0.94)',
         pointerEvents: 'none',
         overflow: 'hidden',
         zIndex: 5,

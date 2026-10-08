@@ -9,11 +9,11 @@ export function graphNodeLabel(node: Pick<MindNode, 'label' | 'node_type'>): str
 }
 
 export const NODE_TYPE_COLORS: Record<NodeType, string> = {
-  Observation: '#42a5f5',
-  PriorInstinct: '#ab47bc',
-  Motivation: '#ef5350',
-  Action: '#66bb6a',
-  Meme: '#ffa726',
+  Observation: '#a7c8d1',
+  PriorInstinct: '#ceb9d1',
+  Motivation: '#e6b4a3',
+  Action: '#b9cfa0',
+  Meme: '#e7c28d',
 };
 
 export const GRAPH_WIDTH = 860;

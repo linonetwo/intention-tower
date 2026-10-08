@@ -3,9 +3,9 @@
   "name": "Intention Tower Production Art Pack",
   "provider": "OpenAI GPT Image 2 via Codex Responses proxy",
   "model": "gpt-image-2",
-  "version": 3,
-  "generatedAt": "2026-09-16",
-  "artDirection": "cinematic painterly realism, charcoal texture, restrained cyan and amber cognitive-network lighting",
+  "version": 4,
+  "generatedAt": "2026-10-08",
+  "artDirection": "bright four-heads anime RPG, orthographic horizontal side view; all 21 levels mapped; legacy source assets retained",
   "portraits": {
     "left": "/mods/gpt-image-2-pack/portraits/it-entity-antimeme-agent.png",
     "right": "/mods/gpt-image-2-pack/portraits/it-entity-bystander.png"
@@ -123,27 +123,27 @@
     "subject": "/mods/gpt-image-2-pack/portraits/it-entity-subject.png"
   },
   "backgrounds": {
-    "antimeme-division": "/mods/gpt-image-2-pack/backgrounds/antimeme-division.png",
-    "chen-sheng-uprising": "/mods/gpt-image-2-pack/backgrounds/chen-sheng-uprising.png",
-    "collapse": "/mods/gpt-image-2-pack/backgrounds/collapse.png",
-    "consumerism-magic": "/mods/gpt-image-2-pack/backgrounds/consumerism-magic.png",
-    "crowd": "/mods/gpt-image-2-pack/backgrounds/crowd.png",
-    "cthulhu": "/mods/gpt-image-2-pack/backgrounds/cthulhu.png",
-    "cyber-dream": "/mods/gpt-image-2-pack/backgrounds/cyber-dream.png",
-    "destroy-hive-mind": "/mods/gpt-image-2-pack/backgrounds/destroy-hive-mind.png",
-    "face-saving": "/mods/gpt-image-2-pack/backgrounds/face-saving.png",
-    "gosling": "/mods/gpt-image-2-pack/backgrounds/gosling.png",
-    "hive-self": "/mods/gpt-image-2-pack/backgrounds/hive-self.png",
-    "ideology": "/mods/gpt-image-2-pack/backgrounds/ideology.png",
-    "illusion-trap": "/mods/gpt-image-2-pack/backgrounds/illusion-trap.png",
-    "internet-addict": "/mods/gpt-image-2-pack/backgrounds/internet-addict.png",
-    "meme-magic": "/mods/gpt-image-2-pack/backgrounds/meme-magic.png",
-    "pavlov": "/mods/gpt-image-2-pack/backgrounds/pavlov.png",
-    "postmodern-vagrant": "/mods/gpt-image-2-pack/backgrounds/postmodern-vagrant.png",
-    "smart-cat": "/mods/gpt-image-2-pack/backgrounds/smart-cat.png",
-    "the-wave": "/mods/gpt-image-2-pack/backgrounds/the-wave.png",
-    "trigger-addiction": "/mods/gpt-image-2-pack/backgrounds/trigger-addiction.png",
-    "water-is-poison": "/mods/gpt-image-2-pack/backgrounds/water-is-poison.png"
+    "antimeme-division": "/mods/gpt-image-2-pack/sideview/rooms/antimeme-division.png",
+    "chen-sheng-uprising": "/mods/gpt-image-2-pack/sideview/rooms/chen-sheng-uprising.png",
+    "collapse": "/mods/gpt-image-2-pack/sideview/rooms/collapse.png",
+    "consumerism-magic": "/mods/gpt-image-2-pack/sideview/rooms/consumerism-magic.png",
+    "crowd": "/mods/gpt-image-2-pack/sideview/rooms/crowd.png",
+    "cthulhu": "/mods/gpt-image-2-pack/sideview/rooms/cthulhu.png",
+    "cyber-dream": "/mods/gpt-image-2-pack/sideview/rooms/cyber-dream.png",
+    "destroy-hive-mind": "/mods/gpt-image-2-pack/sideview/rooms/destroy-hive-mind.png",
+    "face-saving": "/mods/gpt-image-2-pack/sideview/rooms/face-saving.png",
+    "gosling": "/mods/gpt-image-2-pack/sideview/research-room.png",
+    "hive-self": "/mods/gpt-image-2-pack/sideview/rooms/hive-self.png",
+    "ideology": "/mods/gpt-image-2-pack/sideview/rooms/ideology.png",
+    "illusion-trap": "/mods/gpt-image-2-pack/sideview/rooms/illusion-trap.png",
+    "internet-addict": "/mods/gpt-image-2-pack/sideview/rooms/internet-addict.png",
+    "meme-magic": "/mods/gpt-image-2-pack/sideview/rooms/meme-magic.png",
+    "pavlov": "/mods/gpt-image-2-pack/sideview/research-room.png",
+    "postmodern-vagrant": "/mods/gpt-image-2-pack/sideview/rooms/postmodern-vagrant.png",
+    "smart-cat": "/mods/gpt-image-2-pack/sideview/cat-room.png",
+    "the-wave": "/mods/gpt-image-2-pack/sideview/classroom.png",
+    "trigger-addiction": "/mods/gpt-image-2-pack/sideview/rooms/trigger-addiction.png",
+    "water-is-poison": "/mods/gpt-image-2-pack/sideview/rooms/water-is-poison.png"
   },
   "items": [
     {
@@ -962,54 +962,223 @@
       "model": "gpt-image-2"
     }
   ],
+  "backgroundsMetadata": {
+    "pavlov": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 805
+    },
+    "gosling": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 805
+    },
+    "smart-cat": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 748
+    },
+    "the-wave": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 698
+    },
+    "antimeme-division": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 786
+    },
+    "chen-sheng-uprising": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 720
+    },
+    "collapse": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 762
+    },
+    "consumerism-magic": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 796
+    },
+    "crowd": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 757
+    },
+    "cthulhu": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 755
+    },
+    "cyber-dream": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 726
+    },
+    "destroy-hive-mind": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 780
+    },
+    "face-saving": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 708
+    },
+    "hive-self": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 712
+    },
+    "ideology": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 687
+    },
+    "illusion-trap": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 743
+    },
+    "internet-addict": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 766
+    },
+    "meme-magic": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 767
+    },
+    "postmodern-vagrant": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 704
+    },
+    "trigger-addiction": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 753
+    },
+    "water-is-poison": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 785
+    }
+  },
   "spritesByCharacter": {
     "it:entity/pavlov": {
-      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/researcher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/researcher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "pavlov": {
-      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/researcher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/researcher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/lorenz": {
-      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/researcher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/researcher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "lorenz": {
-      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/researcher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/researcher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/hines": {
-      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/researcher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/researcher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "hines": {
-      "src": "/mods/gpt-image-2-pack/sprites/researcher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/researcher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/researcher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/researcher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/dog": {
-      "src": "/mods/gpt-image-2-pack/sprites/dog.png",
+      "src": "/mods/gpt-image-2-pack/sideview/animals/dog-idle.png",
       "height": 90,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9650145772594753,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/dog-sit.png"
     },
     "dog": {
-      "src": "/mods/gpt-image-2-pack/sprites/dog.png",
+      "src": "/mods/gpt-image-2-pack/sideview/animals/dog-idle.png",
       "height": 90,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9650145772594753,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/animals/dog-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/dog-sit.png"
     },
     "it:entity/student-worker": {
       "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
@@ -1024,16 +1193,32 @@
       "groundAnchor": 0.97
     },
     "it:entity/student-b": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "student-b": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/clone-b": {
       "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
@@ -1048,136 +1233,312 @@
       "groundAnchor": 0.97
     },
     "it:entity/tim": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "tim": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/student-a": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "student-a": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/addict-teen": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "addict-teen": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/protagonist": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "protagonist": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/clone-a": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "clone-a": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/clone-c": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "clone-c": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/friend": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "friend": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/victim": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "victim": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/subject": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "subject": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/trapped-person": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "trapped-person": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/meme-target": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "meme-target": {
-      "src": "/mods/gpt-image-2-pack/sprites/student-male.png",
+      "src": "/mods/gpt-image-2-pack/sideview/student-male-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/student-male-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/student-male-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/investigator": {
       "src": "/mods/gpt-image-2-pack/sprites/investigator.png",
@@ -1264,88 +1625,200 @@
       "groundAnchor": 0.97
     },
     "it:entity/teacher-wenger": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "teacher-wenger": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/trainer": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "trainer": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/meme-engineer": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "meme-engineer": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/illusionist": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "illusionist": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/ideologue": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "ideologue": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/skeptic": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "skeptic": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/magic-merchant": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "magic-merchant": {
-      "src": "/mods/gpt-image-2-pack/sprites/teacher.png",
+      "src": "/mods/gpt-image-2-pack/sideview/teacher-idle.png",
       "height": 150,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9668508287292817,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/teacher-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/teacher-sit.png",
+      "chairSrc": "/mods/gpt-image-2-pack/sideview/wood-chair.png"
     },
     "it:entity/bystander": {
       "src": "/mods/gpt-image-2-pack/sprites/citizen.png",
@@ -1588,28 +2061,56 @@
       "groundAnchor": 0.97
     },
     "it:entity/gosling": {
-      "src": "/mods/gpt-image-2-pack/sprites/gosling.png",
+      "src": "/mods/gpt-image-2-pack/sideview/animals/gosling-idle.png",
       "height": 65,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9730941704035875,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/gosling-sit.png"
     },
     "gosling": {
-      "src": "/mods/gpt-image-2-pack/sprites/gosling.png",
+      "src": "/mods/gpt-image-2-pack/sideview/animals/gosling-idle.png",
       "height": 65,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9730941704035875,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/animals/gosling-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/gosling-sit.png"
     },
     "it:entity/cat-billi": {
-      "src": "/mods/gpt-image-2-pack/sprites/cat.png",
+      "src": "/mods/gpt-image-2-pack/sideview/animals/cat-idle.png",
       "height": 90,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9658119658119658,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/cat-sit.png"
     },
     "cat-billi": {
-      "src": "/mods/gpt-image-2-pack/sprites/cat.png",
+      "src": "/mods/gpt-image-2-pack/sideview/animals/cat-idle.png",
       "height": 90,
       "facing": "right",
-      "groundAnchor": 0.97
+      "groundAnchor": 0.9658119658119658,
+      "walkFrames": [
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-1.png",
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-2.png",
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-3.png",
+        "/mods/gpt-image-2-pack/sideview/animals/cat-walk-4.png"
+      ],
+      "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/cat-sit.png"
     },
     "it:entity/hive-mind": {
       "src": "/mods/gpt-image-2-pack/sprites/hive.png",

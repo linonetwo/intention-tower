@@ -21,12 +21,11 @@ export const EconomyHud: React.FC = () => {
     <Box
       data-testid="economy-hud"
       sx={{
-        position: 'absolute',
-        right: 8,
-        top: layout.isMobile ? 188 : 56 + layout.miniMapSize.h + 8,
-        width: layout.isMobile ? 158 : layout.miniMapSize.w,
+        position: 'relative',
+        width: '100%',
+        mb: 2,
         p: 0.75,
-        bgcolor: 'rgba(14,14,26,0.88)',
+        bgcolor: 'rgba(255,248,232,0.94)',
         border: '1px solid rgba(255,202,40,0.35)',
         borderRadius: 1,
         backdropFilter: 'blur(7px)',
@@ -34,8 +33,8 @@ export const EconomyHud: React.FC = () => {
         zIndex: 12,
       }}
     >
-      <Box role="button" tabIndex={0} aria-expanded={expanded} onClick={() => setExpanded(!expanded)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(!expanded); } }} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5, cursor: 'pointer' }}>
-        <Typography sx={{ flex: 1, fontSize: 9, color: '#d4c37d', fontWeight: 700 }}>
+      <Box role="button" tabIndex={0} aria-expanded={expanded} onClick={() => setExpanded(!expanded)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(!expanded); } }} sx={{ display: 'flex', minHeight: 44, alignItems: 'center', gap: 0.5, mb: 0.5, cursor: 'pointer' }}>
+        <Typography sx={{ flex: 1, fontSize: 13, color: '#7d653a', fontWeight: 700 }}>
           {t('economy.title')}
         </Typography>
         <Chip
@@ -46,16 +45,16 @@ export const EconomyHud: React.FC = () => {
       </Box>
       {(!layout.isMobile || expanded) && assets.slice(0, 2).map((asset) => (
         <Box key={asset.item_id} sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Typography sx={{ flex: 1, minWidth: 0, fontSize: 8.5, color: '#c7c7d4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <Typography sx={{ flex: 1, minWidth: 0, fontSize: 12, color: '#75644d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {translateLabel(world.items[asset.item_id]?.label ?? asset.item_id)}
           </Typography>
-          <Typography sx={{ fontSize: 8, color: '#999' }}>
+          <Typography sx={{ fontSize: 8, color: '#806c55' }}>
             {t('economy.asset', { price: asset.unit_price.toFixed(0), supply: asset.supply.toFixed(0) })}
           </Typography>
         </Box>
       ))}
       {lastTrade && (!layout.isMobile || expanded) && (
-        <Typography sx={{ mt: 0.4, fontSize: 8, color: '#73d5a6' }}>
+        <Typography sx={{ mt: 0.4, fontSize: 8, color: '#40775d' }}>
           {t('economy.lastTrade', { buyer: lastTrade.buyer_id, total: lastTrade.total_price.toFixed(0) })}
         </Typography>
       )}

@@ -43,7 +43,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
       return {
         icon: delta > 0 ? '📈' : delta < 0 ? '📉' : '📊',
         text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${oldVal} ${arrow} ${newVal}`,
-        color: delta > 0 ? '#81c784' : delta < 0 ? '#e57373' : '#aaa',
+        color: delta > 0 ? '#81c784' : delta < 0 ? '#e57373' : '#806c55',
       };
     }
     case 'NodeSpawned':
@@ -51,9 +51,9 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
     case 'NodeDespawned':
       return { icon: '💨', text: `${charName(data.character_id as string)}: -${String(data.instance_id)}`, color: '#ef5350' };
     case 'NodeActivated':
-      return { icon: '⚡', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.activated')}`, color: '#42a5f5' };
+      return { icon: '⚡', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.activated')}`, color: '#255c89' };
     case 'NodeDeactivated':
-      return { icon: '💤', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.deactivated')}`, color: '#888' };
+      return { icon: '💤', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.deactivated')}`, color: '#79644d' };
     case 'EdgeCreated': {
       const srcLabel = nodeName(data.character_id as string, data.source_id as string);
       const tgtLabel = nodeName(data.character_id as string, data.target_id as string);
@@ -70,21 +70,21 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
     case 'ResourceConsumed':
       return { icon: '💧', text: `${charName(data.character_id as string)}: ${String(data.resource_schema_id)} -${(data.amount as number).toFixed(2)} (${(data.remaining as number).toFixed(2)})`, color: '#ab47bc' };
     case 'CommandExecuted':
-      return { icon: '🎮', text: `${charName(data.actor_id as string)}: ${String(data.command_id)}${data.target_id ? ` → ${charName(data.target_id as string)}` : ''}`, color: '#42a5f5' };
+      return { icon: '🎮', text: `${charName(data.actor_id as string)}: ${String(data.command_id)}${data.target_id ? ` → ${charName(data.target_id as string)}` : ''}`, color: '#255c89' };
     case 'CharacterMoved':
-      return { icon: '🧭', text: `${charName(data.character_id as string)} → (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#80cbc4' };
+      return { icon: '🧭', text: `${charName(data.character_id as string)} → (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#48726e' };
     case 'AssetTraded':
-      return { icon: '🪙', text: `${charName(data.buyer_id as string)}: ${String(data.item_id)} ×${Number(data.quantity).toFixed(0)} · ¢${Number(data.total_price).toFixed(0)}`, color: '#73d5a6' };
+      return { icon: '🪙', text: `${charName(data.buyer_id as string)}: ${String(data.item_id)} ×${Number(data.quantity).toFixed(0)} · ¢${Number(data.total_price).toFixed(0)}`, color: '#40775d' };
     case 'AssetTradeRejected':
       return { icon: '⛔', text: `${charName(data.buyer_id as string)}: ${String(data.reason)}`, color: '#ef5350' };
     case 'SocialGroupUpdated':
-      return { icon: '👥', text: `${String(data.group_id)} · ${String(data.member_count)} · ${(Number(data.cohesion) * 100).toFixed(0)}%`, color: '#ba9cff' };
+      return { icon: '👥', text: `${String(data.group_id)} · ${String(data.member_count)} · ${(Number(data.cohesion) * 100).toFixed(0)}%`, color: '#68578f' };
     case 'NodeSuppressionChanged':
-      return { icon: '⚖️', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${(Number(data.suppression) * 100).toFixed(0)}%`, color: '#ffb74d' };
+      return { icon: '⚖️', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${(Number(data.suppression) * 100).toFixed(0)}%`, color: '#8f662b' };
     case 'ObjectiveCompleted':
       return { icon: '✅', text: translateLabel(data.label as string), color: '#66bb6a' };
     case 'LevelWon':
-      return { icon: '🏆', text: String(data.level_id), color: '#ffca28' };
+      return { icon: '🏆', text: String(data.level_id), color: '#8f7116' };
     case 'LevelLost':
       return { icon: '💀', text: `${String(data.level_id)}: ${String(data.reason)}`, color: '#ef5350' };
     case 'SoundEmitted':
@@ -144,8 +144,8 @@ export const EventLog: React.FC = () => {
             sx={{
               height: 20,
               fontSize: 10,
-              bgcolor: filter === key ? 'rgba(100,100,255,0.25)' : 'rgba(255,255,255,0.04)',
-              color: filter === key ? '#c5cae9' : '#888',
+              bgcolor: filter === key ? 'rgba(154,113,62,0.25)' : 'rgba(149,112,64,0.04)',
+              color: filter === key ? '#c5cae9' : '#79644d',
               cursor: 'pointer',
             }}
           />

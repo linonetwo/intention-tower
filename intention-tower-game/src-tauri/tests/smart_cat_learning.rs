@@ -60,6 +60,54 @@ fn learned_count(state: &WorldState) -> usize {
         .count()
 }
 
+fn hungry_response(state: &mut WorldState) {
+    for _ in 0..300 {
+        let graph = &state.characters["cat-billi"].mind_graph;
+        if graph.nodes["cat-hunger"].value >= 0.65
+            && !graph.nodes["cat-press-button"]
+                .action
+                .as_ref()
+                .unwrap()
+                .selected
+        {
+            break;
+        }
+        ticks(state, 1);
+    }
+    let graph = &state.characters["cat-billi"].mind_graph;
+    assert!(graph.nodes["cat-hunger"].value >= 0.65);
+    assert!(
+        !graph.nodes["cat-press-button"]
+            .action
+            .as_ref()
+            .unwrap()
+            .selected,
+        "a response must reset before a new independently rewarded episode"
+    );
+    let before = graph.action_episodes.len();
+    command(state, "demonstrate-press");
+    for _ in 0..6 {
+        ticks(state, 1);
+        if state.characters["cat-billi"]
+            .mind_graph
+            .action_episodes
+            .len()
+            > before
+        {
+            break;
+        }
+    }
+    assert_eq!(
+        state.characters["cat-billi"]
+            .mind_graph
+            .action_episodes
+            .len(),
+        before + 1,
+        "a demonstration must elicit exactly one new actual motor episode"
+    );
+    assert!(available(state, "feed-after-press"));
+}
+
 #[test]
 fn unrewarded_demonstrations_never_create_learning_or_puppet_button_press() {
     let mut state = world();
@@ -200,6 +248,19 @@ fn unrewarded_real_presses_do_not_create_operant_credit() {
     for _ in 0..3 {
         pair(&mut state);
     }
+    let before: Vec<_> = state.characters["cat-billi"]
+        .mind_graph
+        .edges
+        .values()
+        .filter(|edge| edge.learn_type == LearnType::Operant)
+        .map(|edge| {
+            (
+                edge.edge_id.clone(),
+                edge.weight,
+                edge.evidence.co_occurrence_count,
+            )
+        })
+        .collect();
     command(&mut state, "demonstrate-press");
     ticks(&mut state, 3);
     assert!(
@@ -210,11 +271,20 @@ fn unrewarded_real_presses_do_not_create_operant_credit() {
             .selected
     );
     ticks(&mut state, 9);
-    assert!(state.characters["cat-billi"]
-        .mind_graph
-        .edges
-        .values()
-        .all(|edge| edge.learn_type != LearnType::Operant));
+    let after = &state.characters["cat-billi"].mind_graph;
+    assert_eq!(
+        after
+            .edges
+            .values()
+            .filter(|edge| edge.learn_type == LearnType::Operant)
+            .count(),
+        before.len()
+    );
+    for (id, weight, count) in before {
+        assert_eq!(after.edges[&id].weight, weight);
+        assert_eq!(after.edges[&id].evidence.co_occurrence_count, count);
+    }
+    assert!(after.action_episodes.last().unwrap().rewarded_at.is_none());
 }
 
 #[test]
@@ -234,8 +304,8 @@ fn selected_action_gate_is_typed_and_cannot_be_shadowed_or_satisfied_by_an_obser
     echo.observation = Some(ObservationData::default());
     graph.add_node(echo);
     assert!(
-        available(&state, "feed-after-press"),
-        "same-schema observation must not shadow the real selected action"
+        !available(&state, "feed-after-press"),
+        "selected flags and same-schema observations cannot impersonate a completed motor episode"
     );
     state
         .characters
@@ -256,17 +326,15 @@ fn selected_action_gate_is_typed_and_cannot_be_shadowed_or_satisfied_by_an_obser
 }
 
 #[test]
-fn full_three_contingent_reward_route_stays_valid_with_public_action_feedback() {
+fn independent_contingent_rewards_consume_actual_hungry_motor_episodes_once() {
     let mut state = world();
     command(&mut state, "show-button");
     ticks(&mut state, 1);
     for _ in 0..3 {
         pair(&mut state);
     }
-    assert_eq!(state.tick, 40);
-    for trial in 1..=3 {
-        command(&mut state, "demonstrate-press");
-        ticks(&mut state, 2);
+    for trial in 1..=2 {
+        hungry_response(&mut state);
         let graph = &state.characters["cat-billi"].mind_graph;
         let action = &graph.nodes["cat-press-button"];
         assert!(
@@ -284,26 +352,262 @@ fn full_three_contingent_reward_route_stays_valid_with_public_action_feedback() 
             "trial {trial} tick {}: typed selected action gate rejected actual execution",
             state.tick
         );
-        if trial == 2 {
-            // At tick45 the real action is visible as a same-schema public
-            // observation. This was the shipped-route-only regression.
-            assert_eq!(state.tick, 45);
-            assert_eq!(
-                graph.nodes["obs_it_concept_press-button"].node_type,
-                NodeType::Observation
-            );
-        }
+        assert!(graph
+            .action_episodes
+            .last()
+            .is_some_and(|episode| !episode.autonomous && episode.rewarded_at.is_none()));
         command(&mut state, "feed-after-press");
         ticks(&mut state, 1);
-        if trial < 3 {
-            assert_eq!(state.progress.status, LevelStatus::InProgress);
-        }
+        let episode = state.characters["cat-billi"]
+            .mind_graph
+            .action_episodes
+            .last()
+            .unwrap();
+        assert!(episode.reward_consumed_at.is_some());
+        assert!(episode.rewarded_at.is_some());
+        assert!(episode.reinforcement_dopamine_spent > 0.0);
+        assert!(
+            !available(&state, "feed-after-press"),
+            "one response cannot earn repeated food rewards"
+        );
+        ticks(&mut state, 12);
     }
-    assert_eq!(state.progress.status, LevelStatus::Won);
-    assert_eq!(state.progress.command_counts["feed-after-press"], 3);
+    assert_eq!(
+        state.progress.status,
+        LevelStatus::InProgress,
+        "two prompted rewards are not autonomous food seeking"
+    );
+    assert_eq!(state.progress.command_counts["feed-after-press"], 2);
     assert!(state.characters["cat-billi"]
         .mind_graph
         .edges
         .values()
         .any(|edge| edge.learnable && edge.learn_type == LearnType::Operant && edge.weight > 0.0));
+}
+
+fn autonomous(state: &WorldState) -> bool {
+    state.characters["cat-billi"]
+        .mind_graph
+        .action_episodes
+        .iter()
+        .any(|episode| episode.autonomous)
+}
+
+fn train_to_autonomy(state: &mut WorldState) {
+    for _ in 0..3 {
+        pair(state);
+    }
+    for trial in 0..80 {
+        for _ in 0..300 {
+            let graph = &state.characters["cat-billi"].mind_graph;
+            if autonomous(state) {
+                return;
+            }
+            if graph.nodes["cat-hunger"].value >= 0.65
+                && !graph.nodes["cat-press-button"]
+                    .action
+                    .as_ref()
+                    .unwrap()
+                    .selected
+            {
+                break;
+            }
+            ticks(state, 1);
+        }
+        if autonomous(state) {
+            return;
+        }
+        let graph = &state.characters["cat-billi"].mind_graph;
+        assert!(
+            graph.nodes["cat-hunger"].value >= 0.65
+                && !graph.nodes["cat-press-button"]
+                    .action
+                    .as_ref()
+                    .unwrap()
+                    .selected,
+            "trial {trial}: hungry response failed to reset within 300 ticks"
+        );
+        let before = state.characters["cat-billi"]
+            .mind_graph
+            .action_episodes
+            .len();
+        command(state, "demonstrate-press");
+        for _ in 0..6 {
+            ticks(state, 1);
+            if state.characters["cat-billi"]
+                .mind_graph
+                .action_episodes
+                .len()
+                > before
+            {
+                break;
+            }
+        }
+        assert!(
+            state.characters["cat-billi"]
+                .mind_graph
+                .action_episodes
+                .len()
+                > before,
+            "trial {trial}: demonstration must elicit a NEW actual motor episode"
+        );
+        command(state, "feed-after-press");
+        ticks(state, 1);
+        assert!(
+            state.characters["cat-billi"]
+                .mind_graph
+                .action_episodes
+                .last()
+                .unwrap()
+                .rewarded_at
+                .is_some(),
+            "trial {trial}: subsequent real food must credit the completed response"
+        );
+        assert!(
+            state.characters["cat-billi"]
+                .mind_graph
+                .action_episodes
+                .last()
+                .unwrap()
+                .reinforcement_dopamine_spent
+                > 0.0
+        );
+        ticks(state, 12);
+    }
+    ticks(state, 300);
+    assert!(
+        autonomous(state),
+        "80 real hungry-response/reward trials must yield unprompted food seeking"
+    );
+}
+
+#[test]
+fn hungry_cat_eventually_executes_an_unprompted_motor_episode_and_wins() {
+    let mut state = world();
+    train_to_autonomy(&mut state);
+    let graph = &state.characters["cat-billi"].mind_graph;
+    let episode = graph
+        .action_episodes
+        .iter()
+        .find(|episode| episode.autonomous)
+        .unwrap();
+    assert_eq!(episode.action_id, "cat-press-button");
+    assert!(episode
+        .contexts
+        .iter()
+        .any(|context| context.schema_id == "it:concept/hunger" && context.value >= 0.6));
+    assert!(graph
+        .edges
+        .values()
+        .any(|edge| edge.learn_type == LearnType::Operant
+            && edge.source_instance_id == "cat-hunger"
+            && edge.target_instance_id == "cat-press-button"
+            && edge.weight > 0.0
+            && edge.evidence.co_occurrence_count > 0));
+    assert_eq!(state.progress.status, LevelStatus::Won);
+}
+
+#[test]
+fn food_without_dopamine_or_captured_context_cannot_count_as_reinforcement() {
+    for empty_context in [false, true] {
+        let mut state = world();
+        for _ in 0..3 {
+            pair(&mut state);
+        }
+        ticks(&mut state, 100);
+        command(&mut state, "demonstrate-press");
+        ticks(&mut state, 3);
+        assert!(available(&state, "feed-after-press"));
+        let graph = &mut state.characters.get_mut("cat-billi").unwrap().mind_graph;
+        if empty_context {
+            graph.action_episodes.last_mut().unwrap().contexts.clear();
+        } else {
+            let dopamine = graph.find_by_schema_mut("it:concept/dopamine").unwrap();
+            dopamine.value = 0.0;
+            dopamine.value_velocity = 0.0;
+        }
+        command(&mut state, "feed-after-press");
+        ticks(&mut state, 1);
+        let episode = state.characters["cat-billi"]
+            .mind_graph
+            .action_episodes
+            .last()
+            .unwrap();
+        assert!(episode.reward_consumed_at.is_some());
+        assert!(episode.rewarded_at.is_none());
+        assert_eq!(episode.reinforcement_dopamine_spent, 0.0);
+        assert!(
+            !available(&state, "feed-after-press"),
+            "even failed learning consumes this one reward opportunity"
+        );
+        assert_eq!(state.progress.status, LevelStatus::InProgress);
+    }
+}
+
+#[test]
+fn command_counts_or_forged_selected_flags_cannot_replace_real_motor_evidence() {
+    let mut state = world();
+    for _ in 0..100 {
+        state
+            .progress
+            .record_command("feed-after-press", Some("cat-billi"));
+    }
+    let action = state
+        .characters
+        .get_mut("cat-billi")
+        .unwrap()
+        .mind_graph
+        .nodes
+        .get_mut("cat-press-button")
+        .unwrap();
+    action.value = 1.0;
+    action.active = true;
+    action.attended = true;
+    action.action.as_mut().unwrap().selected = true;
+    ticks(&mut state, 1);
+    assert!(state.characters["cat-billi"]
+        .mind_graph
+        .action_episodes
+        .is_empty());
+    assert_eq!(state.progress.status, LevelStatus::InProgress);
+}
+
+#[test]
+fn complete_snapshot_restore_preserves_motor_episodes_and_deterministic_future_learning() {
+    let mut state = world();
+    for _ in 0..3 {
+        pair(&mut state);
+    }
+    ticks(&mut state, 100);
+    command(&mut state, "demonstrate-press");
+    ticks(&mut state, 3);
+    assert!(!state.characters["cat-billi"]
+        .mind_graph
+        .action_episodes
+        .is_empty());
+    let saved = serde_json::to_value(&state).unwrap();
+    let mut restored: WorldState = serde_json::from_value(saved.clone()).unwrap();
+    assert_eq!(serde_json::to_value(&restored).unwrap(), saved);
+    command(&mut state, "feed-after-press");
+    command(&mut restored, "feed-after-press");
+    ticks(&mut state, 1);
+    ticks(&mut restored, 1);
+    assert_eq!(
+        serde_json::to_value(&restored.characters["cat-billi"].mind_graph.action_episodes).unwrap(),
+        serde_json::to_value(&state.characters["cat-billi"].mind_graph.action_episodes).unwrap()
+    );
+    assert!(restored.characters["cat-billi"]
+        .mind_graph
+        .action_episodes
+        .last()
+        .unwrap()
+        .rewarded_at
+        .is_some());
+    train_to_autonomy(&mut state);
+    train_to_autonomy(&mut restored);
+    assert_eq!(state.progress.status, restored.progress.status);
+    assert_eq!(
+        serde_json::to_value(&restored.characters["cat-billi"].mind_graph.action_episodes).unwrap(),
+        serde_json::to_value(&state.characters["cat-billi"].mind_graph.action_episodes).unwrap()
+    );
 }

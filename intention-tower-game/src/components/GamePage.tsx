@@ -24,12 +24,8 @@ import { progressStore } from '../store/useLevelProgress';
 
 // HUD components
 import { TimeControlsHud } from './hud/TimeControlsHud';
-import { ActorStatusBar } from './hud/ActorStatusBar';
-import { MiniMapHud } from './hud/MiniMapHud';
 import { DialogueBox } from './hud/DialogueBox';
-import { MobileStatusBar } from './hud/MobileStatusBar';
 import { ObjectiveHud } from './hud/ObjectiveHud';
-import { EconomyHud } from './hud/EconomyHud';
 
 // Overlay components
 import { MindGraphOverlay } from './overlay/MindGraphOverlay';
@@ -118,8 +114,8 @@ export const GamePage: React.FC = () => {
         height: '100dvh',
         position: 'relative',
         overflow: 'hidden',
-        bgcolor: '#0e0e1a',
-        color: '#ddd',
+        bgcolor: '#898276',
+        color: '#584431',
       }}
     >
       {/* ── Layer 0: world stage; safe area excludes status and dialogue HUDs ── */}
@@ -133,13 +129,10 @@ export const GamePage: React.FC = () => {
         <TimeControlsHud />
 
         {/* Left status bar (desktop/tablet) */}
-        <ActorStatusBar />
 
         {/* Mini-map (desktop/tablet) */}
-        <MiniMapHud />
 
         {/* Mobile status bar */}
-        <MobileStatusBar />
 
         {/* Backend-driven level goals */}
         <ObjectiveHud />
@@ -147,7 +140,6 @@ export const GamePage: React.FC = () => {
         {/* Movement controls are embedded in the stage safe area on all devices. */}
 
         {/* Data-driven economy appears only in levels with authored assets */}
-        <EconomyHud />
 
 
         {/* Dialogue box (bottom) */}

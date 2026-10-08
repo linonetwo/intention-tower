@@ -57,10 +57,10 @@ export const RoleDetailPanel: React.FC = () => {
   }, [character, worldState]);
 
   return (
-    <Box sx={{ borderTop: '1px solid #2a2a4e', bgcolor: '#111123' }}>
+    <Box sx={{ borderTop: '1px solid #d6bf99', bgcolor: '#8f8b85' }}>
       <Box sx={{ px: 1, py: 0.6 }}>
-        <Typography sx={{ fontSize: 10, color: '#888' }}>{t('role.title')}</Typography>
-        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#ddd' }}>
+        <Typography sx={{ fontSize: 10, color: '#79644d' }}>{t('role.title')}</Typography>
+        <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#584431' }}>
           {character ? translateLabel(character.label) : t('role.empty')}
         </Typography>
       </Box>
@@ -71,10 +71,10 @@ export const RoleDetailPanel: React.FC = () => {
         variant='fullWidth'
         sx={{
           minHeight: 28,
-          borderTop: '1px solid #2a2a4e',
-          borderBottom: '1px solid #2a2a4e',
-          '& .MuiTab-root': { minHeight: 28, fontSize: 11, textTransform: 'none', color: '#999' },
-          '& .Mui-selected': { color: '#ddd !important' },
+          borderTop: '1px solid #d6bf99',
+          borderBottom: '1px solid #d6bf99',
+          '& .MuiTab-root': { minHeight: 28, fontSize: 11, textTransform: 'none', color: '#806c55' },
+          '& .Mui-selected': { color: '#584431 !important' },
         }}
       >
         <Tab label={t('role.tab.stats')} />
@@ -89,25 +89,25 @@ export const RoleDetailPanel: React.FC = () => {
 
         {character && tab === 0 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.7 }}>
-            <Typography sx={{ fontSize: 11, color: '#aaa' }}>
+            <Typography sx={{ fontSize: 11, color: '#806c55' }}>
               {t('role.position', { x: character.position.x.toFixed(2), y: character.position.y.toFixed(2) })}
             </Typography>
-            <Typography sx={{ fontSize: 11, color: '#aaa' }}>
+            <Typography sx={{ fontSize: 11, color: '#806c55' }}>
               {t('role.tick', { tick: worldState?.tick ?? 0 })}
             </Typography>
-            <Divider sx={{ borderColor: '#2a2a4e' }} />
+            <Divider sx={{ borderColor: '#d6bf99' }} />
             {resources.length === 0 && (
               <Typography sx={{ fontSize: 11, color: '#777' }}>{t('role.noResource')}</Typography>
             )}
             {resources.map((node) => (
               <Box key={node.instance_id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                <Typography sx={{ fontSize: 11, color: '#bbb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <Typography sx={{ fontSize: 11, color: '#78634d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {translateLabel(node.label)}
                 </Typography>
                 <Chip
                   label={node.value.toFixed(2)}
                   size='small'
-                  sx={{ height: 18, fontSize: 10, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.06)' }}
+                  sx={{ height: 18, fontSize: 10, fontFamily: 'monospace', bgcolor: 'rgba(149,112,64,0.06)' }}
                 />
               </Box>
             ))}
@@ -130,7 +130,7 @@ export const RoleDetailPanel: React.FC = () => {
             )}
             {nearbyItems.map(({ item, distance }) => (
               <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-                <Typography sx={{ fontSize: 11, color: '#bbb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <Typography sx={{ fontSize: 11, color: '#78634d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {translateLabel(item.label)}
                 </Typography>
                 <Typography sx={{ fontSize: 10, color: '#777', fontFamily: 'monospace' }}>

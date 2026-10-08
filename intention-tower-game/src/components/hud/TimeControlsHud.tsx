@@ -1,19 +1,10 @@
-/**
- * TimeControlsHud — floating top-bar HUD for time/mode control.
- * Transparent background, overlays the scene.
- */
 import React, { useState } from 'react';
-import {
-  Box, Typography, IconButton, ToggleButtonGroup, ToggleButton, Chip, Tooltip,
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Box, Typography, IconButton, Button, Drawer, ToggleButtonGroup, ToggleButton, Tooltip, Divider } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
-import FlashAutoIcon from '@mui/icons-material/FlashAuto';
-import SaveIcon from '@mui/icons-material/Save';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -23,213 +14,52 @@ import { translateLabel } from '../../i18n';
 import { SaveManager } from '../panels/SaveManager';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { useModAssets } from '../../store/useModAssets';
+import { ActorStatusBar } from './ActorStatusBar';
+import { EconomyHud } from './EconomyHud';
+import { MiniMapHud } from './MiniMapHud';
 
+/** Only essential controls stay above the stage; the notebook holds the rest. */
 export const TimeControlsHud: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const layout = useResponsiveLayout();
-  const worldState = useGameState((s) => s.worldState);
-  const currentLevelId = useGameState((s) => s.currentLevelId);
-  const setTimeSpeed = useGameState((s) => s.setTimeSpeed);
-  const stepTick = useGameState((s) => s.stepTick);
-  const autoStepOnCommand = useGameState((s) => s.autoStepOnCommand);
-  const setAutoStepOnCommand = useGameState((s) => s.setAutoStepOnCommand);
-  const uiMode = useGameState((s) => s.uiMode);
-  const setUiMode = useGameState((s) => s.setUiMode);
-  const reset = useGameState((s) => s.reset);
-  const [saveOpen, setSaveOpen] = useState(false);
+  const world = useGameState(s => s.worldState);
+  const levelId = useGameState(s => s.currentLevelId);
+  const setSpeed = useGameState(s => s.setTimeSpeed);
+  const stepTick = useGameState(s => s.stepTick);
+  const autoStep = useGameState(s => s.autoStepOnCommand);
+  const setAutoStep = useGameState(s => s.setAutoStepOnCommand);
+  const mode = useGameState(s => s.uiMode);
+  const setMode = useGameState(s => s.setUiMode);
+  const reset = useGameState(s => s.reset);
+  const reload = useModAssets(s => s.reload);
+  const loading = useModAssets(s => s.loading);
+  const [menu, setMenu] = useState(false);
+  const [save, setSave] = useState(false);
   const [stepping, setStepping] = useState(false);
-  const reloadMods = useModAssets((s) => s.reload);
-  const modLoading = useModAssets((s) => s.loading);
-
-  const tick = worldState?.tick ?? 0;
-  const speed = worldState?.time_speed ?? 0;
-  const paused = worldState?.paused ?? true;
-
-  const levelMeta = allLevels.find((l) => l.id === currentLevelId);
-  const levelName = levelMeta?.id ? translateLabel(`level.${levelMeta.id}.name`) : (currentLevelId ?? t('game.unknownLevel'));
-
-  const handleSpeedChange = (_: React.MouseEvent, newSpeed: number | null) => {
-    if (newSpeed != null) setTimeSpeed(newSpeed);
-  };
-
-  const handleStep = async () => {
-    if (stepping) return;
-    setStepping(true);
-    try { await stepTick(); } finally { setStepping(false); }
-  };
-
-  const modeIcons: Record<string, React.ReactElement> = {
-    observe: <VisibilityIcon sx={{ fontSize: 15 }} />,
-    micro: <GpsFixedIcon sx={{ fontSize: 15 }} />,
-    graph: <AccountTreeIcon sx={{ fontSize: 15 }} />,
-  };
-
-  return (
-    <>
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 44,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 0.5,
-          px: layout.isMobile ? 0.5 : 1.5,
-          bgcolor: 'rgba(26,26,46,0.85)',
-          backdropFilter: 'blur(8px)',
-          borderBottom: '1px solid rgba(42,42,78,0.5)',
-          zIndex: 20,
-          pointerEvents: 'auto',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}
-      >
-        {/* Back */}
-        <Tooltip title={t('game.backToMenu')} arrow>
-          <IconButton size="small" onClick={() => { reset(); navigate('/'); }} sx={{ color: '#aaa' }}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-
-        {/* Level name */}
-        <Typography sx={{ fontSize: layout.isMobile ? 11 : 13, fontWeight: 600, color: '#ddd', maxWidth: layout.isMobile ? 60 : 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {levelName}
-        </Typography>
-
-        {/* Tick */}
-        <Chip
-          label={`T${tick}`}
-          size="small"
-          sx={{ height: 20, fontSize: 10, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.06)' }}
-        />
-
-        {/* Save */}
-        <Tooltip title={t('save.title')} arrow>
-          <IconButton size="small" onClick={() => setSaveOpen(true)} sx={{ color: '#aaa' }}>
-            <SaveIcon sx={{ fontSize: 16 }} />
-          </IconButton>
-        </Tooltip>
-
-        {/* Reload mods */}
-        {!layout.isMobile && <Tooltip title={t('game.reloadMods')} arrow>
-          <span>
-            <IconButton
-              size="small"
-              onClick={() => void reloadMods()}
-              disabled={modLoading}
-              aria-label="Reload Mods"
-              data-testid="reload-mods-btn"
-              sx={{ color: modLoading ? '#666' : '#aaa' }}
-            >
-              <RefreshIcon sx={{ fontSize: 16 }} />
-            </IconButton>
-          </span>
-        </Tooltip>}
-
-        <Box sx={{ flex: 1 }} />
-
-        {/* Mode selector — icon buttons */}
-        <ToggleButtonGroup
-          value={uiMode}
-          exclusive
-          onChange={(_, mode) => mode && setUiMode(mode)}
-          size="small"
-          sx={{
-            mr: 0.5,
-            '& .MuiToggleButton-root': {
-              color: '#8aa0b4', borderColor: '#2f3540',
-              px: 0.7, py: 0.2,
-              '&.Mui-selected': { color: '#fff', bgcolor: 'rgba(83,109,254,0.28)' },
-            },
-          }}
-        >
-          <ToggleButton value="observe" data-testid="mode-observe" aria-label={t('mode.observe')}>
-            <Tooltip title={`${t('mode.observe')} (F1)`} arrow>{modeIcons.observe}</Tooltip>
-          </ToggleButton>
-          <ToggleButton value="micro" data-testid="mode-micro" aria-label={t('mode.micro')}>
-            <Tooltip title={`${t('mode.micro')} (F2)`} arrow>{modeIcons.micro}</Tooltip>
-          </ToggleButton>
-          <ToggleButton value="graph" data-testid="mode-graph" aria-label={t('mode.graph')}>
-            <Tooltip title={`${t('mode.graph')} (F3/Tab)`} arrow>{modeIcons.graph}</Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-
-        {/* Step button (paused only) */}
-        {paused && (
-          <>
-            <Tooltip title={t('game.autoStep')} arrow>
-              <IconButton
-                size="small"
-                onClick={() => setAutoStepOnCommand(!autoStepOnCommand)}
-                data-testid="auto-step-command"
-                aria-label={t('game.autoStep')}
-                sx={{
-                  color: autoStepOnCommand ? '#90caf9' : '#555',
-                  border: '1px solid',
-                  borderColor: autoStepOnCommand ? '#536dfe' : '#333',
-                  borderRadius: 1,
-                  mx: 0.2,
-                  bgcolor: autoStepOnCommand ? 'rgba(83,109,254,0.18)' : 'transparent',
-                }}
-              >
-                <FlashAutoIcon sx={{ fontSize: 14 }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={t('game.stepTick')} arrow>
-              <span>
-                <IconButton
-                  size="small"
-                  onClick={handleStep}
-                  data-testid="step-tick"
-                  data-tutorial="step-button"
-                  aria-label={t('game.stepTick')}
-                  disabled={stepping}
-                  sx={{ color: '#888', border: '1px solid #333', borderRadius: 1, mx: 0.2 }}
-                >
-                  <SkipNextIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </span>
-            </Tooltip>
-          </>
-        )}
-
-        {/* Speed */}
-        <ToggleButtonGroup
-          value={speed}
-          exclusive
-          onChange={handleSpeedChange}
-          size="small"
-          sx={{
-            '& .MuiToggleButton-root': {
-              color: '#888', borderColor: '#333',
-              fontSize: 11, py: 0.2, px: 0.7,
-              '&.Mui-selected': { color: '#fff', bgcolor: 'rgba(100,100,255,0.2)' },
-            },
-          }}
-        >
-          <ToggleButton value={0} data-testid="pause-time" aria-label={t('game.paused')}><PauseIcon sx={{ fontSize: 13 }} /></ToggleButton>
-          <ToggleButton value={1}>1×</ToggleButton>
-          {!layout.isMobile && <ToggleButton value={2}>2×</ToggleButton>}
-          {!layout.isMobile && <ToggleButton value={3}>3×</ToggleButton>}
-          <ToggleButton value={4}>4×</ToggleButton>
-        </ToggleButtonGroup>
-
-        {paused && !layout.isMobile && (
-          <Chip
-            icon={<PauseIcon sx={{ fontSize: 10 }} />}
-            label={t('game.paused')}
-            size="small"
-            color="warning"
-            sx={{ height: 18, fontSize: 9, ml: 0.3 }}
-          />
-        )}
-      </Box>
-
-      <SaveManager open={saveOpen} onClose={() => setSaveOpen(false)} />
-    </>
-  );
+  const paused = world?.paused ?? true;
+  const level = allLevels.find(l => l.id === levelId);
+  const handleStep = async () => { if (stepping) return; setStepping(true); try { await stepTick(); } finally { setStepping(false); } };
+  return <>
+    <Box data-testid="game-topbar" sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 60, px: 1, display: 'flex', alignItems: 'center', gap: .75, bgcolor: '#8f8a81', color: '#513b29', borderBottom: '3px solid #bd9768', boxShadow: '0 3px 12px #6c4e2520', pointerEvents: 'auto', zIndex: 20 }}>
+      <IconButton data-testid="experiment-menu-open" aria-label={t('game.notebook')} onClick={() => setMenu(true)} sx={{ bgcolor: '#837968', borderRadius: 2 }}><MenuIcon /></IconButton>
+      <Box sx={{ flex: 1, minWidth: 0 }}><Typography sx={{ fontWeight: 800, fontSize: layout.isMobile ? 12 : 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{level ? translateLabel(`level.${level.id}.name`) : t('game.unknownLevel')}</Typography><Typography sx={{ fontSize: 11, color: '#856e53' }}>{t('game.tick', { tick: world?.tick ?? 0 })}</Typography></Box>
+      <Tooltip title={paused ? t('game.resume') : t('game.pause')}><IconButton data-testid="pause-time" aria-label={paused ? t('game.resume') : t('game.pause')} onClick={() => setSpeed(paused ? 1 : 0)} sx={{ bgcolor: '#e4ead3', color: '#4f6e47' }}>{paused ? <PlayArrowIcon /> : <PauseIcon />}</IconButton></Tooltip>
+      {paused && <Tooltip title={t('game.stepTick')}><span><IconButton data-testid="step-tick" data-tutorial="step-button" aria-label={t('game.stepTick')} disabled={stepping} onClick={handleStep}><SkipNextIcon /></IconButton></span></Tooltip>}
+      <Tooltip title={t('mode.graph')}><IconButton data-testid="mode-graph" aria-label={t('mode.graph')} onClick={() => setMode(mode === 'graph' ? 'observe' : 'graph')} sx={{ bgcolor: mode === 'graph' ? '#ead8b9' : 'transparent' }}><AccountTreeIcon /></IconButton></Tooltip>
+    </Box>
+    <Drawer anchor="right" open={menu} onClose={() => setMenu(false)} slotProps={{ paper: { sx: { width: 'min(360px, 92vw)', p: 2.5, bgcolor: '#8f8b82', color: '#513b29' } } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}><Typography variant="h6" sx={{ flex: 1, fontWeight: 800 }}>{t('game.notebook')}</Typography><IconButton data-testid="experiment-menu-close" aria-label={t('app.close')} onClick={() => setMenu(false)}><CloseIcon /></IconButton></Box>
+      <ActorStatusBar />
+      <EconomyHud />
+      <MiniMapHud />
+      <Typography sx={{ mb: 1 }}>{t('game.experimentMode')}</Typography>
+      <ToggleButtonGroup fullWidth exclusive value={mode} onChange={(_, value) => { if (value) { setMode(value); setMenu(false); } }} sx={{ mb: 2 }}>{(['observe', 'micro', 'graph'] as const).map(value => <ToggleButton key={value} value={value} data-testid={`mode-${value}`}>{t(`mode.${value}`)}</ToggleButton>)}</ToggleButtonGroup>
+      <Typography sx={{ mb: 1 }}>{t('game.timeSpeed')}</Typography>
+      <ToggleButtonGroup fullWidth exclusive value={world?.time_speed ?? 0} onChange={(_, value) => { if (value !== null) setSpeed(value); }} sx={{ mb: 2 }}><ToggleButton value={0} aria-label={t('game.paused')}><PauseIcon /></ToggleButton>{[1, 2, 3, 4].map(value => <ToggleButton key={value} value={value}>{value}×</ToggleButton>)}</ToggleButtonGroup>
+      <Button fullWidth variant={autoStep ? 'contained' : 'outlined'} data-testid="auto-step-command" onClick={() => setAutoStep(!autoStep)} sx={{ mb: 2 }}>{t('game.autoStep')}</Button>
+      <Divider sx={{ my: 1 }} /><Button fullWidth data-testid="save-menu-open" onClick={() => { setMenu(false); setSave(true); }}>{t('save.title')}</Button><Button fullWidth disabled={loading} data-testid="reload-mods-btn" onClick={() => void reload()}>{t('game.reloadMods')}</Button><Button fullWidth onClick={() => { setMenu(false); navigate('/settings'); }}>{t('settings.title')}</Button><Divider sx={{ my: 1 }} /><Button fullWidth onClick={() => { reset(); navigate('/'); }}>{t('game.backToMenu')}</Button>
+    </Drawer>
+    <SaveManager open={save} onClose={() => setSave(false)} />
+  </>;
 };

@@ -31,11 +31,11 @@ export const MicroControlPad: React.FC = () => {
         sx={{
           width: layout.touchTarget,
           height: layout.touchTarget,
-          color: '#f3f5ff',
-          bgcolor: 'rgba(18, 22, 44, 0.86)',
-          border: '1px solid rgba(135, 153, 255, 0.48)',
+          color: '#88898f',
+          bgcolor: 'rgba(255,248,232,0.94)',
+          border: '1px solid rgba(154,113,62,0.48)',
           backdropFilter: 'blur(7px)',
-          '&:active': { bgcolor: 'rgba(83, 109, 254, 0.75)' },
+          '&:active': { bgcolor: 'rgba(154,113,62,0.75)' },
         }}
       >
         {icon}

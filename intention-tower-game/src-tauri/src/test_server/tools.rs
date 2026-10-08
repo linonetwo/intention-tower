@@ -15,13 +15,15 @@ pub fn tool_list(has_webview: bool) -> Value {
         json!({ "name": "set_paused", "description": "设置暂停状态", "inputSchema": {
             "type": "object", "properties": { "paused": { "type": "boolean" } }, "required": ["paused"]
         }}),
-        json!({ "name": "move_character", "description": "微操移动角色（后端边界与碰撞校验）", "inputSchema": {
+        json!({ "name": "move_character", "description": "平台上横向行走（delta_y必须为0，上下楼使用traverse_connector）", "inputSchema": {
             "type": "object", "properties": {
                 "character_id": { "type": "string" },
                 "delta_x": { "type": "number" },
-                "delta_y": { "type": "number" }
+                "delta_y": { "type": "number", "const": 0 }
             }, "required": ["character_id", "delta_x", "delta_y"]
         }}),
+        json!({ "name": "traverse_connector", "description": "从附近楼梯/梯子端点上下楼", "inputSchema": {"type":"object", "properties":{"character_id":{"type":"string"},"connector_id":{"type":"string"}},"required":["character_id","connector_id"]}}),
+        json!({ "name": "set_character_posture", "description": "站起或坐下（移动时自动站起）", "inputSchema": {"type":"object", "properties":{"character_id":{"type":"string"},"posture":{"type":"string","enum":["standing","sitting"]}},"required":["character_id","posture"]}}),
         json!({ "name": "load_level", "description": "加载关卡", "inputSchema": {
             "type": "object", "properties": {
                 "level_id": { "type": "string" },

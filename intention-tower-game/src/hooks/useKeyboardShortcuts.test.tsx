@@ -64,4 +64,19 @@ describe('micro-control shortcuts', () => {
     fireEvent.keyDown(window, { key: 'ArrowLeft' });
     expect(fixture.state.moveSelectedActor).toHaveBeenCalledWith(-28, 0);
   });
+  it('never requests arbitrary vertical movement and ignores shifted or composing arrows', () => {
+    fixture.state.uiMode = 'micro';
+    renderHook(useKeyboardShortcuts);
+    for (const key of ['w', 's', 'ArrowUp', 'ArrowDown']) fireEvent.keyDown(window, { key });
+    fireEvent.keyDown(window, { key: 'ArrowLeft', shiftKey: true });
+    fireEvent.keyDown(window, { key: 'ArrowRight', isComposing: true });
+    expect(fixture.state.moveSelectedActor).not.toHaveBeenCalled();
+    const canceled = vi.fn();
+    window.addEventListener('scene-cancel-walk', canceled);
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(fixture.state.moveSelectedActor).toHaveBeenCalledOnce();
+    expect(fixture.state.moveSelectedActor).toHaveBeenCalledWith(28, 0);
+    expect(canceled).toHaveBeenCalledOnce();
+    window.removeEventListener('scene-cancel-walk', canceled);
+  });
 });

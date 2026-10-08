@@ -2,7 +2,6 @@ use super::System;
 use crate::models::events::WorldEvent;
 use crate::models::mind_node::{AssociationEdge, Evidence, LearnType, NodeType, Polarity};
 use crate::models::world_state::WorldState;
-use std::collections::HashSet;
 
 /// Reward credits a voluntary action that was already actually selected,
 /// never a demonstration or an action first made eligible by this reward.
@@ -19,17 +18,6 @@ impl System for OperantConditioningSystem {
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         let current_tick = state.tick;
-        let newly_selected: HashSet<_> = state
-            .pending_events
-            .iter()
-            .filter_map(|event| match event {
-                WorldEvent::ActionSelected {
-                    character_id,
-                    instance_id,
-                } => Some((character_id.clone(), instance_id.clone())),
-                _ => None,
-            })
-            .collect();
         for character in state.characters.values_mut() {
             let char_id = character.id.clone();
             let graph = &mut character.mind_graph;
@@ -49,54 +37,25 @@ impl System for OperantConditioningSystem {
             if reward <= 0.0 {
                 continue;
             }
-            let mut actions: Vec<_> = graph
-                .nodes
-                .values()
-                .filter(|node| {
-                    node.node_type == NodeType::Action
-                        && node.active
-                        && node.attended
-                        && node
-                            .action
-                            .as_ref()
-                            .is_some_and(|action| !action.innate && action.selected)
-                        && !newly_selected.contains(&(char_id.clone(), node.instance_id.clone()))
-                })
-                .map(|node| node.instance_id.clone())
-                .collect();
-            actions.sort();
-            for action_id in actions {
-                let mut sources: Vec<_> = graph
-                    .nodes
-                    .values()
-                    .filter(|node| {
-                        if !node.active || !node.attended {
-                            return false;
-                        }
-                        if node.node_type == NodeType::Motivation {
-                            return true;
-                        }
-                        node.node_type == NodeType::Observation
-                            && node.created_at < current_tick
-                            && node.created_at >= current_tick.saturating_sub(10)
-                            && super::classical_conditioning::intrinsic_reward(
-                                graph,
-                                &node.instance_id,
-                            ) == 0.0
-                            && !node.observation.as_ref().is_some_and(|observation| {
-                                observation.is_signal
-                                    && observation.emitter_id.as_ref() == Some(&char_id)
-                            })
-                            && graph.edges.values().any(|edge| {
-                                edge.source_instance_id == node.instance_id
-                                    && edge.target_instance_id == action_id
-                                    && (edge.learnable || edge.weight == 0.0)
-                            })
-                    })
-                    .map(|node| node.instance_id.clone())
+            // A reward consumes only the latest eligible completed response.
+            // Context is captured BEFORE feeding changes body state.
+            let Some(index) = graph.action_episodes.iter().rposition(|episode| {
+                episode.rewarded_at.is_none()
+                    && episode.reward_consumed_at.is_none()
+                    && episode.executed_at < current_tick
+                    && current_tick - episode.executed_at <= 10
+            }) else {
+                continue;
+            };
+            let episode = graph.action_episodes[index].clone();
+            graph.action_episodes[index].reward_consumed_at = Some(current_tick);
+            for action_id in [episode.action_id.clone()] {
+                let sources: Vec<_> = episode
+                    .contexts
+                    .iter()
+                    .filter(|context| graph.nodes.contains_key(&context.instance_id))
+                    .map(|context| context.instance_id.clone())
                     .collect();
-                sources.sort();
-                sources.dedup();
                 if sources.is_empty() {
                     continue;
                 }
@@ -105,11 +64,12 @@ impl System for OperantConditioningSystem {
                     .values()
                     .filter(|edge| {
                         edge.learnable
+                            && edge.learn_type == LearnType::Operant
                             && edge.target_instance_id == action_id
-                            && graph
-                                .nodes
-                                .get(&edge.source_instance_id)
-                                .is_some_and(|node| node.active && node.attended)
+                            && episode
+                                .contexts
+                                .iter()
+                                .any(|context| context.instance_id == edge.source_instance_id)
                     })
                     .map(|edge| edge.weight)
                     .sum();
@@ -146,6 +106,11 @@ impl System for OperantConditioningSystem {
                     edge.weight = new_weight;
                     edge.evidence.co_occurrence_count += 1;
                     edge.evidence.last_co_occurred_at = current_tick;
+                    if new_weight > old_weight {
+                        let evidence = &mut graph.action_episodes[index];
+                        evidence.rewarded_at = Some(current_tick);
+                        evidence.reinforcement_dopamine_spent += cost;
+                    }
                     if let Some(action) = graph
                         .nodes
                         .get_mut(&action_id)

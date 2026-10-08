@@ -64,8 +64,9 @@ export const DialogueBox: React.FC = () => {
 
   // Recent event text (last 5 meaningful events)
   const recentText = useMemo(() => {
-    return recentEvents
-      .filter(e => !('TickCompleted' in e))
+    const meaningful = recentEvents.filter(e => !('TickCompleted' in e));
+    const prominent = meaningful.filter(e => 'ActionExecuted' in e || 'LearningUpdated' in e || 'ObjectiveCompleted' in e);
+    return [...prominent, ...meaningful.filter(e => !prominent.includes(e))]
       .slice(0, 5)
       .map(e => formatEventBrief(e, worldState));
   }, [recentEvents, worldState, i18n.language]);
@@ -113,13 +114,14 @@ export const DialogueBox: React.FC = () => {
           data-testid="dialogue-toggle"
           size="small"
           onClick={() => setExpanded(!expanded)}
+          aria-label={t('command.toggle')}
           sx={{
-            color: '#888',
-            bgcolor: 'rgba(14,14,26,0.7)',
+            color: '#79644d',
+            bgcolor: 'rgba(255,248,232,0.94)',
             borderRadius: '8px 8px 0 0',
             px: 2,
             py: 0.2,
-            '&:hover': { bgcolor: 'rgba(14,14,26,0.9)' },
+            '&:hover': { bgcolor: 'rgba(255,248,232,0.94)' },
           }}
         >
           {expanded ? <ExpandMoreIcon sx={{ fontSize: 16 }} /> : <ExpandLessIcon sx={{ fontSize: 16 }} />}
@@ -128,14 +130,14 @@ export const DialogueBox: React.FC = () => {
 
       <Box
         sx={{
-          bgcolor: 'rgba(10,10,22,0.9)',
+          bgcolor: 'rgba(255,248,232,0.94)',
           backdropFilter: 'blur(10px)',
-          borderTop: '1px solid rgba(83,109,254,0.3)',
+          borderTop: '1px solid rgba(154,113,62,0.3)',
           px: layout.isMobile ? 1 : 2,
           py: expanded ? 1.5 : 0.5,
           // Include padding and the toggle in the reserved dialogue footprint.
           boxSizing: 'border-box',
-          maxHeight: expanded ? `calc(${layout.dialogueHeight}dvh - 24px)` : 36,
+          maxHeight: expanded ? `calc(${layout.dialogueHeight}dvh - 44px)` : 36,
           overflow: 'auto',
           transition: 'max-height 0.3s ease',
         }}
@@ -143,12 +145,12 @@ export const DialogueBox: React.FC = () => {
         {/* Event narrative (collapsed: single line; expanded: up to 5 lines) */}
         <Box sx={{ mb: expanded ? 1 : 0 }}>
           {!expanded && recentText.length > 0 && (
-            <Typography sx={{ fontSize: 11, color: '#999', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Typography sx={{ fontSize: 11, color: '#806c55', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {recentText[0]}
             </Typography>
           )}
           {expanded && recentText.map((text, i) => (
-            <Typography key={i} sx={{ fontSize: 11, color: i === 0 ? '#ccc' : '#777', lineHeight: 1.5 }}>
+            <Typography key={i} sx={{ fontSize: 11, color: i === 0 ? '#68543f' : '#777', lineHeight: 1.5 }}>
               {text}
             </Typography>
           ))}
@@ -209,7 +211,7 @@ export const DialogueBox: React.FC = () => {
                       startIcon={
                         wasExecuted ? <CheckCircleIcon sx={{ fontSize: 13, color: '#66bb6a' }} />
                         : isQueued ? <HourglassEmptyIcon sx={{ fontSize: 13, color: '#ffa726' }} />
-                        : <PlayArrowIcon sx={{ fontSize: 13, color: '#536dfe' }} />
+                        : <PlayArrowIcon sx={{ fontSize: 13, color: '#9b693b' }} />
                       }
                       sx={{
                         justifyContent: 'flex-start',
@@ -217,36 +219,37 @@ export const DialogueBox: React.FC = () => {
                         fontSize: layout.isMobile ? 13 : 12,
                         py: layout.isMobile ? 1 : 0.6,
                         px: 1.5,
-                        color: isQueued ? '#ffcc80' : '#ccc',
+                        color: isQueued ? '#92622f' : '#68543f',
                         bgcolor: isQueued
                           ? 'rgba(255,167,38,0.1)'
                           : wasExecuted
                             ? 'rgba(76,175,80,0.1)'
-                            : 'rgba(83,109,254,0.08)',
-                        borderLeft: '3px solid',
-                        borderLeftColor: isQueued ? '#ffa726' : wasExecuted ? '#66bb6a' : '#536dfe',
-                        borderRadius: 0.5,
-                        '&:hover': { bgcolor: 'rgba(83,109,254,0.18)' },
-                        '&.Mui-disabled': { color: '#444', bgcolor: 'rgba(255,255,255,0.02)', borderLeftColor: '#333' },
+                            : 'rgba(154,113,62,0.08)',
+                        border: '1px solid',
+                        borderColor: isQueued ? '#c79d55' : wasExecuted ? '#7b9761' : '#cfb68d',
+                        boxShadow: '0 2px 0 #bfa17b',
+                        borderRadius: 2,
+                        '&:hover': { bgcolor: 'rgba(154,113,62,0.18)' },
+                        '&.Mui-disabled': { color: '#8f7f69', bgcolor: 'rgba(149,112,64,0.02)', borderColor: '#d5c8b4', boxShadow: 'none' },
                         minHeight: layout.touchTarget,
                       }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 0.5 }}>
                         {/* Number prefix */}
-                        <Typography sx={{ fontSize: 10, color: '#536dfe', fontFamily: 'monospace', mr: 0.5 }}>
+                        <Typography sx={{ fontSize: 10, color: '#9b693b', fontFamily: 'monospace', mr: 0.5 }}>
                           {idx + 1}.
                         </Typography>
                         <Typography sx={{ fontSize: 12, flex: 1, textAlign: 'left' }}>
                           {label}
                         </Typography>
                         {cmd.hotkey && (
-                          <Chip label={cmd.hotkey.toUpperCase()} size="small" sx={{ height: 16, fontSize: 8, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.08)' }} />
+                          <Chip label={cmd.hotkey.toUpperCase()} size="small" sx={{ height: 16, fontSize: 8, fontFamily: 'monospace', bgcolor: 'rgba(149,112,64,0.08)' }} />
                         )}
                         {needsTarget && (
                           <Chip label={t('command.needTargetTag')} size="small" variant="outlined" sx={{ height: 14, fontSize: 7, borderColor: '#555' }} />
                         )}
                         {isQueued && (
-                          <Chip label={t('command.queued')} size="small" sx={{ height: 14, fontSize: 7, bgcolor: 'rgba(255,167,38,0.3)', color: '#ffcc80' }} />
+                          <Chip label={t('command.queued')} size="small" sx={{ height: 14, fontSize: 7, bgcolor: 'rgba(255,167,38,0.3)', color: '#92622f' }} />
                         )}
                       </Box>
                     </Button>

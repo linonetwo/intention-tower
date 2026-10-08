@@ -16,6 +16,143 @@ use std::time::Duration;
 mod test_utilities;
 use test_utilities::*;
 
+async fn cat_ticks(world: &GameWorld, count: usize) {
+    for _ in 0..count {
+        world.mcp_call("tick", json!({"dt": 0.5})).await.unwrap();
+    }
+}
+async fn cat_command(world: &GameWorld, command: &str) {
+    world
+        .mcp_call(
+            "execute_command",
+            json!({"command_id":command,"actor_id":"trainer","target_id":"cat-billi"}),
+        )
+        .await
+        .unwrap();
+}
+#[when("用真实饥饿按键回合训练聪明猫并恢复完整存档")]
+async fn train_real_cat_episodes(world: &mut GameWorld) {
+    for _ in 0..3 {
+        cat_command(world, "demonstrate-press").await;
+        cat_ticks(world, 1).await;
+        cat_command(world, "feed").await;
+        cat_ticks(world, 12).await;
+    }
+    for trial in 0..80 {
+        let mut ready = Value::Null;
+        for _ in 0..300 {
+            ready = world.mcp_call("snapshot", json!({})).await.unwrap();
+            let graph = &ready["characters"]["cat-billi"]["mind_graph"];
+            if graph["action_episodes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|episode| episode["autonomous"] == true)
+            {
+                return;
+            }
+            if graph["nodes"]["cat-hunger"]["value"].as_f64().unwrap() >= 0.65
+                && graph["nodes"]["cat-press-button"]["action"]["selected"] == false
+            {
+                break;
+            }
+            cat_ticks(world, 1).await;
+        }
+        ready = world.mcp_call("snapshot", json!({})).await.unwrap();
+        if ready["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|episode| episode["autonomous"] == true)
+        {
+            return;
+        }
+        let before = ready["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+            .as_array()
+            .unwrap()
+            .len();
+        let nodes = &ready["characters"]["cat-billi"]["mind_graph"]["nodes"];
+        assert!(
+            nodes["cat-hunger"]["value"].as_f64().unwrap() >= 0.65
+                && nodes["cat-press-button"]["action"]["selected"] == false,
+            "trial {trial}: hungry response failed to reset within 300 ticks"
+        );
+        cat_command(world, "demonstrate-press").await;
+        let mut response = Value::Null;
+        for _ in 0..6 {
+            cat_ticks(world, 1).await;
+            response = world.mcp_call("snapshot", json!({})).await.unwrap();
+            if response["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+                .as_array()
+                .unwrap()
+                .len()
+                > before
+            {
+                break;
+            }
+        }
+        assert!(
+            response["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+                .as_array()
+                .unwrap()
+                .len()
+                > before,
+            "trial {trial}: no actual new motor response"
+        );
+        cat_command(world, "feed-after-press").await;
+        cat_ticks(world, 1).await;
+        let rewarded = world.mcp_call("snapshot", json!({})).await.unwrap();
+        assert!(
+            !rewarded["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+                .as_array()
+                .unwrap()
+                .last()
+                .unwrap()["rewarded_at"]
+                .is_null()
+        );
+        if trial == 0 {
+            assert!(
+                rewarded["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+                    .as_array()
+                    .unwrap()
+                    .last()
+                    .unwrap()["reinforcement_dopamine_spent"]
+                    .as_f64()
+                    .unwrap()
+                    > 0.0
+            );
+            world
+                .mcp_call("restore_snapshot", json!({"world":rewarded.clone()}))
+                .await
+                .unwrap();
+            assert_eq!(
+                world.mcp_call("snapshot", json!({})).await.unwrap(),
+                rewarded
+            );
+        }
+        cat_ticks(world, 12).await;
+    }
+    cat_ticks(world, 300).await;
+}
+#[then("聪明猫应凭无提示自主按键回合完成关卡")]
+async fn cat_autonomous_outcome(world: &mut GameWorld) {
+    let state = world.mcp_call("snapshot", json!({})).await.unwrap();
+    assert_eq!(state["progress"]["status"], "Won");
+    assert!(
+        state["characters"]["cat-billi"]["mind_graph"]["action_episodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|episode| episode["autonomous"] == true
+                && episode["contexts"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|context| context["schema_id"] == "it:concept/hunger"
+                        && context["value"].as_f64().unwrap() >= 0.6))
+    );
+}
+
 // ── Backoff 配置 ──
 
 fn server_startup_backoff() -> backoff::ExponentialBackoff {

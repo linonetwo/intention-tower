@@ -12,6 +12,35 @@ pub struct MindGraph {
     pub conditioning_trials: Vec<ConditioningTrial>,
     #[serde(default)]
     pub conditioning_stats: HashMap<String, ConditioningStats>,
+    #[serde(default)]
+    pub action_episodes: Vec<ActionEpisode>,
+    /// Survives percept TTL expiry so a short cue cannot bypass the quiet window.
+    #[serde(default)]
+    pub last_external_observation_at: Option<u64>,
+}
+
+/// Durable evidence of one motor response, not of persistent selection.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionEpisode {
+    pub action_id: String,
+    pub action_schema_id: String,
+    pub executed_at: u64,
+    pub contexts: Vec<ActionContext>,
+    pub autonomous: bool,
+    /// Reward delivery is consumed even when no learning resource is available.
+    #[serde(default)]
+    pub reward_consumed_at: Option<u64>,
+    /// Only paid positive updates constitute successful reinforcement.
+    #[serde(default)]
+    pub reinforcement_dopamine_spent: f64,
+    pub rewarded_at: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionContext {
+    pub instance_id: String,
+    pub schema_id: String,
+    pub value: f64,
 }
 
 /// One presentation, not one simulation tick, is a learning trial.
@@ -41,6 +70,8 @@ impl MindGraph {
             edges: HashMap::new(),
             conditioning_trials: Vec::new(),
             conditioning_stats: HashMap::new(),
+            action_episodes: Vec::new(),
+            last_external_observation_at: None,
         }
     }
 
