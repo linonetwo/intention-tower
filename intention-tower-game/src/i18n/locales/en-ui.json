@@ -14,6 +14,8 @@
   "scene.moveLeft": "Walk left",
   "scene.moveRight": "Walk right",
   "scene.selectTarget": "Choose a target",
+  "scene.showItems": "Show items",
+  "scene.hideItems": "Hide items",
   "scene.traverse": "Use nearby stairs or ladder",
   "scene.sit": "Sit down",
   "scene.stand": "Stand up",

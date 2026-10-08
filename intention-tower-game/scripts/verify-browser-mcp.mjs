@@ -334,6 +334,11 @@ try {
     await call('click', { selector: '[data-testid="experiment-menu-open"]' });
     assert.equal(await evaluate(`!!document.querySelector('[data-testid="save-menu-open"]')?.getClientRects().length`), true);
     await closeNotebook();
+    assert.equal(await evaluate(`document.querySelectorAll('[data-testid^="scene-item-"]').length`), 0, 'Item hotspots do not obscure the cast by default');
+    await call('click', { selector: '[data-testid="scene-toggle-items"]' });
+    assert.ok(await evaluate(`document.querySelectorAll('[data-testid^="scene-item-"]').length`) > 0, 'Players can reveal authored item hotspots');
+    await call('click', { selector: '[data-testid="scene-toggle-items"]' });
+    assert.equal(await evaluate(`document.querySelectorAll('[data-testid^="scene-item-"]').length`), 0);
     await call('click', { selector: '[data-testid="scene-character-cat-billi"]' });
     const initial = await call('snapshot');
     assert.equal(initial.characters['cat-billi'].position.x, 400);
@@ -387,6 +392,9 @@ try {
       // Capture both views before assessing assets: missing art must not hide the
       // independent graph/layout evidence needed for human aesthetic review.
       await shot(`${viewport.name}-${level}-scene`);
+      const roomGeometry = await evaluate(`(()=>{const bg=document.querySelector('[data-testid="scene-background"]'),stage=document.querySelector('[data-testid="scene-viewport"]'),debug=window.__itBgDebug();const rect=bg.getBoundingClientRect(),stageRect=stage.getBoundingClientRect();return {backgroundTop:rect.top-stageRect.top,floor:rect.top-stageRect.top+debug.metadata.floorY*rect.width/debug.metadata.width,ground:debug.floorY}})()`);
+      assert.ok(roomGeometry.backgroundTop <= 60.01, 'One authored room covers the area below the topbar without repeated scenery');
+      assert.ok(Math.abs(roomGeometry.floor - roomGeometry.ground) < .1, 'Background floor aligns with the scene ground');
       if (viewport.name !== 'desktop' && level === 'pavlov') {
         const touchTargets = await evaluate(`[...document.querySelector('[data-testid="game-topbar"]').querySelectorAll('button')].map(b=>({id:b.dataset.testid,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height}))`);
         for (const button of touchTargets) assert.ok(button.width >= 44 && button.height >= 44, `${viewport.name} ${button.id} minimum touch target`);

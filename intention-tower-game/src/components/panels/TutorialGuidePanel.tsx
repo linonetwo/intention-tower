@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useRef, useState } from 'react';
-import { Box, Chip, Paper, Typography, IconButton } from '@mui/material';
+import { Box, Chip, Paper, Typography, IconButton, useMediaQuery } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -19,6 +19,7 @@ interface GuideStep {
 }
 
 const TUTORIAL_LEVELS = new Set(['pavlov', 'smart-cat', 'gosling']);
+export const SHORT_LANDSCAPE_QUERY = '(min-width: 600px) and (max-width: 1100px) and (max-height: 500px)';
 const shortId = (id: string | null) => id?.split('/').pop() ?? '';
 
 // CSS keyframe injected once for the tutorial highlight class
@@ -45,9 +46,10 @@ function ensureHighlightStyle() {
   document.head.appendChild(style);
 }
 
-export const TutorialGuidePanel: React.FC = () => {
+export const TutorialGuidePanel: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { t } = useTranslation();
   const layout = useResponsiveLayout();
+  const shortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
   const currentLevelId = useGameState((s) => s.currentLevelId);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
@@ -56,6 +58,7 @@ export const TutorialGuidePanel: React.FC = () => {
   const worldState = useGameState((s) => s.worldState);
   const uiMode = useGameState((s) => s.uiMode);
   const [expanded, setExpanded] = useState(false);
+  const visible = !!currentLevelId && TUTORIAL_LEVELS.has(currentLevelId) && (embedded || uiMode !== 'graph') && (embedded || !shortLandscape);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const stepEls = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -205,7 +208,7 @@ export const TutorialGuidePanel: React.FC = () => {
     document.querySelectorAll('.tutorial-highlight').forEach((el) => {
       el.classList.remove('tutorial-highlight');
     });
-    if (activeStep?.highlightTarget) {
+    if (visible && activeStep?.highlightTarget) {
       const el = document.querySelector(`[data-tutorial="${activeStep.highlightTarget}"]`);
       if (el) el.classList.add('tutorial-highlight');
     }
@@ -214,7 +217,7 @@ export const TutorialGuidePanel: React.FC = () => {
         el.classList.remove('tutorial-highlight');
       });
     };
-  }, [activeStep?.highlightTarget]);
+  }, [activeStep?.highlightTarget, visible]);
 
   // Auto-scroll the active step into view
   useEffect(() => {
@@ -225,7 +228,7 @@ export const TutorialGuidePanel: React.FC = () => {
     }
   }, [activeStep?.id]);
 
-  if (!currentLevelId || !TUTORIAL_LEVELS.has(currentLevelId) || uiMode === 'graph') {
+  if (!visible) {
     return null;
   }
 
@@ -238,12 +241,13 @@ export const TutorialGuidePanel: React.FC = () => {
     <Box
       data-testid='tutorial-guide'
       sx={{
-        position: 'absolute',
-        top: panelTop,
-        left: panelLeft,
-        right: panelRight,
+        position: embedded ? 'relative' : 'absolute',
+        top: embedded ? undefined : panelTop,
+        left: embedded ? undefined : panelLeft,
+        right: embedded ? undefined : panelRight,
         zIndex: 18,
-        width: layout.isMobile ? 'auto' : 280,
+        width: embedded ? '100%' : layout.isMobile ? 'auto' : 280,
+        mb: embedded ? 2 : 0,
         pointerEvents: 'auto',
       }}
     >

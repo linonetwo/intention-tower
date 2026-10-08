@@ -17,7 +17,7 @@
  * Mobile: No side bars, top status bar, bottom dialogue, graph as overlay.
  */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Box, Snackbar, Alert } from '@mui/material';
+import { Box, Snackbar, Alert, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useGameState, gameStore } from '../store/useGameState';
 import { progressStore } from '../store/useLevelProgress';
@@ -36,7 +36,7 @@ import { LevelOutcomeOverlay } from './overlay/LevelOutcomeOverlay';
 import { GameScene } from './scene/GameScene';
 
 // Tutorial
-import { TutorialGuidePanel } from './panels/TutorialGuidePanel';
+import { TutorialGuidePanel, SHORT_LANDSCAPE_QUERY } from './panels/TutorialGuidePanel';
 
 // Hooks
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -46,6 +46,7 @@ import { modAssetsStore } from '../store/useModAssets';
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
   useResponsiveLayout(); // initialize layout detection
+  const shortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
   const worldState = useGameState((s) => s.worldState);
   const error = useGameState((s) => s.error);
   const clearError = useGameState((s) => s.clearError);
@@ -156,7 +157,7 @@ export const GamePage: React.FC = () => {
       <LevelOutcomeOverlay />
 
       {/* ── Tutorial guide ── */}
-      <TutorialGuidePanel />
+      {!shortLandscape && <TutorialGuidePanel />}
 
       {/* ── Error snackbar ── */}
       <Snackbar

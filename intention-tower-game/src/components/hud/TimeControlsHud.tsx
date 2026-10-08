@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, IconButton, Button, Drawer, ToggleButtonGroup, ToggleButton, Tooltip, Divider } from '@mui/material';
+import { Box, Typography, IconButton, Button, Drawer, ToggleButtonGroup, ToggleButton, Tooltip, Divider, useMediaQuery } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -17,12 +17,14 @@ import { useModAssets } from '../../store/useModAssets';
 import { ActorStatusBar } from './ActorStatusBar';
 import { EconomyHud } from './EconomyHud';
 import { MiniMapHud } from './MiniMapHud';
+import { TutorialGuidePanel, SHORT_LANDSCAPE_QUERY } from '../panels/TutorialGuidePanel';
 
 /** Only essential controls stay above the stage; the notebook holds the rest. */
 export const TimeControlsHud: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const layout = useResponsiveLayout();
+  const shortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
   const world = useGameState(s => s.worldState);
   const levelId = useGameState(s => s.currentLevelId);
   const setSpeed = useGameState(s => s.setTimeSpeed);
@@ -53,6 +55,7 @@ export const TimeControlsHud: React.FC = () => {
     </Box>
     <Drawer data-testid="experiment-menu" anchor="right" open={menu} onClose={() => setMenu(false)} slotProps={{ paper: { sx: { width: 'min(360px, 92vw)', p: 2.5, bgcolor: '#f4ead5', color: '#513b29', '& button': { minHeight: 44, minWidth: 44 } } } }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}><Typography variant="h6" sx={{ flex: 1, fontWeight: 800 }}>{t('game.notebook')}</Typography><IconButton data-testid="experiment-menu-close" aria-label={t('app.close')} onClick={() => setMenu(false)}><CloseIcon /></IconButton></Box>
+      {shortLandscape && menu && <TutorialGuidePanel embedded />}
       <ActorStatusBar />
       <EconomyHud />
       <MiniMapHud />

@@ -6,7 +6,7 @@ import { useModAssets, resolveCharacterSprite } from '../../store/useModAssets';
 import { translateLabel } from '../../i18n';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { WorldCharacterSprite } from './WorldCharacterSprite';
-import { clampCameraX, connectorReachable, pointerWorldX, projectPlatformY } from './sceneGeometry';
+import { characterArtScale, clampCameraX, connectorReachable, pointerWorldX, projectPlatformY, sceneCameraGeometry } from './sceneGeometry';
 
 export const GameScene: React.FC<{ width: number; height: number }> = ({ width, height }) => {
   const { t } = useTranslation();
@@ -20,23 +20,25 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const [targetSelection, setTargetSelection] = useState(false);
   const [dialoguePixels, setDialoguePixels] = useState<number | null>(null);
   const [inspectedItem, setInspectedItem] = useState<string | null>(null);
+  const [itemsVisible, setItemsVisible] = useState(false);
   const walkRun = useRef(0);
   const actor = actorId ? world?.characters[actorId] : undefined;
   const characters = Object.values(world?.characters ?? {});
   const stageHeight = Math.max(1, height - (dialoguePixels ?? height * layout.dialogueHeight / 100));
-  const ground = stageHeight - 58;
+  // Reserve a second tool row on tiny screens so wrapping never covers the floor.
+  const toolHeight = width < 372 ? 107 : 58;
+  const ground = stageHeight - toolHeight;
   // Narrow screens show a slice of the world rather than compressing the cast
   // into an overview. The camera follows the selected actor while walking.
   const worldMin = Math.min(0, ...(world?.scene?.platforms.map(p => p.x_min) ?? [0]));
   const worldMax = Math.max(800, ...(world?.scene?.platforms.map(p => p.x_max) ?? [800]));
-  const worldScale = Math.max(.75, width / (worldMax - worldMin));
-  const scale = Math.max(.25, Math.min(worldScale, (ground - 70) / 230));
+  const background = levelId ? manifest?.backgrounds?.[levelId] : undefined;
+  const { worldScale, backgroundScale, backgroundTop, metadata } = sceneCameraGeometry(width, ground, worldMax - worldMin,
+    levelId ? manifest?.backgroundsMetadata?.[levelId] : undefined);
+  const maxAssetHeight = Math.max(1, ...characters.map(character => resolveCharacterSprite(manifest, character.id)?.height ?? 150));
+  const scale = characterArtScale(worldScale, ground, maxAssetHeight);
   const cameraX = clampCameraX(width, actor?.position.x ?? 400, worldScale, worldMin, worldMax);
   const projectY = (y: number) => projectPlatformY(y, ground, worldScale);
-  const background = levelId ? manifest?.backgrounds?.[levelId] : undefined;
-  const metadata = levelId ? manifest?.backgroundsMetadata?.[levelId] : undefined;
-  const backgroundScale = metadata ? worldScale * 800 / metadata.width : 1;
-  const backgroundTop = metadata ? ground - metadata.floorY * backgroundScale : 0;
   const items = Object.values(world?.items ?? {}).filter(item => !item.owner_id);
   const itemGroups: typeof items[] = [];
   for (const item of [...items].sort((a, b) => a.position.x - b.position.x)) {
@@ -52,6 +54,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
     return connectorReachable(actor.position, c, world?.scene?.platforms ?? []);
   });
   useEffect(() => { walkRun.current++; setTargetSelection(false); setInspectedItem(null); }, [levelId, actorId]);
+  useEffect(() => { setItemsVisible(false); setInspectedItem(null); }, [levelId]);
   useEffect(() => () => { walkRun.current++; }, []);
   useEffect(() => {
     const dialogue = document.querySelector<HTMLElement>('[data-testid="dialogue-hud"]');
@@ -97,9 +100,8 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
       const bounds = event.currentTarget.getBoundingClientRect();
       void walkTo(pointerWorldX(event.clientX, bounds.left, cameraX, worldScale));
     }}>
-      {background && metadata && backgroundTop > 0 && <div aria-hidden="true" style={{ position: 'absolute', inset: '0 0 auto', height: backgroundTop + 2, backgroundImage: `url(${background})`, backgroundSize: `${metadata.width * backgroundScale}px ${metadata.height * backgroundScale}px`, backgroundPosition: `${cameraX}px top`, pointerEvents: 'none' }} />}
       {background && <img data-testid="scene-background" src={`${background}?rev=${revision}`} alt="" draggable={false} style={metadata ? { position: 'absolute', left: cameraX, top: backgroundTop, width: metadata.width * backgroundScale, height: metadata.height * backgroundScale, pointerEvents: 'none' } : { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom', pointerEvents: 'none' }} />}
-      <div data-testid="scene-ground" data-ground-y={ground} style={{ position: 'absolute', top: ground, left: 0, right: 0, height: 58, background: '#e9cf8d44', borderTop: '2px solid #bda06b66', pointerEvents: 'none' }} />
+      <div data-testid="scene-ground" data-ground-y={ground} style={{ position: 'absolute', top: ground, left: 0, right: 0, height: toolHeight, background: '#e9cf8d44', borderTop: '2px solid #bda06b66', pointerEvents: 'none' }} />
       <div data-testid="scene-world" data-camera-x={cameraX} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         {(world?.scene?.platforms ?? []).map(p => <div key={p.id} data-testid={`scene-platform-${p.id}`} data-world-y={p.y} style={{ position: 'absolute', left: p.x_min * worldScale + cameraX, top: projectY(p.y), width: (p.x_max - p.x_min) * worldScale, height: p.y === 300 ? 0 : 12 * worldScale, borderRadius: 2, background: 'repeating-linear-gradient(90deg,#bd8d58 0 32px,#987044 32px 34px)', boxShadow: p.y === 300 ? undefined : '0 4px 0 #704f34', pointerEvents: 'none' }} />)}
         {connectors.map(c => {
@@ -118,7 +120,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
         {characters.map(character => <WorldCharacterSprite key={`${levelId}:${character.id}`} character={character} asset={resolveCharacterSprite(manifest, character.id)} revision={revision} posture={world?.character_postures?.[character.id] ?? 'standing'}
           x={character.position.x * worldScale + cameraX} ground={projectY(character.position.y)} scale={scale} selected={character.id === actorId} targeted={character.id === targetId}
           onSelect={e => { walkRun.current++; const state = gameStore.getState(); if (e.shiftKey || targetSelection) state.selectTarget(character.id); else state.selectActor(character.id); state.inspectCharacter(character.id); setTargetSelection(false); }} />)}
-        {itemGroups.map(group => {
+        {itemsVisible && itemGroups.map(group => {
           const item = group[0];
           const itemX = Math.max(24, Math.min(width - 24, item.position.x * worldScale + cameraX));
           const expanded = inspectedItem === item.id;
@@ -127,12 +129,13 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
           </button>;
         })}
       </div>
-      <div data-testid="scene-selected-info" style={{ position: 'absolute', bottom: 5, left: 8, right: 8, display: 'flex', justifyContent: 'center', gap: 5 }}>
+      <div data-testid="scene-selected-info" style={{ position: 'absolute', bottom: 5, left: 8, right: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
         <button data-testid="scene-move-left" aria-label={t('scene.moveLeft')} disabled={!enabled} onClick={() => { walkRun.current++; void move(-28); }} style={controlStyle}>◀</button>
         <button data-testid="scene-select-target" aria-label={t('scene.selectTarget')} aria-pressed={targetSelection} onClick={() => setTargetSelection(!targetSelection)} style={controlStyle}>◎</button>
         <button data-testid="scene-posture" aria-label={t(posture === 'sitting' ? 'scene.stand' : 'scene.sit')} disabled={!enabled || (posture !== 'sitting' && !resolveCharacterSprite(manifest, actorId ?? '')?.sittingSrc)} onClick={() => { walkRun.current++; void gameStore.getState().setSelectedPosture(posture === 'sitting' ? 'standing' : 'sitting'); }} style={controlStyle}>{posture === 'sitting' ? '↟' : '▱'}</button>
         {connectors.length > 0 && <button data-testid="scene-traverse" aria-label={t('scene.traverse')} disabled={!enabled || !nearbyConnector} onClick={() => { walkRun.current++; if (nearbyConnector) void gameStore.getState().traverseSelectedConnector(nearbyConnector.id); }} style={controlStyle}>⇅</button>}
         <button data-testid="scene-move-right" aria-label={t('scene.moveRight')} disabled={!enabled} onClick={() => { walkRun.current++; void move(28); }} style={controlStyle}>▶</button>
+        <button data-testid="scene-toggle-items" aria-label={t(itemsVisible ? 'scene.hideItems' : 'scene.showItems')} aria-pressed={itemsVisible} onClick={() => { setItemsVisible(!itemsVisible); setInspectedItem(null); }} style={{ ...controlStyle, width: 110, boxSizing: 'border-box', whiteSpace: 'nowrap', flexShrink: 0 }}>{t(itemsVisible ? 'scene.hideItems' : 'scene.showItems')}</button>
       </div>
     </div>
   </div>;

@@ -30,7 +30,7 @@ describe('UI translations', () => {
   });
 
   it('localizes the notebook and side-view interaction controls', () => {
-    for (const key of ['game.notebook', 'scene.moveLeft', 'scene.moveRight', 'scene.selectTarget', 'scene.sit', 'scene.stand', 'scene.traverse', 'scene.missingArt'] as const) {
+    for (const key of ['game.notebook', 'scene.moveLeft', 'scene.moveRight', 'scene.selectTarget', 'scene.showItems', 'scene.hideItems', 'scene.sit', 'scene.stand', 'scene.traverse', 'scene.missingArt'] as const) {
       expect(en[key]).toBeTruthy();
       expect(zh[key]).toBeTruthy();
     }

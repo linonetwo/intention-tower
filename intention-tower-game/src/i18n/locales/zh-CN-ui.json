@@ -14,6 +14,8 @@
   "scene.moveLeft": "向左走",
   "scene.moveRight": "向右走",
   "scene.selectTarget": "选择目标",
+  "scene.showItems": "显示物品",
+  "scene.hideItems": "收起物品",
   "scene.traverse": "使用附近楼梯或梯子",
   "scene.sit": "坐下",
   "scene.stand": "站起",

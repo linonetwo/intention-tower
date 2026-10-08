@@ -3,21 +3,52 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WorldEvent, WorldState } from '../../types/backend';
 import '../../i18n';
 
-const fixture = vi.hoisted(() => ({ state: {
+const fixture = vi.hoisted(() => ({ shortLandscape: false, state: {
   currentLevelId: 'pavlov', selectedActorId: 'it:entity/pavlov', selectedTargetId: 'it:entity/dog',
   inspectedCharacterId: 'it:entity/dog', uiMode: 'observe', recentEvents: [] as WorldEvent[], worldState: null as WorldState | null,
 } }));
 vi.mock('../../store/useGameState', () => ({ useGameState: (selector: (state: typeof fixture.state) => unknown) => selector(fixture.state) }));
 vi.mock('../../hooks/useResponsiveLayout', () => ({ useResponsiveLayout: () => ({ isMobile: true, statusBarWidth: 0 }) }));
+vi.mock('@mui/material', async (importOriginal) => ({ ...await importOriginal<typeof import('@mui/material')>(), useMediaQuery: () => fixture.shortLandscape }));
 import { TutorialGuidePanel } from './TutorialGuidePanel';
 
 beforeEach(() => {
+  fixture.shortLandscape = false;
   fixture.state.currentLevelId = 'pavlov';
   fixture.state.selectedActorId = 'it:entity/pavlov';
   fixture.state.selectedTargetId = 'it:entity/dog';
   fixture.state.uiMode = 'observe';
   fixture.state.recentEvents = [];
   fixture.state.worldState = null;
+});
+
+describe('Short landscape tutorial notebook placement', () => {
+  it('hides the stage guide in short landscape', () => {
+    fixture.shortLandscape = true;
+    render(<TutorialGuidePanel />);
+    expect(screen.queryByTestId('tutorial-guide')).toBeNull();
+  });
+
+  it('embeds tutorial content in normal flow, including graph mode', () => {
+    fixture.shortLandscape = true;
+    fixture.state.uiMode = 'graph';
+    render(<TutorialGuidePanel embedded />);
+    expect(screen.getByTestId('tutorial-guide').className).toBeTruthy();
+    expect(getComputedStyle(screen.getByTestId('tutorial-guide')).position).toBe('relative');
+    expect(screen.getAllByTestId('tutorial-guide')).toHaveLength(1);
+  });
+
+  it('does not create notebook tutorials for non-tutorial levels', () => {
+    fixture.shortLandscape = true;
+    fixture.state.currentLevelId = 'the-wave';
+    render(<TutorialGuidePanel embedded />);
+    expect(screen.queryByTestId('tutorial-guide')).toBeNull();
+  });
+
+  it('retains the stage guide outside short landscape', () => {
+    render(<TutorialGuidePanel />);
+    expect(getComputedStyle(screen.getByTestId('tutorial-guide')).position).toBe('absolute');
+  });
 });
 
 describe('Gosling tutorial follows real imprinting objectives', () => {

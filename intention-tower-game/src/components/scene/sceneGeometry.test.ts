@@ -1,7 +1,41 @@
 import { describe, expect, it } from 'vitest';
-import { clampCameraX, connectorReachable, pointerWorldX, projectPlatformY } from './sceneGeometry';
+import { characterArtScale, clampCameraX, connectorReachable, pointerWorldX, projectPlatformY, sceneCameraGeometry } from './sceneGeometry';
 
 describe('authoritative sideview geometry', () => {
+  const room = { width: 1536, height: 1024, floorY: 850 };
+  it.each([{ name: 'desktop', width: 1200, ground: 500 }, { name: 'portrait', width: 390, ground: 536 }, { name: 'landscape', width: 844, ground: 210 }])
+    ('covers the $name room once while keeping its floor anchor', ({ width, ground }) => {
+      const geometry = sceneCameraGeometry(width, ground, 800, room);
+      expect(geometry.backgroundTop).toBeLessThanOrEqual(60 + 1e-9);
+      expect(geometry.backgroundTop + room.floorY * geometry.backgroundScale).toBeCloseTo(ground);
+      expect(room.width * geometry.backgroundScale).toBeGreaterThanOrEqual(width);
+      expect(geometry.backgroundScale).toBeCloseTo(geometry.worldScale * 800 / room.width);
+      const left = clampCameraX(width, 0, geometry.worldScale, 0, 800);
+      const right = clampCameraX(width, 800, geometry.worldScale, 0, 800);
+      expect(Object.is(left, -0)).toBe(false);
+      expect(left).toBe(0);
+      expect(right + 800 * geometry.worldScale).toBeCloseTo(width);
+    });
+  it('zooms portrait into a horizontal slice rather than filling the top with a second room', () => {
+    const { worldScale, backgroundTop } = sceneCameraGeometry(390, 536, 800, room);
+    expect(worldScale).toBeGreaterThan(.75);
+    expect(390 / worldScale).toBeLessThan(800);
+    expect(backgroundTop).toBeCloseTo(60);
+  });
+  it('uses actual sprite height to avoid unnecessarily shrinking landscape actors', () => {
+    const { worldScale } = sceneCameraGeometry(844, 210, 800, room);
+    expect(characterArtScale(worldScale, 210, 150)).toBeCloseTo(140 / 150);
+    expect(210 - 150 * characterArtScale(worldScale, 210, 150)).toBeCloseTo(70);
+    expect(characterArtScale(.75, 536, 150)).toBe(.75);
+  });
+  it.each([undefined, { width: 0, height: 1024, floorY: 850 }, { width: 1536, height: 1024, floorY: 0 }, { width: 1536, height: 1024, floorY: NaN }, { width: 1536, height: 1024, floorY: 1100 }])
+    ('falls back safely when background floor metadata is unknown or invalid', metadata => {
+      const geometry = sceneCameraGeometry(390, 536, 800, metadata);
+      expect(geometry.metadata).toBeUndefined();
+      expect(geometry.worldScale).toBe(.75);
+      expect(geometry.backgroundScale).toBe(1);
+      expect(geometry.backgroundTop).toBe(0);
+    });
   it('maps true platform elevation without compressing or inventing character positions', () => {
     expect(projectPlatformY(300, 500, 1)).toBe(500);
     expect(projectPlatformY(180, 500, 1)).toBe(380);
