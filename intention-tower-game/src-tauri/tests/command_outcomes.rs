@@ -36,6 +36,8 @@ fn observation() -> CommandEffect {
         schema_id: "test:cue".into(),
         modality: Modality::Auditory,
         about: "test".into(),
+        signal_type: None,
+        group_context: None,
         ttl: 12,
         strength: 1.0,
         target_character_id: None,

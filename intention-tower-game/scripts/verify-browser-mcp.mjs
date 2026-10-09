@@ -319,6 +319,44 @@ try {
   }
 
   try {
+    await load('the-wave');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('teacher-wenger');window.__INTENTION_TEST__.selectTarget('tim')`);
+    await clickMode('observe');
+    if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) {
+      await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+    }
+    await clickCommand('introduce-uniform'); await advance(1);
+    const before = await call('snapshot');
+    await clickCommand('give-approval'); await advance(1);
+    const approved = await call('snapshot');
+    const socialEdge = 'social_tim-loneliness_meme_it_concept_group-identity';
+    const socialGraph = world => world.characters.tim.mind_graph;
+    const edge = socialGraph(approved).edges[socialEdge];
+    assert.ok(edge && Math.abs(edge.weight - .2) < 1e-9, 'Actual approval creates a paid social association');
+    assert.ok(socialGraph(approved).nodes['tim-loneliness'].value < socialGraph(before).nodes['tim-loneliness'].value, 'Approval actually relieves loneliness');
+    assert.ok(socialGraph(approved).nodes['tim-dopamine'].value < socialGraph(before).nodes['tim-dopamine'].value, 'Learning cost exceeds passive regeneration');
+    assert.equal(socialGraph(approved).nodes['obs_it_concept_social-approval'].observation.social_consumed_at, approved.tick);
+    await clickMode('graph');
+    const trace = await evaluate(`document.querySelector('[data-testid="graph-learning-trace"]')?.textContent ?? ''`);
+    assert.ok(trace.includes('0.050'), 'Paid social learning must be visible in the actual graph trace');
+    await shot('wave-real-social-learning');
+    await advance(20);
+    const lingering = await call('snapshot');
+    assert.equal(socialGraph(lingering).edges[socialEdge].weight, edge.weight, 'Long TTL is not a new social reward');
+    assert.equal(socialGraph(lingering).edges[socialEdge].evidence.co_occurrence_count, 1);
+    await clickMode('observe');
+    await clickCommand('give-approval'); await advance(1);
+    const repeated = await call('snapshot');
+    assert.equal(socialGraph(repeated).edges[socialEdge].evidence.co_occurrence_count, 2, 'A fresh presentation can teach again');
+    assert.ok(socialGraph(repeated).edges[socialEdge].weight > edge.weight);
+    report.waveSocialLearning = { realButtons: true, firstTick: approved.tick, firstWeight: edge.weight, consumedAt: socialGraph(approved).nodes['obs_it_concept_social-approval'].observation.social_consumed_at, longTtlUpdates: 1, newPresentationUpdates: 2, graphTraceVisible: true };
+  } catch (error) {
+    report.waveSocialFailure = String(error);
+    await shot('wave-social-failure');
+    process.exitCode = 1;
+  }
+
+  try {
     await load('ideology');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('ideologue');window.__INTENTION_TEST__.selectTarget('skeptic')`);
     await clickMode('observe');

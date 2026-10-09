@@ -40,6 +40,8 @@ mod dispatch_contract {
             schema_id: "test:dispatch-cue".into(),
             modality: Modality::Auditory,
             about: "test".into(),
+            signal_type: None,
+            group_context: None,
             ttl: 12,
             strength: 1.0,
             target_character_id: None,
@@ -364,4 +366,102 @@ fn malformed_declarations_fail_closed_with_command_context() {
     let mut command = base;
     command["effects"] = json!([]);
     assert!(invalid_command_error(command).contains("unsafe-command"));
+}
+
+#[test]
+fn invalid_social_signal_metadata_fails_closed_with_command_context() {
+    let base = json!({
+        "commandId": "social-metadata", "targeting": "RequiresTarget", "preconditions": [],
+        "effects": [{"type": "SpawnObservation", "schemaId": "test:arbitrary-cue",
+            "modality": "Social", "about": "test:speaker", "ttl": 12, "strength": 0.8,
+            "signalType": "Approval", "groupContext": "authored-group"}]
+    });
+    for invalid_type in [json!("Approvaal"), json!("approval"), json!(42)] {
+        let mut command = base.clone();
+        command["effects"][0]["signalType"] = invalid_type;
+        let error = invalid_command_error(command);
+        assert!(error.contains("social-metadata"), "{error}");
+    }
+    let mut command = base;
+    command["effects"][0]["groupContext"] = json!(["not-a-string"]);
+    assert!(invalid_command_error(command).contains("social-metadata"));
+}
+
+#[test]
+fn authored_social_metadata_and_need_bindings_reach_command_templates() {
+    use intention_tower_game_lib::models::commands::CommandEffect;
+    use intention_tower_game_lib::models::mind_node::SignalType;
+
+    let wave = load_level_from_path(&levels().join("the-wave")).unwrap();
+    for (id, expected_type) in [
+        ("give-approval", SignalType::Approval),
+        ("reject-outsider", SignalType::Rejection),
+    ] {
+        let command = wave
+            .command_defs
+            .iter()
+            .find(|command| command.command_id == id)
+            .unwrap();
+        assert!(matches!(&command.effect_templates[0],
+            CommandEffect::SpawnObservation { signal_type: Some(signal), group_context: Some(group), .. }
+                if *signal == expected_type && group == "the-wave"));
+    }
+    let uniform = wave
+        .command_defs
+        .iter()
+        .find(|command| command.command_id == "introduce-uniform")
+        .unwrap();
+    let CommandEffect::InjectMeme { meme, .. } = &uniform.effect_templates[0] else {
+        panic!("uniform must inject an identity meme");
+    };
+    assert_eq!(meme.social_need_bindings.len(), 1);
+    assert_eq!(
+        meme.social_need_bindings[0].need_schema_id,
+        "it:concept/loneliness"
+    );
+    assert_eq!(meme.social_need_bindings[0].relief, 0.2);
+
+    let court = load_level_from_path(&levels().join("face-saving")).unwrap();
+    for id in ["humiliate", "offer-respect"] {
+        let command = court
+            .command_defs
+            .iter()
+            .find(|command| command.command_id == id)
+            .unwrap();
+        assert!(matches!(&command.effect_templates[0],
+            CommandEffect::SpawnObservation { signal_type: Some(SignalType::Status), group_context: Some(group), .. }
+                if group == "court"));
+    }
+    let pavlov = load_level_from_path(&levels().join("pavlov")).unwrap();
+    let bell = pavlov
+        .command_defs
+        .iter()
+        .find(|command| command.command_id == "ring-bell")
+        .unwrap();
+    assert!(matches!(
+        &bell.effect_templates[0],
+        CommandEffect::SpawnObservation {
+            signal_type: None,
+            group_context: None,
+            ..
+        }
+    ));
+}
+
+#[test]
+fn legacy_observation_effect_dtos_default_social_fields_without_name_inference() {
+    use intention_tower_game_lib::models::commands::CommandEffect;
+    let effect: CommandEffect = serde_json::from_value(json!({ "SpawnObservation": {
+        "schema_id": "test:social-approval-status", "modality": "Social", "about": "test:speaker",
+        "ttl": 12, "strength": 0.8, "target_character_id": null
+    }}))
+    .unwrap();
+    assert!(matches!(
+        effect,
+        CommandEffect::SpawnObservation {
+            signal_type: None,
+            group_context: None,
+            ..
+        }
+    ));
 }

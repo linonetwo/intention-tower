@@ -215,6 +215,8 @@ fn apply_effect(
             about,
             ttl,
             strength,
+            signal_type,
+            group_context,
             target_character_id,
         } => {
             let target_char = resolve_target(
@@ -265,6 +267,12 @@ fn apply_effect(
                         .get(&instance_id)
                         .and_then(|node| node.observation.as_ref())
                         .map_or(0.0, |observation| observation.satisfaction);
+                    let social_consumed_at = character
+                        .mind_graph
+                        .nodes
+                        .get(&instance_id)
+                        .and_then(|node| node.observation.as_ref())
+                        .and_then(|observation| observation.social_consumed_at);
                     let node = MindNode {
                         instance_id: instance_id.clone(),
                         schema_id: schema_id.clone(),
@@ -283,6 +291,7 @@ fn apply_effect(
                         costs: Vec::new(),
                         observation: Some(ObservationData {
                             presentation_count,
+                            social_consumed_at,
                             modality: Some(*modality),
                             about: Some(about.clone()),
                             novelty_key: Some(format!("{}-{}", modality_str(*modality), about)),
@@ -294,9 +303,9 @@ fn apply_effect(
                                 ObservationSource::Environment
                             }),
                             is_signal: *modality == Modality::Social,
-                            signal_type: social_signal_type(schema_id),
+                            signal_type: *signal_type,
                             emitter_id: Some(cmd.actor_id.clone()),
-                            group_context: social_group_context(schema_id),
+                            group_context: group_context.clone(),
                             ..Default::default()
                         }),
                         prior_instinct: None,
@@ -790,29 +799,5 @@ fn modality_str(m: Modality) -> &'static str {
         Modality::Interoceptive => "interoceptive",
         Modality::Chemical => "chemical",
         Modality::Social => "social",
-    }
-}
-
-fn social_signal_type(schema_id: &str) -> Option<SignalType> {
-    if schema_id.contains("approval") {
-        Some(SignalType::Approval)
-    } else if schema_id.contains("rejection") {
-        Some(SignalType::Rejection)
-    } else if schema_id.contains("threat") {
-        Some(SignalType::Threat)
-    } else if schema_id.contains("status") {
-        Some(SignalType::Status)
-    } else {
-        None
-    }
-}
-
-fn social_group_context(schema_id: &str) -> Option<String> {
-    if schema_id.contains("social-approval") || schema_id.contains("social-rejection") {
-        Some("the-wave".to_string())
-    } else if schema_id.contains("status") {
-        Some("court".to_string())
-    } else {
-        None
     }
 }

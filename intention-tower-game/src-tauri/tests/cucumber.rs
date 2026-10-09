@@ -895,6 +895,8 @@ async fn gosling_unrelated_visual(world: &mut GameWorld) {
                 schema_id: "it:concept/see-unrelated-rock".into(),
                 modality: Modality::Visual,
                 about: "it:entity/lorenz".into(),
+                signal_type: None,
+                group_context: None,
                 ttl: 100,
                 strength: 1.0,
                 target_character_id: Some("gosling".into()),

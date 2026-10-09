@@ -238,12 +238,25 @@ export interface ResourceCost {
 
 export interface ObservationData {
   presentation_count?: number;
+  social_consumed_at?: number | null;
   modality: string | null;
   about: string | null;
   novelty_key: string | null;
   credibility: number;
   satisfaction: number;
   source: string | null;
+  is_signal?: boolean;
+  signal_type?: SignalType | null;
+  emitter_id?: string | null;
+  group_context?: string | null;
+  replica_of?: string | null;
+}
+
+export type SignalType = 'Status' | 'Belonging' | 'Threat' | 'Approval' | 'Rejection' | 'Chemical';
+
+export interface SocialNeedBinding {
+  need_schema_id: string;
+  relief: number;
 }
 
 export interface PriorInstinctData {
@@ -296,6 +309,7 @@ export interface ActionData {
 }
 
 export interface MemeData {
+  social_need_bindings?: SocialNeedBinding[];
   constituent_schemas: string[];
   binding_sites: string[];
   spread_vector: string | null;
@@ -359,7 +373,7 @@ export type Precondition =
   | { IsVirtualContext: { value: boolean } };
 
 export type CommandEffect =
-  | { SpawnObservation: { schema_id: string; modality: string; about: string; ttl: number; strength: number; target_character_id: string | null } }
+  | { SpawnObservation: { schema_id: string; modality: string; about: string; ttl: number; strength: number; signal_type?: SignalType | null; group_context?: string | null; target_character_id: string | null } }
   | { ModifyNodeValue: { schema_id: string; delta: number; target_character_id: string | null } }
   | { ConsumeResource: { resource_schema_id: string; amount: number; target_character_id: string | null } }
   | { ReinforceEdge: { source_schema_id: string; target_schema_id: string; delta: number; character_id: string | null } }

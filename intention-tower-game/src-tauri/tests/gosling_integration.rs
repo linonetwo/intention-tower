@@ -167,6 +167,8 @@ fn unrelated_visual_observation_even_about_a_real_entity_cannot_imprint() {
                 schema_id: "it:concept/see-unrelated-rock".into(),
                 modality: Modality::Visual,
                 about: "it:entity/lorenz".into(),
+                signal_type: None,
+                group_context: None,
                 ttl: 100,
                 strength: 1.0,
                 target_character_id: Some("gosling".into()),

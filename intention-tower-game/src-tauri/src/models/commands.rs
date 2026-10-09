@@ -1,5 +1,5 @@
 use super::events::WorldEvent;
-use super::mind_node::{MemeData, Modality};
+use super::mind_node::{MemeData, Modality, SignalType};
 use serde::{Deserialize, Serialize};
 
 /// A command submitted by the player (or NPC AI) to be executed by CommandSystem.
@@ -25,6 +25,10 @@ pub enum CommandEffect {
         about: String,
         ttl: u64,
         strength: f64,
+        #[serde(default)]
+        signal_type: Option<SignalType>,
+        #[serde(default)]
+        group_context: Option<String>,
         target_character_id: Option<String>,
     },
     ModifyNodeValue {

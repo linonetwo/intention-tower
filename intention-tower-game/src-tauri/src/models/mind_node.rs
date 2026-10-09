@@ -126,6 +126,9 @@ pub struct ObservationData {
     /// Passive simulation ticks are not exposures; old saves default to zero.
     #[serde(default)]
     pub presentation_count: u32,
+    /// Tick of the last consumed social presentation, persisted across saves.
+    #[serde(default)]
+    pub social_consumed_at: Option<u64>,
     pub modality: Option<Modality>,
     pub about: Option<String>,
     pub novelty_key: Option<String>,
@@ -226,6 +229,9 @@ pub struct ActionData {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MemeData {
+    /// Authored needs relieved (or aggravated) by this group's social signals.
+    #[serde(default)]
+    pub social_need_bindings: Vec<SocialNeedBinding>,
     pub constituent_schemas: Vec<String>,
     pub binding_sites: Vec<String>,
     pub spread_vector: Option<SpreadVector>,
@@ -244,6 +250,13 @@ pub struct MemeData {
     /// How hard it is to remove this meme once installed (0.0 = trivial, 1.0 = thought-seal)
     /// Key for: 水是有毒的（思想钢印）, 信仰与意识形态
     pub resilience: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocialNeedBinding {
+    #[serde(alias = "needSchemaId")]
+    pub need_schema_id: String,
+    pub relief: f64,
 }
 
 // ── MindNode ──

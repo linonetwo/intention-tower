@@ -277,6 +277,8 @@ struct MotivationJson {
 
 #[derive(Deserialize, Debug)]
 struct MemeJson {
+    #[serde(rename = "socialNeedBindings", default)]
+    social_need_bindings: Vec<SocialNeedBinding>,
     #[serde(rename = "bindingSites")]
     binding_sites: Option<Vec<String>>,
     #[serde(rename = "isBelief")]
@@ -375,6 +377,10 @@ struct EffectJson {
     about: Option<String>,
     ttl: Option<u64>,
     strength: Option<f64>,
+    #[serde(rename = "signalType")]
+    signal_type: Option<SignalType>,
+    #[serde(rename = "groupContext")]
+    group_context: Option<String>,
     delta: Option<f64>,
     #[serde(rename = "deltaX")]
     delta_x: Option<f64>,
@@ -1080,6 +1086,8 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
             about: e.about.clone()?,
             ttl: e.ttl?,
             strength: e.strength?,
+            signal_type: e.signal_type,
+            group_context: e.group_context.clone(),
             target_character_id: e.target_character_id.clone(),
         }),
         "ModifyNodeValue" => Some(CommandEffect::ModifyNodeValue {
@@ -1140,6 +1148,7 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
 
 fn parse_meme_data(meme: &MemeJson) -> MemeData {
     MemeData {
+        social_need_bindings: meme.social_need_bindings.clone(),
         binding_sites: meme.binding_sites.clone().unwrap_or_default(),
         is_belief: meme.is_belief.unwrap_or(false),
         is_identity: meme.is_identity.unwrap_or(false),

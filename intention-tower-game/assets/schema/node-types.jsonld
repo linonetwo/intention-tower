@@ -29,7 +29,7 @@
       "label": "node-type.observation.label",
       "comment": "node-type.observation.description",
       "it:fields": {
-        "modality": { "type": "enum", "values": ["Visual", "Auditory", "Olfactory", "Gustatory", "Tactile", "Interoceptive", "Chemical"] },
+        "modality": { "type": "enum", "values": ["Visual", "Auditory", "Olfactory", "Gustatory", "Tactile", "Interoceptive", "Chemical", "Social"] },
         "about": { "type": "IRI", "comment": "External entity reference (schema.org type preferred, use abstract-one-level rule)" },
         "noveltyKey": { "type": "string", "comment": "Shared key for habituation grouping" },
         "credibility": { "type": "f64", "default": 1.0 },
@@ -39,6 +39,7 @@
         "signalType": { "type": "enum", "values": ["Status", "Belonging", "Threat", "Approval", "Rejection", "Chemical"], "optional": true },
         "emitterId": { "type": "IRI", "optional": true },
         "groupContext": { "type": "IRI", "optional": true },
+        "socialConsumedAt": { "type": "u64", "optional": true, "comment": "Runtime persisted tick of the consumed social presentation; not an authored reward" },
         "replicaOf": { "type": "IRI", "optional": true, "comment": "Real entity this virtual observation corresponds to" }
       }
     },
@@ -122,6 +123,7 @@
         "isIdentity": { "type": "bool", "default": false },
         "groupId": { "type": "IRI", "optional": true },
         "reinforcedBy": { "type": "array", "items": "string", "optional": true },
+        "socialNeedBindings": { "type": "array", "optional": true, "items": { "needSchemaId": "IRI (non-resource PriorInstinct)", "relief": "f64 in (0,1]" }, "comment": "Approval relieves this group's needs once; actual outcomes buy prediction-error learning with dopamine" },
         "dissolvesWhen": { "type": "object", "optional": true },
         "isAttentionFlood": { "type": "bool", "default": false },
         "floodNodeCount": { "type": "u32", "optional": true },

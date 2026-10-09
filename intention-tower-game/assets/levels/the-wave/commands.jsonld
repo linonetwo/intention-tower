@@ -17,7 +17,7 @@
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/group-identity",
           "targetCharacterId": "__target",
-          "meme": { "bindingSites": ["it:concept/belonging-need"], "isIdentity": true, "groupId": "the-wave", "resilience": 0.64 }
+          "meme": { "bindingSites": ["it:concept/belonging-need"], "socialNeedBindings": [{ "needSchemaId": "it:concept/loneliness", "relief": 0.2 }], "isIdentity": true, "groupId": "the-wave", "resilience": 0.64 }
         }
       ]
     },
@@ -79,6 +79,8 @@
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/social-approval",
+          "signalType": "Approval",
+          "groupContext": "the-wave",
           "modality": "Social",
           "about": "it:entity/teacher-wenger",
           "ttl": 200,
@@ -101,6 +103,8 @@
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/social-rejection",
+          "signalType": "Rejection",
+          "groupContext": "the-wave",
           "modality": "Social",
           "about": "it:entity/teacher-wenger",
           "ttl": 200,

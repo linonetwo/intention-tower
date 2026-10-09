@@ -17,7 +17,7 @@ impl System for SocialDynamicsSystem {
         "SocialDynamicsSystem"
     }
 
-    fn run(&self, state: &mut WorldState, dt: f64) {
+    fn run(&self, state: &mut WorldState, _dt: f64) {
         let mut memberships: BTreeMap<String, Vec<(String, f64)>> = BTreeMap::new();
         let mut selected_actions: HashMap<String, String> = HashMap::new();
 
@@ -54,30 +54,6 @@ impl System for SocialDynamicsSystem {
                 .iter()
                 .map(|(member, _)| member.clone())
                 .collect();
-            let group_bonus = if members.len() > 1 {
-                0.005 * (members.len() - 1).min(4) as f64 * dt.clamp(0.0, 2.0)
-            } else {
-                0.0
-            };
-
-            if group_bonus > 0.0 {
-                for member_id in &members {
-                    if let Some(character) = state.characters.get_mut(member_id) {
-                        for node in character.mind_graph.nodes.values_mut() {
-                            if node.node_type == NodeType::Meme
-                                && node.active
-                                && node.meme.as_ref().is_some_and(|meme| {
-                                    meme.is_identity
-                                        && meme.group_id.as_deref() == Some(group_id.as_str())
-                                })
-                            {
-                                node.strength = (node.strength + group_bonus).min(1.0);
-                            }
-                        }
-                    }
-                }
-            }
-
             let cohesion = if members_with_strength.is_empty() {
                 0.0
             } else {
@@ -85,8 +61,7 @@ impl System for SocialDynamicsSystem {
                     .iter()
                     .map(|(_, strength)| strength)
                     .sum::<f64>()
-                    / members_with_strength.len() as f64
-                    + group_bonus)
+                    / members_with_strength.len() as f64)
                     .clamp(0.0, 1.0)
             };
             let mut action_counts: BTreeMap<String, usize> = BTreeMap::new();
@@ -95,6 +70,7 @@ impl System for SocialDynamicsSystem {
                     *action_counts.entry(action.clone()).or_default() += 1;
                 }
             }
+            // TODO: consensus eligibility is separate from this read-only aggregation.
             let consensus_action = action_counts
                 .into_iter()
                 .max_by(|(action_a, count_a), (action_b, count_b)| {
