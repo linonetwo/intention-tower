@@ -18,6 +18,7 @@ impl System for ActionSelectionSystem {
         for character in state.characters.values_mut() {
             let character_id = character.id.clone();
             let graph = &mut character.mind_graph;
+            graph.pending_action_request = None;
 
             // Learned predictors can make a previously unavailable voluntary
             // action eligible. Authored strength, demonstration commands and
@@ -39,7 +40,10 @@ impl System for ActionSelectionSystem {
                                 && edge.target_instance_id == node.instance_id
                         })
                         .collect();
-                    if learned.is_empty() {
+                    let instructed = node.action.as_ref().is_some_and(|a| {
+                        a.instruction_cue.is_some() || a.physical_effect.is_some()
+                    });
+                    if learned.is_empty() && !instructed {
                         return None;
                     }
                     let drive = learned
@@ -60,7 +64,14 @@ impl System for ActionSelectionSystem {
                         })
                         .fold(0.0_f64, |total, input| total + input)
                         .clamp(0.0, 1.0);
-                    Some((node.instance_id.clone(), drive))
+                    let cue_drive = graph
+                        .action_stimulus(&node.instance_id, state.tick)
+                        .and_then(|stimulus| graph.nodes.get(&stimulus.observation_instance_id))
+                        .map_or(0.0, |cue| cue.value);
+                    Some((
+                        node.instance_id.clone(),
+                        (drive + cue_drive).clamp(0.0, 1.0),
+                    ))
                 })
                 .collect();
             for (action_id, drive) in learned_drive {
@@ -111,6 +122,11 @@ impl System for ActionSelectionSystem {
             for action_id in &action_ids {
                 let action_node = graph.nodes.get(action_id).unwrap();
                 let mut score = action_node.effective_strength();
+                if let Some(stimulus) = graph.action_stimulus(action_id, state.tick) {
+                    if let Some(cue) = graph.nodes.get(&stimulus.observation_instance_id) {
+                        score += cue.value * cue.effective_strength();
+                    }
+                }
 
                 // Sum up incoming edge contributions
                 for edge in graph.edges.values() {
@@ -141,6 +157,26 @@ impl System for ActionSelectionSystem {
             // Selection is a transient result; it must never mutate the
             // action's persistent eligibility (`active`).
             let winner_id = action_scores.first().map(|(id, _)| id.as_str());
+            if let Some(action_id) = winner_id {
+                if let Some(stimulus) = graph.action_stimulus(action_id, state.tick) {
+                    graph.pending_action_request =
+                        Some(crate::models::mind_graph::ActionExecutionRequest {
+                            action_id: action_id.to_owned(),
+                            stimulus: Some(stimulus),
+                        });
+                } else if graph.nodes.get(action_id).is_some_and(|node| {
+                    node.action
+                        .as_ref()
+                        .is_some_and(|action| action.physical_effect.is_some() && !action.selected)
+                }) && graph.learned_action_drive(action_id) >= 0.3
+                {
+                    graph.pending_action_request =
+                        Some(crate::models::mind_graph::ActionExecutionRequest {
+                            action_id: action_id.to_owned(),
+                            stimulus: None,
+                        });
+                }
+            }
             for node in graph
                 .nodes
                 .values_mut()

@@ -3,6 +3,8 @@ use std::collections::{HashMap, HashSet};
 use serde::{Deserialize, Serialize};
 
 use super::commands::CompareOp;
+use super::mind_graph::ActionPhysicalOutcome;
+use super::scene::CharacterPosture;
 use super::world_state::{WorldCharacter, WorldState};
 
 /// Authoritative lifecycle of the currently loaded level.
@@ -32,6 +34,10 @@ pub enum LevelCondition {
         rewarded: bool,
         #[serde(default)]
         autonomous: bool,
+        #[serde(default)]
+        stimulus: Option<ActionStimulusFilter>,
+        #[serde(default)]
+        physical_posture: Option<CharacterPosture>,
     },
     ImprintedTarget {
         character_id: String,
@@ -123,6 +129,18 @@ const fn one() -> u32 {
     1
 }
 
+/// Optional causal constraints on a completed motor episode, not a live cue.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActionStimulusFilter {
+    #[serde(default)]
+    pub observation_schema_id: Option<String>,
+    #[serde(default)]
+    pub emitter_id: Option<String>,
+    #[serde(default)]
+    pub group_context: Option<String>,
+}
+
 impl LevelCondition {
     pub fn evaluate(&self, world: &WorldState) -> bool {
         match self {
@@ -132,6 +150,8 @@ impl LevelCondition {
                 min_count,
                 rewarded,
                 autonomous,
+                stimulus,
+                physical_posture,
             } => world.characters.get(character_id).is_some_and(|character| {
                 character
                     .mind_graph
@@ -143,6 +163,23 @@ impl LevelCondition {
                                 || (episode.rewarded_at.is_some()
                                     && episode.reinforcement_dopamine_spent > 0.0))
                             && (!autonomous || episode.autonomous)
+                            && stimulus.as_ref().is_none_or(|filter| {
+                                episode.stimulus.as_ref().is_some_and(|receipt| {
+                                    receipt.presented_at <= episode.executed_at
+                                        && receipt.presentation_count > 0
+                                        && filter.observation_schema_id.as_ref().is_none_or(|schema|
+                                            receipt.observation_schema_id == *schema)
+                                        && filter.emitter_id.as_ref().is_none_or(|emitter|
+                                            receipt.emitter_id.as_ref() == Some(emitter))
+                                        && filter.group_context.as_ref().is_none_or(|group|
+                                            receipt.group_context.as_ref() == Some(group))
+                                })
+                            })
+                            && physical_posture.as_ref().is_none_or(|posture| {
+                                episode.physical_outcome.as_ref().is_some_and(|outcome|
+                                    matches!(outcome, ActionPhysicalOutcome::ActorPosture { from, to }
+                                        if from != to && to == posture))
+                            })
                     })
                     .count()
                     >= *min_count as usize

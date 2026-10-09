@@ -17,6 +17,10 @@ pub struct MindGraph {
     pub conditioning_stats: BTreeMap<String, ConditioningStats>,
     #[serde(default)]
     pub action_episodes: Vec<ActionEpisode>,
+    #[serde(default)]
+    pub consumed_action_stimuli: Vec<ConsumedActionStimulus>,
+    #[serde(skip)]
+    pub pending_action_request: Option<ActionExecutionRequest>,
     /// Survives percept TTL expiry so a short cue cannot bypass the quiet window.
     #[serde(default)]
     pub last_external_observation_at: Option<u64>,
@@ -25,6 +29,10 @@ pub struct MindGraph {
 /// Durable evidence of one motor response, not of persistent selection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionEpisode {
+    #[serde(default)]
+    pub stimulus: Option<ActionStimulus>,
+    #[serde(default)]
+    pub physical_outcome: Option<ActionPhysicalOutcome>,
     pub action_id: String,
     pub action_schema_id: String,
     pub executed_at: u64,
@@ -37,6 +45,37 @@ pub struct ActionEpisode {
     #[serde(default)]
     pub reinforcement_dopamine_spent: f64,
     pub rewarded_at: Option<u64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActionStimulus {
+    pub observation_instance_id: String,
+    pub observation_schema_id: String,
+    pub emitter_id: Option<String>,
+    pub group_context: Option<String>,
+    pub presented_at: u64,
+    pub presentation_count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConsumedActionStimulus {
+    pub action_id: String,
+    pub stimulus: ActionStimulus,
+}
+
+#[derive(Debug, Clone)]
+pub struct ActionExecutionRequest {
+    pub action_id: String,
+    pub stimulus: Option<ActionStimulus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ActionPhysicalOutcome {
+    ActorPosture {
+        from: super::scene::CharacterPosture,
+        to: super::scene::CharacterPosture,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,6 +105,28 @@ pub struct ConditioningStats {
 }
 
 impl MindGraph {
+    /// Only evidenced associations with currently attended sources provide learned motor drive.
+    pub fn learned_action_drive(&self, action_id: &str) -> f64 {
+        self.edges
+            .values()
+            .filter(|edge| {
+                edge.learnable
+                    && edge.evidence.co_occurrence_count > 0
+                    && edge.target_instance_id == action_id
+            })
+            .map(|edge| {
+                self.nodes
+                    .get(&edge.source_instance_id)
+                    .filter(|source| source.active && source.attended)
+                    .map_or(0.0, |source| match edge.polarity {
+                        super::mind_node::Polarity::Excitatory => edge.weight * source.value,
+                        super::mind_node::Polarity::Inhibitory => -edge.weight * source.value,
+                    })
+            })
+            .sum::<f64>()
+            .clamp(0.0, 1.0)
+    }
+
     pub fn new(character_id: String) -> Self {
         Self {
             character_id,
@@ -74,8 +135,61 @@ impl MindGraph {
             conditioning_trials: Vec::new(),
             conditioning_stats: BTreeMap::new(),
             action_episodes: Vec::new(),
+            consumed_action_stimuli: Vec::new(),
+            pending_action_request: None,
             last_external_observation_at: None,
         }
+    }
+
+    /// Snapshot the exact attended external presentation; durable receipts prevent replay.
+    pub fn action_stimulus(&self, action_id: &str, tick: u64) -> Option<ActionStimulus> {
+        let cue = self
+            .nodes
+            .get(action_id)?
+            .action
+            .as_ref()?
+            .instruction_cue
+            .as_ref()?;
+        self.nodes
+            .values()
+            .filter_map(|node| {
+                let observation = node.observation.as_ref()?;
+                if node.node_type != super::mind_node::NodeType::Observation
+                    || !node.active
+                    || !node.attended
+                    || !node.value.is_finite()
+                    || node.value < cue.min_value
+                    || node.created_at > tick
+                    || tick - node.created_at > cue.max_age_ticks
+                    || !cue.observation_schema_ids.contains(&node.schema_id)
+                    || observation.emitter_id.as_ref() == Some(&self.character_id)
+                    || observation.emitter_id.is_none()
+                    || cue
+                        .emitter_id
+                        .as_ref()
+                        .is_some_and(|id| observation.emitter_id.as_ref() != Some(id))
+                    || cue
+                        .group_context
+                        .as_ref()
+                        .is_some_and(|id| observation.group_context.as_ref() != Some(id))
+                {
+                    return None;
+                }
+                let stimulus = ActionStimulus {
+                    observation_instance_id: node.instance_id.clone(),
+                    observation_schema_id: node.schema_id.clone(),
+                    emitter_id: observation.emitter_id.clone(),
+                    group_context: observation.group_context.clone(),
+                    presented_at: node.created_at,
+                    presentation_count: observation.presentation_count,
+                };
+                (!self
+                    .consumed_action_stimuli
+                    .iter()
+                    .any(|receipt| receipt.action_id == action_id && receipt.stimulus == stimulus))
+                .then_some(stimulus)
+            })
+            .max_by_key(|stimulus| (stimulus.presented_at, stimulus.presentation_count))
     }
 
     pub fn add_node(&mut self, node: MindNode) {

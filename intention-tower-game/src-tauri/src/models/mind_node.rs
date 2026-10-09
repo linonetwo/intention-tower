@@ -207,6 +207,10 @@ pub struct ImprintingEvidence {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ActionData {
+    #[serde(default, alias = "instructionCue")]
+    pub instruction_cue: Option<InstructionCue>,
+    #[serde(default, alias = "physicalEffect")]
+    pub physical_effect: Option<ActionPhysicalEffect>,
     pub innate: bool,
     pub goap: bool,
     pub sub_action_schemas: Vec<String>,
@@ -223,6 +227,28 @@ pub struct ActionData {
     /// MindNode.active, so losing one tick never removes an action forever.
     #[serde(default)]
     pub selected: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InstructionCue {
+    #[serde(alias = "observationSchemaIds")]
+    pub observation_schema_ids: Vec<String>,
+    #[serde(default, alias = "emitterId")]
+    pub emitter_id: Option<String>,
+    #[serde(default, alias = "groupContext")]
+    pub group_context: Option<String>,
+    #[serde(alias = "maxAgeTicks")]
+    pub max_age_ticks: u64,
+    #[serde(alias = "minValue")]
+    pub min_value: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ActionPhysicalEffect {
+    ActorPosture {
+        posture: super::scene::CharacterPosture,
+    },
 }
 
 // ── Meme fields ──

@@ -637,6 +637,26 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                     "enforce-discipline",
                     1,
                 );
+                for (command, posture) in [
+                    (
+                        "request-sit",
+                        intention_tower_game_lib::models::scene::CharacterPosture::Sitting,
+                    ),
+                    (
+                        "request-stand",
+                        intention_tower_game_lib::models::scene::CharacterPosture::Standing,
+                    ),
+                ] {
+                    act(world, runner, "teacher-wenger", Some(target), command, 1);
+                    for _ in 0..3 {
+                        runner.tick(world, 0.5);
+                    }
+                    assert_eq!(world.character_postures[target], posture);
+                    assert!(world.characters[target].mind_graph.action_episodes.iter().any(|episode|
+                        episode.stimulus.as_ref().is_some_and(|receipt| receipt.emitter_id.as_deref() == Some("teacher-wenger"))
+                        && matches!(episode.physical_outcome.as_ref(), Some(intention_tower_game_lib::models::mind_graph::ActionPhysicalOutcome::ActorPosture { from, to }) if from != to && *to == posture)
+                    ), "{target}: posture needs genuine instructed motor evidence");
+                }
             }
             act(
                 world,

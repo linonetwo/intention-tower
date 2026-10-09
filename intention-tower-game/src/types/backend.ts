@@ -110,6 +110,8 @@ export interface ActionEpisodesCondition {
   minCount?: number;
   rewarded?: boolean;
   autonomous?: boolean;
+  stimulus?: { observationSchemaId?: string; emitterId?: string; groupContext?: string } | null;
+  physicalPosture?: 'standing' | 'sitting' | null;
 }
 
 export interface ImprintedTargetCondition {
@@ -164,10 +166,13 @@ export interface MindGraph {
   conditioning_trials?: ConditioningTrial[];
   conditioning_stats?: Record<string, ConditioningStats>;
   action_episodes?: ActionEpisode[];
+  consumed_action_stimuli?: ConsumedActionStimulus[];
   last_external_observation_at?: number | null;
 }
 
 export interface ActionEpisode {
+  stimulus?: ActionStimulus | null;
+  physical_outcome?: ActionPhysicalOutcome | null;
   action_id: string;
   action_schema_id: string;
   executed_at: number;
@@ -176,6 +181,31 @@ export interface ActionEpisode {
   reward_consumed_at?: number | null;
   reinforcement_dopamine_spent?: number;
   rewarded_at: number | null;
+}
+
+export interface ActionStimulus {
+  observation_instance_id: string;
+  observation_schema_id: string;
+  emitter_id: string | null;
+  group_context: string | null;
+  presented_at: number;
+  presentation_count: number;
+}
+
+export interface ConsumedActionStimulus {
+  action_id: string;
+  stimulus: ActionStimulus;
+}
+
+export type ActionPhysicalOutcome = { type: 'ActorPosture'; from: CharacterPosture; to: CharacterPosture };
+export type ActionPhysicalEffect = { type: 'ActorPosture'; posture: CharacterPosture };
+
+export interface InstructionCue {
+  observation_schema_ids: string[];
+  emitter_id: string | null;
+  group_context: string | null;
+  max_age_ticks: number;
+  min_value: number;
 }
 
 export interface ConditioningTrial {
@@ -298,6 +328,8 @@ export interface ImprintingEvidence {
 }
 
 export interface ActionData {
+  instruction_cue?: InstructionCue | null;
+  physical_effect?: ActionPhysicalEffect | null;
   sub_action_schemas?: string[];
   emitted_observation_schemas?: string[];
   autonomous_need_schema_ids?: string[];

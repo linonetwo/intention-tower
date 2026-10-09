@@ -91,6 +91,38 @@ async function findTarget(world, commandId, actorId, distinctTargets) {
 async function playLevel(levelId) {
   await call('load_level', { level_id: levelId });
   await call('set_time_speed', { speed: 0 });
+  if (levelId === 'the-wave') {
+    const execute = (command_id, target_id) => call('execute_command', { command_id, actor_id: 'teacher-wenger', target_id });
+    const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };
+    const outcomes = [];
+    for (const target of ['tim', 'student-a', 'student-b']) {
+      for (const command of ['introduce-uniform', 'teach-gesture', 'enforce-discipline']) {
+        await execute(command, target); await advance(1);
+      }
+      for (const [command, posture, schema, cue] of [
+        ['request-sit', 'sitting', 'it:concept/sit-on-command', 'it:concept/instruction-sit'],
+        ['request-stand', 'standing', 'it:concept/stand-on-command', 'it:concept/instruction-stand'],
+      ]) {
+        await execute(command, target); await advance(4);
+        const world = await call('snapshot');
+        assert.equal(world.character_postures[target], posture);
+        assert.equal(world.characters[target].position.y, 300);
+        const episode = world.characters[target].mind_graph.action_episodes.find(episode =>
+          episode.action_schema_id === schema && episode.stimulus?.observation_schema_id === cue &&
+          episode.stimulus?.emitter_id === 'teacher-wenger' && episode.stimulus?.group_context === 'the-wave' &&
+          episode.physical_outcome?.type === 'ActorPosture' && episode.physical_outcome.from !== episode.physical_outcome.to && episode.physical_outcome.to === posture);
+        assert.ok(episode, `${target}: missing real instructed ${posture} evidence`);
+        outcomes.push({ target, posture, episode });
+      }
+    }
+    await execute('give-approval', 'tim'); await advance(1);
+    await execute('reject-outsider', 'student-a'); await advance(1);
+    const world = await call('snapshot');
+    assert.equal(world.progress.status, 'Won');
+    results.push({ levelId, tick: world.tick, status: world.progress.status, instructedPostures: outcomes });
+    console.log(`MCP verified the-wave with six real instructed posture transitions in ${world.tick} ticks`);
+    return;
+  }
   if (levelId === 'gosling') {
     const execute = command_id => call('execute_command', { command_id, actor_id: 'lorenz', target_id: 'gosling' });
     const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };

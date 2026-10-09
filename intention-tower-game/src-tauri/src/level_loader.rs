@@ -13,6 +13,7 @@ pub enum LoadError {
     Json(serde_json::Error),
     NotFound(String),
     InvalidCommand(String),
+    InvalidAction(String),
 }
 
 impl std::fmt::Display for LoadError {
@@ -22,6 +23,7 @@ impl std::fmt::Display for LoadError {
             LoadError::Json(e) => write!(f, "JSON parse error: {}", e),
             LoadError::NotFound(s) => write!(f, "Not found: {}", s),
             LoadError::InvalidCommand(s) => write!(f, "Invalid command: {}", s),
+            LoadError::InvalidAction(s) => write!(f, "Invalid action: {}", s),
         }
     }
 }
@@ -234,6 +236,10 @@ struct PriorInstinctJson {
 
 #[derive(Deserialize, Debug)]
 struct ActionJson {
+    #[serde(rename = "instructionCue")]
+    instruction_cue: Option<InstructionCue>,
+    #[serde(rename = "physicalEffect")]
+    physical_effect: Option<ActionPhysicalEffect>,
     innate: Option<bool>,
     goap: Option<bool>,
     #[serde(rename = "proficiencyLevel")]
@@ -452,7 +458,7 @@ pub fn load_level_from_assets(
                 let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
                 let mg_json: MindGraphJson =
                     serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
-                parse_mind_graph(&char_id, &mg_json)
+                parse_mind_graph(&char_id, &mg_json)?
             } else {
                 // Fallback: try {char_id}-mind.jsonld for backwards compatibility
                 let fallback_filename = format!("{}-mind.jsonld", char_id);
@@ -461,7 +467,7 @@ pub fn load_level_from_assets(
                     let mg_text = std::fs::read_to_string(&fallback_path).map_err(LoadError::Io)?;
                     let mg_json: MindGraphJson =
                         serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
-                    parse_mind_graph(&char_id, &mg_json)
+                    parse_mind_graph(&char_id, &mg_json)?
                 } else {
                     MindGraph::new(char_id.clone())
                 }
@@ -538,7 +544,7 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
                 let mg_text = std::fs::read_to_string(&mg_path).map_err(LoadError::Io)?;
                 let mg_json: MindGraphJson =
                     serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
-                parse_mind_graph(&char_id, &mg_json)
+                parse_mind_graph(&char_id, &mg_json)?
             } else {
                 let fallback_filename = format!("{}-mind.jsonld", char_id);
                 let fallback_path = level_dir.join(&fallback_filename);
@@ -546,7 +552,7 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
                     let mg_text = std::fs::read_to_string(&fallback_path).map_err(LoadError::Io)?;
                     let mg_json: MindGraphJson =
                         serde_json::from_str(&mg_text).map_err(LoadError::Json)?;
-                    parse_mind_graph(&char_id, &mg_json)
+                    parse_mind_graph(&char_id, &mg_json)?
                 } else {
                     MindGraph::new(char_id.clone())
                 }
@@ -801,10 +807,30 @@ fn parse_observation_source(s: &str) -> ObservationSource {
     }
 }
 
-fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
+fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> Result<MindGraph, LoadError> {
     let mut graph = MindGraph::new(char_id.to_string());
 
     for node_json in &mg.nodes {
+        if let Some(cue) = node_json
+            .action
+            .as_ref()
+            .and_then(|action| action.instruction_cue.as_ref())
+        {
+            if cue.observation_schema_ids.is_empty()
+                || cue
+                    .observation_schema_ids
+                    .iter()
+                    .any(|schema| schema.trim().is_empty())
+                || cue.max_age_ticks == 0
+                || !cue.min_value.is_finite()
+                || !(0.0..=1.0).contains(&cue.min_value)
+            {
+                return Err(LoadError::InvalidAction(format!(
+                    "character '{}', node '{}': instructionCue requires nonempty observationSchemaIds, positive maxAgeTicks and finite minValue in [0,1]",
+                    char_id, node_json.instance_id
+                )));
+            }
+        }
         let node_type = parse_node_type(&node_json.node_type);
 
         let thresholds: Vec<ThresholdTrigger> = node_json
@@ -840,6 +866,8 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
             });
 
         let action = node_json.action.as_ref().map(|a| ActionData {
+            instruction_cue: a.instruction_cue.clone(),
+            physical_effect: a.physical_effect.clone(),
             innate: a.innate.unwrap_or(false),
             goap: a.goap.unwrap_or(false),
             sub_action_schemas: a.sub_action_schemas.clone(),
@@ -947,7 +975,7 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> MindGraph {
         }
     }
 
-    graph
+    Ok(graph)
 }
 
 fn parse_command_defs(cmd_json: &CommandsJson) -> Result<Vec<CommandDef>, LoadError> {
@@ -1181,6 +1209,67 @@ mod tests {
             .unwrap()
             .join("assets")
             .join("levels")
+    }
+
+    #[test]
+    fn instruction_cues_fail_closed_before_a_mind_graph_is_loaded() {
+        let base = serde_json::json!({"nodes": [{
+            "instanceId": "student-sit", "schemaId": "it:concept/sit-on-command", "nodeType": "Action",
+            "active": false, "value": 0.0, "it:action": {
+                "instructionCue": {"observationSchemaIds": ["it:concept/instruction-sit"],
+                    "emitterId": "teacher-wenger", "groupContext": "the-wave", "maxAgeTicks": 3, "minValue": 0.5},
+                "physicalEffect": {"type": "ActorPosture", "posture": "sitting"}
+            }
+        }]});
+        let valid: MindGraphJson = serde_json::from_value(base.clone()).unwrap();
+        let graph = parse_mind_graph("student", &valid).unwrap();
+        let action = graph.nodes["student-sit"].action.as_ref().unwrap();
+        assert_eq!(action.instruction_cue.as_ref().unwrap().max_age_ticks, 3);
+        assert!(matches!(
+            action.physical_effect.as_ref(),
+            Some(ActionPhysicalEffect::ActorPosture {
+                posture: crate::models::scene::CharacterPosture::Sitting
+            })
+        ));
+
+        for (field, value) in [
+            ("observationSchemaIds", serde_json::json!([])),
+            ("observationSchemaIds", serde_json::json!([""])),
+            ("maxAgeTicks", serde_json::json!(0)),
+            ("minValue", serde_json::json!(-0.1)),
+            ("minValue", serde_json::json!(1.1)),
+        ] {
+            let mut raw = base.clone();
+            raw["nodes"][0]["it:action"]["instructionCue"][field] = value;
+            let malformed: MindGraphJson = serde_json::from_value(raw).unwrap();
+            let error = parse_mind_graph("student", &malformed)
+                .unwrap_err()
+                .to_string();
+            assert!(
+                error.contains("student-sit") && error.contains("instructionCue"),
+                "{error}"
+            );
+        }
+        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            let mut malformed: MindGraphJson = serde_json::from_value(base.clone()).unwrap();
+            malformed.nodes[0]
+                .action
+                .as_mut()
+                .unwrap()
+                .instruction_cue
+                .as_mut()
+                .unwrap()
+                .min_value = value;
+            assert!(parse_mind_graph("student", &malformed).is_err());
+        }
+        for invalid in [
+            serde_json::json!({"type": "ActorPosture", "posture": "flying"}),
+            serde_json::json!({"type": "UnrecognizedEffect", "posture": "sitting"}),
+        ] {
+            let mut raw = base.clone();
+            raw["nodes"][0]["it:action"]["physicalEffect"] = invalid;
+            assert!(serde_json::from_value::<MindGraphJson>(raw).is_err());
+        }
     }
 
     #[test]

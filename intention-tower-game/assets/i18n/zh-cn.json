@@ -426,7 +426,7 @@
   "level.the-wave.name": "浪潮实验",
   "level.the-wave.description": "模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权",
   "level.the-wave.objective.0": "引入制服和手势建立集体认同",
-  "level.the-wave.objective.1": "通过纪律执行和社会认可强化服从",
+  "level.the-wave.objective.1": "观察三名学生分别响应坐下与起立指令",
   "level.the-wave.objective.2": "观察群体排斥异见者的行为模式",
   "level.the-wave.character.teacher-wenger.label": "温格尔老师",
   "level.the-wave.character.tim.label": "蒂姆",
@@ -818,5 +818,17 @@
   "command.accept-new-narrative.label": "接受新叙事",
   "command.accept-new-narrative.description": "接受原始共产主义式的新生活叙事",
 
+  "command.request-sit.label": "请坐下",
+  "command.request-sit.description": "向指定学生发出坐下指令，观察其实际响应",
+  "command.request-stand.label": "请起立",
+  "command.request-stand.description": "向指定学生发出起立指令，观察其实际响应",
+  "concept.sit-on-command.label": "听令坐下",
+  "concept.sit-on-command.description": "理解坐下指令后实际坐下",
+  "concept.stand-on-command.label": "听令起立",
+  "concept.stand-on-command.description": "理解起立指令后实际站起",
+  "concept.instruction-sit.label": "坐下指令",
+  "concept.instruction-sit.description": "老师发出的坐下听觉指令",
+  "concept.instruction-stand.label": "起立指令",
+  "concept.instruction-stand.description": "老师发出的起立听觉指令",
   "game.reloadMods": "重载 Mod 贴图"
 }

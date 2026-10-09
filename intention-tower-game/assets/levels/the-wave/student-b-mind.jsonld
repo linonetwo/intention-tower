@@ -5,6 +5,38 @@
   "belongsToCharacter": "it:entity/student-b",
   "nodes": [
     {
+      "instanceId": "student-b-sit-on-command",
+      "schemaId": "it:concept/sit-on-command",
+      "label": "concept.sit-on-command.label",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3,
+        "instructionCue": { "observationSchemaIds": ["it:concept/instruction-sit"], "emitterId": "teacher-wenger", "groupContext": "the-wave", "maxAgeTicks": 3, "minValue": 0.5 },
+        "physicalEffect": { "type": "ActorPosture", "posture": "sitting" }
+      }
+    },
+    {
+      "instanceId": "student-b-stand-on-command",
+      "schemaId": "it:concept/stand-on-command",
+      "label": "concept.stand-on-command.label",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3,
+        "instructionCue": { "observationSchemaIds": ["it:concept/instruction-stand"], "emitterId": "teacher-wenger", "groupContext": "the-wave", "maxAgeTicks": 3, "minValue": 0.5 },
+        "physicalEffect": { "type": "ActorPosture", "posture": "standing" }
+      }
+    },
+    {
       "instanceId": "student-b-loneliness",
       "schemaId": "it:concept/loneliness",
       "nodeType": "PriorInstinct",

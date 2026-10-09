@@ -3,6 +3,32 @@
   "@id": "it:level/the-wave/commands",
   "commands": [
     {
+      "commandId": "request-sit",
+      "label": "command.request-sit.label",
+      "hotkey": "6",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim", "student-a", "student-b"] },
+        { "type": "TargetIsNotActor" },
+        { "type": "TargetHasNode", "schemaId": "it:concept/discipline" }
+      ],
+      "effects": [{ "type": "SpawnObservation", "schemaId": "it:concept/instruction-sit", "modality": "Auditory", "about": "it:entity/teacher-wenger", "ttl": 6, "strength": 0.9, "signalType": null, "groupContext": "the-wave", "targetCharacterId": "__target" }]
+    },
+    {
+      "commandId": "request-stand",
+      "label": "command.request-stand.label",
+      "hotkey": "7",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim", "student-a", "student-b"] },
+        { "type": "TargetIsNotActor" },
+        { "type": "TargetHasNode", "schemaId": "it:concept/discipline" }
+      ],
+      "effects": [{ "type": "SpawnObservation", "schemaId": "it:concept/instruction-stand", "modality": "Auditory", "about": "it:entity/teacher-wenger", "ttl": 6, "strength": 0.9, "signalType": null, "groupContext": "the-wave", "targetCharacterId": "__target" }]
+    },
+    {
       "commandId": "introduce-uniform",
       "label": "command.introduce-uniform.label",
       "hotkey": "1",

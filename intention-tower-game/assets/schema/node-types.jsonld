@@ -93,6 +93,8 @@
       "comment": "node-type.action.description",
       "it:fields": {
         "innate": { "type": "bool", "default": false, "comment": "True = involuntary gene program (replaces GeneProgram type)" },
+        "instructionCue": { "type": "object", "optional": true, "fields": { "observationSchemaIds": "nonempty IRI array", "emitterId": "optional string", "groupContext": "optional string", "maxAgeTicks": "positive u64", "minValue": "finite f64 in [0,1]" } },
+        "physicalEffect": { "type": "object", "optional": true, "variants": [{ "type": "ActorPosture", "posture": "sitting|standing" }] },
         "goap": { "type": "bool", "default": false },
         "subActionSchemas": { "type": "array", "items": "IRI", "optional": true },
         "emittedObservationSchemas": { "type": "array", "items": "IRI", "optional": true },

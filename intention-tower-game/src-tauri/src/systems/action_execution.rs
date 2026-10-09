@@ -1,7 +1,9 @@
 use super::System;
 use crate::models::events::WorldEvent;
-use crate::models::mind_graph::{ActionContext, ActionEpisode};
-use crate::models::mind_node::{Modality, NodeType, ObservationData};
+use crate::models::mind_graph::{
+    ActionContext, ActionEpisode, ActionPhysicalOutcome, ConsumedActionStimulus,
+};
+use crate::models::mind_node::{ActionPhysicalEffect, Modality, NodeType, ObservationData};
 use crate::models::world_state::WorldState;
 
 /// System #20: Executes the selected action's world effects.
@@ -15,6 +17,88 @@ impl System for ActionExecutionSystem {
     }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
+        // Execute against the authoritative world before borrowing individual graphs.
+        // A selected flag (including one restored from disk) is never a motor request.
+        let mut motor_results = std::collections::BTreeMap::new();
+        let mut character_ids: Vec<_> = state.characters.keys().cloned().collect();
+        character_ids.sort();
+        for char_id in character_ids {
+            let request = state
+                .characters
+                .get_mut(&char_id)
+                .unwrap()
+                .mind_graph
+                .pending_action_request
+                .take();
+            let Some(request) = request else {
+                continue;
+            };
+            let stimulus = request.stimulus;
+            let graph = &state.characters[&char_id].mind_graph;
+            let Some(action) = graph.nodes.get(&request.action_id).filter(|node| {
+                node.active
+                    && node.attended
+                    && node
+                        .action
+                        .as_ref()
+                        .is_some_and(|a| !a.innate && a.selected)
+            }) else {
+                continue;
+            };
+            let valid_request = match stimulus.as_ref() {
+                Some(stimulus) => {
+                    graph
+                        .action_stimulus(&request.action_id, state.tick)
+                        .as_ref()
+                        == Some(stimulus)
+                }
+                None => graph.learned_action_drive(&request.action_id) >= 0.3,
+            };
+            if !valid_request {
+                continue;
+            }
+            let effect = action.action.as_ref().unwrap().physical_effect.clone();
+            // Every validated attempt, even an already-satisfied posture, consumes this presentation.
+            if let Some(stimulus) = stimulus.as_ref() {
+                state
+                    .characters
+                    .get_mut(&char_id)
+                    .unwrap()
+                    .mind_graph
+                    .consumed_action_stimuli
+                    .push(ConsumedActionStimulus {
+                        action_id: request.action_id.clone(),
+                        stimulus: stimulus.clone(),
+                    });
+            }
+            let Some(ActionPhysicalEffect::ActorPosture { posture }) = effect else {
+                continue;
+            };
+            let from = state
+                .character_postures
+                .get(&char_id)
+                .copied()
+                .unwrap_or_default();
+            if crate::movement::set_character_posture(state, &char_id, posture).is_err() {
+                continue;
+            }
+            let to = state
+                .character_postures
+                .get(&char_id)
+                .copied()
+                .unwrap_or_default();
+            if from == to || to != posture {
+                continue;
+            }
+            motor_results.insert(
+                char_id,
+                (
+                    request.action_id,
+                    stimulus,
+                    ActionPhysicalOutcome::ActorPosture { from, to },
+                ),
+            );
+        }
         for character in state.characters.values_mut() {
             let char_id = character.id.clone();
             let graph = &mut character.mind_graph;
@@ -36,7 +120,7 @@ impl System for ActionExecutionSystem {
                         .map_or(tick, |previous| previous.max(tick)),
                 );
             }
-            let executed: Vec<_> = state
+            let mut executed: Vec<_> = state
                 .pending_events
                 .iter()
                 .filter_map(|event| match event {
@@ -47,6 +131,11 @@ impl System for ActionExecutionSystem {
                     _ => None,
                 })
                 .collect();
+            if let Some((action_id, _, _)) = motor_results.get(&char_id) {
+                if !executed.contains(action_id) {
+                    executed.push(action_id.clone());
+                }
+            }
             for action_id in executed {
                 let Some(action) = graph.nodes.get(&action_id).filter(|node| {
                     node.active
@@ -58,6 +147,17 @@ impl System for ActionExecutionSystem {
                 }) else {
                     continue;
                 };
+                let motor_result = motor_results
+                    .get(&char_id)
+                    .filter(|(id, _, _)| id == &action_id);
+                if action
+                    .action
+                    .as_ref()
+                    .is_some_and(|a| a.instruction_cue.is_some() || a.physical_effect.is_some())
+                    && motor_result.is_none()
+                {
+                    continue;
+                }
                 let action_schema_id = action.schema_id.clone();
                 let output_schemas = action
                     .action
@@ -134,6 +234,8 @@ impl System for ActionExecutionSystem {
                 });
                 let autonomous = learned_need && !recent_prompt;
                 graph.action_episodes.push(ActionEpisode {
+                    stimulus: motor_result.and_then(|(_, stimulus, _)| stimulus.clone()),
+                    physical_outcome: motor_result.map(|(_, _, outcome)| outcome.clone()),
                     action_id: action_id.clone(),
                     action_schema_id,
                     executed_at: state.tick,

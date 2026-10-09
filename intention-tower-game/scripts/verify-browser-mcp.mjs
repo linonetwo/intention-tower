@@ -357,6 +357,48 @@ try {
   }
 
   try {
+    await load('the-wave');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('teacher-wenger');window.__INTENTION_TEST__.selectTarget('tim')`);
+    await clickMode('observe');
+    if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) {
+      await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+    }
+    await clickCommand('teach-gesture'); await advance(1);
+    const before = await call('snapshot');
+    await clickCommand('request-sit'); await advance(4);
+    const seated = await call('snapshot');
+    const motorEpisodes = world => world.characters.tim.mind_graph.action_episodes.filter(episode => episode.physical_outcome?.type === 'ActorPosture');
+    assert.equal(seated.character_postures.tim, 'sitting');
+    assert.deepEqual(seated.characters.tim.position, before.characters.tim.position, 'Instructed sitting must not move the character off the floor');
+    assert.equal(motorEpisodes(seated).length, 1);
+    const receipt = motorEpisodes(seated)[0].stimulus;
+    assert.equal(receipt.emitter_id, 'teacher-wenger');
+    assert.equal(receipt.group_context, 'the-wave');
+    assert.equal(receipt.observation_schema_id, 'it:concept/instruction-sit');
+    await shot('wave-instructed-sitting');
+    await call('set_viewport', { width: 390, height: 844 });
+    await shot('mobile-wave-instructed-sitting');
+    await call('set_viewport', { width: 1440, height: 900 });
+    await clickCommand('request-sit'); await advance(4);
+    const noOp = await call('snapshot');
+    assert.equal(motorEpisodes(noOp).length, 1, 'Already seated instruction is not a second successful motor response');
+    assert.equal(noOp.characters.tim.mind_graph.consumed_action_stimuli.length, 2, 'The no-op instruction must still be consumed');
+    await clickCommand('request-stand'); await advance(4);
+    const stood = await call('snapshot');
+    assert.equal(stood.character_postures.tim, 'standing');
+    assert.equal(motorEpisodes(stood).length, 2);
+    assert.equal(motorEpisodes(stood)[1].stimulus.observation_schema_id, 'it:concept/instruction-stand');
+    assert.equal(stood.progress.objectives.find(objective => objective.objective_id === 'enforce-obedience').completed, false, 'One student cannot satisfy the three-student objective');
+    await shot('wave-instructed-standing');
+    report.instructedPosture = { realButtons: true, sitReceipt: receipt, noOpDidNotCount: true, sameGround: true, successfulEpisodes: 2, allStudentsStillRequired: true };
+  } catch (error) {
+    report.instructedPostureFailure = String(error);
+    await shot('instructed-posture-failure');
+    process.exitCode = 1;
+    await call('set_viewport', { width: 1440, height: 900 });
+  }
+
+  try {
     await load('ideology');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('ideologue');window.__INTENTION_TEST__.selectTarget('skeptic')`);
     await clickMode('observe');
