@@ -1,10 +1,10 @@
 # 实验犬的意义之塔：真实命令结果试玩增量
 
-已验收代码：`d3eb70e`，版本仍为 0.9.0。
+已验收代码：`e197e4b`，版本仍为 0.9.0。
 
-- [下载本批 Linux amd64 核心＋网页试玩包](https://github.com/linonetwo/intention-tower/actions/runs/37886319067/artifacts/11596344410)
-- [全部通过的 CI](https://github.com/linonetwo/intention-tower/actions/runs/37886319067)
-- [120 张实际截图与完整测试报告](https://github.com/linonetwo/intention-tower/actions/runs/37886319067/artifacts/11597070495)
+- [下载本批 Linux amd64 核心＋网页试玩包](https://github.com/linonetwo/intention-tower/actions/runs/37905878941/artifacts/11604796555)
+- [全部通过的 CI](https://github.com/linonetwo/intention-tower/actions/runs/37905878941)
+- [121 张实际截图与完整测试报告](https://github.com/linonetwo/intention-tower/actions/runs/37905878941/artifacts/11604910919)
 - [上一批 Windows、macOS、Linux 安装包及完整操作说明](../2026-10-08/README.md)
 
 本批下载包包含正式贴图、预编译 Rust 核心与网页，需 Linux amd64 和 Node 22；
@@ -23,13 +23,23 @@
 浪潮的手势教学现在实际建立纪律与服从行动的联结，教学前强化会拒绝。
 这仍是行为链的前置修复，不代表已经完成自主服从、外人排斥及群体依附的完整 Wiki 设计。
 
+浪潮新增真实社交学习：选老师与蒂姆，关闭自动步进，先“引入制服”并步进一次，
+再“给予认可”并步进一次。打开图谱可看到“孤独感→集体认同”的新联结：
+首次权重约 0.2、预测误差 +1、消耗 0.05 多巴胺，孤独需求确实得到缓解。
+等待 20 步不会继续领同一次奖励；重新给予认可才形成第二次学习。
+没有多巴胺时依然能感受接纳，但不会免费学习，事后恢复资源也不能补领旧呈现。
+群体规模与等待时间不再自动增加身份强度。
+
 ## 验收范围
 
-67 项前端测试、94 项 Rust 测试、22 个 BDD 场景及 21 关现有 MCP 路线通过。
-真实浏览器覆盖 46 组桌面／手机视口、120 张截图，没有未捕获浏览器错误。
+67 项前端测试、109 项 Rust 测试、22 个 BDD 场景及 21 关现有 MCP 路线通过。
+真实浏览器覆盖 46 组桌面／手机视口、121 张截图，没有未捕获浏览器错误。
 实际按钮反例确认无效强化的中文提示可见、成功次数为零。
+新增 12 项社交回归及真实按钮／图谱验收，验证单次消费、存档恢复、零预算与群体隔离。
 
 明亮横卷轴房间、共同地面、点击横向移动、站坐／行走和楼梯系统沿用上一批正式素材版本。
 仍有关卡行为语义、角色动画、真机性能与发行签名待完成，不是可上架完成声明。
 
 ![实际按钮拒绝提示](command-rejection.png)
+
+![实际付费社交联结](wave-social-learning.png)
