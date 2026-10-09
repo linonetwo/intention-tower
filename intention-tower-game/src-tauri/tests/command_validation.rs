@@ -227,8 +227,13 @@ fn authored_roles_are_loaded_and_enforced_by_the_shared_api_rules() {
         let default_target = world.default_target_id.clone().unwrap();
         assert!(targets.contains(&default_target.as_str()));
         assert!(
-            command_available(&world.command_defs[0], actor, Some(&default_target), &world),
-            "{} default pair",
+            world.command_defs.iter().any(|command| command_available(
+                command,
+                actor,
+                Some(&default_target),
+                &world
+            )),
+            "{} default pair needs an available starting command, not a particular list order",
             level
         );
         for target in &targets {
