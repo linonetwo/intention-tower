@@ -163,6 +163,10 @@ fn independent_bell_response_is_required_and_settles_only_after_reward_window() 
 #[test]
 fn omission_extinguishes_real_response_and_survives_ttl_cleanup() {
     let mut state = world();
+    // Mechanism sandbox: independent responses must not finish the authored level
+    // and prevent the subsequent real omission commands from executing.
+    state.progress.objectives.clear();
+    state.progress.failure_rules.clear();
     for _ in 0..5 {
         pair(&mut state);
     }
@@ -176,19 +180,26 @@ fn omission_extinguishes_real_response_and_survives_ttl_cleanup() {
     for index in 1..=8 {
         command(&mut state, "ring-bell");
         let events = ticks(&mut state, 12);
+        assert!(events.iter().any(|event| matches!(event,
+            WorldEvent::CommandExecuted { command_id, .. } if command_id == "ring-bell")));
         assert!((weight(&state) - trained * 0.8_f64.powi(index)).abs() < 1e-12);
         assert!(events.iter().any(|event| matches!(event,
             WorldEvent::LearningUpdated { prediction_error, phase, .. }
             if *prediction_error < 0.0 && phase == "extinguished")));
     }
     command(&mut state, "ring-bell");
-    ticks(&mut state, 3);
+    let events = ticks(&mut state, 3);
+    assert!(events.iter().any(|event| matches!(event,
+        WorldEvent::CommandExecuted { command_id, .. } if command_id == "ring-bell")));
     assert!(!state.characters["dog"].mind_graph.nodes["dog-salivate"].active);
     assert!(state.characters["dog"].mind_graph.edges.contains_key(EDGE));
     let mut removed = false;
     for _ in 0..30 {
         command(&mut state, "ring-bell");
-        removed |= ticks(&mut state, 12).iter().any(
+        let events = ticks(&mut state, 12);
+        assert!(events.iter().any(|event| matches!(event,
+            WorldEvent::CommandExecuted { command_id, .. } if command_id == "ring-bell")));
+        removed |= events.iter().any(
             |event| matches!(event, WorldEvent::EdgeRemoved { edge_id, .. } if edge_id == EDGE),
         );
     }

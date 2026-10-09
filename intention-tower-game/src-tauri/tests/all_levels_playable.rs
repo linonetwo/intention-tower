@@ -63,10 +63,12 @@ fn act(
             events.iter().any(|event| matches!(event,
                 WorldEvent::CommandExecuted { command_id: executed, .. } if executed == command_id
             )),
-            "{}: authored route command {} must apply a real effect; events={:?}",
+            "{}: authored route command {} must apply a real effect; events={:?}, counts={:?}, targets={:?}",
             world.level_id,
             command_id,
-            events
+            events,
+            world.progress.command_counts,
+            world.progress.command_targets
         );
     }
 }
@@ -309,14 +311,16 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
             for target in ["believer", "skeptic"] {
                 act(world, runner, "ideologue", Some(target), "preach", 1);
             }
-            act(
-                world,
-                runner,
-                "ideologue",
-                Some("believer"),
-                "reinforce-faith",
-                2,
-            );
+            for target in ["believer", "skeptic"] {
+                act(
+                    world,
+                    runner,
+                    "ideologue",
+                    Some(target),
+                    "reinforce-faith",
+                    1,
+                );
+            }
             act(
                 world,
                 runner,
@@ -733,9 +737,23 @@ fn every_shipped_level_has_a_verified_winning_route() {
         "the scenario suite must cover every shipped level"
     );
 
+    let mut failures = Vec::new();
     for path in level_paths {
-        play_and_assert_won(&path);
+        if let Err(error) = std::panic::catch_unwind(|| play_and_assert_won(&path)) {
+            let details = error
+                .downcast_ref::<String>()
+                .map(String::as_str)
+                .or_else(|| error.downcast_ref::<&str>().copied())
+                .unwrap_or("non-string panic");
+            failures.push(format!("{}: {details}", path.display()));
+        }
     }
+    assert!(
+        failures.is_empty(),
+        "{} level routes failed:\n{}",
+        failures.len(),
+        failures.join("\n")
+    );
 }
 
 fn play_and_assert_won(path: &Path) {

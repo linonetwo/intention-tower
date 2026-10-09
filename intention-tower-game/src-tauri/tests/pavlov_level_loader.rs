@@ -288,7 +288,7 @@ mod tests {
 
     #[test]
     fn test_command_precondition_checking() {
-        let world = level_loader::load_level_from_path(&pavlov_level_dir())
+        let mut world = level_loader::load_level_from_path(&pavlov_level_dir())
             .expect("Should load pavlov level");
 
         // ring-bell requires EnvHasItem for metronome
@@ -296,11 +296,52 @@ mod tests {
             .command_defs
             .iter()
             .find(|c| c.command_id == "ring-bell")
-            .unwrap();
-        assert_eq!(ring_bell.preconditions.len(), 1);
+            .unwrap()
+            .clone();
+        assert!(ring_bell.preconditions.iter().any(|condition| matches!(condition,
+            Precondition::EnvHasItem { item_schema_id } if item_schema_id == "it:entity-type/metronome")));
+        assert!(ring_bell
+            .preconditions
+            .iter()
+            .any(|condition| matches!(condition,
+            Precondition::ActorIs { character_ids } if character_ids == &["pavlov".to_owned()])));
+        assert!(ring_bell
+            .preconditions
+            .iter()
+            .any(|condition| matches!(condition,
+            Precondition::TargetIs { character_ids } if character_ids == &["dog".to_owned()])));
+        assert!(ring_bell
+            .preconditions
+            .iter()
+            .any(|condition| matches!(condition, Precondition::TargetIsNotActor)));
 
-        // The world has items with schema:Product type but the precondition checks for it:entity-type/metronome
-        // This tests our abstract_type matching in items
+        use intention_tower_game_lib::command_rules::command_available;
+        assert!(command_available(&ring_bell, "pavlov", Some("dog"), &world));
+        assert!(!command_available(
+            &ring_bell,
+            "dog",
+            Some("pavlov"),
+            &world
+        ));
+        assert!(!command_available(
+            &ring_bell,
+            "pavlov",
+            Some("pavlov"),
+            &world
+        ));
+        assert!(!command_available(&ring_bell, "pavlov", None, &world));
+
+        // Products satisfy the authored environmental requirement through abstract_type.
+        world.items.retain(|_, item| {
+            item.schema_type != "it:entity-type/metronome"
+                && item.abstract_type.as_deref() != Some("it:entity-type/metronome")
+        });
+        assert!(!command_available(
+            &ring_bell,
+            "pavlov",
+            Some("dog"),
+            &world
+        ));
     }
 
     #[test]

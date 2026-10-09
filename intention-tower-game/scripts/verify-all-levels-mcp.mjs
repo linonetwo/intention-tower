@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const endpoint = process.env.MCP_URL ?? 'http://127.0.0.1:9222/mcp';
 let sequence = 1;
 const results = [];
+const failures = [];
 
 async function call(name, args = {}) {
   const response = await fetch(endpoint, {
@@ -19,10 +20,30 @@ async function call(name, args = {}) {
   });
   if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
   const envelope = await response.json();
-  if (envelope.error) throw new Error(`${name}: ${envelope.error.message}`);
+  if (envelope.error) {
+    const error = new Error(`${name}: ${envelope.error.message}`);
+    error.details = envelope.error;
+    throw error;
+  }
   const text = envelope.result?.content?.find((item) => item.type === 'text')?.text;
   if (text == null) throw new Error(`${name}: missing text result`);
-  return JSON.parse(text);
+  const result = JSON.parse(text);
+  if (name === 'execute_command' && result.success === false) {
+    const error = new Error(`${name}: ${args.command_id} did not apply a real effect`);
+    error.details = result;
+    throw error;
+  }
+  // Paused commands are only queued by execute_command. Their authoritative
+  // rejection appears on the next step, not in the initial success response.
+  if (name === 'step_tick') {
+    const rejected = (result.events ?? []).filter(event => event.CommandRejected);
+    if (rejected.length > 0) {
+      const error = new Error(`${name}: queued command rejected: ${rejected.map(event => event.CommandRejected.command_id).join(', ')}`);
+      error.details = result;
+      throw error;
+    }
+  }
+  return result;
 }
 
 function collectCommandRequirements(condition, output) {
@@ -233,8 +254,35 @@ const levelIds = (await readdir(levelsRoot, { withFileTypes: true }))
 if (levelIds.length !== 21) throw new Error(`expected 21 levels, found ${levelIds.length}`);
 await mkdir('verification-evidence', { recursive: true });
 try {
-  for (const levelId of levelIds) await playLevel(levelId);
+  for (const levelId of levelIds) {
+    try {
+      await playLevel(levelId);
+    } catch (error) {
+      let progress;
+      let snapshotError;
+      try { progress = (await call('snapshot')).progress; }
+      catch (diagnosticError) { snapshotError = String(diagnosticError); }
+      const failure = {
+        levelId,
+        error: String(error),
+        details: error?.details,
+        stack: error?.stack,
+        counts: progress?.command_counts,
+        targets: progress?.command_targets,
+        objectives: progress?.objectives,
+        status: progress?.status,
+        snapshotError,
+      };
+      failures.push(failure);
+      console.error(`MCP failed ${levelId}: ${JSON.stringify(failure)}`);
+    }
+  }
 } finally {
-  await writeFile('verification-evidence/all-levels.json', JSON.stringify({ expectedLevels: levelIds.length, results }, null, 2));
+  await writeFile('verification-evidence/all-levels.json', JSON.stringify({ expectedLevels: levelIds.length, results, failures }, null, 2));
 }
-console.log(`MCP verified all ${levelIds.length} levels`);
+if (failures.length > 0) {
+  console.error(`MCP verified ${results.length}/${levelIds.length} levels; ${failures.length} failed`);
+  process.exitCode = 1;
+} else {
+  console.log(`MCP verified all ${levelIds.length} levels`);
+}

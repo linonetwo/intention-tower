@@ -36,7 +36,7 @@
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/discipline",
           "targetCharacterId": "__target",
-          "meme": { "bindingSites": ["it:concept/individual-thought"], "isBelief": true, "groupId": "the-wave", "resilience": 0.68 }
+          "meme": { "bindingSites": ["it:concept/individual-thought", "it:concept/obey"], "isBelief": true, "groupId": "the-wave", "resilience": 0.68 }
         }
       ]
     },

@@ -319,6 +319,27 @@ try {
   }
 
   try {
+    await load('ideology');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('ideologue');window.__INTENTION_TEST__.selectTarget('skeptic')`);
+    await clickMode('observe');
+    if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) {
+      await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+    }
+    await clickCommand('reinforce-faith');
+    await call('click', { selector: '[data-testid="step-tick"]' });
+    await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{const text=document.querySelector('[data-testid="dialogue-hud"]').textContent;if(text.includes('命令没有可应用的效果')){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Rejected command reason was not visible'))}},50)})`);
+    const rejected = await call('snapshot');
+    assert.equal(rejected.progress.command_counts['reinforce-faith'] ?? 0, 0, 'Rejected UI command must not advance objectives');
+    assert.equal(Object.values(rejected.characters.skeptic.mind_graph.nodes).some(node => node.schema_id === 'it:concept/ideology'), false, 'Rejected reinforcement cannot create a belief');
+    await shot('ideology-real-command-rejection');
+    report.commandRejection = { realButton: true, localizedReasonVisible: true, successfulCount: 0 };
+  } catch (error) {
+    report.commandRejectionFailure = String(error);
+    await shot('command-rejection-failure');
+    process.exitCode = 1;
+  }
+
+  try {
     await load('smart-cat');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
     // Regression: reselecting an already-active exclusive mode used to emit

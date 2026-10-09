@@ -402,6 +402,7 @@ fn self_trade_and_unowned_asset_reject_and_roll_back_price_changes() {
         );
         w.economy.accounts.insert("trainer".into(), 10.0);
         w.economy.accounts.insert("cat-billi".into(), 10.0);
+        let economy_before = serde_json::to_value(&w.economy).unwrap();
         queue(
             &mut w,
             vec![
@@ -422,8 +423,7 @@ fn self_trade_and_unowned_asset_reject_and_roll_back_price_changes() {
         assert_eq!(w.economy.assets["test:product"].supply, 5.0);
         assert_eq!(w.economy.accounts["trainer"], 10.0);
         assert_eq!(w.economy.accounts["cat-billi"], 10.0);
-        assert!(w.economy.transactions.is_empty());
-        assert!(w.economy.holdings.is_empty());
+        assert_eq!(serde_json::to_value(&w.economy).unwrap(), economy_before);
         assert_eq!(w.pending_events.len(), 1);
         assert!(
             matches!(&w.pending_events[0], WorldEvent::CommandRejected { reason: actual, .. } if actual == reason)
