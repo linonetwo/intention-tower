@@ -4,10 +4,35 @@ import { WorldCharacterSprite } from './WorldCharacterSprite';
 import type { WorldCharacter } from '../../types/backend';
 
 const character: WorldCharacter = { id: 'dog', label: 'Dog', position: { x: 100, y: 300 }, mind_graph: { character_id: 'dog', nodes: {}, edges: {} } };
-const props = { character, asset: { src: '/dog.png', height: 90 }, revision: 1, x: 100, ground: 300, scale: 1, selected: true, targeted: false, onSelect: vi.fn() };
+const props = { character, asset: { src: '/dog.png', height: 90 }, revision: 1, x: 100, ground: 300, scale: 1, projectionKey: '1:0:300:1', selected: true, targeted: false, onSelect: vi.fn() };
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('full-body world character', () => {
+  it('snaps changed projections during a walk and preserves that decision through art rerenders', () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<WorldCharacterSprite {...props} />);
+    const moved = { ...character, position: { x: 118, y: 300 } };
+    rerender(<WorldCharacterSprite {...props} character={moved} x={118} />);
+    const entity = screen.getByTestId('scene-character-dog');
+    expect(entity.style.transition).toBe('left 140ms linear,top 140ms linear');
+    const resized = { ...props, character: moved, x: 59, ground: 200, scale: .5, projectionKey: '.5:0:200:.5' };
+    rerender(<WorldCharacterSprite {...resized} />);
+    expect(entity.getAttribute('data-moving')).toBe('true');
+    expect(entity.style.transition).toBe('none');
+    expect(entity.style.left).toBe('59px');
+    expect(entity.style.top).toBe('155px');
+    const sprite = screen.getByTestId('scene-character-sprite-dog');
+    Object.defineProperty(sprite, 'naturalHeight', { value: 100 });
+    Object.defineProperty(sprite, 'naturalWidth', { value: 80 });
+    fireEvent.load(sprite);
+    expect(entity.style.transition).toBe('none');
+    rerender(<WorldCharacterSprite {...resized} character={{ ...moved, position: { x: 136, y: 300 } }} x={68} />);
+    expect(entity.style.transition).toBe('left 140ms linear,top 140ms linear');
+    act(() => { vi.advanceTimersByTime(241); });
+    expect(entity.style.transition).toBe('left 140ms linear,top 140ms linear');
+    rerender(<WorldCharacterSprite {...resized} projectionKey=".5:-10:200:.5" character={{ ...moved, position: { x: 154, y: 300 } }} x={67} />);
+    expect(entity.style.transition).toBe('none');
+  });
   it('uses sprite art and keeps authoritative positions available to verification', () => {
     render(<WorldCharacterSprite {...props} />);
     const entity = screen.getByTestId('scene-character-dog');

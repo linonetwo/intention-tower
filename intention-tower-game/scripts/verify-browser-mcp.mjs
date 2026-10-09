@@ -377,6 +377,12 @@ try {
     assert.equal(receipt.observation_schema_id, 'it:concept/instruction-sit');
     await shot('wave-instructed-sitting');
     await call('set_viewport', { width: 390, height: 844 });
+    await settle('mobile-wave-projection-check');
+    const projection = await evaluate(`(()=>{const viewport=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect(),d=window.__itSceneDebug();return d.characters.map(character=>{const r=document.querySelector('[data-testid="scene-character-'+character.id+'"]').getBoundingClientRect();return{id:character.id,actualX:r.left+r.width/2-viewport.left,expectedX:character.position.x*d.scale+d.cameraX,actualGround:r.bottom-viewport.top,expectedGround:d.ground+(character.position.y-300)*d.scale}})})()`);
+    for (const anchor of projection) {
+      assert.ok(Math.abs(anchor.actualX - anchor.expectedX) < 1, `${anchor.id}: resized sprite must land with room projection, not glide from the old viewport`);
+      assert.ok(Math.abs(anchor.actualGround - anchor.expectedGround) < 1, `${anchor.id}: resized feet must remain on the actual floor`);
+    }
     await shot('mobile-wave-instructed-sitting');
     await call('set_viewport', { width: 1440, height: 900 });
     await clickCommand('request-sit'); await advance(4);
@@ -390,7 +396,7 @@ try {
     assert.equal(motorEpisodes(stood)[1].stimulus.observation_schema_id, 'it:concept/instruction-stand');
     assert.equal(stood.progress.objectives.find(objective => objective.objective_id === 'enforce-obedience').completed, false, 'One student cannot satisfy the three-student objective');
     await shot('wave-instructed-standing');
-    report.instructedPosture = { realButtons: true, sitReceipt: receipt, noOpDidNotCount: true, sameGround: true, successfulEpisodes: 2, allStudentsStillRequired: true };
+    report.instructedPosture = { realButtons: true, sitReceipt: receipt, noOpDidNotCount: true, sameGround: true, successfulEpisodes: 2, allStudentsStillRequired: true, mobileProjection: projection };
   } catch (error) {
     report.instructedPostureFailure = String(error);
     await shot('instructed-posture-failure');

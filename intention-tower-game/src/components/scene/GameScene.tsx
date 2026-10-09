@@ -38,6 +38,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const maxAssetHeight = Math.max(1, ...characters.map(character => resolveCharacterSprite(manifest, character.id)?.height ?? 150));
   const scale = characterArtScale(worldScale, ground, maxAssetHeight);
   const cameraX = clampCameraX(width, actor?.position.x ?? 400, worldScale, worldMin, worldMax);
+  const projectionKey = `${worldScale}:${cameraX}:${ground}:${scale}`;
   const projectY = (y: number) => projectPlatformY(y, ground, worldScale);
   const items = Object.values(world?.items ?? {}).filter(item => !item.owner_id);
   const itemGroups: typeof items[] = [];
@@ -118,7 +119,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
           })}</div>;
         })}
         {characters.map(character => <WorldCharacterSprite key={`${levelId}:${character.id}`} character={character} asset={resolveCharacterSprite(manifest, character.id)} revision={revision} posture={world?.character_postures?.[character.id] ?? 'standing'}
-          x={character.position.x * worldScale + cameraX} ground={projectY(character.position.y)} scale={scale} selected={character.id === actorId} targeted={character.id === targetId}
+          x={character.position.x * worldScale + cameraX} ground={projectY(character.position.y)} scale={scale} projectionKey={projectionKey} selected={character.id === actorId} targeted={character.id === targetId}
           onSelect={e => { walkRun.current++; const state = gameStore.getState(); if (e.shiftKey || targetSelection) state.selectTarget(character.id); else state.selectActor(character.id); state.inspectCharacter(character.id); setTargetSelection(false); }} />)}
         {itemsVisible && itemGroups.map(group => {
           const item = group[0];
