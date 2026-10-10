@@ -14,7 +14,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/eldritch-knowledge",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/curiosity"], "isBelief": true, "isAttentionFlood": true, "floodNodeCount": 4, "floodDrainRatePerTick": 0.04, "resilience": 0.86 }
         },
         {
           "type": "ModifyNodeValue",
@@ -71,7 +72,9 @@
       "label": "command.investigate-victim.label",
       "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "TargetHasNode", "schemaId": "it:concept/madness" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -79,7 +82,8 @@
           "modality": "Visual",
           "about": "it:entity/victim",
           "ttl": 200,
-          "strength": 0.6
+          "strength": 0.6,
+          "targetCharacterId": "investigator"
         }
       ]
     }

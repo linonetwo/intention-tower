@@ -35,5 +35,18 @@
     "level.collapse.objective.0",
     "level.collapse.objective.1",
     "level.collapse.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "raise-pressure", "label": "level.collapse.objective.0", "condition": { "type": "commandUsed", "commandId": "deliver-bad-news", "minCount": 2 } },
+    { "objectiveId": "observe-erosion", "label": "level.collapse.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "add-pressure", "minCount": 1 },
+      { "type": "tickAtLeast", "tick": 2 }
+    ] } },
+    { "objectiveId": "restore-intrinsic", "label": "level.collapse.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "encourage-intrinsic", "minCount": 2 },
+      { "type": "nodeValue", "characterId": "student-worker", "schemaId": "it:concept/joy-of-learning", "op": "GTE", "value": 0.3 }
+    ] } }
+  ],
+  "defaultActorId": "student-worker",
+  "defaultTargetId": "student-worker"
 }

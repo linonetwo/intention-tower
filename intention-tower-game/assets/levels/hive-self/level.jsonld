@@ -51,5 +51,12 @@
     "level.hive-self.objective.0",
     "level.hive-self.objective.1",
     "level.hive-self.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "stress-all-clones", "label": "level.hive-self.objective.0", "condition": { "type": "commandUsed", "commandId": "reduce-resources", "minCount": 3, "distinctTargets": 3 } },
+    { "objectiveId": "break-cooperation", "label": "level.hive-self.objective.1", "condition": { "type": "commandUsed", "commandId": "inject-distrust", "minCount": 2, "distinctTargets": 2 } },
+    { "objectiveId": "repair-protocol", "label": "level.hive-self.objective.2", "condition": { "type": "commandUsed", "commandId": "reinforce-protocol", "minCount": 2, "distinctTargets": 2 } }
+  ],
+  "defaultActorId": "clone-a",
+  "defaultTargetId": "clone-b"
 }

@@ -9,6 +9,7 @@ use axum::{
 };
 use serde::Deserialize;
 use serde_json::{json, Value};
+use tower_http::cors::CorsLayer;
 
 use super::dispatch::call_tool;
 use super::protocol::{RpcRequest, RpcResponse};
@@ -21,7 +22,11 @@ pub async fn run_test_server(state: SharedState, port: u16) {
     let app = Router::new()
         .route("/health", get(health_handler))
         .route("/mcp", post(mcp_handler))
-        .route("/__mcp_eval_result", get(eval_result_query_handler).post(eval_result_handler))
+        .route(
+            "/__mcp_eval_result",
+            get(eval_result_query_handler).post(eval_result_handler),
+        )
+        .layer(CorsLayer::permissive())
         .with_state(state);
 
     let addr = format!("127.0.0.1:{}", port);
@@ -138,7 +143,9 @@ async fn eval_result_query_handler(
         return Json(json!({ "ok": true }));
     }
 
-    if let (Some(id), Some(part), Some(total), Some(chunk)) = (query.id, query.part, query.total, query.chunk) {
+    if let (Some(id), Some(part), Some(total), Some(chunk)) =
+        (query.id, query.part, query.total, query.chunk)
+    {
         if let Some(value) = state.push_eval_chunk(&id, part, total, chunk) {
             if let Some(error) = value.get("error").and_then(|v| v.as_str()) {
                 state.store_eval_result(id, json!({ "error": error }));

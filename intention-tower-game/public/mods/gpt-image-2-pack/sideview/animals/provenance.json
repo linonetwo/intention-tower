@@ -1,0 +1,15 @@
+{
+  "model": "gpt-image-2",
+  "generator": "proxy-imagegen reusable generate/SSE/auth flow with prototype image input",
+  "generatedAt": "2026-10-08",
+  "sourceReferences": {
+    "cat": "../../sprites/cat.png",
+    "dog": "../../sprites/dog.png",
+    "gosling": "../../sprites/gosling.png"
+  },
+  "requestNote": "The existing skill generate flow was reused by a temporary project wrapper. It changed Responses input from text to text plus prototype PNG reference, without modifying the skill, credentials or configuration. Wrapper removed after completion. Not an unmodified text-only skill invocation.",
+  "promptSummary": "Preserve existing animal identity and softly shaded anime rendering. Exactly six separated side-profile right-facing poses in one row: standing idle, four anatomically distinct walk contacts/passing poses, ground sitting with lowered rump/folded hindlegs (gosling belly settles and feet tuck). Real transparent alpha, no floor/shadow/text/chair; shared scale and baseline.",
+  "generationResult": "All three processes completed with final PNGs. Cat required two bounded retries for HTTP 503; dog and gosling succeeded on first attempt. No successful asset regenerated.",
+  "processing": "normalize-animal-motion.py: alpha projection identifies six regions; crop native model pixels without repainting or identity redesign; shared frame canvas, foot baseline, six-frame atlas and compact nearest-neighbor review thumbnails.",
+  "review": "All three 720px contact sheets viewed. Cat silver-gray stripes/turquoise eyes, dog brown-white/red collar/gold pendant, gosling butter-yellow/orange bill and feet preserved. Ground-sitting silhouettes visibly distinct from idle; no chairs. Walk phases are visibly distinct but not claimed to be a perfectly authored gait."
+}

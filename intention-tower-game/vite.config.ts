@@ -28,5 +28,11 @@ export default defineConfig(async () => ({
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
+    proxy: {
+      "/mcp": {
+        target: "http://127.0.0.1:9222",
+        changeOrigin: true,
+      },
+    },
   },
 }));

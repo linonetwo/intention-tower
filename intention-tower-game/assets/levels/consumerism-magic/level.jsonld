@@ -52,6 +52,9 @@
       "@type": "schema:Product",
       "label": "level.consumerism-magic.item.magic-product.label",
       "position": { "x": 500, "y": 200 },
+      "ownerId": "it:entity/magic-merchant",
+      "quantity": 100,
+      "unitPrice": 12,
       "fallbackChar": "P"
     },
     {
@@ -73,5 +76,15 @@
     "level.consumerism-magic.objective.0",
     "level.consumerism-magic.objective.1",
     "level.consumerism-magic.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "advertise-to-citizens", "label": "level.consumerism-magic.objective.0", "condition": { "type": "commandUsed", "commandId": "cast-magic-ad", "minCount": 3, "distinctTargets": 3 } },
+    { "objectiveId": "brand-identity", "label": "level.consumerism-magic.objective.1", "condition": { "type": "commandUsed", "commandId": "enhance-brand", "minCount": 3, "distinctTargets": 3 } },
+    { "objectiveId": "sustain-demand", "label": "level.consumerism-magic.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "set-up-shop", "minCount": 3, "distinctTargets": 3 },
+      { "type": "assetTransactions", "itemId": "magic-product", "minCount": 3, "distinctBuyers": 3 }
+    ] } }
+  ],
+  "defaultActorId": "magic-merchant",
+  "defaultTargetId": "citizen-1"
 }

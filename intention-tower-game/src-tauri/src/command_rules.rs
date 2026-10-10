@@ -1,0 +1,107 @@
+use crate::models::commands::{CommandDef, Precondition, TargetingMode};
+use crate::models::mind_node::NodeType;
+use crate::models::progress::LevelStatus;
+use crate::models::world_state::WorldState;
+
+/// Canonical DTO target: NoTarget ignores even invalid supplied targets.
+pub fn normalized_target_id(targeting: TargetingMode, target_id: Option<&str>) -> Option<&str> {
+    match targeting {
+        TargetingMode::NoTarget => None,
+        _ => target_id,
+    }
+}
+
+/// Platform-independent command availability rules shared by Tauri and MCP.
+pub fn check_precondition(
+    precondition: &Precondition,
+    actor_id: &str,
+    target_id: Option<&str>,
+    world: &WorldState,
+) -> bool {
+    match precondition {
+        Precondition::ActorIs { character_ids } => character_ids.iter().any(|id| id == actor_id),
+        Precondition::TargetIs { character_ids } => {
+            target_id.is_some_and(|target| character_ids.iter().any(|id| id == target))
+        }
+        Precondition::TargetIsNotActor => target_id.is_some_and(|target| target != actor_id),
+        Precondition::EnvHasItem { item_schema_id } => world.items.values().any(|item| {
+            item.schema_type == *item_schema_id
+                || item.abstract_type.as_deref() == Some(item_schema_id.as_str())
+        }),
+        Precondition::TargetHasNode { schema_id } => target_id
+            .and_then(|id| world.characters.get(id))
+            .is_some_and(|character| character.mind_graph.find_by_schema(schema_id).is_some()),
+        Precondition::TargetNodeActive { schema_id } => target_id
+            .and_then(|id| world.characters.get(id))
+            .and_then(|character| character.mind_graph.find_by_schema(schema_id))
+            .is_some_and(|node| node.active),
+        Precondition::TargetNodeValue {
+            schema_id,
+            op,
+            threshold,
+        } => target_id
+            .and_then(|id| world.characters.get(id))
+            .and_then(|character| character.mind_graph.find_by_schema(schema_id))
+            .is_some_and(|node| op.evaluate(node.value, *threshold)),
+        Precondition::TargetActionSelected { schema_id } => target_id
+            .and_then(|id| world.characters.get(id))
+            .is_some_and(|character| {
+                character.mind_graph.nodes.values().any(|node| {
+                    node.schema_id == *schema_id
+                        && node.node_type == NodeType::Action
+                        && node.active
+                        && node.attended
+                        && node.action.as_ref().is_some_and(|action| action.selected)
+                })
+            }),
+        Precondition::TargetActionExecuted { schema_id } => target_id
+            .and_then(|id| world.characters.get(id))
+            .is_some_and(|character| {
+                // Feeding is processed on the next tick, when operant credit
+                // accepts responses aged at most ten ticks. Selection and
+                // activation may already have ended after the motor response.
+                character.mind_graph.action_episodes.iter().any(|episode| {
+                    episode.action_schema_id == *schema_id
+                        && episode.rewarded_at.is_none()
+                        && episode.reward_consumed_at.is_none()
+                        && episode.executed_at <= world.tick
+                        && world.tick - episode.executed_at < 10
+                })
+            }),
+        Precondition::ActorResource {
+            resource_schema_id,
+            op,
+            threshold,
+        } => world.characters.get(actor_id).is_some_and(|character| {
+            op.evaluate(
+                character.mind_graph.resource_value(resource_schema_id),
+                *threshold,
+            )
+        }),
+        Precondition::IsVirtualContext { value } => world.in_virtual_context == *value,
+    }
+}
+
+pub fn command_available(
+    command: &CommandDef,
+    actor_id: &str,
+    target_id: Option<&str>,
+    world: &WorldState,
+) -> bool {
+    let target_id = normalized_target_id(command.targeting, target_id);
+    if world.progress.status != LevelStatus::InProgress || !world.characters.contains_key(actor_id)
+    {
+        return false;
+    }
+    if command.targeting == TargetingMode::RequiresTarget
+        && !target_id.is_some_and(|id| world.characters.contains_key(id))
+    {
+        return false;
+    }
+    if target_id.is_some_and(|id| !world.characters.contains_key(id)) {
+        return false;
+    }
+    command.preconditions.iter().all(|precondition| {
+        check_precondition(precondition, actor_id, target_id.or(Some(actor_id)), world)
+    })
+}

@@ -20,6 +20,10 @@ type: text/vnd.tiddlywiki
 |list_commands(actor_id, target_id, context)|返回当前可用命令 DTO 列表|
 |execute_command(command_id, actor_id, target_id?, params?)|执行命令，返回 StateDiff 并广播事件|
 |subscribe_events()|订阅 WorldEvent 事件流（增量 diff）|
+|set_paused(paused)|暂停/恢复仿真|
+|step_tick()|暂停状态下精确推进一个 tick，并恢复原暂停状态|
+|move_character(character_id, delta_x, delta_y)|微操移动；统一执行限速、世界边界与碰撞校验|
+|get_progress()|MCP 查询权威目标、完成状态与胜负结果|
 |save_jsonld() / load_jsonld()|JSON-LD 格式存档/读档|
 
 !! 23 个仿真系统（确定性 tick 顺序）
@@ -47,3 +51,12 @@ type: text/vnd.tiddlywiki
 # MoodCascadeSystem — Mood.thresholdModifiers 应用到其他节点
 # CleanupSystem — TTL 过期删除/孤立节点清理
 # EventEmissionSystem — 收集变化 → StateDiff 事件流输出
+
+核心 23 系统之后/之间插入的可演进扩展系统：
+
+* `EconomySystem` — 从欲望模因投影需求；交易由声明式效果写入账本
+* `MemeEmergenceSystem` — 重复公共感知自然结晶为模因
+* `SocialDynamicsSystem` — 跨角色聚合群体成员、凝聚力与共识行动
+* `LevelProgressSystem` — 最后评估目标/失败谓词并锁定 Won/Lost
+
+浏览器开发模式通过独立 MCP/JSON-RPC 服务暴露相同操作；桌面端通过 Tauri IPC 暴露，不允许两套实现产生不同的暂停、排队或单步语义。

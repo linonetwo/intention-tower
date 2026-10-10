@@ -29,7 +29,7 @@
       "label": "node-type.observation.label",
       "comment": "node-type.observation.description",
       "it:fields": {
-        "modality": { "type": "enum", "values": ["Visual", "Auditory", "Olfactory", "Gustatory", "Tactile", "Interoceptive", "Chemical"] },
+        "modality": { "type": "enum", "values": ["Visual", "Auditory", "Olfactory", "Gustatory", "Tactile", "Interoceptive", "Chemical", "Social"] },
         "about": { "type": "IRI", "comment": "External entity reference (schema.org type preferred, use abstract-one-level rule)" },
         "noveltyKey": { "type": "string", "comment": "Shared key for habituation grouping" },
         "credibility": { "type": "f64", "default": 1.0 },
@@ -39,6 +39,7 @@
         "signalType": { "type": "enum", "values": ["Status", "Belonging", "Threat", "Approval", "Rejection", "Chemical"], "optional": true },
         "emitterId": { "type": "IRI", "optional": true },
         "groupContext": { "type": "IRI", "optional": true },
+        "socialConsumedAt": { "type": "u64", "optional": true, "comment": "Runtime persisted tick of the consumed social presentation; not an authored reward" },
         "replicaOf": { "type": "IRI", "optional": true, "comment": "Real entity this virtual observation corresponds to" }
       }
     },
@@ -74,6 +75,12 @@
         "chainTarget": { "type": "IRI", "optional": true },
         "targetEntity": { "type": "IRI", "optional": true, "comment": "Imprinting target entity" },
         "criticalPeriodEnd": { "type": "u64", "optional": true, "comment": "Imprinting critical period end tick" },
+        "imprinting": { "type": "object", "optional": true, "fields": {
+          "observationSchemas": "array:IRI", "followActionSchema": "IRI", "separationInstinctSchema": "IRI", "followSpeed": "f64", "comfortRadius": "f64"
+        } },
+        "imprintingEvidence": { "type": "object", "optional": true, "comment": "Persisted actual acquisition and movement, never command counters", "fields": {
+          "targetEntity": "IRI", "sourceId": "string", "imprintedAt": "u64", "dopamineSpent": "f64", "followedDistance": "f64", "followTicks": "u32", "maxSeparationDistance": "f64"
+        } },
         "isPersistent": { "type": "bool", "default": false },
         "suppressedBy": { "type": "array", "items": "IRI", "optional": true }
       }
@@ -86,8 +93,13 @@
       "comment": "node-type.action.description",
       "it:fields": {
         "innate": { "type": "bool", "default": false, "comment": "True = involuntary gene program (replaces GeneProgram type)" },
+        "instructionCue": { "type": "object", "optional": true, "fields": { "observationSchemaIds": "nonempty IRI array", "emitterId": "optional string", "groupContext": "optional string", "maxAgeTicks": "positive u64", "minValue": "finite f64 in [0,1]" } },
+        "physicalEffect": { "type": "object", "optional": true, "variants": [{ "type": "ActorPosture", "posture": "sitting|standing" }] },
         "goap": { "type": "bool", "default": false },
         "subActionSchemas": { "type": "array", "items": "IRI", "optional": true },
+        "emittedObservationSchemas": { "type": "array", "items": "IRI", "optional": true },
+        "autonomousNeedSchemaIds": { "type": "array", "items": "IRI", "optional": true },
+        "autonomousNeedMinValue": { "type": "f64", "default": 0.6 },
         "preconditions": { "type": "array", "items": "it:Precondition", "optional": true },
         "worldEffects": { "type": "array", "items": "it:WorldEffect", "optional": true },
         "proficiencyLevel": { "type": "f64", "default": 0.0 },
@@ -113,6 +125,7 @@
         "isIdentity": { "type": "bool", "default": false },
         "groupId": { "type": "IRI", "optional": true },
         "reinforcedBy": { "type": "array", "items": "string", "optional": true },
+        "socialNeedBindings": { "type": "array", "optional": true, "items": { "needSchemaId": "IRI (non-resource PriorInstinct)", "relief": "f64 in (0,1]" }, "comment": "Approval relieves this group's needs once; actual outcomes buy prediction-error learning with dopamine" },
         "dissolvesWhen": { "type": "object", "optional": true },
         "isAttentionFlood": { "type": "bool", "default": false },
         "floodNodeCount": { "type": "u32", "optional": true },

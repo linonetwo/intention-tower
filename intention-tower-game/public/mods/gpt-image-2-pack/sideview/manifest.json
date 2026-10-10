@@ -1,0 +1,1295 @@
+{
+  "schemaVersion": 1,
+  "model": "gpt-image-2",
+  "generator": "proxy-imagegen",
+  "generatedAt": "2026-10-08",
+  "provider": "https://token.k3s.onetwo.website/v1",
+  "outerModel": "gpt-6.1-sol",
+  "artDirection": "bright four-heads anime RPG, orthographic horizontal side view",
+  "urlRoot": "/mods/gpt-image-2-pack/sideview/",
+  "updatedLevels": [
+    "pavlov",
+    "gosling",
+    "smart-cat",
+    "the-wave",
+    "antimeme-division",
+    "chen-sheng-uprising",
+    "collapse",
+    "consumerism-magic",
+    "crowd",
+    "cthulhu",
+    "cyber-dream",
+    "destroy-hive-mind",
+    "face-saving",
+    "hive-self",
+    "ideology",
+    "illusion-trap",
+    "internet-addict",
+    "meme-magic",
+    "postmodern-vagrant",
+    "trigger-addiction",
+    "water-is-poison"
+  ],
+  "backgrounds": {
+    "research-room.png": {
+      "file": "research-room.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 805,
+      "groundRatio": 0.7861328125,
+      "levels": [
+        "pavlov",
+        "gosling"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "cat-room.png": {
+      "file": "cat-room.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 748,
+      "groundRatio": 0.73046875,
+      "levels": [
+        "smart-cat"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "classroom.png": {
+      "file": "classroom.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 698,
+      "groundRatio": 0.681640625,
+      "levels": [
+        "the-wave"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/antimeme-division.png": {
+      "file": "rooms/antimeme-division.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 786,
+      "groundRatio": 0.767578125,
+      "levels": [
+        "antimeme-division"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/chen-sheng-uprising.png": {
+      "file": "rooms/chen-sheng-uprising.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 720,
+      "groundRatio": 0.703125,
+      "levels": [
+        "chen-sheng-uprising"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/collapse.png": {
+      "file": "rooms/collapse.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 762,
+      "groundRatio": 0.744140625,
+      "levels": [
+        "collapse"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/consumerism-magic.png": {
+      "file": "rooms/consumerism-magic.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 796,
+      "groundRatio": 0.77734375,
+      "levels": [
+        "consumerism-magic"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/crowd.png": {
+      "file": "rooms/crowd.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 757,
+      "groundRatio": 0.7392578125,
+      "levels": [
+        "crowd"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/cthulhu.png": {
+      "file": "rooms/cthulhu.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 755,
+      "groundRatio": 0.7373046875,
+      "levels": [
+        "cthulhu"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/cyber-dream.png": {
+      "file": "rooms/cyber-dream.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 726,
+      "groundRatio": 0.708984375,
+      "levels": [
+        "cyber-dream"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/destroy-hive-mind.png": {
+      "file": "rooms/destroy-hive-mind.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 780,
+      "groundRatio": 0.76171875,
+      "levels": [
+        "destroy-hive-mind"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/face-saving.png": {
+      "file": "rooms/face-saving.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 708,
+      "groundRatio": 0.69140625,
+      "levels": [
+        "face-saving"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/hive-self.png": {
+      "file": "rooms/hive-self.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 712,
+      "groundRatio": 0.6953125,
+      "levels": [
+        "hive-self"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/ideology.png": {
+      "file": "rooms/ideology.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 687,
+      "groundRatio": 0.6708984375,
+      "levels": [
+        "ideology"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/illusion-trap.png": {
+      "file": "rooms/illusion-trap.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 743,
+      "groundRatio": 0.7255859375,
+      "levels": [
+        "illusion-trap"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/internet-addict.png": {
+      "file": "rooms/internet-addict.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 766,
+      "groundRatio": 0.748046875,
+      "levels": [
+        "internet-addict"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/meme-magic.png": {
+      "file": "rooms/meme-magic.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 767,
+      "groundRatio": 0.7490234375,
+      "levels": [
+        "meme-magic"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/postmodern-vagrant.png": {
+      "file": "rooms/postmodern-vagrant.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 704,
+      "groundRatio": 0.6875,
+      "levels": [
+        "postmodern-vagrant"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/trigger-addiction.png": {
+      "file": "rooms/trigger-addiction.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 753,
+      "groundRatio": 0.7353515625,
+      "levels": [
+        "trigger-addiction"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    },
+    "rooms/water-is-poison.png": {
+      "file": "rooms/water-is-poison.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "groundY": 785,
+      "groundRatio": 0.7666015625,
+      "levels": [
+        "water-is-poison"
+      ],
+      "camera": "orthographic-side-elevation",
+      "generatedFloorRatioRequested": 0.85
+    }
+  },
+  "characters": {
+    "student-male": {
+      "source": "student-male-sheet.png",
+      "atlas": "student-male-atlas.png",
+      "size": [
+        2304,
+        724
+      ],
+      "cellSize": [
+        384,
+        724
+      ],
+      "anchor": [
+        192,
+        700
+      ],
+      "facing": "right",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "frames": [
+        {
+          "name": "idle",
+          "file": "student-male-idle.png",
+          "rect": [
+            0,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            89,
+            67,
+            191,
+            578
+          ]
+        },
+        {
+          "name": "walk-1",
+          "file": "student-male-walk-1.png",
+          "rect": [
+            384,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            393,
+            67,
+            317,
+            576
+          ]
+        },
+        {
+          "name": "walk-2",
+          "file": "student-male-walk-2.png",
+          "rect": [
+            768,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            773,
+            64,
+            195,
+            580
+          ]
+        },
+        {
+          "name": "walk-3",
+          "file": "student-male-walk-3.png",
+          "rect": [
+            1152,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1111,
+            67,
+            326,
+            577
+          ]
+        },
+        {
+          "name": "walk-4",
+          "file": "student-male-walk-4.png",
+          "rect": [
+            1536,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1520,
+            67,
+            189,
+            577
+          ]
+        },
+        {
+          "name": "sit",
+          "file": "student-male-sit.png",
+          "rect": [
+            1920,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1864,
+            154,
+            276,
+            491
+          ]
+        }
+      ],
+      "animations": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "sit": [
+          5
+        ]
+      },
+      "walkFps": 7
+    },
+    "teacher": {
+      "source": "teacher-sheet.png",
+      "atlas": "teacher-atlas.png",
+      "size": [
+        2304,
+        724
+      ],
+      "cellSize": [
+        384,
+        724
+      ],
+      "anchor": [
+        192,
+        700
+      ],
+      "facing": "right",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "frames": [
+        {
+          "name": "idle",
+          "file": "teacher-idle.png",
+          "rect": [
+            0,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            81,
+            27,
+            184,
+            650
+          ]
+        },
+        {
+          "name": "walk-1",
+          "file": "teacher-walk-1.png",
+          "rect": [
+            384,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            382,
+            27,
+            332,
+            647
+          ]
+        },
+        {
+          "name": "walk-2",
+          "file": "teacher-walk-2.png",
+          "rect": [
+            768,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            787,
+            27,
+            254,
+            649
+          ]
+        },
+        {
+          "name": "walk-3",
+          "file": "teacher-walk-3.png",
+          "rect": [
+            1152,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1108,
+            27,
+            317,
+            648
+          ]
+        },
+        {
+          "name": "walk-4",
+          "file": "teacher-walk-4.png",
+          "rect": [
+            1536,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1511,
+            27,
+            200,
+            649
+          ]
+        },
+        {
+          "name": "sit",
+          "file": "teacher-sit.png",
+          "rect": [
+            1920,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1845,
+            134,
+            293,
+            543
+          ]
+        }
+      ],
+      "animations": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "sit": [
+          5
+        ]
+      },
+      "walkFps": 7
+    },
+    "researcher": {
+      "source": "researcher-sheet.png",
+      "atlas": "researcher-atlas.png",
+      "size": [
+        2304,
+        724
+      ],
+      "cellSize": [
+        384,
+        724
+      ],
+      "anchor": [
+        192,
+        700
+      ],
+      "facing": "right",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "frames": [
+        {
+          "name": "idle",
+          "file": "researcher-idle.png",
+          "rect": [
+            0,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            72,
+            40,
+            187,
+            630
+          ]
+        },
+        {
+          "name": "walk-1",
+          "file": "researcher-walk-1.png",
+          "rect": [
+            384,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            368,
+            44,
+            316,
+            621
+          ]
+        },
+        {
+          "name": "walk-2",
+          "file": "researcher-walk-2.png",
+          "rect": [
+            768,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            756,
+            47,
+            231,
+            620
+          ]
+        },
+        {
+          "name": "walk-3",
+          "file": "researcher-walk-3.png",
+          "rect": [
+            1152,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1127,
+            46,
+            325,
+            620
+          ]
+        },
+        {
+          "name": "walk-4",
+          "file": "researcher-walk-4.png",
+          "rect": [
+            1536,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1513,
+            47,
+            252,
+            622
+          ]
+        },
+        {
+          "name": "sit",
+          "file": "researcher-sit.png",
+          "rect": [
+            1920,
+            0,
+            384,
+            724
+          ],
+          "anchor": [
+            192.0,
+            700
+          ],
+          "sourceBounds": [
+            1874,
+            155,
+            286,
+            513
+          ]
+        }
+      ],
+      "animations": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "sit": [
+          5
+        ]
+      },
+      "walkFps": 7
+    },
+    "cat": {
+      "source": "animals/cat-sheet.png",
+      "atlas": "animals/cat-atlas.png",
+      "size": [
+        2202,
+        351
+      ],
+      "cellSize": [
+        367,
+        351
+      ],
+      "anchor": [
+        183.5,
+        339
+      ],
+      "facing": "right",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "frames": [
+        {
+          "name": "idle",
+          "file": "animals/cat-idle.png",
+          "rect": [
+            0,
+            0,
+            367,
+            351
+          ],
+          "anchor": [
+            183.5,
+            339
+          ],
+          "sourceBounds": [
+            19,
+            215,
+            333,
+            327
+          ]
+        },
+        {
+          "name": "walk-1",
+          "file": "animals/cat-walk-1.png",
+          "rect": [
+            367,
+            0,
+            367,
+            351
+          ],
+          "anchor": [
+            183.5,
+            339
+          ],
+          "sourceBounds": [
+            384,
+            215,
+            335,
+            323
+          ]
+        },
+        {
+          "name": "walk-2",
+          "file": "animals/cat-walk-2.png",
+          "rect": [
+            734,
+            0,
+            367,
+            351
+          ],
+          "anchor": [
+            183.5,
+            339
+          ],
+          "sourceBounds": [
+            761,
+            216,
+            322,
+            325
+          ]
+        },
+        {
+          "name": "walk-3",
+          "file": "animals/cat-walk-3.png",
+          "rect": [
+            1101,
+            0,
+            367,
+            351
+          ],
+          "anchor": [
+            183.5,
+            339
+          ],
+          "sourceBounds": [
+            1115,
+            216,
+            326,
+            323
+          ]
+        },
+        {
+          "name": "walk-4",
+          "file": "animals/cat-walk-4.png",
+          "rect": [
+            1468,
+            0,
+            367,
+            351
+          ],
+          "anchor": [
+            183.5,
+            339
+          ],
+          "sourceBounds": [
+            1480,
+            216,
+            331,
+            320
+          ]
+        },
+        {
+          "name": "sit",
+          "file": "animals/cat-sit.png",
+          "rect": [
+            1835,
+            0,
+            367,
+            351
+          ],
+          "anchor": [
+            183.5,
+            339
+          ],
+          "sourceBounds": [
+            1855,
+            244,
+            283,
+            294
+          ]
+        }
+      ],
+      "animations": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "sit": [
+          5
+        ]
+      },
+      "walkFps": 7
+    },
+    "dog": {
+      "source": "animals/dog-sheet.png",
+      "atlas": "animals/dog-atlas.png",
+      "size": [
+        2280,
+        343
+      ],
+      "cellSize": [
+        380,
+        343
+      ],
+      "anchor": [
+        190.0,
+        331
+      ],
+      "facing": "right",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "frames": [
+        {
+          "name": "idle",
+          "file": "animals/dog-idle.png",
+          "rect": [
+            0,
+            0,
+            380,
+            343
+          ],
+          "anchor": [
+            190.0,
+            331
+          ],
+          "sourceBounds": [
+            17,
+            209,
+            341,
+            319
+          ]
+        },
+        {
+          "name": "walk-1",
+          "file": "animals/dog-walk-1.png",
+          "rect": [
+            380,
+            0,
+            380,
+            343
+          ],
+          "anchor": [
+            190.0,
+            331
+          ],
+          "sourceBounds": [
+            374,
+            208,
+            348,
+            308
+          ]
+        },
+        {
+          "name": "walk-2",
+          "file": "animals/dog-walk-2.png",
+          "rect": [
+            760,
+            0,
+            380,
+            343
+          ],
+          "anchor": [
+            190.0,
+            331
+          ],
+          "sourceBounds": [
+            754,
+            208,
+            320,
+            318
+          ]
+        },
+        {
+          "name": "walk-3",
+          "file": "animals/dog-walk-3.png",
+          "rect": [
+            1140,
+            0,
+            380,
+            343
+          ],
+          "anchor": [
+            190.0,
+            331
+          ],
+          "sourceBounds": [
+            1101,
+            208,
+            342,
+            310
+          ]
+        },
+        {
+          "name": "walk-4",
+          "file": "animals/dog-walk-4.png",
+          "rect": [
+            1520,
+            0,
+            380,
+            343
+          ],
+          "anchor": [
+            190.0,
+            331
+          ],
+          "sourceBounds": [
+            1479,
+            208,
+            335,
+            318
+          ]
+        },
+        {
+          "name": "sit",
+          "file": "animals/dog-sit.png",
+          "rect": [
+            1900,
+            0,
+            380,
+            343
+          ],
+          "anchor": [
+            190.0,
+            331
+          ],
+          "sourceBounds": [
+            1838,
+            229,
+            316,
+            292
+          ]
+        }
+      ],
+      "animations": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "sit": [
+          5
+        ]
+      },
+      "walkFps": 7
+    },
+    "gosling": {
+      "source": "animals/gosling-sheet.png",
+      "atlas": "animals/gosling-atlas.png",
+      "size": [
+        2160,
+        446
+      ],
+      "cellSize": [
+        360,
+        446
+      ],
+      "anchor": [
+        180.0,
+        434
+      ],
+      "facing": "right",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "frames": [
+        {
+          "name": "idle",
+          "file": "animals/gosling-idle.png",
+          "rect": [
+            0,
+            0,
+            360,
+            446
+          ],
+          "anchor": [
+            180.0,
+            434
+          ],
+          "sourceBounds": [
+            30,
+            154,
+            307,
+            422
+          ]
+        },
+        {
+          "name": "walk-1",
+          "file": "animals/gosling-walk-1.png",
+          "rect": [
+            360,
+            0,
+            360,
+            446
+          ],
+          "anchor": [
+            180.0,
+            434
+          ],
+          "sourceBounds": [
+            380,
+            156,
+            328,
+            410
+          ]
+        },
+        {
+          "name": "walk-2",
+          "file": "animals/gosling-walk-2.png",
+          "rect": [
+            720,
+            0,
+            360,
+            446
+          ],
+          "anchor": [
+            180.0,
+            434
+          ],
+          "sourceBounds": [
+            746,
+            154,
+            316,
+            415
+          ]
+        },
+        {
+          "name": "walk-3",
+          "file": "animals/gosling-walk-3.png",
+          "rect": [
+            1080,
+            0,
+            360,
+            446
+          ],
+          "anchor": [
+            180.0,
+            434
+          ],
+          "sourceBounds": [
+            1105,
+            154,
+            321,
+            411
+          ]
+        },
+        {
+          "name": "walk-4",
+          "file": "animals/gosling-walk-4.png",
+          "rect": [
+            1440,
+            0,
+            360,
+            446
+          ],
+          "anchor": [
+            180.0,
+            434
+          ],
+          "sourceBounds": [
+            1470,
+            157,
+            320,
+            416
+          ]
+        },
+        {
+          "name": "sit",
+          "file": "animals/gosling-sit.png",
+          "rect": [
+            1800,
+            0,
+            360,
+            446
+          ],
+          "anchor": [
+            180.0,
+            434
+          ],
+          "sourceBounds": [
+            1845,
+            285,
+            298,
+            292
+          ]
+        }
+      ],
+      "animations": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "sit": [
+          5
+        ]
+      },
+      "walkFps": 7
+    }
+  },
+  "review": {
+    "reviewedWith": "view_image plus PNG channel validation",
+    "rooms": "All 20 unique room PNGs visually inspected (17 additions via five reduced contact sheets using view_image), fully decoded, actual platform top baselines recorded per file; no drawn actors. Detailed horizontal front-elevation sets with open centers. Water-is-poison retains a shallow visible floor plane; small prop top surfaces and decorative symbols remain in some scenes.",
+    "characters": "all three source sheets visually inspected; same identity and costume across six poses; walking contact frames can be similar rather than exact inverse strides; no claim of perfect authored gait",
+    "remainingLevels": "All 21 levels mapped to sideview backgrounds; legacy 21 background sources preserved."
+  },
+  "props": {
+    "chair": {
+      "file": "wood-chair.png",
+      "size": [
+        96,
+        200
+      ],
+      "anchor": [
+        48,
+        192
+      ],
+      "seatY": 106,
+      "source": "classroom.png",
+      "sourceBounds": [
+        150,
+        504,
+        96,
+        200
+      ],
+      "method": "manually reviewed silhouette crop; no new generation",
+      "reviewedWith": "view_image"
+    }
+  }
+}

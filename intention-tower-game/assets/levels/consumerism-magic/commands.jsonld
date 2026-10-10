@@ -6,13 +6,14 @@
       "commandId": "cast-magic-ad",
       "label": "command.cast-magic-ad.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/desire-for-magic-product",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/basic-needs"], "resilience": 0.42 }
         },
         {
           "type": "SpawnObservation",
@@ -47,7 +48,7 @@
       "commandId": "set-up-shop",
       "label": "command.set-up-shop.label",
       "hotkey": "3",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
@@ -55,6 +56,18 @@
           "schemaId": "it:concept/desire-for-magic-product",
           "delta": 0.1,
           "targetCharacterId": "__target"
+        },
+        {
+          "type": "SetAssetPrice",
+          "itemId": "it:entity/magic-product",
+          "unitPrice": 12
+        },
+        {
+          "type": "TradeAsset",
+          "itemId": "it:entity/magic-product",
+          "buyerId": "__target",
+          "sellerId": "__actor",
+          "quantity": 1
         }
       ]
     },
@@ -62,13 +75,14 @@
       "commandId": "enhance-brand",
       "label": "command.enhance-brand.label",
       "hotkey": "4",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/brand-identity",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/desire-for-magic-product"], "isIdentity": true, "groupId": "magic-brand", "resilience": 0.6 }
         }
       ]
     }

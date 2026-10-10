@@ -10,6 +10,10 @@
       "preconditions": [],
       "effects": [
         {
+          "type": "SetVirtualContext",
+          "value": true
+        },
+        {
           "type": "SpawnObservation",
           "schemaId": "it:concept/enter-virtual",
           "modality": "Visual",
@@ -29,6 +33,10 @@
         { "type": "IsVirtualContext", "value": true }
       ],
       "effects": [
+        {
+          "type": "SetVirtualContext",
+          "value": false
+        },
         {
           "type": "ModifyNodeValue",
           "schemaId": "it:concept/reality-sense",

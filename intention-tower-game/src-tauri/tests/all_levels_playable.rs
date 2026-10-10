@@ -1,0 +1,816 @@
+use std::path::{Path, PathBuf};
+
+use intention_tower_game_lib::command_rules::command_available;
+use intention_tower_game_lib::level_loader::load_level_from_path;
+use intention_tower_game_lib::models::commands::{CommandDTO, TargetingMode};
+use intention_tower_game_lib::models::events::WorldEvent;
+use intention_tower_game_lib::models::progress::LevelStatus;
+use intention_tower_game_lib::models::world_state::WorldState;
+use intention_tower_game_lib::systems::runner::SimulationRunner;
+
+fn levels_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("src-tauri has an app parent")
+        .join("assets/levels")
+}
+
+fn act(
+    world: &mut WorldState,
+    runner: &SimulationRunner,
+    actor: &str,
+    target: Option<&str>,
+    command_id: &str,
+    times: usize,
+) {
+    for _ in 0..times {
+        assert_eq!(
+            world.progress.status,
+            LevelStatus::InProgress,
+            "level {} became terminal before action {}",
+            world.level_id,
+            command_id
+        );
+        let command = world
+            .command_defs
+            .iter()
+            .find(|command| command.command_id == command_id)
+            .unwrap_or_else(|| panic!("{}: missing command {}", world.level_id, command_id))
+            .clone();
+        assert!(
+            command_available(&command, actor, target, world),
+            "{}: command {} unavailable for actor={} target={:?}",
+            world.level_id,
+            command_id,
+            actor,
+            target
+        );
+
+        let effective_target = match command.targeting {
+            TargetingMode::NoTarget => None,
+            TargetingMode::RequiresTarget | TargetingMode::OptionalTarget => {
+                target.map(str::to_owned)
+            }
+        };
+        world.pending_commands.push(CommandDTO {
+            command_id: command_id.to_owned(),
+            actor_id: actor.to_owned(),
+            target_id: effective_target,
+            effects: command.effect_templates,
+        });
+        let events = runner.tick(world, 0.5);
+        assert!(
+            events.iter().any(|event| matches!(event,
+                WorldEvent::CommandExecuted { command_id: executed, .. } if executed == command_id
+            )),
+            "{}: authored route command {} must apply a real effect; events={:?}, counts={:?}, targets={:?}",
+            world.level_id,
+            command_id,
+            events,
+            world.progress.command_counts,
+            world.progress.command_targets
+        );
+    }
+}
+
+fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunner) {
+    match level_id {
+        "antimeme-division" => {
+            act(world, runner, "antimeme-agent", None, "take-memory-drug", 1);
+            act(
+                world,
+                runner,
+                "antimeme-agent",
+                None,
+                "remember-this-place",
+                2,
+            );
+            act(
+                world,
+                runner,
+                "antimeme-agent",
+                Some("bystander"),
+                "ask-bystander",
+                1,
+            );
+        }
+        "chen-sheng-uprising" => {
+            for target in ["soldier-1", "soldier-2", "soldier-3"] {
+                act(
+                    world,
+                    runner,
+                    "chen-sheng",
+                    Some(target),
+                    "announce-situation",
+                    1,
+                );
+                act(world, runner, "chen-sheng", Some(target), "inspire-hope", 1);
+                act(world, runner, "chen-sheng", Some(target), "rally-troops", 1);
+            }
+            act(
+                world,
+                runner,
+                "chen-sheng",
+                Some("soldier-1"),
+                "plant-prophecy",
+                1,
+            );
+        }
+        "collapse" => {
+            act(
+                world,
+                runner,
+                "student-worker",
+                Some("student-worker"),
+                "deliver-bad-news",
+                2,
+            );
+            act(
+                world,
+                runner,
+                "student-worker",
+                Some("student-worker"),
+                "add-pressure",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "student-worker",
+                Some("student-worker"),
+                "encourage-intrinsic",
+                2,
+            );
+        }
+        "consumerism-magic" => {
+            for target in ["citizen-1", "citizen-2", "citizen-3"] {
+                act(
+                    world,
+                    runner,
+                    "magic-merchant",
+                    Some(target),
+                    "cast-magic-ad",
+                    1,
+                );
+                act(
+                    world,
+                    runner,
+                    "magic-merchant",
+                    Some(target),
+                    "enhance-brand",
+                    1,
+                );
+                act(
+                    world,
+                    runner,
+                    "magic-merchant",
+                    Some(target),
+                    "set-up-shop",
+                    1,
+                );
+            }
+        }
+        "crowd" => {
+            for target in [
+                "citizen-1",
+                "citizen-2",
+                "citizen-3",
+                "citizen-4",
+                "citizen-5",
+            ] {
+                act(
+                    world,
+                    runner,
+                    "player-capitalist",
+                    Some(target),
+                    "place-billboard",
+                    1,
+                );
+                act(
+                    world,
+                    runner,
+                    "player-capitalist",
+                    Some(target),
+                    "set-price",
+                    1,
+                );
+            }
+            act(
+                world,
+                runner,
+                "player-capitalist",
+                Some("citizen-1"),
+                "craft-ad-meme",
+                1,
+            );
+        }
+        "cthulhu" => {
+            act(
+                world,
+                runner,
+                "investigator",
+                Some("investigator"),
+                "read-necronomicon",
+                1,
+            );
+            act(world, runner, "investigator", None, "close-book", 1);
+            act(
+                world,
+                runner,
+                "investigator",
+                Some("victim"),
+                "investigate-victim",
+                1,
+            );
+        }
+        "cyber-dream" => {
+            act(world, runner, "player", None, "enter-vr", 1);
+            act(world, runner, "player", None, "compare-layers", 1);
+            act(world, runner, "player", None, "examine-reality", 1);
+            act(world, runner, "player", None, "exit-vr", 1);
+        }
+        "destroy-hive-mind" => {
+            act(world, runner, "player-agent", None, "defend-station", 2);
+            for target in ["luddite-1", "luddite-2"] {
+                act(
+                    world,
+                    runner,
+                    "player-agent",
+                    Some(target),
+                    "pheromone-attack",
+                    1,
+                );
+            }
+            act(
+                world,
+                runner,
+                "player-agent",
+                Some("hive-mind"),
+                "hack-bci",
+                1,
+            );
+            for target in ["luddite-1", "luddite-2"] {
+                act(
+                    world,
+                    runner,
+                    "player-agent",
+                    Some(target),
+                    "persuade-luddite",
+                    2,
+                );
+            }
+        }
+        "face-saving" => {
+            for command in [
+                "humiliate",
+                "offer-respect",
+                "threaten-life",
+                "praise-loyalty",
+            ] {
+                act(world, runner, "king", Some("minister"), command, 1);
+            }
+        }
+        "gosling" => {
+            act(
+                world,
+                runner,
+                "lorenz",
+                Some("gosling"),
+                "approach-gosling",
+                1,
+            );
+            act(world, runner, "lorenz", Some("gosling"), "move-away", 1);
+            for _ in 0..12 {
+                runner.tick(world, 0.5);
+            }
+        }
+        "hive-self" => {
+            for target in ["clone-a", "clone-b", "clone-c"] {
+                act(
+                    world,
+                    runner,
+                    "clone-a",
+                    Some(target),
+                    "reduce-resources",
+                    1,
+                );
+            }
+            for target in ["clone-b", "clone-c"] {
+                act(world, runner, "clone-a", Some(target), "inject-distrust", 1);
+                act(
+                    world,
+                    runner,
+                    "clone-a",
+                    Some(target),
+                    "reinforce-protocol",
+                    1,
+                );
+            }
+        }
+        "ideology" => {
+            for target in ["believer", "skeptic"] {
+                act(world, runner, "ideologue", Some(target), "preach", 1);
+            }
+            for target in ["believer", "skeptic"] {
+                act(
+                    world,
+                    runner,
+                    "ideologue",
+                    Some(target),
+                    "reinforce-faith",
+                    1,
+                );
+            }
+            act(
+                world,
+                runner,
+                "ideologue",
+                Some("believer"),
+                "challenge-belief",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "ideologue",
+                Some("believer"),
+                "show-evidence",
+                2,
+            );
+        }
+        "illusion-trap" => {
+            act(
+                world,
+                runner,
+                "illusionist",
+                Some("trapped-person"),
+                "inflict-real-pain",
+                2,
+            );
+            act(
+                world,
+                runner,
+                "illusionist",
+                Some("trapped-person"),
+                "trigger-memory-fragment",
+                3,
+            );
+            act(
+                world,
+                runner,
+                "illusionist",
+                Some("trapped-person"),
+                "call-name",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "illusionist",
+                Some("trapped-person"),
+                "shake-illusion",
+                2,
+            );
+        }
+        "internet-addict" => {
+            act(
+                world,
+                runner,
+                "addict-teen",
+                Some("addict-teen"),
+                "show-real-world",
+                2,
+            );
+            act(
+                world,
+                runner,
+                "addict-teen",
+                Some("addict-teen"),
+                "cut-game-connection",
+                2,
+            );
+            act(
+                world,
+                runner,
+                "addict-teen",
+                Some("addict-teen"),
+                "build-real-meaning",
+                2,
+            );
+        }
+        "meme-magic" => {
+            act(world, runner, "meme-engineer", None, "craft-normal-meme", 1);
+            act(world, runner, "meme-engineer", None, "craft-magic-meme", 1);
+            act(
+                world,
+                runner,
+                "meme-engineer",
+                Some("meme-target"),
+                "inject-meme",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "meme-engineer",
+                Some("meme-target"),
+                "observe-binding",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "meme-engineer",
+                Some("meme-target"),
+                "spread-via-carrier",
+                2,
+            );
+        }
+        "pavlov" => {
+            for _ in 0..3 {
+                act(world, runner, "pavlov", Some("dog"), "ring-bell", 1);
+                act(world, runner, "pavlov", Some("dog"), "feed", 1);
+                for _ in 0..11 {
+                    runner.tick(world, 1.0);
+                }
+                assert_eq!(
+                    world.progress.status,
+                    LevelStatus::InProgress,
+                    "rewarded training must not count as an independent bell test"
+                );
+            }
+            act(world, runner, "pavlov", Some("dog"), "ring-bell", 1);
+            runner.tick(world, 1.0);
+            assert!(world.characters["dog"].mind_graph.nodes["dog-salivate"].active);
+            assert!(!world.characters["dog"].mind_graph.nodes["obs_it_concept_see-food"].active);
+            assert_eq!(
+                world.progress.status,
+                LevelStatus::InProgress,
+                "must wait out the no-reward window before verifying independence"
+            );
+            for _ in 0..10 {
+                runner.tick(world, 1.0);
+            }
+        }
+        "postmodern-vagrant" => {
+            act(
+                world,
+                runner,
+                "protagonist",
+                Some("protagonist"),
+                "deconstruct-narrative",
+                2,
+            );
+            act(world, runner, "protagonist", None, "go-to-wilderness", 1);
+            act(world, runner, "protagonist", None, "help-with-work", 2);
+            act(world, runner, "protagonist", None, "reflect-on-meaning", 2);
+            act(
+                world,
+                runner,
+                "protagonist",
+                None,
+                "accept-new-narrative",
+                1,
+            );
+        }
+        "smart-cat" => {
+            act(
+                world,
+                runner,
+                "trainer",
+                Some("cat-billi"),
+                "show-button",
+                1,
+            );
+            // Demonstration is observation, not a command that puppets the
+            // cat's action or secretly supplies food. Establish its predictor
+            // with real, later reward before asking for a selected action.
+            for _ in 0..3 {
+                act(
+                    world,
+                    runner,
+                    "trainer",
+                    Some("cat-billi"),
+                    "demonstrate-press",
+                    1,
+                );
+                act(world, runner, "trainer", Some("cat-billi"), "feed", 1);
+                for _ in 0..11 {
+                    runner.tick(world, 0.5);
+                }
+            }
+            for trial in 0..80 {
+                for _ in 0..300 {
+                    let graph = &world.characters["cat-billi"].mind_graph;
+                    if graph
+                        .action_episodes
+                        .iter()
+                        .any(|episode| episode.autonomous)
+                    {
+                        return;
+                    }
+                    if graph.nodes["cat-hunger"].value >= 0.65
+                        && !graph.nodes["cat-press-button"]
+                            .action
+                            .as_ref()
+                            .unwrap()
+                            .selected
+                    {
+                        break;
+                    }
+                    runner.tick(world, 0.5);
+                }
+                if world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .iter()
+                    .any(|episode| episode.autonomous)
+                {
+                    return;
+                }
+                let before = world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .len();
+                assert!(
+                    world.characters["cat-billi"].mind_graph.nodes["cat-hunger"].value >= 0.65
+                        && !world.characters["cat-billi"].mind_graph.nodes["cat-press-button"]
+                            .action
+                            .as_ref()
+                            .unwrap()
+                            .selected,
+                    "smart-cat trial {trial}: hungry response failed to reset within 300 ticks"
+                );
+                act(
+                    world,
+                    runner,
+                    "trainer",
+                    Some("cat-billi"),
+                    "demonstrate-press",
+                    1,
+                );
+                for _ in 0..6 {
+                    if world.characters["cat-billi"]
+                        .mind_graph
+                        .action_episodes
+                        .len()
+                        > before
+                    {
+                        break;
+                    }
+                    runner.tick(world, 0.5);
+                }
+                assert!(
+                    world.characters["cat-billi"]
+                        .mind_graph
+                        .action_episodes
+                        .len()
+                        > before,
+                    "smart-cat trial {trial}: no actual new response"
+                );
+                if world.progress.status == LevelStatus::Won {
+                    return;
+                }
+                act(
+                    world,
+                    runner,
+                    "trainer",
+                    Some("cat-billi"),
+                    "feed-after-press",
+                    1,
+                );
+                assert!(world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .last()
+                    .unwrap()
+                    .rewarded_at
+                    .is_some());
+                assert!(
+                    world.characters["cat-billi"]
+                        .mind_graph
+                        .action_episodes
+                        .last()
+                        .unwrap()
+                        .reinforcement_dopamine_spent
+                        > 0.0
+                );
+                for _ in 0..12 {
+                    runner.tick(world, 0.5);
+                }
+            }
+            for _ in 0..300 {
+                runner.tick(world, 0.5);
+            }
+            assert!(
+                world.characters["cat-billi"]
+                    .mind_graph
+                    .action_episodes
+                    .iter()
+                    .any(|episode| episode.autonomous),
+                "smart-cat: only real unprompted hungry motor evidence completes the route"
+            );
+        }
+        "the-wave" => {
+            for target in ["tim", "student-a", "student-b"] {
+                act(
+                    world,
+                    runner,
+                    "teacher-wenger",
+                    Some(target),
+                    "introduce-uniform",
+                    1,
+                );
+                act(
+                    world,
+                    runner,
+                    "teacher-wenger",
+                    Some(target),
+                    "teach-gesture",
+                    1,
+                );
+                act(
+                    world,
+                    runner,
+                    "teacher-wenger",
+                    Some(target),
+                    "enforce-discipline",
+                    1,
+                );
+                for (command, posture) in [
+                    (
+                        "request-sit",
+                        intention_tower_game_lib::models::scene::CharacterPosture::Sitting,
+                    ),
+                    (
+                        "request-stand",
+                        intention_tower_game_lib::models::scene::CharacterPosture::Standing,
+                    ),
+                ] {
+                    act(world, runner, "teacher-wenger", Some(target), command, 1);
+                    for _ in 0..3 {
+                        runner.tick(world, 0.5);
+                    }
+                    assert_eq!(world.character_postures[target], posture);
+                    assert!(world.characters[target].mind_graph.action_episodes.iter().any(|episode|
+                        episode.stimulus.as_ref().is_some_and(|receipt| receipt.emitter_id.as_deref() == Some("teacher-wenger"))
+                        && matches!(episode.physical_outcome.as_ref(), Some(intention_tower_game_lib::models::mind_graph::ActionPhysicalOutcome::ActorPosture { from, to }) if from != to && *to == posture)
+                    ), "{target}: posture needs genuine instructed motor evidence");
+                }
+            }
+            act(
+                world,
+                runner,
+                "teacher-wenger",
+                Some("tim"),
+                "give-approval",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "teacher-wenger",
+                Some("student-a"),
+                "reject-outsider",
+                1,
+            );
+        }
+        "trigger-addiction" => {
+            act(
+                world,
+                runner,
+                "player-agent",
+                Some("enemy-target"),
+                "hack-bci",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "player-agent",
+                Some("enemy-target"),
+                "inject-game-meme",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "player-agent",
+                Some("enemy-target"),
+                "boost-virtual-reward",
+                1,
+            );
+            act(
+                world,
+                runner,
+                "player-agent",
+                Some("enemy-target"),
+                "attack-body",
+                1,
+            );
+        }
+        "water-is-poison" => {
+            act(
+                world,
+                runner,
+                "hines",
+                Some("subject"),
+                "activate-mind-stamp",
+                1,
+            );
+            act(world, runner, "hines", Some("subject"), "offer-water", 1);
+            act(world, runner, "hines", Some("subject"), "offer-dry-food", 1);
+            act(
+                world,
+                runner,
+                "hines",
+                Some("subject"),
+                "attempt-rational-persuasion",
+                3,
+            );
+            act(
+                world,
+                runner,
+                "hines",
+                Some("subject"),
+                "observe-conflict",
+                1,
+            );
+        }
+        unknown => panic!("no play scenario for {unknown}"),
+    }
+}
+
+#[test]
+fn every_shipped_level_has_a_verified_winning_route() {
+    let root = levels_dir();
+    let mut level_paths: Vec<PathBuf> = std::fs::read_dir(&root)
+        .expect("read levels directory")
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.is_dir())
+        .collect();
+    level_paths.sort();
+    assert_eq!(
+        level_paths.len(),
+        21,
+        "the scenario suite must cover every shipped level"
+    );
+
+    let mut failures = Vec::new();
+    for path in level_paths {
+        if let Err(error) = std::panic::catch_unwind(|| play_and_assert_won(&path)) {
+            let details = error
+                .downcast_ref::<String>()
+                .map(String::as_str)
+                .or_else(|| error.downcast_ref::<&str>().copied())
+                .unwrap_or("non-string panic");
+            failures.push(format!("{}: {details}", path.display()));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "{} level routes failed:\n{}",
+        failures.len(),
+        failures.join("\n")
+    );
+}
+
+fn play_and_assert_won(path: &Path) {
+    let level_id = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .expect("valid level directory name");
+    let mut world = load_level_from_path(path).unwrap_or_else(|error| {
+        panic!("failed loading {level_id}: {error}");
+    });
+    assert_eq!(world.level_id, level_id);
+    assert!(
+        !world.progress.objectives.is_empty(),
+        "{level_id} has no objectives"
+    );
+    assert!(world
+        .progress
+        .objectives
+        .iter()
+        .all(|objective| objective.required));
+
+    let runner = SimulationRunner::new();
+    play_scenario(level_id, &mut world, &runner);
+
+    let incomplete: Vec<&str> = world
+        .progress
+        .objectives
+        .iter()
+        .filter(|objective| !objective.completed)
+        .map(|objective| objective.objective_id.as_str())
+        .collect();
+    assert_eq!(
+        world.progress.status,
+        LevelStatus::Won,
+        "{level_id} did not reach Won; incomplete={incomplete:?}, counts={:?}",
+        world.progress.command_counts
+    );
+    assert!(world.progress.completed_at_tick.is_some());
+    eprintln!("verified {level_id} in {} ticks", world.tick);
+}

@@ -12,6 +12,8 @@
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/status-signal",
+          "signalType": "Status",
+          "groupContext": "court",
           "modality": "Social",
           "about": "it:entity/king",
           "ttl": 200,
@@ -36,6 +38,8 @@
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/status-signal",
+          "signalType": "Status",
+          "groupContext": "court",
           "modality": "Social",
           "about": "it:entity/king",
           "ttl": 200,

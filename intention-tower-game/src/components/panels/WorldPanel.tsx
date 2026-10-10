@@ -33,10 +33,10 @@ const CharacterEntry: React.FC<{
       onClick={() => inspectCharacter(char.id)}
       onContextMenu={(event) => onOpenContextMenu(event, char.id)}
       data-tutorial={`character-${char.id}`}
-      sx={{ py: 0.5, borderLeft: isActor ? '3px solid #4caf50' : isTarget ? '3px solid #ff9800' : '3px solid transparent' }}
+      sx={{ py: 0.5, border: '1px solid', borderColor: isActor ? '#93aa75' : isTarget ? '#c79d55' : '#d6bf99', borderRadius: 2, my: 0.5, bgcolor: isActor ? '#edf1dd' : isTarget ? '#f5e6ca' : '#fffaf0' }}
     >
       <ListItemIcon sx={{ minWidth: 32 }}>
-        <PersonIcon sx={{ fontSize: 18, color: isActor ? '#4caf50' : isTarget ? '#ff9800' : '#888' }} />
+        <PersonIcon sx={{ fontSize: 18, color: isActor ? '#4caf50' : isTarget ? '#ff9800' : '#79644d' }} />
       </ListItemIcon>
       <ListItemText
         primary={translateLabel(char.label)}
@@ -58,7 +58,7 @@ const ItemEntry: React.FC<{ item: WorldItem }> = ({ item }) => {
       </ListItemIcon>
       <ListItemText
         primary={translateLabel(item.label)}
-        primaryTypographyProps={{ fontSize: 12, color: '#aaa' }}
+        primaryTypographyProps={{ fontSize: 12, color: '#806c55' }}
         secondary={item.schema_type.replace('schema:', '')}
         secondaryTypographyProps={{ fontSize: 10 }}
       />
@@ -153,7 +153,7 @@ export const WorldPanel: React.FC = () => {
       <Divider />
 
       {/* Characters */}
-      <Typography variant="overline" sx={{ px: 1, pt: 0.5, fontSize: 10, color: '#888' }}>
+      <Typography variant="overline" sx={{ px: 1, pt: 0.5, fontSize: 10, color: '#79644d' }}>
         {t('world.characters')}
       </Typography>
       <List dense disablePadding sx={{ flexShrink: 0 }}>
@@ -172,7 +172,7 @@ export const WorldPanel: React.FC = () => {
       <Divider />
 
       {/* Items */}
-      <Typography variant="overline" sx={{ px: 1, pt: 0.5, fontSize: 10, color: '#888' }}>
+      <Typography variant="overline" sx={{ px: 1, pt: 0.5, fontSize: 10, color: '#79644d' }}>
         {t('world.items')}
       </Typography>
       <List dense disablePadding sx={{ overflow: 'auto', flex: 1 }}>

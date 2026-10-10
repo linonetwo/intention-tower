@@ -75,12 +75,16 @@
       "@type": "schema:Product",
       "label": "level.crowd.item.product.label",
       "position": { "x": 500, "y": 400 },
+      "ownerId": "it:entity/player-capitalist",
+      "quantity": 100,
+      "unitPrice": 8,
       "fallbackChar": "P"
     },
     {
       "@id": "it:entity/meme-workbench",
       "@type": "schema:Product",
       "label": "level.crowd.item.meme-workbench.label",
+      "it:abstractType": "it:entity-type/meme-workbench",
       "position": { "x": 100, "y": 400 },
       "fallbackChar": "M"
     }
@@ -89,5 +93,15 @@
     "level.crowd.objective.0",
     "level.crowd.objective.1",
     "level.crowd.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "advertise-to-crowd", "label": "level.crowd.objective.0", "condition": { "type": "commandUsed", "commandId": "place-billboard", "minCount": 5, "distinctTargets": 5 } },
+    { "objectiveId": "craft-infectious-meme", "label": "level.crowd.objective.1", "condition": { "type": "commandUsed", "commandId": "craft-ad-meme", "minCount": 1 } },
+    { "objectiveId": "convert-crowd", "label": "level.crowd.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "set-price", "minCount": 5, "distinctTargets": 5 },
+      { "type": "assetTransactions", "itemId": "product", "minCount": 5, "distinctBuyers": 5 }
+    ] } }
+  ],
+  "defaultActorId": "player-capitalist",
+  "defaultTargetId": "citizen-1"
 }

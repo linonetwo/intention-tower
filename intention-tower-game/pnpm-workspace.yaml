@@ -1,7 +1,7 @@
 packages:
   - .
 
-onlyBuiltDependencies:
-  - dprint
-  - esbuild
-  - unrs-resolver
+allowBuilds:
+  dprint: true
+  esbuild: true
+  unrs-resolver: true

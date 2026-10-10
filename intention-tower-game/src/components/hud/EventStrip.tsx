@@ -4,33 +4,11 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useGameState } from '../../store/useGameState';
-import { translateLabel } from '../../i18n';
-import { eventType, eventPayload, type WorldEvent, type WorldState } from '../../types/backend';
-
-function formatBrief(ev: WorldEvent, ws: WorldState | null): { icon: string; text: string; color: string } {
-  const type = eventType(ev);
-  const data = eventPayload(ev);
-  const charName = (id: string) => ws?.characters[id] ? translateLabel(ws.characters[id].label) : String(id);
-
-  switch (type) {
-    case 'CommandExecuted':
-      return { icon: '🎮', text: `${charName(data.actor_id as string)}: ${String(data.command_id).split('/').pop()}`, color: '#42a5f5' };
-    case 'NodeSpawned':
-      return { icon: '✨', text: `${charName(data.character_id as string)}: +${String(data.schema_id).split('/').pop()}`, color: '#66bb6a' };
-    case 'NodeActivated':
-      return { icon: '⚡', text: `${String(data.instance_id).split('/').pop()}`, color: '#42a5f5' };
-    case 'SoundEmitted':
-      return { icon: '🔔', text: String(data.about), color: '#ffa726' };
-    case 'FoodPresented':
-      return { icon: '🍖', text: String(data.about), color: '#ffa726' };
-    case 'ThresholdCrossed':
-      return { icon: '📐', text: String(data.trigger_id).split('/').pop() || '', color: '#ab47bc' };
-    default:
-      return { icon: '📌', text: type, color: '#888' };
-  }
-}
+import { useTranslation } from 'react-i18next';
+import { presentEvent } from './eventPresentation';
 
 export const EventStrip: React.FC = () => {
+  const { i18n } = useTranslation();
   const recentEvents = useGameState((s) => s.recentEvents);
   const worldState = useGameState((s) => s.worldState);
 
@@ -38,8 +16,8 @@ export const EventStrip: React.FC = () => {
     return recentEvents
       .filter(e => !('TickCompleted' in e))
       .slice(0, 3)
-      .map(e => formatBrief(e, worldState));
-  }, [recentEvents, worldState]);
+      .map(e => presentEvent(e, worldState));
+  }, [recentEvents, worldState, i18n.language]);
 
   if (last3.length === 0) return null;
 
@@ -55,7 +33,7 @@ export const EventStrip: React.FC = () => {
         alignItems: 'center',
         gap: 2,
         px: 1,
-        bgcolor: 'rgba(10,10,22,0.6)',
+        bgcolor: 'rgba(255,248,232,0.94)',
         pointerEvents: 'none',
         overflow: 'hidden',
         zIndex: 5,

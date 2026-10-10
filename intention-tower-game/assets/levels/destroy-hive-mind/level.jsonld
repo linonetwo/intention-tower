@@ -97,5 +97,16 @@
     "level.destroy-hive-mind.objective.1",
     "level.destroy-hive-mind.objective.2",
     "level.destroy-hive-mind.objective.3"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "hold-relay", "label": "level.destroy-hive-mind.objective.0", "condition": { "type": "commandUsed", "commandId": "defend-station", "minCount": 2 } },
+    { "objectiveId": "cleanse-infection", "label": "level.destroy-hive-mind.objective.1", "condition": { "type": "commandUsed", "commandId": "pheromone-attack", "minCount": 2, "distinctTargets": 2 } },
+    { "objectiveId": "breach-hive", "label": "level.destroy-hive-mind.objective.2", "condition": { "type": "commandUsed", "commandId": "hack-bci", "minCount": 1 } },
+    { "objectiveId": "save-power-plant", "label": "level.destroy-hive-mind.objective.3", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "persuade-luddite", "minCount": 4, "distinctTargets": 2 },
+      { "type": "edgeWeight", "characterId": "__any", "sourceSchemaId": "it:concept/anti-technology", "targetSchemaId": "it:concept/destroy-power-plant", "op": "LTE", "value": 0.3 }
+    ] } }
+  ],
+  "defaultActorId": "player-agent",
+  "defaultTargetId": "luddite-1"
 }

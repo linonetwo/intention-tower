@@ -74,11 +74,14 @@
       "schemaId": "it:concept/press-button",
       "nodeType": "Action",
       "value": 0.0,
-      "strength": 0.1,
+      "strength": 0.2,
       "active": false,
       "it:action": {
         "innate": false,
         "goap": false,
+        "emittedObservationSchemas": ["it:concept/hear-button-sound"],
+        "autonomousNeedSchemaIds": ["it:concept/hunger"],
+        "autonomousNeedMinValue": 0.6,
         "proficiencyLevel": 0.0
       }
     },
@@ -169,6 +172,17 @@
     }
   ],
   "edges": [
+    {
+      "edgeId": "observed-press-action-map",
+      "sourceInstanceId": "obs_it_concept_hear-button-sound",
+      "targetInstanceId": "cat-press-button",
+      "polarity": "Excitatory",
+      "weight": 0.0,
+      "learnable": false,
+      "decayRatePerTick": 0.0,
+      "learnType": "Social",
+      "evidence": { "coOccurrenceCount": 0, "lastCoOccurredAt": 0, "windowSec": 1.0 }
+    },
     {
       "edgeId": "hunger-to-want-eat",
       "sourceInstanceId": "cat-hunger",

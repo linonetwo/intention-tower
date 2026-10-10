@@ -1,14 +1,16 @@
 use super::System;
-use crate::models::world_state::WorldState;
-use crate::models::mind_node::{MindNode, NodeType, ThresholdTrigger};
 use crate::models::events::WorldEvent;
+use crate::models::mind_node::{MindNode, NodeType, ThresholdTrigger};
+use crate::models::world_state::WorldState;
 
 /// System #10: Checks ThresholdTriggers on each node for rising/falling crossings.
 /// Spawns or despawns managed child nodes accordingly.
 pub struct ThresholdSystem;
 
 impl System for ThresholdSystem {
-    fn name(&self) -> &'static str { "ThresholdSystem" }
+    fn name(&self) -> &'static str {
+        "ThresholdSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         for character in state.characters.values_mut() {
@@ -51,12 +53,16 @@ impl System for ThresholdSystem {
                 let managed_id = format!("__managed:{}", trigger.trigger_id);
 
                 // Give spawned Motivation nodes a meaningful initial value so edges fire
-                let parent_val = character.mind_graph.nodes.get(&parent_id)
+                let parent_val = character
+                    .mind_graph
+                    .nodes
+                    .get(&parent_id)
                     .map_or(trigger.activate_on_rising_above, |n| n.value);
                 let initial_value = if trigger.spawn_node_type == NodeType::Motivation {
                     // Scale 0.3–1.0 based on how far above the threshold we are
                     let excess_ratio = ((parent_val - trigger.activate_on_rising_above)
-                        / (1.0 - trigger.activate_on_rising_above + 1e-6)).min(1.0);
+                        / (1.0 - trigger.activate_on_rising_above + 1e-6))
+                        .min(1.0);
                     0.4 + 0.6 * excess_ratio
                 } else {
                     0.0
@@ -71,6 +77,8 @@ impl System for ThresholdSystem {
                     value_velocity: 0.0,
                     strength: 0.5,
                     active: true,
+                    attended: true,
+                    suppression: 0.0,
                     created_at: tick,
                     ttl: None,
                     hidden_by_default: false,

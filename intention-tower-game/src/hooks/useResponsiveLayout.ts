@@ -20,12 +20,12 @@ export interface LayoutInfo {
 }
 
 export function useResponsiveLayout(): LayoutInfo {
-  const isMobile = useMediaQuery('(max-width:767px)');
+  const isMobile = useMediaQuery('(max-width:767px), (max-height:500px) and (max-width:1100px)');
   const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
   if (isMobile) {
     return {
       isMobile: true, isTablet: false, isDesktop: false,
-      dialogueHeight: 40,
+      dialogueHeight: 30,
       statusBarWidth: 0,
       miniMapSize: { w: 0, h: 0 },
       touchTarget: 48,
@@ -36,7 +36,7 @@ export function useResponsiveLayout(): LayoutInfo {
     return {
       isMobile: false, isTablet: true, isDesktop: false,
       dialogueHeight: 30,
-      statusBarWidth: 60,
+      statusBarWidth: 0,
       miniMapSize: { w: 140, h: 100 },
       touchTarget: 44,
     };
@@ -45,8 +45,8 @@ export function useResponsiveLayout(): LayoutInfo {
   return {
     isMobile: false, isTablet: false, isDesktop: true,
     dialogueHeight: 25,
-    statusBarWidth: 200,
+    statusBarWidth: 0,
     miniMapSize: { w: 180, h: 120 },
-    touchTarget: 36,
+    touchTarget: 44,
   };
 }

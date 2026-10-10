@@ -1,5 +1,7 @@
-import React, { useMemo, useEffect, useRef } from 'react';
-import { Box, Chip, Paper, Typography } from '@mui/material';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
+import { Box, Chip, Paper, Typography, IconButton, useMediaQuery } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -17,6 +19,8 @@ interface GuideStep {
 }
 
 const TUTORIAL_LEVELS = new Set(['pavlov', 'smart-cat', 'gosling']);
+export const SHORT_LANDSCAPE_QUERY = '(min-width: 600px) and (max-width: 1100px) and (max-height: 500px)';
+const shortId = (id: string | null) => id?.split('/').pop() ?? '';
 
 // CSS keyframe injected once for the tutorial highlight class
 let _styleInjected = false;
@@ -42,15 +46,19 @@ function ensureHighlightStyle() {
   document.head.appendChild(style);
 }
 
-export const TutorialGuidePanel: React.FC = () => {
+export const TutorialGuidePanel: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { t } = useTranslation();
   const layout = useResponsiveLayout();
+  const shortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
   const currentLevelId = useGameState((s) => s.currentLevelId);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
   const inspectedCharacterId = useGameState((s) => s.inspectedCharacterId);
   const recentEvents = useGameState((s) => s.recentEvents);
   const worldState = useGameState((s) => s.worldState);
+  const uiMode = useGameState((s) => s.uiMode);
+  const [expanded, setExpanded] = useState(false);
+  const visible = !!currentLevelId && TUTORIAL_LEVELS.has(currentLevelId) && (embedded || uiMode !== 'graph') && (embedded || !shortLandscape);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const stepEls = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -63,18 +71,31 @@ export const TutorialGuidePanel: React.FC = () => {
       .map((event) => eventPayload(event).command_id as string);
   }, [recentEvents]);
 
-  const hasRing = commandHistory.some((id) => id.includes('ring'));
-  const hasFeed = commandHistory.some((id) => id.includes('feed'));
-  const ringCount = commandHistory.filter((id) => id.includes('ring')).length;
-  const feedCount = commandHistory.filter((id) => id.includes('feed')).length;
+  const hasRing = commandHistory.some((id) => id.includes('ring')) || (worldState?.pending_commands ?? []).some((command) => command.command_id === 'ring-bell' && shortId(command.target_id) === 'dog');
+  const hasFeed = commandHistory.some((id) => id.includes('feed')) || (worldState?.pending_commands ?? []).some((command) => command.command_id === 'feed' && shortId(command.target_id) === 'dog');
+  const dog = Object.values(worldState?.characters ?? {}).find((character) => shortId(character.id) === 'dog');
+  const cueRegistered = Object.values(dog?.mind_graph.nodes ?? {}).some((node) => node.schema_id === 'it:concept/hear-metronome');
+  const foodActive = Object.values(dog?.mind_graph.nodes ?? {}).some((node) => node.schema_id === 'it:concept/see-food' && node.active);
+  const objectiveDone = (id: string) => worldState?.progress.objectives.some((objective) => objective.objective_id === id && objective.completed) ?? false;
+  const pairedDone = objectiveDone('pair-bell-and-food');
+  const edgeDone = objectiveDone('learn-conditioned-edge');
+  const responseDone = objectiveDone('verify-bell-response');
+  const imprintContactDone = objectiveDone('critical-period-contact');
+  const imprintFollowingDone = objectiveDone('observe-imprinting');
+  const imprintVerified = objectiveDone('verify-following');
+  const catPaired = objectiveDone('demonstrate-button');
+  const catRewarded = objectiveDone('reinforce-correct-action');
+  const catAutonomous = objectiveDone('verify-cat-action');
+  const settled = recentEvents.some((event) => 'LearningUpdated' in event && shortId(event.LearningUpdated.character_id) === 'dog' && event.LearningUpdated.reward > 0);
 
   const conditionedWeight = useMemo(() => {
     if (!worldState) return 0;
     for (const character of Object.values(worldState.characters)) {
       for (const edge of Object.values(character.mind_graph.edges)) {
-        if (edge.learnable && edge.learn_type === 'Classical') {
+        if (shortId(character.id) === 'dog' && edge.learnable && edge.learn_type === 'Classical') {
           const srcNode = character.mind_graph.nodes[edge.source_instance_id];
-          if (srcNode?.schema_id?.includes('hear-metronome')) {
+          const targetNode = character.mind_graph.nodes[edge.target_instance_id];
+          if (srcNode?.schema_id === 'it:concept/hear-metronome' && targetNode?.schema_id === 'it:concept/salivate') {
             return edge.weight;
           }
         }
@@ -88,37 +109,55 @@ export const TutorialGuidePanel: React.FC = () => {
       return [
         {
           id: 'select',
-          done: !!selectedActorId && !!selectedTargetId,
+          done: shortId(selectedActorId) === 'pavlov' && shortId(selectedTargetId) === 'dog',
           text: t('tutorial.pavlov.step.select'),
           highlightTarget: 'actor-selector',
         },
         {
           id: 'inspect-dog',
-          done: inspectedCharacterId === 'dog',
+          done: shortId(inspectedCharacterId) === 'dog',
           text: t('tutorial.pavlov.step.inspect-dog'),
           highlightTarget: 'character-dog',
         },
         {
+          id: 'ring',
+          done: hasRing,
+          text: t('tutorial.pavlov.step.ring'),
+          highlightTarget: 'command-ring-bell',
+        },
+        {
           id: 'unpause',
-          done: (worldState?.tick ?? 0) >= 2,
+          done: cueRegistered,
           text: t('tutorial.pavlov.step.unpause'),
           highlightTarget: 'step-button',
         },
         {
           id: 'pair',
-          done: hasRing && hasFeed,
+          done: hasFeed,
           text: t('tutorial.pavlov.step.pair'),
-          highlightTarget: 'command-ring-bell',
+          highlightTarget: 'command-feed',
+        },
+        {
+          id: 'settle',
+          done: settled || pairedDone,
+          text: t('tutorial.pavlov.step.settle'),
+          highlightTarget: 'step-button',
         },
         {
           id: 'repeat',
-          done: ringCount >= 3 && feedCount >= 3,
-          text: t('tutorial.pavlov.step.repeat', { ring: ringCount, feed: feedCount }),
+          done: pairedDone && edgeDone,
+          text: t('tutorial.pavlov.step.repeat', { weight: conditionedWeight.toFixed(2) }),
           highlightTarget: conditionedWeight > 0 ? 'command-feed' : 'command-ring-bell',
         },
         {
+          id: 'wait-food',
+          done: pairedDone && edgeDone && !foodActive,
+          text: t('tutorial.pavlov.step.wait-food'),
+          highlightTarget: 'step-button',
+        },
+        {
           id: 'verify',
-          done: conditionedWeight >= 0.3,
+          done: responseDone,
           text: t('tutorial.pavlov.step.verify', { weight: conditionedWeight.toFixed(2) }),
         },
       ];
@@ -126,30 +165,41 @@ export const TutorialGuidePanel: React.FC = () => {
 
     if (currentLevelId === 'smart-cat') {
       return [
-        { id: 'a', done: !!selectedActorId, text: t('tutorial.smart-cat.step.1'), highlightTarget: 'actor-selector' },
-        { id: 'b', done: commandHistory.length >= 2, text: t('tutorial.smart-cat.step.2') },
-        { id: 'c', done: commandHistory.length >= 4, text: t('tutorial.smart-cat.step.3') },
+        { id: 'cat-select', done: shortId(selectedActorId) === 'trainer' && shortId(selectedTargetId) === 'cat-billi', text: t('tutorial.smart-cat.step.1'), highlightTarget: 'actor-selector' },
+        { id: 'cat-pair', done: catPaired, text: t('tutorial.smart-cat.step.2') },
+        { id: 'cat-reward', done: catRewarded, text: t('tutorial.smart-cat.step.3') },
+        { id: 'cat-autonomous', done: catAutonomous, text: t('tutorial.smart-cat.step.4'), highlightTarget: 'step-button' },
       ];
     }
 
     return [
-      { id: 'a', done: !!selectedActorId, text: t('tutorial.gosling.step.1'), highlightTarget: 'actor-selector' },
-      { id: 'b', done: commandHistory.length >= 1, text: t('tutorial.gosling.step.2') },
-      { id: 'c', done: commandHistory.length >= 3, text: t('tutorial.gosling.step.3') },
+      { id: 'gosling-select', done: shortId(selectedActorId) === 'lorenz' && shortId(selectedTargetId) === 'gosling' && uiMode === 'micro', text: t('tutorial.gosling.step.1'), highlightTarget: 'actor-selector' },
+      { id: 'gosling-imprint', done: imprintContactDone, text: t('tutorial.gosling.step.2'), highlightTarget: 'command-approach-gosling' },
+      { id: 'gosling-separate', done: imprintFollowingDone, text: t('tutorial.gosling.step.3'), highlightTarget: 'command-move-away' },
+      { id: 'gosling-follow', done: imprintVerified, text: t('tutorial.gosling.step.4'), highlightTarget: 'step-button' },
     ];
   }, [
-    commandHistory.length,
+    catPaired,
+    catRewarded,
+    catAutonomous,
     conditionedWeight,
     currentLevelId,
-    feedCount,
+    cueRegistered,
+    foodActive,
+    pairedDone,
+    edgeDone,
+    responseDone,
+    imprintContactDone,
+    imprintFollowingDone,
+    imprintVerified,
+    uiMode,
+    settled,
     hasFeed,
     hasRing,
     inspectedCharacterId,
-    ringCount,
     selectedActorId,
     selectedTargetId,
     t,
-    worldState?.tick,
   ]);
 
   // Highlight the target element of the first incomplete step
@@ -158,7 +208,7 @@ export const TutorialGuidePanel: React.FC = () => {
     document.querySelectorAll('.tutorial-highlight').forEach((el) => {
       el.classList.remove('tutorial-highlight');
     });
-    if (activeStep?.highlightTarget) {
+    if (visible && activeStep?.highlightTarget) {
       const el = document.querySelector(`[data-tutorial="${activeStep.highlightTarget}"]`);
       if (el) el.classList.add('tutorial-highlight');
     }
@@ -167,56 +217,62 @@ export const TutorialGuidePanel: React.FC = () => {
         el.classList.remove('tutorial-highlight');
       });
     };
-  }, [activeStep?.highlightTarget]);
+  }, [activeStep?.highlightTarget, visible]);
 
   // Auto-scroll the active step into view
   useEffect(() => {
     if (!activeStep) return;
     const el = stepEls.current.get(activeStep.id);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      el.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
     }
   }, [activeStep?.id]);
 
-  if (!currentLevelId || !TUTORIAL_LEVELS.has(currentLevelId)) {
+  if (!visible) {
     return null;
   }
 
   const doneCount = steps.filter((step) => step.done).length;
-  const panelTop = layout.isMobile ? 86 : 52;
-  const panelLeft = layout.isMobile ? 8 : layout.statusBarWidth + 8;
+  const panelTop = 72;
+  const panelLeft = 12;
   const panelRight = layout.isMobile ? 8 : undefined;
 
   return (
     <Box
+      data-testid='tutorial-guide'
       sx={{
-        position: 'absolute',
-        top: panelTop,
-        left: panelLeft,
-        right: panelRight,
-        zIndex: 26,
-        width: layout.isMobile ? 'auto' : 320,
+        position: embedded ? 'relative' : 'absolute',
+        top: embedded ? undefined : panelTop,
+        left: embedded ? undefined : panelLeft,
+        right: embedded ? undefined : panelRight,
+        zIndex: 18,
+        width: embedded ? '100%' : layout.isMobile ? 'auto' : 280,
+        mb: embedded ? 2 : 0,
         pointerEvents: 'auto',
       }}
     >
       <Paper
         elevation={0}
         sx={{
-          p: 1,
-          bgcolor: '#141428',
-          border: '1px solid #2a2a4e',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+          p: expanded ? 1 : 0.65,
+          bgcolor: '#fffdf4',
+          border: '2px solid #ead9ab',
+          borderRadius: 3,
+          boxShadow: '0 5px 0 #ead9ab, 0 10px 24px rgba(104,85,41,0.12)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.6 }}>
-          <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#ddd' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: expanded ? 0.6 : 0 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 800, color: '#594628' }}>
             {t('tutorial.title')}
           </Typography>
           <Chip
             size='small'
             label={t('tutorial.progress', { done: doneCount, total: steps.length })}
-            sx={{ height: 18, fontSize: 10, bgcolor: 'rgba(255,255,255,0.06)' }}
+            sx={{ height: 22, fontSize: 11, fontWeight: 800, color: '#655329', bgcolor: '#ffeab0' }}
           />
+          <IconButton size='small' data-testid='tutorial-expand' aria-label={expanded ? t('tutorial.collapse') : t('tutorial.expand')} onClick={() => setExpanded((value) => !value)}>
+            {expanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
+          </IconButton>
         </Box>
 
       {/* Scrollable steps list — auto-scrolls to active step */}
@@ -226,15 +282,15 @@ export const TutorialGuidePanel: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: 0.4,
-            maxHeight: 220,
+            maxHeight: expanded ? 220 : 90,
             overflowY: 'auto',
             pr: 0.3,
             '&::-webkit-scrollbar': { width: 3 },
-            '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.18)', borderRadius: 2 },
+            '&::-webkit-scrollbar-thumb': { bgcolor: '#dac89f', borderRadius: 2 },
             '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
           }}
         >
-          {steps.map((step) => {
+          {(expanded ? steps : [activeStep ?? steps[steps.length - 1]]).map((step) => {
             const isActive = step === activeStep;
             return (
               <Box
@@ -248,24 +304,24 @@ export const TutorialGuidePanel: React.FC = () => {
                   alignItems: 'flex-start',
                   gap: 0.8,
                   px: 0.5,
-                  py: 0.4,
-                  borderRadius: 0.5,
+                  py: expanded ? 0.4 : 0.2,
+                  borderRadius: 2,
                   bgcolor: step.done
-                    ? 'rgba(76,175,80,0.12)'
+                    ? '#edf5d9'
                     : isActive
-                      ? 'rgba(255,167,38,0.1)'
+                      ? '#fff0c6'
                       : 'transparent',
                   border: isActive ? '1px solid rgba(255,167,38,0.35)' : '1px solid transparent',
                 }}
               >
                 <Box sx={{ mt: 0.15, flexShrink: 0 }}>
                   {step.done
-                    ? <CheckCircleIcon sx={{ fontSize: 14, color: '#66bb6a' }} />
+                    ? <CheckCircleIcon sx={{ fontSize: 14, color: '#638337' }} />
                     : isActive
-                      ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#ffa726' }} />
-                      : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#555' }} />}
+                      ? <ArrowForwardIcon sx={{ fontSize: 13, color: '#a46815' }} />
+                      : <RadioButtonUncheckedIcon sx={{ fontSize: 13, color: '#9b947f' }} />}
                 </Box>
-                <Typography sx={{ fontSize: 11, color: step.done ? '#c8e6c9' : isActive ? '#ffe082' : '#888', lineHeight: 1.5 }}>
+                <Typography title={step.text} sx={{ fontSize: 11, color: step.done ? '#536a32' : isActive ? '#735019' : '#746b59', lineHeight: 1.5, ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }) }}>
                   {step.text}
                 </Typography>
               </Box>

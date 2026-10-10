@@ -6,7 +6,7 @@
       "commandId": "reduce-resources",
       "label": "command.reduce-resources.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
@@ -21,7 +21,7 @@
       "commandId": "restore-resources",
       "label": "command.restore-resources.label",
       "hotkey": "2",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {

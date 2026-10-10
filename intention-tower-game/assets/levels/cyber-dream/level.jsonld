@@ -41,5 +41,18 @@
   "objectives": [
     "level.cyber-dream.objective.0",
     "level.cyber-dream.objective.1"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "navigate-virtual-layer", "label": "level.cyber-dream.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "enter-vr", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "compare-layers", "minCount": 1 }
+    ] } },
+    { "objectiveId": "return-to-reality", "label": "level.cyber-dream.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "examine-reality", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "exit-vr", "minCount": 1 },
+      { "type": "virtualContext", "value": false }
+    ] } }
+  ],
+  "defaultActorId": "player",
+  "defaultTargetId": "player"
 }

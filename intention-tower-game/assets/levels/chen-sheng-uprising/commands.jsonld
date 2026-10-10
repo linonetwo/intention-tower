@@ -6,7 +6,7 @@
       "commandId": "announce-situation",
       "label": "command.announce-situation.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {
@@ -45,7 +45,7 @@
       "commandId": "plant-prophecy",
       "label": "command.plant-prophecy.label",
       "hotkey": "3",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [
         { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
       ],
@@ -53,7 +53,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/mandate-of-heaven",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/fear-of-death"], "isBelief": true, "isIdentity": true, "groupId": "daze-uprising", "resilience": 0.72 }
         }
       ]
     },
@@ -61,7 +62,7 @@
       "commandId": "rally-troops",
       "label": "command.rally-troops.label",
       "hotkey": "4",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {

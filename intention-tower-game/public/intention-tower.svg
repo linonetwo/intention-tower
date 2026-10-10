@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Intention Tower">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="58" x2="57" y2="7" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14162f"/>
+      <stop offset="1" stop-color="#3949ab"/>
+    </linearGradient>
+    <linearGradient id="tower" x1="20" y1="54" x2="44" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7c8cff"/>
+      <stop offset="1" stop-color="#d6dcff"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <path d="M17 53h30M21 45h22M24 36h16M27 27h10M30 18h4" fill="none" stroke="url(#tower)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M22 45l3-9 3-9 4-9 4 9 3 9 3 9" fill="none" stroke="#9aa7ff" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="32" cy="14" r="5" fill="#ffca63" stroke="#fff1bd" stroke-width="2"/>
+  <circle cx="24" cy="36" r="3" fill="#62d6c9"/>
+  <circle cx="40" cy="36" r="3" fill="#ff8e9e"/>
+</svg>

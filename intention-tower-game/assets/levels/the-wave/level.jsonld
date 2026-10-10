@@ -10,7 +10,7 @@
       "@id": "it:entity/teacher-wenger",
       "@type": "schema:Person",
       "label": "level.the-wave.character.teacher-wenger.label",
-      "position": { "x": 300, "y": 100 },
+      "position": { "x": 300, "y": 300 },
       "fallbackChar": "@",
       "mindGraphRef": "it:level/the-wave/teacher-mind"
     },
@@ -18,7 +18,7 @@
       "@id": "it:entity/tim",
       "@type": "schema:Person",
       "label": "level.the-wave.character.tim.label",
-      "position": { "x": 200, "y": 400 },
+      "position": { "x": 200, "y": 300 },
       "fallbackChar": "T",
       "mindGraphRef": "it:level/the-wave/tim-mind"
     },
@@ -34,7 +34,7 @@
       "@id": "it:entity/student-b",
       "@type": "schema:Person",
       "label": "level.the-wave.character.student-b.label",
-      "position": { "x": 400, "y": 500 },
+      "position": { "x": 520, "y": 300 },
       "fallbackChar": "B",
       "mindGraphRef": "it:level/the-wave/student-b-mind"
     }
@@ -68,5 +68,26 @@
     "level.the-wave.objective.0",
     "level.the-wave.objective.1",
     "level.the-wave.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "seed-group-identity", "label": "level.the-wave.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "introduce-uniform", "minCount": 3, "distinctTargets": 3 },
+      { "type": "commandUsed", "commandId": "teach-gesture", "minCount": 3, "distinctTargets": 3 },
+      { "type": "socialGroup", "groupId": "the-wave", "minMembers": 3, "minCohesion": 0.5 }
+    ] } },
+    { "objectiveId": "enforce-obedience", "label": "level.the-wave.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "actionEpisodes", "characterId": "tim", "actionSchemaId": "it:concept/sit-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-sit", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "sitting" },
+      { "type": "actionEpisodes", "characterId": "tim", "actionSchemaId": "it:concept/stand-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-stand", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "standing" },
+      { "type": "actionEpisodes", "characterId": "student-a", "actionSchemaId": "it:concept/sit-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-sit", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "sitting" },
+      { "type": "actionEpisodes", "characterId": "student-a", "actionSchemaId": "it:concept/stand-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-stand", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "standing" },
+      { "type": "actionEpisodes", "characterId": "student-b", "actionSchemaId": "it:concept/sit-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-sit", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "sitting" },
+      { "type": "actionEpisodes", "characterId": "student-b", "actionSchemaId": "it:concept/stand-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-stand", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "standing" }
+    ] } },
+    { "objectiveId": "produce-exclusion", "label": "level.the-wave.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "give-approval", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "reject-outsider", "minCount": 1 }
+    ] } }
+  ],
+  "defaultActorId": "teacher-wenger",
+  "defaultTargetId": "tim"
 }

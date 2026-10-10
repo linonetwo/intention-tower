@@ -8,12 +8,13 @@ import { useGameState } from '../../store/useGameState';
 import { t as translateLabel } from '../../i18n';
 import { eventType, eventPayload, type WorldEvent } from '../../types/backend';
 import type { WorldState } from '../../types/backend';
+import { presentEvent } from '../hud/eventPresentation';
 
 type EventCategory = 'all' | 'command' | 'node' | 'edge' | 'resource' | 'env';
 
 function eventCategory(ev: WorldEvent): EventCategory {
   const type = eventType(ev);
-  if (type === 'CommandExecuted') return 'command';
+  if (type === 'CommandExecuted' || type === 'CommandRejected') return 'command';
   if (type.startsWith('Node') || type === 'ThresholdCrossed') return 'node';
   if (type.startsWith('Edge')) return 'edge';
   if (type === 'ResourceConsumed') return 'resource';
@@ -43,7 +44,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
       return {
         icon: delta > 0 ? '📈' : delta < 0 ? '📉' : '📊',
         text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${oldVal} ${arrow} ${newVal}`,
-        color: delta > 0 ? '#81c784' : delta < 0 ? '#e57373' : '#aaa',
+        color: delta > 0 ? '#81c784' : delta < 0 ? '#e57373' : '#806c55',
       };
     }
     case 'NodeSpawned':
@@ -51,9 +52,9 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
     case 'NodeDespawned':
       return { icon: '💨', text: `${charName(data.character_id as string)}: -${String(data.instance_id)}`, color: '#ef5350' };
     case 'NodeActivated':
-      return { icon: '⚡', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.activated')}`, color: '#42a5f5' };
+      return { icon: '⚡', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.activated')}`, color: '#255c89' };
     case 'NodeDeactivated':
-      return { icon: '💤', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.deactivated')}`, color: '#888' };
+      return { icon: '💤', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${translateLabel('event.deactivated')}`, color: '#79644d' };
     case 'EdgeCreated': {
       const srcLabel = nodeName(data.character_id as string, data.source_id as string);
       const tgtLabel = nodeName(data.character_id as string, data.target_id as string);
@@ -70,7 +71,24 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
     case 'ResourceConsumed':
       return { icon: '💧', text: `${charName(data.character_id as string)}: ${String(data.resource_schema_id)} -${(data.amount as number).toFixed(2)} (${(data.remaining as number).toFixed(2)})`, color: '#ab47bc' };
     case 'CommandExecuted':
-      return { icon: '🎮', text: `${charName(data.actor_id as string)}: ${String(data.command_id)}${data.target_id ? ` → ${charName(data.target_id as string)}` : ''}`, color: '#42a5f5' };
+    case 'CommandRejected':
+      return presentEvent(ev, worldState);
+    case 'CharacterMoved':
+      return { icon: '🧭', text: `${charName(data.character_id as string)} → (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#48726e' };
+    case 'AssetTraded':
+      return { icon: '🪙', text: `${charName(data.buyer_id as string)}: ${String(data.item_id)} ×${Number(data.quantity).toFixed(0)} · ¢${Number(data.total_price).toFixed(0)}`, color: '#40775d' };
+    case 'AssetTradeRejected':
+      return { icon: '⛔', text: `${charName(data.buyer_id as string)}: ${String(data.reason)}`, color: '#ef5350' };
+    case 'SocialGroupUpdated':
+      return { icon: '👥', text: `${String(data.group_id)} · ${String(data.member_count)} · ${(Number(data.cohesion) * 100).toFixed(0)}%`, color: '#68578f' };
+    case 'NodeSuppressionChanged':
+      return { icon: '⚖️', text: `${charName(data.character_id as string)}: ${nodeName(data.character_id as string, data.instance_id as string)} ${(Number(data.suppression) * 100).toFixed(0)}%`, color: '#8f662b' };
+    case 'ObjectiveCompleted':
+      return { icon: '✅', text: translateLabel(data.label as string), color: '#66bb6a' };
+    case 'LevelWon':
+      return { icon: '🏆', text: String(data.level_id), color: '#8f7116' };
+    case 'LevelLost':
+      return { icon: '💀', text: `${String(data.level_id)}: ${String(data.reason)}`, color: '#ef5350' };
     case 'SoundEmitted':
       return { icon: '🔔', text: `🔊 ${String(data.about)} (${String(data.modality)})`, color: '#ffa726' };
     case 'FoodPresented':
@@ -118,7 +136,7 @@ export const EventLog: React.FC = () => {
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Filter bar */}
-      <Box sx={{ display: 'flex', gap: 0.5, px: 1, py: 0.4, borderBottom: '1px solid #1e1e36', flexShrink: 0, alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', gap: 0.5, px: 1, py: 0.4, borderBottom: '1px solid #d6bf99', flexShrink: 0, alignItems: 'center' }}>
         {CATEGORIES.map(({ key, label }) => (
           <Chip
             key={key}
@@ -128,8 +146,8 @@ export const EventLog: React.FC = () => {
             sx={{
               height: 20,
               fontSize: 10,
-              bgcolor: filter === key ? 'rgba(100,100,255,0.25)' : 'rgba(255,255,255,0.04)',
-              color: filter === key ? '#c5cae9' : '#888',
+              bgcolor: filter === key ? 'rgba(154,113,62,0.25)' : 'rgba(149,112,64,0.04)',
+              color: filter === key ? '#c5cae9' : '#79644d',
               cursor: 'pointer',
             }}
           />
