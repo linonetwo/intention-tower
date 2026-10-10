@@ -111,6 +111,9 @@ async function clickWorldX(x, fractionY) {
 }
 async function advance(count) { for (let i = 0; i < count; i++) await call('step_tick'); }
 try {
+  // A local rerun may reuse the previous short-landscape viewport. Establish
+  // the desktop starting fixture before navigating via actual menu controls.
+  await call('set_viewport', { width: 1440, height: 900 });
   await waitReady();
   try {
   // At least one run enters the level through the actual visible menu card.
@@ -326,7 +329,11 @@ try {
       await call('click', { selector: '[data-testid="dialogue-toggle"]' });
     }
     await clickCommand('introduce-uniform'); await advance(1);
+    assert.ok(await evaluate(`(()=>{const button=document.querySelector('[data-testid="command-give-approval"]');return !button||button.disabled})()`), 'Approval must not be offered before an actual response');
+    await clickCommand('teach-gesture'); await advance(1);
+    await clickCommand('request-sit'); await advance(4);
     const before = await call('snapshot');
+    assert.equal(before.character_postures.tim, 'sitting');
     await clickCommand('give-approval'); await advance(1);
     const approved = await call('snapshot');
     const socialEdge = 'social_tim-loneliness_meme_it_concept_group-identity';
@@ -334,22 +341,44 @@ try {
     const edge = socialGraph(approved).edges[socialEdge];
     assert.ok(edge && Math.abs(edge.weight - .2) < 1e-9, 'Actual approval creates a paid social association');
     assert.ok(socialGraph(approved).nodes['tim-loneliness'].value < socialGraph(before).nodes['tim-loneliness'].value, 'Approval actually relieves loneliness');
+    assert.ok(socialGraph(approved).nodes['tim-value-deficit'].value < socialGraph(before).nodes['tim-value-deficit'].value, 'Approval actually relieves value deficit, not just an identity score');
     assert.ok(socialGraph(approved).nodes['tim-dopamine'].value < socialGraph(before).nodes['tim-dopamine'].value, 'Learning cost exceeds passive regeneration');
-    assert.equal(socialGraph(approved).nodes['obs_it_concept_social-approval'].observation.social_consumed_at, approved.tick);
+    const credited = socialGraph(approved).action_episodes.find(episode => episode.action_id === 'tim-sit-on-command');
+    assert.ok(credited && credited.reward_consumed_at === approved.tick && credited.social_reward_delivered_at === approved.tick && credited.rewarded_at === approved.tick && credited.reinforcement_dopamine_spent > 0, 'Reward credits the exact actual sitting response with paid learning');
+    const approval = Object.values(socialGraph(approved).nodes).find(node => node.observation?.action_credit?.action_id === 'tim-sit-on-command');
+    assert.equal(approval.observation.social_consumed_at, approved.tick);
+    assert.equal(approval.observation.action_credit.target_character_id, 'tim');
+    for (const need of ['tim-loneliness', 'tim-value-deficit']) {
+      const learned = socialGraph(approved).edges[`operant_${need}_tim-sit-on-command`];
+      assert.ok(learned && learned.weight > 0 && learned.evidence.co_occurrence_count === 1, 'Both actual need consequences learn the credited action');
+    }
+    assert.ok(await evaluate(`(()=>{const button=document.querySelector('[data-testid="command-give-approval"]');return !button||button.disabled})()`), 'The same response must not offer another approval');
     await clickMode('graph');
     const trace = await evaluate(`document.querySelector('[data-testid="graph-learning-trace"]')?.textContent ?? ''`);
-    assert.ok(trace.includes('0.050'), 'Paid social learning must be visible in the actual graph trace');
+    assert.ok(trace.includes('多巴胺') && trace.includes('预测'), 'Paid predictive learning must be visible in the actual graph trace');
+    await evaluate(`(()=>{const trace=document.querySelector('[data-testid="graph-learning-trace"]');trace.scrollTop=trace.scrollHeight})()`);
     await shot('wave-real-social-learning');
     await advance(20);
     const lingering = await call('snapshot');
     assert.equal(socialGraph(lingering).edges[socialEdge].weight, edge.weight, 'Long TTL is not a new social reward');
     assert.equal(socialGraph(lingering).edges[socialEdge].evidence.co_occurrence_count, 1);
     await clickMode('observe');
+    assert.ok(await evaluate(`(()=>{const button=document.querySelector('[data-testid="command-give-approval"]');return !button||button.disabled})()`), 'Waiting cannot revive a consumed response');
+    await clickCommand('request-stand'); await advance(4);
+    assert.equal((await call('snapshot')).character_postures.tim, 'standing');
     await clickCommand('give-approval'); await advance(1);
     const repeated = await call('snapshot');
     assert.equal(socialGraph(repeated).edges[socialEdge].evidence.co_occurrence_count, 2, 'A fresh presentation can teach again');
     assert.ok(socialGraph(repeated).edges[socialEdge].weight > edge.weight);
-    report.waveSocialLearning = { realButtons: true, firstTick: approved.tick, firstWeight: edge.weight, consumedAt: socialGraph(approved).nodes['obs_it_concept_social-approval'].observation.social_consumed_at, longTtlUpdates: 1, newPresentationUpdates: 2, graphTraceVisible: true };
+    const second = socialGraph(repeated).action_episodes.find(episode => episode.action_id === 'tim-stand-on-command');
+    assert.ok(second && second.rewarded_at === repeated.tick && second.reinforcement_dopamine_spent > 0, 'Second reward requires and reinforces a new real action');
+    await call('click', { selector: '[data-testid="objective-hud"] [aria-expanded]' });
+    await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(document.querySelector('[data-testid="objective-hud"] .MuiCollapse-entered')){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Objective card expansion did not finish'))}},25)})`);
+    const objectiveColors = await evaluate(`Array.from(document.querySelectorAll('[data-testid^="objective-label-"]')).map(node=>({text:node.textContent,color:getComputedStyle(node).color}))`);
+    assert.ok(objectiveColors.length > 0 && objectiveColors.every(row => ['rgb(87, 65, 43)', 'rgb(86, 112, 68)'].includes(row.color)), 'Expanded objective text uses readable dark colors');
+    await shot('wave-readable-objectives');
+    await call('click', { selector: '[data-testid="objective-hud"] [aria-expanded]' });
+    report.waveSocialLearning = { realButtons: true, firstTick: approved.tick, firstWeight: edge.weight, consumedAt: approval.observation.social_consumed_at, longTtlUpdates: 1, newPresentationUpdates: 2, graphTraceVisible: true, actualActionCredit: credited, valueRelief: socialGraph(before).nodes['tim-value-deficit'].value - socialGraph(approved).nodes['tim-value-deficit'].value, duplicateUnavailable: true, secondActionCredit: second, objectiveColors };
   } catch (error) {
     report.waveSocialFailure = String(error);
     await shot('wave-social-failure');

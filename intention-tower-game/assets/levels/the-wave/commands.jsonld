@@ -43,7 +43,7 @@
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/group-identity",
           "targetCharacterId": "__target",
-          "meme": { "bindingSites": ["it:concept/belonging-need"], "socialNeedBindings": [{ "needSchemaId": "it:concept/loneliness", "relief": 0.2 }], "isIdentity": true, "groupId": "the-wave", "resilience": 0.64 }
+          "meme": { "bindingSites": ["it:concept/belonging-need"], "socialNeedBindings": [{ "needSchemaId": "it:concept/loneliness", "relief": 0.2 }, { "needSchemaId": "it:concept/value-deficit", "relief": 0.2 }], "isIdentity": true, "groupId": "the-wave", "resilience": 0.64 }
         }
       ]
     },
@@ -105,6 +105,15 @@
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/social-approval",
+          "actionCredit": {
+            "actions": [
+              { "actionSchemaId": "it:concept/sit-on-command", "stimulusSchemaId": "it:concept/instruction-sit", "posture": "sitting" },
+              { "actionSchemaId": "it:concept/stand-on-command", "stimulusSchemaId": "it:concept/instruction-stand", "posture": "standing" }
+            ],
+            "emitterId": "teacher-wenger",
+            "groupContext": "the-wave",
+            "maxAgeTicks": 10
+          },
           "signalType": "Approval",
           "groupContext": "the-wave",
           "modality": "Social",

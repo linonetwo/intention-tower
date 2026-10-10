@@ -42,6 +42,7 @@ mod dispatch_contract {
             about: "test".into(),
             signal_type: None,
             group_context: None,
+            action_credit: None,
             ttl: 12,
             strength: 1.0,
             target_character_id: None,
@@ -393,6 +394,57 @@ fn invalid_social_signal_metadata_fails_closed_with_command_context() {
 }
 
 #[test]
+fn invalid_action_credit_metadata_fails_closed_with_command_context() {
+    let valid = json!({
+        "actions": [{"actionSchemaId":"test:sit", "stimulusSchemaId":"test:instruction", "posture":"sitting"}],
+        "emitterId":"teacher", "groupContext":"group", "maxAgeTicks":10
+    });
+    let base = json!({
+        "commandId":"credit-metadata", "targeting":"RequiresTarget", "preconditions":[],
+        "effects":[{"type":"SpawnObservation", "schemaId":"test:approval", "modality":"Social",
+            "about":"test:teacher", "ttl":12, "strength":0.8, "signalType":"Approval", "groupContext":"group",
+            "actionCredit":valid}]
+    });
+    for (field, value) in [
+        ("maxAgeTicks", json!(0)),
+        ("maxAgeTicks", json!(1001)),
+        ("maxAgeTicks", json!(1.5)),
+        ("maxAgeTicks", json!(-1)),
+        ("emitterId", json!("")),
+        ("groupContext", json!("")),
+        ("actions", json!([])),
+        (
+            "actions",
+            json!([{"actionSchemaId":"test:sit", "stimulusSchemaId":"test:instruction", "posture":"flying"}]),
+        ),
+        (
+            "actions",
+            json!([{"actionSchemaId":"", "stimulusSchemaId":"test:instruction", "posture":"sitting"}]),
+        ),
+        (
+            "actions",
+            json!([{"actionSchemaId":"test:sit", "stimulusSchemaId":"", "posture":"sitting"}]),
+        ),
+    ] {
+        let mut command = base.clone();
+        command["effects"][0]["actionCredit"][field] = value;
+        let error = invalid_command_error(command);
+        assert!(error.contains("credit-metadata"), "{error}");
+    }
+    for field in ["actions", "emitterId", "groupContext", "maxAgeTicks"] {
+        let mut command = base.clone();
+        command["effects"][0]["actionCredit"]
+            .as_object_mut()
+            .unwrap()
+            .remove(field);
+        assert!(invalid_command_error(command).contains("credit-metadata"));
+    }
+    let mut command = base;
+    command["effects"][0]["actionCredit"]["unknownOption"] = json!(true);
+    assert!(invalid_command_error(command).contains("credit-metadata"));
+}
+
+#[test]
 fn authored_social_metadata_and_need_bindings_reach_command_templates() {
     use intention_tower_game_lib::models::commands::CommandEffect;
     use intention_tower_game_lib::models::mind_node::SignalType;
@@ -419,12 +471,49 @@ fn authored_social_metadata_and_need_bindings_reach_command_templates() {
     let CommandEffect::InjectMeme { meme, .. } = &uniform.effect_templates[0] else {
         panic!("uniform must inject an identity meme");
     };
-    assert_eq!(meme.social_need_bindings.len(), 1);
+    assert_eq!(meme.social_need_bindings.len(), 2);
     assert_eq!(
         meme.social_need_bindings[0].need_schema_id,
         "it:concept/loneliness"
     );
     assert_eq!(meme.social_need_bindings[0].relief, 0.2);
+    assert_eq!(
+        meme.social_need_bindings[1].need_schema_id,
+        "it:concept/value-deficit"
+    );
+    assert_eq!(meme.social_need_bindings[1].relief, 0.2);
+    let approval = wave
+        .command_defs
+        .iter()
+        .find(|command| command.command_id == "give-approval")
+        .unwrap();
+    let CommandEffect::SpawnObservation {
+        action_credit: Some(credit),
+        ..
+    } = &approval.effect_templates[0]
+    else {
+        panic!("Wave approval must be action-contingent");
+    };
+    assert_eq!(credit.emitter_id, "teacher-wenger");
+    assert_eq!(credit.group_context, "the-wave");
+    assert_eq!(credit.max_age_ticks, 10);
+    assert_eq!(credit.actions.len(), 2);
+    assert_eq!(
+        credit.actions[0].action_schema_id,
+        "it:concept/sit-on-command"
+    );
+    assert_eq!(
+        credit.actions[0].stimulus_schema_id,
+        "it:concept/instruction-sit"
+    );
+    assert_eq!(
+        credit.actions[1].action_schema_id,
+        "it:concept/stand-on-command"
+    );
+    assert_eq!(
+        credit.actions[1].stimulus_schema_id,
+        "it:concept/instruction-stand"
+    );
 
     let court = load_level_from_path(&levels().join("face-saving")).unwrap();
     for id in ["humiliate", "offer-respect"] {
@@ -448,6 +537,7 @@ fn authored_social_metadata_and_need_bindings_reach_command_templates() {
         CommandEffect::SpawnObservation {
             signal_type: None,
             group_context: None,
+            action_credit: None,
             ..
         }
     ));
@@ -466,6 +556,7 @@ fn legacy_observation_effect_dtos_default_social_fields_without_name_inference()
         CommandEffect::SpawnObservation {
             signal_type: None,
             group_context: None,
+            action_credit: None,
             ..
         }
     ));

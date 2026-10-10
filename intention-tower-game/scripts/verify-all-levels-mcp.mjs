@@ -112,10 +112,22 @@ async function playLevel(levelId) {
           episode.stimulus?.emitter_id === 'teacher-wenger' && episode.stimulus?.group_context === 'the-wave' &&
           episode.physical_outcome?.type === 'ActorPosture' && episode.physical_outcome.from !== episode.physical_outcome.to && episode.physical_outcome.to === posture);
         assert.ok(episode, `${target}: missing real instructed ${posture} evidence`);
-        outcomes.push({ target, posture, episode });
+        const graph = world.characters[target].mind_graph;
+        const lonelinessBefore = graph.nodes[`${target}-loneliness`].value;
+        const valueDeficitBefore = graph.nodes[`${target}-value-deficit`].value;
+        await execute('give-approval', target); await advance(1);
+        const approved = await call('snapshot');
+        const approvedGraph = approved.characters[target].mind_graph;
+        const credited = approvedGraph.action_episodes.find(response =>
+          response.action_id === episode.action_id && response.executed_at === episode.executed_at &&
+          response.stimulus?.observation_instance_id === episode.stimulus.observation_instance_id);
+        assert.ok(credited?.reward_consumed_at != null && credited.rewarded_at != null &&
+          credited.reinforcement_dopamine_spent > 0, `${target}: actual instructed action needs paid social credit`);
+        assert.ok(approvedGraph.nodes[`${target}-loneliness`].value < lonelinessBefore, `${target}: approval must relieve loneliness`);
+        assert.ok(approvedGraph.nodes[`${target}-value-deficit`].value < valueDeficitBefore, `${target}: approval must relieve value deficit`);
+        outcomes.push({ target, posture, episode: credited });
       }
     }
-    await execute('give-approval', 'tim'); await advance(1);
     await execute('reject-outsider', 'student-a'); await advance(1);
     const world = await call('snapshot');
     assert.equal(world.progress.status, 'Won');

@@ -18,6 +18,7 @@
   "event.commandRejection.insufficient_supply": "Not enough asset supply",
   "event.commandRejection.insufficient_funds": "Not enough funds",
   "event.commandRejection.self_trade": "A character cannot trade with itself",
+  "event.commandRejection.action_credit_invalid": "This student needs a recent completed instruction response that has not been rewarded",
   "event.commandRejection.unknown": "The command could not be completed",
   "app.title": "Experimental Dog’s Tower of Meaning",
   "app.close": "Close",

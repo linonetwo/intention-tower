@@ -2,6 +2,42 @@ use super::events::WorldEvent;
 use super::mind_node::{MemeData, Modality, SignalType};
 use serde::{Deserialize, Serialize};
 
+/// Opt-in causal social consequence. Each entry pairs one cue with its motor outcome.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ActionCreditConfig {
+    pub actions: Vec<ActionCreditAction>,
+    #[serde(alias = "emitterId")]
+    pub emitter_id: String,
+    #[serde(alias = "groupContext")]
+    pub group_context: String,
+    #[serde(alias = "maxAgeTicks")]
+    pub max_age_ticks: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ActionCreditAction {
+    #[serde(alias = "actionSchemaId")]
+    pub action_schema_id: String,
+    #[serde(alias = "stimulusSchemaId")]
+    pub stimulus_schema_id: String,
+    pub posture: super::scene::CharacterPosture,
+}
+
+impl ActionCreditConfig {
+    pub fn valid(&self) -> bool {
+        !self.actions.is_empty()
+            && !self.emitter_id.trim().is_empty()
+            && !self.group_context.trim().is_empty()
+            && (1..=1000).contains(&self.max_age_ticks)
+            && self.actions.iter().all(|action| {
+                !action.action_schema_id.trim().is_empty()
+                    && !action.stimulus_schema_id.trim().is_empty()
+            })
+    }
+}
+
 /// A command submitted by the player (or NPC AI) to be executed by CommandSystem.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommandDTO {
@@ -29,6 +65,8 @@ pub enum CommandEffect {
         signal_type: Option<SignalType>,
         #[serde(default)]
         group_context: Option<String>,
+        #[serde(default, alias = "actionCredit")]
+        action_credit: Option<ActionCreditConfig>,
         target_character_id: Option<String>,
     },
     ModifyNodeValue {

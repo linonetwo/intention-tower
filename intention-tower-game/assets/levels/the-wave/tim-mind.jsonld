@@ -65,6 +65,17 @@
       "it:motivation": { "goal": "find-belonging", "lookbackWindowSec": 10.0 }
     },
     {
+      "instanceId": "tim-value-deficit",
+      "schemaId": "it:concept/value-deficit",
+      "label": "concept.value-deficit.label",
+      "nodeType": "PriorInstinct",
+      "value": 0.8,
+      "valueVelocity": 0.01,
+      "strength": 0.9,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+    },
+    {
       "instanceId": "tim-self-worth",
       "schemaId": "it:concept/self-worth",
       "nodeType": "Motivation",

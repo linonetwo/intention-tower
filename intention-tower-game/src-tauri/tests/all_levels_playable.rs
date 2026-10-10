@@ -656,16 +656,37 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                         episode.stimulus.as_ref().is_some_and(|receipt| receipt.emitter_id.as_deref() == Some("teacher-wenger"))
                         && matches!(episode.physical_outcome.as_ref(), Some(intention_tower_game_lib::models::mind_graph::ActionPhysicalOutcome::ActorPosture { from, to }) if from != to && *to == posture)
                     ), "{target}: posture needs genuine instructed motor evidence");
+                    let loneliness_before = world.characters[target].mind_graph.nodes
+                        [&format!("{target}-loneliness")]
+                        .value;
+                    let value_deficit_before = world.characters[target].mind_graph.nodes
+                        [&format!("{target}-value-deficit")]
+                        .value;
+                    act(
+                        world,
+                        runner,
+                        "teacher-wenger",
+                        Some(target),
+                        "give-approval",
+                        1,
+                    );
+                    let graph = &world.characters[target].mind_graph;
+                    assert!(graph.action_episodes.iter().any(|episode|
+                        episode.reward_consumed_at.is_some() && episode.rewarded_at.is_some()
+                        && episode.reinforcement_dopamine_spent > 0.0
+                        && matches!(episode.physical_outcome.as_ref(), Some(intention_tower_game_lib::models::mind_graph::ActionPhysicalOutcome::ActorPosture { from, to }) if from != to && *to == posture)
+                    ), "{target}: approval must pay reinforcement to the actual instructed response");
+                    assert!(
+                        graph.nodes[&format!("{target}-loneliness")].value < loneliness_before,
+                        "{target}: approval must relieve belonging deficit"
+                    );
+                    assert!(
+                        graph.nodes[&format!("{target}-value-deficit")].value
+                            < value_deficit_before,
+                        "{target}: approval must relieve value deficit"
+                    );
                 }
             }
-            act(
-                world,
-                runner,
-                "teacher-wenger",
-                Some("tim"),
-                "give-approval",
-                1,
-            );
             act(
                 world,
                 runner,

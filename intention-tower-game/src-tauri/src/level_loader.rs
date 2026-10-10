@@ -387,6 +387,8 @@ struct EffectJson {
     signal_type: Option<SignalType>,
     #[serde(rename = "groupContext")]
     group_context: Option<String>,
+    #[serde(rename = "actionCredit")]
+    action_credit: Option<crate::models::commands::ActionCreditConfig>,
     delta: Option<f64>,
     #[serde(rename = "deltaX")]
     delta_x: Option<f64>,
@@ -1103,6 +1105,19 @@ fn parse_compare_op(s: &str) -> Option<CompareOp> {
 }
 
 fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
+    if let Some(config) = &e.action_credit {
+        if e.type_ != "SpawnObservation"
+            || e.modality.as_deref() != Some("Social")
+            || !matches!(
+                e.signal_type,
+                Some(SignalType::Approval | SignalType::Belonging)
+            )
+            || e.group_context.as_deref() != Some(config.group_context.as_str())
+            || !config.valid()
+        {
+            return None;
+        }
+    }
     match e.type_.as_str() {
         "SpawnObservation" => Some(CommandEffect::SpawnObservation {
             schema_id: e.schema_id.clone()?,
@@ -1116,6 +1131,7 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
             strength: e.strength?,
             signal_type: e.signal_type,
             group_context: e.group_context.clone(),
+            action_credit: e.action_credit.clone(),
             target_character_id: e.target_character_id.clone(),
         }),
         "ModifyNodeValue" => Some(CommandEffect::ModifyNodeValue {

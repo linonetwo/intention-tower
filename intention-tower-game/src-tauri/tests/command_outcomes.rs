@@ -38,6 +38,7 @@ fn observation() -> CommandEffect {
         about: "test".into(),
         signal_type: None,
         group_context: None,
+        action_credit: None,
         ttl: 12,
         strength: 1.0,
         target_character_id: None,

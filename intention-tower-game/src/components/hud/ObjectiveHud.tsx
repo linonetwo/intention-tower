@@ -62,7 +62,7 @@ export const ObjectiveHud: React.FC = () => {
           size="small"
           sx={{ height: 18, fontSize: 9, bgcolor: 'rgba(154,113,62,0.18)' }}
         />
-        <IconButton size="small" aria-label={t('objective.toggle')} sx={{ p: 0.15, color: '#4c5379' }}>
+        <IconButton size="small" aria-label={t('objective.toggle')} sx={{ p: 0.15, color: '#57412b' }}>
           <ExpandMoreIcon
             sx={{ fontSize: 16, transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
           />
@@ -78,13 +78,14 @@ export const ObjectiveHud: React.FC = () => {
           {progress.objectives.map((objective) => (
             <Box key={objective.objective_id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.65 }}>
               {objective.completed
-                ? <CheckCircleIcon sx={{ mt: 0.1, fontSize: 15, color: '#65d48a' }} />
-                : <RadioButtonUncheckedIcon sx={{ mt: 0.1, fontSize: 15, color: '#66719a' }} />}
+                ? <CheckCircleIcon sx={{ mt: 0.1, fontSize: 15, color: '#567044' }} />
+                : <RadioButtonUncheckedIcon sx={{ mt: 0.1, fontSize: 15, color: '#786044' }} />}
               <Typography
+                data-testid={`objective-label-${objective.objective_id}`}
                 sx={{
                   fontSize: 10.5,
                   lineHeight: 1.45,
-                  color: objective.completed ? '#91a19a' : '#d7daf0',
+                  color: objective.completed ? '#567044' : '#57412b',
                   textDecoration: objective.completed ? 'line-through' : 'none',
                 }}
               >

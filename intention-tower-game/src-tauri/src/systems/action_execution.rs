@@ -187,7 +187,20 @@ impl System for ActionExecutionSystem {
                             && node.attended
                             && (node.node_type == NodeType::Motivation
                                 || node.prior_instinct.as_ref().is_some_and(|data| {
-                                    !data.is_resource && !data.satisfied_by_about.is_empty()
+                                    !data.is_resource
+                                        && (!data.satisfied_by_about.is_empty()
+                                            || graph.nodes.values().any(|identity| {
+                                                identity.active
+                                                    && identity.meme.as_ref().is_some_and(|meme| {
+                                                        meme.is_identity
+                                                            && meme.social_need_bindings.iter().any(
+                                                                |binding| {
+                                                                    binding.need_schema_id
+                                                                        == node.schema_id
+                                                                },
+                                                            )
+                                                    })
+                                            }))
                                 })
                                 || (node.node_type == NodeType::Observation
                                     && node.created_at >= state.tick.saturating_sub(10)
@@ -242,6 +255,7 @@ impl System for ActionExecutionSystem {
                     contexts,
                     autonomous,
                     reward_consumed_at: None,
+                    social_reward_delivered_at: None,
                     reinforcement_dopamine_spent: 0.0,
                     rewarded_at: None,
                 });

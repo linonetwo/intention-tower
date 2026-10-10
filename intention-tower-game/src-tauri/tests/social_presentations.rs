@@ -3,6 +3,7 @@ use std::path::Path;
 
 use intention_tower_game_lib::level_loader::load_level_from_path;
 use intention_tower_game_lib::models::commands::CommandDTO;
+use intention_tower_game_lib::models::commands::Precondition;
 use intention_tower_game_lib::models::events::WorldEvent;
 use intention_tower_game_lib::models::mind_node::{
     LearnType, Modality, SignalType, SocialNeedBinding,
@@ -51,8 +52,43 @@ fn world() -> WorldState {
         &Path::new(env!("CARGO_MANIFEST_DIR")).join("../assets/levels/the-wave"),
     )
     .unwrap();
+    // These are the legacy, deliberately ungated social-presentation contract.
+    // Wave's authored approval now exercises action credit in its own suite.
+    for definition in &mut state.command_defs {
+        if definition.command_id == "give-approval" {
+            definition.preconditions = vec![
+                Precondition::ActorIs {
+                    character_ids: vec!["teacher-wenger".into()],
+                },
+                Precondition::TargetIs {
+                    character_ids: vec!["tim".into(), "student-a".into(), "student-b".into()],
+                },
+                Precondition::TargetIsNotActor,
+            ];
+            let mut effects = serde_json::to_value(&definition.effect_templates).unwrap();
+            for effect in effects.as_array_mut().unwrap() {
+                if let Some(observation) = effect.get_mut("SpawnObservation") {
+                    observation.as_object_mut().unwrap().remove("action_credit");
+                }
+            }
+            definition.effect_templates = serde_json::from_value(effects).unwrap();
+        }
+    }
     state.tick = 10;
     execute(&mut state, "introduce-uniform", "tim");
+    state
+        .characters
+        .get_mut("tim")
+        .unwrap()
+        .mind_graph
+        .nodes
+        .get_mut(IDENTITY)
+        .unwrap()
+        .meme
+        .as_mut()
+        .unwrap()
+        .social_need_bindings
+        .retain(|binding| binding.need_schema_id == "it:concept/loneliness");
     let identity = &state.characters["tim"].mind_graph.nodes[IDENTITY];
     let binding = &identity.meme.as_ref().unwrap().social_need_bindings[0];
     assert_eq!(binding.need_schema_id, "it:concept/loneliness");

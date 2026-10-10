@@ -20,8 +20,10 @@ Open http://127.0.0.1:4173 in an existing browser. Select a level and play norma
 All frontend game actions call the authoritative Rust core at port 9222; no local
 frontend or Rust compilation and no dependency installation is necessary.
 
-For automated real-browser MCP screenshots, use an **already available** Playwright
-installation and Chromium (the CI environment installs these only in CI):
+For automated real-browser MCP screenshots, use an available Playwright
+installation and Chromium. Development verification runs locally; GitHub Actions
+is reserved for an explicitly requested publication check. Keep temporary tooling
+under the workspace and preserve the machine's existing build-cache paths.
 
 ```sh
 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs node scripts/browser-mcp.mjs
@@ -35,13 +37,14 @@ tools are forwarded to 9222 and refresh the live React view using real snapshots
 The adapter is not a replacement simulation. Test-only UI hooks require
 `?mcp-test=1` and expose normal player operations, not arbitrary world injection.
 
-Run the same CI UI checks against this adapter:
+Run the real UI checks against this adapter:
 
 ```sh
 node scripts/verify-browser-mcp.mjs
 ```
 
 Evidence appears in verification-evidence/ (desktop/mobile PNGs, learning phase
-screenshots and report.json). CI additionally uploads all-levels.json and core
-logs. A failed UI run keeps a failure screenshot and diagnostic report; screenshots
+screenshots and report.json). The separate all-levels script writes all-levels.json.
+Explicit publication workflows may upload these reports and core logs.
+A failed UI run keeps a failure screenshot and diagnostic report; screenshots
 are evidence for human aesthetic review, not a claim that aesthetics were measured.

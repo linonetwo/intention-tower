@@ -41,6 +41,9 @@ pub struct ActionEpisode {
     /// Reward delivery is consumed even when no learning resource is available.
     #[serde(default)]
     pub reward_consumed_at: Option<u64>,
+    /// Reserved causal social delivery is processed once, including zero reward.
+    #[serde(default)]
+    pub social_reward_delivered_at: Option<u64>,
     /// Only paid positive updates constitute successful reinforcement.
     #[serde(default)]
     pub reinforcement_dopamine_spent: f64,
@@ -55,6 +58,17 @@ pub struct ActionStimulus {
     pub group_context: Option<String>,
     pub presented_at: u64,
     pub presentation_count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionCreditPin {
+    pub target_character_id: String,
+    pub episode_index: usize,
+    pub action_id: String,
+    pub executed_at: u64,
+    pub stimulus: ActionStimulus,
+    pub config: super::commands::ActionCreditConfig,
+    pub reserved_at: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,6 +119,72 @@ pub struct ConditioningStats {
 }
 
 impl MindGraph {
+    /// Match a completed, unconsumed receipt. Never infer action from selection.
+    pub fn credit_episode(
+        &self,
+        config: &super::commands::ActionCreditConfig,
+        actor_id: &str,
+        tick: u64,
+    ) -> Option<usize> {
+        if !config.valid() || actor_id != config.emitter_id || actor_id == self.character_id {
+            return None;
+        }
+        // Once the newest matching motor result was consumed, a duplicate
+        // approval must not fall back and reward an older response instead.
+        self.action_episodes
+            .iter()
+            .rposition(|episode| Self::credit_matches(episode, config, tick))
+            .filter(|index| {
+                let episode = &self.action_episodes[*index];
+                episode.rewarded_at.is_none() && episode.reward_consumed_at.is_none()
+            })
+    }
+
+    pub fn credit_matches(
+        episode: &ActionEpisode,
+        config: &super::commands::ActionCreditConfig,
+        tick: u64,
+    ) -> bool {
+        let Some(stimulus) = &episode.stimulus else {
+            return false;
+        };
+        let Some(ActionPhysicalOutcome::ActorPosture { from, to }) = &episode.physical_outcome
+        else {
+            return false;
+        };
+        config.valid()
+            && episode.executed_at <= tick
+            && tick - episode.executed_at <= config.max_age_ticks
+            && stimulus.presented_at <= episode.executed_at
+            && episode.executed_at - stimulus.presented_at <= config.max_age_ticks
+            && stimulus.presentation_count > 0
+            && stimulus.emitter_id.as_deref() == Some(config.emitter_id.as_str())
+            && stimulus.group_context.as_deref() == Some(config.group_context.as_str())
+            && from != to
+            && config.actions.iter().any(|entry| {
+                entry.action_schema_id == episode.action_schema_id
+                    && entry.stimulus_schema_id == stimulus.observation_schema_id
+                    && entry.posture == *to
+            })
+    }
+
+    pub fn credit_pin_valid(&self, pin: &ActionCreditPin, tick: u64) -> bool {
+        self.character_id == pin.target_character_id
+            && pin.config.emitter_id != self.character_id
+            && pin.reserved_at <= tick
+            && self
+                .action_episodes
+                .get(pin.episode_index)
+                .is_some_and(|episode| {
+                    episode.action_id == pin.action_id
+                        && episode.executed_at == pin.executed_at
+                        && episode.stimulus.as_ref() == Some(&pin.stimulus)
+                        && episode.reward_consumed_at == Some(pin.reserved_at)
+                        && episode.social_reward_delivered_at.is_none()
+                        && episode.rewarded_at.is_none()
+                        && Self::credit_matches(episode, &pin.config, tick)
+                })
+    }
     /// Only evidenced associations with currently attended sources provide learned motor drive.
     pub fn learned_action_drive(&self, action_id: &str) -> f64 {
         self.edges

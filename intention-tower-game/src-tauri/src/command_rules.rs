@@ -1,4 +1,4 @@
-use crate::models::commands::{CommandDef, Precondition, TargetingMode};
+use crate::models::commands::{CommandDef, CommandEffect, Precondition, TargetingMode};
 use crate::models::mind_node::NodeType;
 use crate::models::progress::LevelStatus;
 use crate::models::world_state::WorldState;
@@ -103,5 +103,47 @@ pub fn command_available(
     }
     command.preconditions.iter().all(|precondition| {
         check_precondition(precondition, actor_id, target_id.or(Some(actor_id)), world)
+    }) && action_credit_available(command, actor_id, target_id, world)
+}
+
+/// Effect-level availability also protects direct, stale and manipulated DTOs.
+pub fn action_credit_available(
+    command: &CommandDef,
+    actor_id: &str,
+    target_id: Option<&str>,
+    world: &WorldState,
+) -> bool {
+    command.effect_templates.iter().all(|effect| {
+        let CommandEffect::SpawnObservation {
+            modality,
+            signal_type,
+            group_context,
+            action_credit: Some(config),
+            target_character_id,
+            ..
+        } = effect
+        else {
+            return true;
+        };
+        let recipient = match target_character_id.as_deref() {
+            Some("__actor") => actor_id,
+            Some("__target") | None => target_id.unwrap_or(actor_id),
+            Some(id) => id,
+        };
+        *modality == crate::models::mind_node::Modality::Social
+            && matches!(
+                signal_type,
+                Some(
+                    crate::models::mind_node::SignalType::Approval
+                        | crate::models::mind_node::SignalType::Belonging
+                )
+            )
+            && group_context.as_deref() == Some(config.group_context.as_str())
+            && world.characters.get(recipient).is_some_and(|character| {
+                character
+                    .mind_graph
+                    .credit_episode(config, actor_id, world.tick)
+                    .is_some()
+            })
     })
 }

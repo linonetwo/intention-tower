@@ -303,6 +303,8 @@
   "concept.seek-death.description": "主动寻求死亡的极端行为",
   "concept.self-cooperation-protocol.label": "自我协作协议",
   "concept.self-cooperation-protocol.description": "克隆体之间预设的协作行为规则",
+  "concept.value-deficit.label": "价值感缺失",
+  "concept.value-deficit.description": "渴望被重视而尚未满足的需求；真实认可缓解这种缺失，而不是降低自我价值本身",
   "concept.self-worth.label": "自我价值",
   "concept.self-worth.description": "对自身价值和能力的主观评价",
   "concept.separation-distress.label": "分离痛苦",
@@ -424,7 +426,7 @@
   "level.trigger-addiction.item.vr-terminal.label": "VR终端",
 
   "level.the-wave.name": "浪潮实验",
-  "level.the-wave.description": "模拟「浪潮」社会实验：通过纪律、制服和集体仪式，观察群体如何迅速走向极权",
+  "level.the-wave.description": "用制服与仪式建立集体认同。发出坐下或起立指令，等待学生实际改变姿势，再及时给予认可：认可缓解孤独与价值感缺失。没有实际动作就没有奖励，同一次响应只能获得一次认可。",
   "level.the-wave.objective.0": "引入制服和手势建立集体认同",
   "level.the-wave.objective.1": "观察三名学生分别响应坐下与起立指令",
   "level.the-wave.objective.2": "观察群体排斥异见者的行为模式",
@@ -662,7 +664,7 @@
   "command.enforce-discipline.label": "执行纪律",
   "command.enforce-discipline.description": "强制执行纪律规则强化服从",
   "command.give-approval.label": "给予认可",
-  "command.give-approval.description": "对遵从者表示社会认可和赞许",
+  "command.give-approval.description": "及时认可学生对本教师指令的真实坐下或起立动作；每次响应只能奖励一次，缓解孤独与价值感缺失",
   "command.reject-outsider.label": "排斥异己",
   "command.reject-outsider.description": "对不服从者施加社会排斥",
 

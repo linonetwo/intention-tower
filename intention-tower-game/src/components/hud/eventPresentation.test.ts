@@ -17,7 +17,7 @@ describe('human-readable event presentation', () => {
     'unknown_command', 'preconditions_failed', 'no_effect_applied', 'character_not_found',
     'invalid_effect_value', 'movement_rejected', 'resource_not_found', 'invalid_resource_amount',
     'insufficient_resource', 'trade_party_not_found', 'asset_not_found', 'invalid_quantity',
-    'invalid_trade_value', 'seller_does_not_own_asset', 'insufficient_supply', 'insufficient_funds', 'self_trade',
+    'invalid_trade_value', 'seller_does_not_own_asset', 'insufficient_supply', 'insufficient_funds', 'self_trade', 'action_credit_invalid',
   ];
   it.each(['zh-CN', 'en'])('localizes every rejection reason in %s', async (language) => {
     await i18n.changeLanguage(language);

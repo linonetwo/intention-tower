@@ -46,6 +46,15 @@ impl System for CommandSystem {
                 cmd.target_id.as_deref(),
             )
             .map(str::to_owned);
+            if !crate::command_rules::action_credit_available(
+                &definition,
+                &cmd.actor_id,
+                cmd.target_id.as_deref(),
+                state,
+            ) {
+                reject_command(state, &cmd, "action_credit_invalid");
+                continue;
+            }
             if !crate::command_rules::command_available(
                 &definition,
                 &cmd.actor_id,
@@ -217,6 +226,7 @@ fn apply_effect(
             strength,
             signal_type,
             group_context,
+            action_credit,
             target_character_id,
         } => {
             let target_char = resolve_target(
@@ -226,6 +236,40 @@ fn apply_effect(
             );
             if let Some(char_id) = target_char {
                 if let Some(character) = state.characters.get_mut(char_id) {
+                    let credit_pin = if let Some(config) = action_credit {
+                        if *modality != Modality::Social
+                            || !matches!(
+                                signal_type,
+                                Some(SignalType::Approval | SignalType::Belonging)
+                            )
+                            || group_context.as_deref() != Some(config.group_context.as_str())
+                        {
+                            return EffectOutcome::Rejected("action_credit_invalid");
+                        }
+                        let Some(index) =
+                            character
+                                .mind_graph
+                                .credit_episode(config, &cmd.actor_id, state.tick)
+                        else {
+                            return EffectOutcome::Rejected("action_credit_invalid");
+                        };
+                        let episode = &mut character.mind_graph.action_episodes[index];
+                        let pin = crate::models::mind_graph::ActionCreditPin {
+                            target_character_id: char_id.to_owned(),
+                            episode_index: index,
+                            action_id: episode.action_id.clone(),
+                            executed_at: episode.executed_at,
+                            stimulus: episode.stimulus.clone().unwrap(),
+                            config: config.clone(),
+                            reserved_at: state.tick,
+                        };
+                        // Persistent reservation is final even if TTL, attention,
+                        // zero relief or unavailable dopamine prevents learning.
+                        episode.reward_consumed_at = Some(state.tick);
+                        Some(pin)
+                    } else {
+                        None
+                    };
                     // Use persistent schema-based ID (no tick suffix) so conditioning
                     // can accumulate over time and edges remain valid across rerings.
                     let sanitized = schema_id.replace([':', '/'], "_");
@@ -242,7 +286,12 @@ fn apply_effect(
                                     config.observation_schemas.contains(schema_id)
                                 })
                     });
-                    let instance_id = if entity_specific {
+                    let instance_id = if let Some(pin) = &credit_pin {
+                        format!(
+                            "obs_{}__credit_{}_{}",
+                            sanitized, pin.episode_index, pin.executed_at
+                        )
+                    } else if entity_specific {
                         format!("obs_{}__{}", sanitized, about.replace([':', '/'], "_"))
                     } else {
                         format!("obs_{}", sanitized)
@@ -292,6 +341,7 @@ fn apply_effect(
                         observation: Some(ObservationData {
                             presentation_count,
                             social_consumed_at,
+                            action_credit: credit_pin,
                             modality: Some(*modality),
                             about: Some(about.clone()),
                             novelty_key: Some(format!("{}-{}", modality_str(*modality), about)),

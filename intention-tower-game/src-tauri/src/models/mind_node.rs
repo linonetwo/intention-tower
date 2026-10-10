@@ -129,6 +129,9 @@ pub struct ObservationData {
     /// Tick of the last consumed social presentation, persisted across saves.
     #[serde(default)]
     pub social_consumed_at: Option<u64>,
+    /// Immutable causal receipt, absent on legacy and ungated observations.
+    #[serde(default)]
+    pub action_credit: Option<super::mind_graph::ActionCreditPin>,
     pub modality: Option<Modality>,
     pub about: Option<String>,
     pub novelty_key: Option<String>,

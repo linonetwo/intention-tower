@@ -42,12 +42,13 @@ impl System for SocialSignalSystem {
                             node.instance_id.clone(),
                             observation.signal_type,
                             observation.group_context.clone(),
+                            observation.action_credit.clone(),
                         )
                     })
                 })
                 .collect();
 
-            for (observation_id, signal_type, group_context) in signals {
+            for (observation_id, signal_type, group_context, credit_pin) in signals {
                 // Consume even unsupported/unmatched/underfunded presentations:
                 // their lingering TTL is not another opportunity to learn.
                 graph
@@ -58,6 +59,29 @@ impl System for SocialSignalSystem {
                     .as_mut()
                     .unwrap()
                     .social_consumed_at = Some(tick);
+                if credit_pin.as_ref().is_some_and(|pin| {
+                    !matches!(
+                        signal_type,
+                        Some(SignalType::Approval | SignalType::Belonging)
+                    ) || !graph.credit_pin_valid(pin, tick)
+                        || graph
+                            .nodes
+                            .get(&observation_id)
+                            .filter(|node| node.created_at == pin.reserved_at)
+                            .and_then(|node| node.observation.as_ref())
+                            .is_none_or(|observation| {
+                                observation.emitter_id.as_deref()
+                                    != Some(pin.config.emitter_id.as_str())
+                                    || observation.group_context.as_deref()
+                                        != Some(pin.config.group_context.as_str())
+                            })
+                }) {
+                    continue;
+                }
+                if let Some(pin) = &credit_pin {
+                    graph.action_episodes[pin.episode_index].social_reward_delivered_at =
+                        Some(tick);
+                }
                 let positive = match signal_type {
                     Some(SignalType::Approval | SignalType::Belonging) => true,
                     Some(SignalType::Rejection | SignalType::Threat) => false,
@@ -90,6 +114,7 @@ impl System for SocialSignalSystem {
                         }
                     }
                 }
+                let mut realized_needs = BTreeMap::new();
                 for (need_schema, (identity_id, relief)) in bindings {
                     let Some(need) = graph.nodes.values_mut().find(|node| {
                         node.schema_id == need_schema
@@ -117,6 +142,9 @@ impl System for SocialSignalSystem {
                         continue;
                     }
                     need.value = new_value;
+                    if positive {
+                        realized_needs.insert(source_id.clone(), realized);
+                    }
                     state.pending_events.push(WorldEvent::NodeValueChanged {
                         character_id: character_id.clone(),
                         instance_id: source_id.clone(),
@@ -222,7 +250,174 @@ impl System for SocialSignalSystem {
                         .into(),
                     });
                 }
+                if let Some(pin) = &credit_pin {
+                    reward_action(
+                        graph,
+                        pin,
+                        &realized_needs,
+                        tick,
+                        &character_id,
+                        &mut state.pending_events,
+                    );
+                }
             }
         }
+    }
+}
+
+/// Only the actual realized need outcome buys a positive action update. The
+/// instruction receipt supplies its exact cue; unrelated current context cannot
+/// become a predictor retroactively.
+fn reward_action(
+    graph: &mut crate::models::mind_graph::MindGraph,
+    pin: &crate::models::mind_graph::ActionCreditPin,
+    realized_needs: &BTreeMap<String, f64>,
+    tick: u64,
+    character_id: &str,
+    events: &mut Vec<WorldEvent>,
+) {
+    let episode = graph.action_episodes[pin.episode_index].clone();
+    if !graph.nodes.get(&episode.action_id).is_some_and(|node| {
+        node.node_type == NodeType::Action && node.schema_id == episode.action_schema_id
+    }) {
+        return;
+    }
+    let mut sources: Vec<String> = episode
+        .contexts
+        .iter()
+        .filter(|context| {
+            context.value.is_finite()
+                && context.value > 0.0
+                && realized_needs.contains_key(&context.instance_id)
+                && graph.nodes.get(&context.instance_id).is_some_and(|node| {
+                    node.node_type == NodeType::PriorInstinct
+                        && !node.is_resource()
+                        && node.schema_id == context.schema_id
+                })
+        })
+        .map(|context| context.instance_id.clone())
+        .collect();
+    // No captured need deficit: a later reward cannot fabricate its cause.
+    if sources.is_empty() {
+        return;
+    }
+    let reward = sources
+        .iter()
+        .filter_map(|id| realized_needs.get(id))
+        .sum::<f64>()
+        .clamp(0.0, 1.0);
+    let cue_id = &pin.stimulus.observation_instance_id;
+    if graph.nodes.get(cue_id).is_some_and(|node| {
+        node.node_type == NodeType::Observation
+            && node.schema_id == pin.stimulus.observation_schema_id
+            && node.observation.as_ref().is_some_and(|observation| {
+                observation.emitter_id == pin.stimulus.emitter_id
+                    && observation.group_context == pin.stimulus.group_context
+            })
+    }) {
+        sources.push(cue_id.clone());
+    }
+    sources.sort();
+    sources.dedup();
+    let prediction = sources
+        .iter()
+        .map(|source_id| {
+            graph
+                .edges
+                .get(&format!("operant_{}_{}", source_id, episode.action_id))
+                .filter(|edge| edge.learnable && edge.learn_type == LearnType::Operant)
+                .map_or(0.0, |edge| edge.weight)
+        })
+        .sum::<f64>();
+    if !prediction.is_finite() || reward <= prediction {
+        return;
+    }
+    let error = reward - prediction;
+    let delta = 0.08 * error / sources.len() as f64;
+    for source_id in sources {
+        let edge_id = format!("operant_{}_{}", source_id, episode.action_id);
+        let existing = graph.edges.get(&edge_id);
+        if existing.is_some_and(|edge| !edge.learnable || edge.learn_type != LearnType::Operant) {
+            continue;
+        }
+        let old_weight = existing.map_or(0.0, |edge| edge.weight);
+        let new_weight = (old_weight + delta).clamp(0.0, 1.0);
+        let cost = (new_weight - old_weight) * 0.375;
+        if !cost.is_finite() || cost <= 1e-8 {
+            continue;
+        }
+        let Some(dopamine) = graph.nodes.values_mut().find(|node| {
+            node.schema_id == DOPAMINE_SCHEMA
+                && node.is_resource()
+                && node.value.is_finite()
+                && node.value >= cost
+        }) else {
+            continue;
+        };
+        dopamine.value -= cost;
+        let remaining = dopamine.value;
+        let created = !graph.edges.contains_key(&edge_id);
+        let edge = graph
+            .edges
+            .entry(edge_id.clone())
+            .or_insert_with(|| AssociationEdge {
+                edge_id: edge_id.clone(),
+                source_instance_id: source_id.clone(),
+                target_instance_id: episode.action_id.clone(),
+                polarity: Polarity::Excitatory,
+                weight: 0.0,
+                learnable: true,
+                decay_rate_per_tick: 0.0,
+                learn_type: LearnType::Operant,
+                evidence: Evidence::default(),
+            });
+        edge.weight = new_weight;
+        edge.evidence.co_occurrence_count = edge.evidence.co_occurrence_count.saturating_add(1);
+        edge.evidence.last_co_occurred_at = tick;
+        let receipt = &mut graph.action_episodes[pin.episode_index];
+        receipt.rewarded_at = Some(tick);
+        receipt.reinforcement_dopamine_spent += cost;
+        if let Some(action) = graph
+            .nodes
+            .get_mut(&episode.action_id)
+            .and_then(|node| node.action.as_mut())
+        {
+            action.proficiency_level = (action.proficiency_level + delta).min(1.0);
+        }
+        if created {
+            events.push(WorldEvent::EdgeCreated {
+                character_id: character_id.into(),
+                edge_id: edge_id.clone(),
+                source_id: source_id.clone(),
+                target_id: episode.action_id.clone(),
+                weight: new_weight,
+            });
+        } else {
+            events.push(WorldEvent::EdgeWeightChanged {
+                character_id: character_id.into(),
+                edge_id: edge_id.clone(),
+                old_weight,
+                new_weight,
+            });
+        }
+        events.push(WorldEvent::ResourceConsumed {
+            character_id: character_id.into(),
+            resource_schema_id: DOPAMINE_SCHEMA.into(),
+            amount: cost,
+            remaining,
+        });
+        events.push(WorldEvent::LearningUpdated {
+            character_id: character_id.into(),
+            edge_id,
+            source_id,
+            target_id: episode.action_id.clone(),
+            reward,
+            prediction,
+            prediction_error: error,
+            dopamine_spent: cost,
+            old_weight,
+            new_weight,
+            phase: if created { "created" } else { "reinforced" }.into(),
+        });
     }
 }

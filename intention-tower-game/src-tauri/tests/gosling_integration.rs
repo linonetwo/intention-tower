@@ -169,6 +169,7 @@ fn unrelated_visual_observation_even_about_a_real_entity_cannot_imprint() {
                 about: "it:entity/lorenz".into(),
                 signal_type: None,
                 group_context: None,
+                action_credit: None,
                 ttl: 100,
                 strength: 1.0,
                 target_character_id: Some("gosling".into()),

@@ -18,6 +18,7 @@
   "event.commandRejection.insufficient_supply": "资产供应不足",
   "event.commandRejection.insufficient_funds": "资金不足",
   "event.commandRejection.self_trade": "角色不能与自己交易",
+  "event.commandRejection.action_credit_invalid": "需要该学生近期真实完成且尚未奖励的指令动作",
   "event.commandRejection.unknown": "命令无法完成",
   "app.title": "实验犬的意义之塔",
   "app.close": "关闭",

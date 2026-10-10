@@ -29,6 +29,9 @@ impl System for OperantConditioningSystem {
                         && node.attended
                         && node.node_type == NodeType::Observation
                         && node.created_at == current_tick
+                        // Gated social consequences have already credited their
+                        // immutable motor receipt; never credit another response.
+                        && node.observation.as_ref().is_some_and(|observation| observation.action_credit.is_none())
                 })
                 .map(|node| {
                     super::classical_conditioning::intrinsic_reward(graph, &node.instance_id)
