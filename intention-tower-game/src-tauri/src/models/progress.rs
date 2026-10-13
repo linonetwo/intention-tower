@@ -38,6 +38,8 @@ pub enum LevelCondition {
         stimulus: Option<ActionStimulusFilter>,
         #[serde(default)]
         physical_posture: Option<CharacterPosture>,
+        #[serde(default)]
+        social_exclusion: Option<SocialExclusionFilter>,
     },
     ImprintedTarget {
         character_id: String,
@@ -141,6 +143,21 @@ pub struct ActionStimulusFilter {
     pub group_context: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SocialExclusionFilter {
+    #[serde(default)]
+    pub target_character_id: Option<String>,
+    #[serde(default)]
+    pub group_id: Option<String>,
+    #[serde(default)]
+    pub target_need_schema_id: Option<String>,
+    #[serde(default)]
+    pub min_increase: f64,
+    #[serde(default)]
+    pub require_paid_identity_learning: bool,
+}
+
 impl LevelCondition {
     pub fn evaluate(&self, world: &WorldState) -> bool {
         match self {
@@ -152,6 +169,7 @@ impl LevelCondition {
                 autonomous,
                 stimulus,
                 physical_posture,
+                social_exclusion,
             } => world.characters.get(character_id).is_some_and(|character| {
                 character
                     .mind_graph
@@ -159,6 +177,17 @@ impl LevelCondition {
                     .iter()
                     .filter(|episode| {
                         episode.action_schema_id == *action_schema_id
+                            && social_exclusion.as_ref().is_none_or(|filter| {
+                                let Some(ActionPhysicalOutcome::SocialExclusion { target_character_id, group_id, target_need_schema_id, from, to, learned_identity_instance_id, social_edge_id, social_dopamine_spent }) = episode.physical_outcome.as_ref() else { return false; };
+                                from.is_finite() && to.is_finite() && to > from && to - from >= filter.min_increase
+                                    && target_character_id != character_id
+                                    && episode.stimulus.as_ref().is_some_and(|s| s.emitter_id.as_ref() == Some(target_character_id) && s.presentation_count > 0 && s.presented_at <= episode.executed_at)
+                                    && world.characters.get(target_character_id).is_some_and(|c| !super::social::member(&c.mind_graph, group_id))
+                                    && filter.target_character_id.as_ref().is_none_or(|id| id == target_character_id)
+                                    && filter.group_id.as_ref().is_none_or(|id| id == group_id)
+                                    && filter.target_need_schema_id.as_ref().is_none_or(|id| id == target_need_schema_id)
+                                    && (!filter.require_paid_identity_learning || (!learned_identity_instance_id.is_empty() && !social_edge_id.is_empty() && social_dopamine_spent.is_finite() && *social_dopamine_spent > 0.0))
+                            })
                             && (!rewarded
                                 || (episode.rewarded_at.is_some()
                                     && episode.reinforcement_dopamine_spent > 0.0))

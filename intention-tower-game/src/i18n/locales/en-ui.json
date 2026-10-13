@@ -1,4 +1,5 @@
 {
+  "event.socialExclusion": "{{name}} excluded {{target}}: their {{need}} increased by {{amount}}",
   "event.commandRejected": "{{name}} could not perform {{command}}: {{reason}}",
   "event.commandName": "Command",
   "event.commandRejection.unknown_command": "Unknown command",

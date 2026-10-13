@@ -125,6 +125,18 @@ for (const item of uniquePortraitItems) {
   }
 }
 assert(Object.keys(manifest.spritesByCharacter ?? {}).filter(id => id.startsWith('it:entity/')).length === 55, 'expected exactly 55 canonical full-body sprite mappings');
+// Additional level actors reuse an explicit existing formal sprite, never
+// inflate the canonical asset count or bypass the full-body contract.
+const canonicalSpriteIds = new Set(uniquePortraitItems.map(item => item.charId));
+for (const [alias, source] of Object.entries(manifest.spriteAliases ?? {})) {
+  const canonicalSource = source.startsWith('it:entity/') ? source : `it:entity/${source}`;
+  assert(canonicalSpriteIds.has(canonicalSource), `sprite alias references an unknown canonical character: ${alias} -> ${source}`);
+  assert(!alias.startsWith('it:entity/'), `sprite reuse alias must not inflate canonical mappings: ${alias}`);
+  const sourceSprite = manifest.spritesByCharacter?.[canonicalSource];
+  const aliasSprite = manifest.spritesByCharacter?.[alias];
+  assert(sourceSprite && JSON.stringify(aliasSprite) === JSON.stringify(sourceSprite), `sprite alias does not match its known full-body source: ${alias}`);
+  assert(sourceSprite?.src && spriteUrls.has(sourceSprite.src), `sprite alias source is not a validated production sprite: ${alias}`);
+}
 for (const url of spriteUrls) {
   try {
     const image = decodeRgbaPng(await fs.readFile(path.join(packRoot, url.replace(/^\/mods\/gpt-image-2-pack\//, ''))));

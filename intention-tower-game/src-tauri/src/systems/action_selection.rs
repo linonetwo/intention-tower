@@ -15,6 +15,7 @@ impl System for ActionSelectionSystem {
     }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
+        let exclusion_cues: std::collections::BTreeMap<_, _> = state.characters.iter().flat_map(|(id, c)| c.mind_graph.nodes.values().filter(|n| n.action.as_ref().is_some_and(|a| matches!(a.physical_effect, Some(crate::models::mind_node::ActionPhysicalEffect::SocialExclusion { .. })))).map(|n| ((id.clone(), n.instance_id.clone()), crate::models::social::exclusion_stimulus(state, id, &n.instance_id))).collect::<Vec<_>>()).collect();
         for character in state.characters.values_mut() {
             let character_id = character.id.clone();
             let graph = &mut character.mind_graph;
@@ -31,6 +32,12 @@ impl System for ActionSelectionSystem {
                         && node.action.as_ref().is_some_and(|action| !action.innate)
                 })
                 .filter_map(|node| {
+                    if exclusion_cues
+                        .get(&(character_id.clone(), node.instance_id.clone()))
+                        .is_some_and(|cue| cue.is_none())
+                    {
+                        return Some((node.instance_id.clone(), 0.0));
+                    }
                     let learned: Vec<_> = graph
                         .edges
                         .values()
@@ -64,8 +71,10 @@ impl System for ActionSelectionSystem {
                         })
                         .fold(0.0_f64, |total, input| total + input)
                         .clamp(0.0, 1.0);
-                    let cue_drive = graph
-                        .action_stimulus(&node.instance_id, state.tick)
+                    let cue_drive = exclusion_cues
+                        .get(&(character_id.clone(), node.instance_id.clone()))
+                        .cloned()
+                        .unwrap_or_else(|| graph.action_stimulus(&node.instance_id, state.tick))
                         .and_then(|stimulus| graph.nodes.get(&stimulus.observation_instance_id))
                         .map_or(0.0, |cue| cue.value);
                     Some((
@@ -120,9 +129,26 @@ impl System for ActionSelectionSystem {
                 .collect();
 
             for action_id in &action_ids {
+                if exclusion_cues
+                    .get(&(character_id.clone(), action_id.clone()))
+                    .is_some_and(|cue| cue.is_none())
+                {
+                    continue;
+                }
                 let action_node = graph.nodes.get(action_id).unwrap();
                 let mut score = action_node.effective_strength();
-                if let Some(stimulus) = graph.action_stimulus(action_id, state.tick) {
+                if let Some(effect) = action_node
+                    .action
+                    .as_ref()
+                    .and_then(|a| a.physical_effect.as_ref())
+                {
+                    score += crate::models::social::exclusion_drive(graph, effect);
+                }
+                if let Some(stimulus) = exclusion_cues
+                    .get(&(character_id.clone(), action_id.clone()))
+                    .cloned()
+                    .unwrap_or_else(|| graph.action_stimulus(action_id, state.tick))
+                {
                     if let Some(cue) = graph.nodes.get(&stimulus.observation_instance_id) {
                         score += cue.value * cue.effective_strength();
                     }
@@ -158,7 +184,11 @@ impl System for ActionSelectionSystem {
             // action's persistent eligibility (`active`).
             let winner_id = action_scores.first().map(|(id, _)| id.as_str());
             if let Some(action_id) = winner_id {
-                if let Some(stimulus) = graph.action_stimulus(action_id, state.tick) {
+                if let Some(stimulus) = exclusion_cues
+                    .get(&(character_id.clone(), action_id.to_owned()))
+                    .cloned()
+                    .unwrap_or_else(|| graph.action_stimulus(action_id, state.tick))
+                {
                     graph.pending_action_request =
                         Some(crate::models::mind_graph::ActionExecutionRequest {
                             action_id: action_id.to_owned(),

@@ -125,27 +125,15 @@
       ]
     },
     {
-      "commandId": "reject-outsider",
-      "label": "command.reject-outsider.label",
+      "commandId": "voice-dissent",
+      "label": "command.voice-dissent.label",
       "hotkey": "5",
-      "targeting": "RequiresTarget",
-      "preconditions": [
-        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
-        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
-        { "type": "TargetIsNotActor" }
-      ],
+      "targeting": "NoTarget",
+      "preconditions": [{ "type": "ActorIs", "characterIds": ["outsider"] }],
       "effects": [
-        {
-          "type": "SpawnObservation",
-          "schemaId": "it:concept/social-rejection",
-          "signalType": "Rejection",
-          "groupContext": "the-wave",
-          "modality": "Social",
-          "about": "it:entity/teacher-wenger",
-          "ttl": 200,
-          "strength": 0.7,
-          "targetCharacterId": "__target"
-        }
+        { "type": "SpawnObservation", "schemaId": "it:concept/group-dissent", "modality": "Auditory", "about": "it:entity/outsider", "ttl": 10, "strength": 0.9, "groupContext": "the-wave", "targetCharacterId": "tim" },
+        { "type": "SpawnObservation", "schemaId": "it:concept/group-dissent", "modality": "Auditory", "about": "it:entity/outsider", "ttl": 10, "strength": 0.9, "groupContext": "the-wave", "targetCharacterId": "student-a" },
+        { "type": "SpawnObservation", "schemaId": "it:concept/group-dissent", "modality": "Auditory", "about": "it:entity/outsider", "ttl": 10, "strength": 0.9, "groupContext": "the-wave", "targetCharacterId": "student-b" }
       ]
     }
   ]

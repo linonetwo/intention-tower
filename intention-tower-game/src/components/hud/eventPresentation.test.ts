@@ -55,6 +55,27 @@ describe('human-readable event presentation', () => {
     expect(text).not.toContain('NodeDeactivated');
   });
 
+  it.each(['zh-CN', 'en'])('names the actual exclusion actor, target and consequence in %s', async language => {
+    await i18n.changeLanguage(language);
+    const episode = { action_id: 'exclude', executed_at: 7, physical_outcome: {
+      type: 'SocialExclusion', target_character_id: 'outsider', target_need_schema_id: 'it:concept/loneliness', from: .1, to: .3,
+    } };
+    const scene = { characters: {
+      tim: { id: 'tim', label: 'Tim', mind_graph: { nodes: {}, action_episodes: [episode] } },
+      outsider: { id: 'outsider', label: 'Classmate', mind_graph: { nodes: {} } },
+    }, items: {} } as unknown as WorldState;
+    const event = { ActionExecuted: { character_id: 'tim', instance_id: 'exclude', executed_at: 7, autonomous: false } };
+    const result = presentEvent(event, scene);
+    expect(result.text).toContain('Tim');
+    expect(result.text).toContain('Classmate');
+    expect(result.text).toContain('0.20');
+    expect(result.text).toContain(i18n.t('concept.loneliness.label'));
+    expect(result.text).not.toContain('SocialExclusion');
+    expect(result.text).not.toContain('it:');
+    // An older generic event must not borrow a later outcome with the same action ID.
+    expect(presentEvent({ ActionExecuted: { ...event.ActionExecuted, executed_at: 6 } }, scene).text).not.toContain('Classmate');
+  });
+
   it('hides raw schema and missing instance IDs and labels actual commands', () => {
     expect(objectName(world, 'emergent')).toBe('新形成的模因');
     expect(objectName(world, 'obs_it_concept_missing')).toBe('观察内容');

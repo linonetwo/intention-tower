@@ -250,6 +250,13 @@ fn authored_roles_are_loaded_and_enforced_by_the_shared_api_rules() {
         outsider.id = "outside-cohort".into();
         world.characters.insert(outsider.id.clone(), outsider);
         for command in &world.command_defs {
+            if level == "the-wave" && command.command_id == "voice-dissent" {
+                assert!(matches!(command.targeting, TargetingMode::NoTarget));
+                assert!(command_available(command, "outsider", None, &world));
+                assert!(!command_available(command, actor, None, &world));
+                assert!(!command_available(command, "outside-cohort", None, &world));
+                continue;
+            }
             assert!(command.preconditions.iter().any(|pre| matches!(pre, Precondition::ActorIs { character_ids } if character_ids == &vec![actor.to_owned()])));
             assert!(command.preconditions.iter().any(|pre| matches!(pre, Precondition::TargetIs { character_ids } if character_ids == &targets.iter().map(|id| (*id).to_owned()).collect::<Vec<_>>())));
             assert!(command
@@ -450,19 +457,26 @@ fn authored_social_metadata_and_need_bindings_reach_command_templates() {
     use intention_tower_game_lib::models::mind_node::SignalType;
 
     let wave = load_level_from_path(&levels().join("the-wave")).unwrap();
-    for (id, expected_type) in [
-        ("give-approval", SignalType::Approval),
-        ("reject-outsider", SignalType::Rejection),
-    ] {
-        let command = wave
-            .command_defs
-            .iter()
-            .find(|command| command.command_id == id)
-            .unwrap();
-        assert!(matches!(&command.effect_templates[0],
-            CommandEffect::SpawnObservation { signal_type: Some(signal), group_context: Some(group), .. }
-                if *signal == expected_type && group == "the-wave"));
-    }
+    let command = wave
+        .command_defs
+        .iter()
+        .find(|command| command.command_id == "give-approval")
+        .unwrap();
+    assert!(matches!(&command.effect_templates[0],
+        CommandEffect::SpawnObservation { signal_type: Some(SignalType::Approval), group_context: Some(group), .. }
+            if group == "the-wave"));
+    assert!(!wave
+        .command_defs
+        .iter()
+        .any(|d| d.command_id == "reject-outsider"));
+    let dissent = wave
+        .command_defs
+        .iter()
+        .find(|d| d.command_id == "voice-dissent")
+        .unwrap();
+    assert!(dissent.effect_templates.iter().all(|effect| matches!(effect,
+        CommandEffect::SpawnObservation { schema_id, signal_type: None, group_context: Some(group), .. }
+        if schema_id == "it:concept/group-dissent" && group == "the-wave")));
     let uniform = wave
         .command_defs
         .iter()

@@ -47,10 +47,22 @@ impl System for ActionExecutionSystem {
             };
             let valid_request = match stimulus.as_ref() {
                 Some(stimulus) => {
-                    graph
-                        .action_stimulus(&request.action_id, state.tick)
-                        .as_ref()
-                        == Some(stimulus)
+                    let live = if matches!(
+                        action
+                            .action
+                            .as_ref()
+                            .and_then(|a| a.physical_effect.as_ref()),
+                        Some(ActionPhysicalEffect::SocialExclusion { .. })
+                    ) {
+                        crate::models::social::exclusion_stimulus(
+                            state,
+                            &char_id,
+                            &request.action_id,
+                        )
+                    } else {
+                        graph.action_stimulus(&request.action_id, state.tick)
+                    };
+                    live.as_ref() == Some(stimulus)
                 }
                 None => graph.learned_action_drive(&request.action_id) >= 0.3,
             };
@@ -58,6 +70,9 @@ impl System for ActionExecutionSystem {
                 continue;
             }
             let effect = action.action.as_ref().unwrap().physical_effect.clone();
+            let learned = effect
+                .as_ref()
+                .and_then(|e| crate::models::social::exclusion_learning(graph, e));
             // Every validated attempt, even an already-satisfied posture, consumes this presentation.
             if let Some(stimulus) = stimulus.as_ref() {
                 state
@@ -70,6 +85,60 @@ impl System for ActionExecutionSystem {
                         action_id: request.action_id.clone(),
                         stimulus: stimulus.clone(),
                     });
+            }
+            if let Some(ActionPhysicalEffect::SocialExclusion {
+                group_id,
+                target_need_schema_id,
+                aggravation,
+                ..
+            }) = effect.as_ref()
+            {
+                let Some((identity, edge, paid)) = learned else {
+                    continue;
+                };
+                let Some(target) = stimulus.as_ref().and_then(|s| s.emitter_id.as_ref()) else {
+                    continue;
+                };
+                let Some(need) = state.characters.get_mut(target).and_then(|c| {
+                    c.mind_graph.nodes.values_mut().find(|n| {
+                        n.schema_id == *target_need_schema_id
+                            && n.node_type == NodeType::PriorInstinct
+                            && n.value.is_finite()
+                            && n.prior_instinct.as_ref().is_some_and(|p| !p.is_resource)
+                    })
+                }) else {
+                    continue;
+                };
+                let from = need.value;
+                let to = (from + aggravation).clamp(0.0, 1.0);
+                if !to.is_finite() || to <= from {
+                    continue;
+                }
+                need.value = to;
+                state.pending_events.push(WorldEvent::NodeValueChanged {
+                    character_id: target.clone(),
+                    instance_id: need.instance_id.clone(),
+                    old_value: from,
+                    new_value: to,
+                });
+                motor_results.insert(
+                    char_id,
+                    (
+                        request.action_id,
+                        stimulus.clone(),
+                        ActionPhysicalOutcome::SocialExclusion {
+                            target_character_id: target.clone(),
+                            group_id: group_id.clone(),
+                            target_need_schema_id: target_need_schema_id.clone(),
+                            from,
+                            to,
+                            learned_identity_instance_id: identity,
+                            social_edge_id: edge,
+                            social_dopamine_spent: paid,
+                        },
+                    ),
+                );
+                continue;
             }
             let Some(ActionPhysicalEffect::ActorPosture { posture }) = effect else {
                 continue;

@@ -204,6 +204,9 @@ impl System for SocialSignalSystem {
                                 evidence: Evidence::default(),
                             });
                     edge.weight = new_weight;
+                    if reward > 0.0 && new_weight > prediction {
+                        edge.evidence.social_dopamine_spent += cost;
+                    }
                     edge.evidence.co_occurrence_count =
                         edge.evidence.co_occurrence_count.saturating_add(1);
                     edge.evidence.last_co_occurred_at = tick;

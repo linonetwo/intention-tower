@@ -86,6 +86,16 @@ pub struct ActionExecutionRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ActionPhysicalOutcome {
+    SocialExclusion {
+        target_character_id: String,
+        group_id: String,
+        target_need_schema_id: String,
+        from: f64,
+        to: f64,
+        learned_identity_instance_id: String,
+        social_edge_id: String,
+        social_dopamine_spent: f64,
+    },
     ActorPosture {
         from: super::scene::CharacterPosture,
         to: super::scene::CharacterPosture,
@@ -223,13 +233,20 @@ impl MindGraph {
 
     /// Snapshot the exact attended external presentation; durable receipts prevent replay.
     pub fn action_stimulus(&self, action_id: &str, tick: u64) -> Option<ActionStimulus> {
-        let cue = self
+        self.action_stimuli(action_id, tick)
+            .into_iter()
+            .max_by_key(|s| (s.presented_at, s.presentation_count))
+    }
+
+    pub fn action_stimuli(&self, action_id: &str, tick: u64) -> Vec<ActionStimulus> {
+        let Some(cue) = self
             .nodes
-            .get(action_id)?
-            .action
-            .as_ref()?
-            .instruction_cue
-            .as_ref()?;
+            .get(action_id)
+            .and_then(|n| n.action.as_ref())
+            .and_then(|a| a.instruction_cue.as_ref())
+        else {
+            return Vec::new();
+        };
         self.nodes
             .values()
             .filter_map(|node| {
@@ -269,7 +286,7 @@ impl MindGraph {
                     .any(|receipt| receipt.action_id == action_id && receipt.stimulus == stimulus))
                 .then_some(stimulus)
             })
-            .max_by_key(|stimulus| (stimulus.presented_at, stimulus.presentation_count))
+            .collect()
     }
 
     pub fn add_node(&mut self, node: MindNode) {

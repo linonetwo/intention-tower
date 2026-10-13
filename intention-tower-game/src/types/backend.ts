@@ -112,6 +112,13 @@ export interface ActionEpisodesCondition {
   autonomous?: boolean;
   stimulus?: { observationSchemaId?: string; emitterId?: string; groupContext?: string } | null;
   physicalPosture?: 'standing' | 'sitting' | null;
+  socialExclusion?: {
+    targetCharacterId?: string | null;
+    groupId?: string | null;
+    targetNeedSchemaId?: string | null;
+    minIncrease?: number;
+    requirePaidIdentityLearning?: boolean;
+  } | null;
 }
 
 export interface ImprintedTargetCondition {
@@ -215,8 +222,12 @@ export interface ActionCreditPin {
   reserved_at: number;
 }
 
-export type ActionPhysicalOutcome = { type: 'ActorPosture'; from: CharacterPosture; to: CharacterPosture };
-export type ActionPhysicalEffect = { type: 'ActorPosture'; posture: CharacterPosture };
+export type ActionPhysicalOutcome =
+  | { type: 'ActorPosture'; from: CharacterPosture; to: CharacterPosture }
+  | { type: 'SocialExclusion'; target_character_id: string; group_id: string; target_need_schema_id: string; from: number; to: number; learned_identity_instance_id: string; social_edge_id: string; social_dopamine_spent: number };
+export type ActionPhysicalEffect =
+  | { type: 'ActorPosture'; posture: CharacterPosture }
+  | { type: 'SocialExclusion'; group_id: string; target: 'StimulusEmitter'; target_need_schema_id: string; aggravation: number; identity_schema_id: string; minimum_social_weight: number; minimum_need_value: number };
 
 export interface InstructionCue {
   observation_schema_ids: string[];
@@ -394,6 +405,7 @@ export interface AssociationEdge {
 }
 
 export interface Evidence {
+  social_dopamine_spent?: number;
   co_occurrence_count: number;
   last_co_occurred_at: number;
   window_sec: number;

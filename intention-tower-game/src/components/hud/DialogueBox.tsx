@@ -4,7 +4,7 @@
  * Shows recent events as narrative text and available commands as dialogue choices.
  * Replaces the old CommandPanel for the map-centric UI.
  */
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useLayoutEffect } from 'react';
 import {
   Box, Typography, Button, Chip, Collapse, IconButton,
 } from '@mui/material';
@@ -52,6 +52,7 @@ export const DialogueBox: React.FC = () => {
   const [expanded, setExpanded] = useState(true);
   const [justExecuted, setJustExecuted] = useState<string | null>(null);
   const [hoveredCmd, setHoveredCmd] = useState<string | null>(null);
+  const scrollContentRef = useRef<HTMLDivElement>(null);
 
   const paused = worldState?.paused ?? true;
 
@@ -70,6 +71,18 @@ export const DialogueBox: React.FC = () => {
       .slice(0, 5)
       .map(e => formatEventBrief(e, worldState));
   }, [recentEvents, worldState, i18n.language]);
+
+  // Track meaningful payloads as well as rendered copy: repeated actions can
+  // have identical wording, while late world outcomes can enrich existing copy.
+  // Tick-only batches and unrelated world updates must not steal user scroll.
+  const feedbackKey = JSON.stringify([
+    recentEvents.filter(event => !('TickCompleted' in event)), recentText,
+  ]);
+  useLayoutEffect(() => {
+    if (recentText.length > 0 && scrollContentRef.current) {
+      scrollContentRef.current.scrollTop = 0;
+    }
+  }, [feedbackKey]);
 
   const actorLabel = selectedActorId && worldState?.characters[selectedActorId]
     ? translateLabel(worldState.characters[selectedActorId].label)
@@ -129,6 +142,8 @@ export const DialogueBox: React.FC = () => {
       </Box>
 
       <Box
+        ref={scrollContentRef}
+        data-testid="dialogue-scroll-content"
         sx={{
           bgcolor: 'rgba(255,248,232,0.94)',
           backdropFilter: 'blur(10px)',
@@ -143,19 +158,19 @@ export const DialogueBox: React.FC = () => {
         }}
       >
         {/* Event narrative (collapsed: single line; expanded: up to 5 lines) */}
-        <Box sx={{ mb: expanded ? 1 : 0 }}>
+        <Box data-testid="dialogue-events" sx={{ mb: expanded ? 1 : 0 }}>
           {!expanded && recentText.length > 0 && (
-            <Typography sx={{ fontSize: 11, color: '#806c55', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Typography sx={{ fontSize: 13, color: '#68543f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {recentText[0]}
             </Typography>
           )}
           {expanded && recentText.map((text, i) => (
-            <Typography key={i} sx={{ fontSize: 11, color: i === 0 ? '#68543f' : '#777', lineHeight: 1.5 }}>
+            <Typography key={i} data-testid={`dialogue-event-${i}`} sx={{ fontSize: 13, color: '#68543f', lineHeight: 1.5 }}>
               {text}
             </Typography>
           ))}
           {expanded && recentText.length === 0 && (
-            <Typography sx={{ fontSize: 11, color: '#555', fontStyle: 'italic' }}>
+            <Typography sx={{ fontSize: 13, color: '#68543f', fontStyle: 'italic' }}>
               {t('event.empty')}
             </Typography>
           )}
@@ -166,11 +181,11 @@ export const DialogueBox: React.FC = () => {
           <>
             {/* Actor → Target indicator */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.8 }}>
-              <Chip label={actorLabel} size="small" color="success" variant="outlined" sx={{ height: 18, fontSize: 9 }} />
+              <Chip label={actorLabel} size="small" color="success" variant="outlined" sx={{ height: 22, fontSize: 12 }} />
               {targetLabel && (
                 <>
                   <Typography sx={{ fontSize: 10, color: '#666' }}>→</Typography>
-                  <Chip label={targetLabel} size="small" color="warning" variant="outlined" sx={{ height: 18, fontSize: 9 }} />
+                  <Chip label={targetLabel} size="small" color="warning" variant="outlined" sx={{ height: 22, fontSize: 12 }} />
                 </>
               )}
             </Box>

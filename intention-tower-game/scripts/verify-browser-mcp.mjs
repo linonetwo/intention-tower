@@ -386,6 +386,92 @@ try {
   }
 
   try {
+    const members = ['tim', 'student-b'];
+    const exclusions = world => Object.fromEntries(members.map(member => [member, world.characters[member].mind_graph.action_episodes.filter(episode => episode.physical_outcome?.type === 'SocialExclusion')]));
+    const prepare = async () => {
+      await load('the-wave');
+      await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
+      await clickMode('observe');
+      if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+    };
+    await prepare();
+    await evaluate(`window.__INTENTION_TEST__.selectActor('outsider');window.__INTENTION_TEST__.selectTarget(null)`);
+    await clickCommand('voice-dissent'); await advance(9);
+    const untrained = await call('snapshot');
+    assert.ok(Object.values(exclusions(untrained)).every(episodes => episodes.length === 0), 'Dissent alone cannot manufacture untrained exclusion');
+    await prepare();
+    const training = [];
+    for (const member of members) {
+      await evaluate(`window.__INTENTION_TEST__.selectActor('teacher-wenger');window.__INTENTION_TEST__.selectTarget(${JSON.stringify(member)})`);
+      await clickCommand('introduce-uniform'); await advance(1);
+      await clickCommand('teach-gesture'); await advance(1);
+      await clickCommand('request-sit'); await advance(4);
+      const response = await call('snapshot');
+      assert.equal(response.character_postures[member], 'sitting');
+      const episode = response.characters[member].mind_graph.action_episodes.find(episode => episode.physical_outcome?.type === 'ActorPosture' && episode.stimulus?.emitter_id === 'teacher-wenger');
+      assert.ok(episode, `${member}: approval requires an actual instructed response`);
+      await clickCommand('give-approval'); await advance(1);
+      const rewarded = await call('snapshot');
+      const credited = rewarded.characters[member].mind_graph.action_episodes.find(candidate => candidate.action_id === episode.action_id && candidate.executed_at === episode.executed_at);
+      assert.ok(credited.rewarded_at != null && credited.reward_consumed_at != null && credited.reinforcement_dopamine_spent > 0, `${member}: actual UI approval must pay motor learning`);
+      training.push({ member, episode: credited });
+    }
+    const before = await call('snapshot');
+    await evaluate(`window.__INTENTION_TEST__.selectActor('outsider');window.__INTENTION_TEST__.selectTarget(null)`);
+    await clickCommand('voice-dissent');
+    let excluded;
+    const visibleConsequences = [];
+    for (let tick = 0; tick < 12; tick++) {
+      await advance(1);
+      excluded = await call('snapshot');
+      const narrative = await evaluate(`document.querySelector('[data-testid="dialogue-hud"]')?.innerText ?? ''`);
+      if (narrative.includes('排斥了') && narrative.includes('增加')) visibleConsequences.push({ tick: excluded.tick, text: narrative });
+      if (Object.values(exclusions(excluded)).every(episodes => episodes.length > 0)) break;
+    }
+    const episodes = exclusions(excluded);
+    for (const member of members) {
+      const episode = episodes[member][0];
+      assert.ok(episode, `${member}: learned member must actually execute exclusion`);
+      const outcome = episode.physical_outcome;
+      assert.equal(episode.action_schema_id, 'it:concept/exclude-outsider');
+      assert.equal(episode.stimulus.emitter_id, 'outsider');
+      assert.equal(episode.stimulus.observation_schema_id, 'it:concept/group-dissent');
+      assert.equal(outcome.target_character_id, 'outsider');
+      assert.equal(outcome.group_id, 'the-wave');
+      assert.equal(outcome.target_need_schema_id, 'it:concept/loneliness');
+      assert.ok(outcome.to - outcome.from >= .1 && outcome.social_dopamine_spent > 0);
+      const graph = excluded.characters[member].mind_graph;
+      assert.ok(graph.nodes[outcome.learned_identity_instance_id] && graph.edges[outcome.social_edge_id]?.evidence.social_dopamine_spent > 0, `${member}: consequence must reference real paid identity learning`);
+    }
+    const needDelta = excluded.characters.outsider.mind_graph.nodes['outsider-loneliness'].value - before.characters.outsider.mind_graph.nodes['outsider-loneliness'].value;
+    assert.ok(needDelta >= .2, 'Both real exclusions aggravate the living outsider need');
+    assert.ok(visibleConsequences.length > 0, 'Actual localized event consequence must be visible, not synthesized test copy');
+    const sprites = [];
+    for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
+      await call('set_viewport', { width: viewport.width, height: viewport.height });
+      await settle(`wave-exclusion-${viewport.name}`);
+      const art = await evaluate(`(async()=>{const manifest=await fetch('/mods/gpt-image-2-pack/manifest.json').then(r=>r.json()),asset=manifest.spritesByCharacter.outsider,img=document.querySelector('[data-testid="scene-character-sprite-outsider"]'),actor=document.querySelector('[data-testid="scene-character-outsider"]'),r=img.getBoundingClientRect(),a=actor.getBoundingClientRect(),v=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect(),debug=window.__itSceneDebug();return {src:img.currentSrc,expectedSrc:new URL(asset.src,location.href).href,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,missing:actor.dataset.assetMissing,rect:r.toJSON(),stage:v.toJSON(),ground:a.bottom-v.top,expectedGround:debug.ground,worldY:Number(actor.dataset.worldY)}})()`);
+      assert.equal(art.src.split('?')[0], art.expectedSrc.split('?')[0], 'Outsider uses the formal manifest sprite');
+      assert.ok(art.naturalWidth > 0 && art.naturalHeight > 0 && art.missing === 'false');
+      assert.ok(art.rect.left >= art.stage.left - 1 && art.rect.right <= art.stage.right + 1 && art.rect.top >= art.stage.top - 1 && art.rect.bottom <= art.stage.bottom + 1, 'Full outsider body is in the visible scene');
+      assert.equal(art.worldY, 300);
+      assert.ok(Math.abs(art.ground - art.expectedGround) < 1, 'Outsider feet remain on the authored classroom floor');
+      const feedback = await evaluate(`(()=>{const panel=document.querySelector('[data-testid="dialogue-scroll-content"]'),r=panel.getBoundingClientRect();return {scrollTop:panel.scrollTop,rows:[...panel.querySelectorAll('[data-testid^="dialogue-event-"]')].filter(node=>node.textContent.includes('排斥了')).map(node=>{const box=node.getBoundingClientRect();return {text:node.textContent,visible:box.top>=r.top&&box.bottom<=r.bottom,fontSize:parseFloat(getComputedStyle(node).fontSize)}})}})()`);
+      assert.equal(feedback.rows.length, 2, 'Both actual consequences remain in the feedback panel');
+      assert.ok(feedback.rows.every(row => row.visible && row.fontSize >= 13), 'New consequences must be legible and inside the visible scroll area, not merely present in the DOM');
+      await shot(`wave-exclusion-${viewport.name}`);
+      sprites.push({ viewport: viewport.name, ...art, feedback });
+    }
+    report.waveExclusion = { realButtons: true, untrainedEpisodes: exclusions(untrained), training, episodes, needDelta, visibleConsequences, sprites, passed: true };
+  } catch (error) {
+    report.waveExclusion = { passed: false, error: String(error) };
+    process.exitCode = 1;
+    await shot('wave-exclusion-failure');
+  } finally {
+    await call('set_viewport', { width: 1440, height: 900 });
+  }
+
+  try {
     await load('the-wave');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('teacher-wenger');window.__INTENTION_TEST__.selectTarget('tim')`);
     await clickMode('observe');

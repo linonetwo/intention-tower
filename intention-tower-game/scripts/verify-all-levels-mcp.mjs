@@ -128,11 +128,32 @@ async function playLevel(levelId) {
         outcomes.push({ target, posture, episode: credited });
       }
     }
-    await execute('reject-outsider', 'student-a'); await advance(1);
+    const beforeDissent = await call('snapshot');
+    const outsiderBefore = beforeDissent.characters.outsider.mind_graph.nodes['outsider-loneliness'].value;
+    await call('execute_command', { command_id: 'voice-dissent', actor_id: 'outsider' });
+    await advance(8);
     const world = await call('snapshot');
+    assert.ok(world.characters.outsider.mind_graph.nodes['outsider-loneliness'].value >= outsiderBefore + 0.1,
+      'real member action must increase the living outsider’s loneliness');
+    const exclusions = ['tim', 'student-b'].map(member => {
+      const episode = world.characters[member].mind_graph.action_episodes.find(episode =>
+        episode.action_schema_id === 'it:concept/exclude-outsider' &&
+        episode.stimulus?.emitter_id === 'outsider' &&
+        episode.stimulus?.observation_schema_id === 'it:concept/group-dissent' &&
+        episode.stimulus?.group_context === 'the-wave' &&
+        episode.physical_outcome?.type === 'SocialExclusion' &&
+        episode.physical_outcome.target_character_id === 'outsider' &&
+        episode.physical_outcome.group_id === 'the-wave' &&
+        episode.physical_outcome.target_need_schema_id === 'it:concept/loneliness' &&
+        episode.physical_outcome.to - episode.physical_outcome.from >= 0.1 &&
+        episode.physical_outcome.learned_identity_instance_id &&
+        episode.physical_outcome.social_edge_id && episode.physical_outcome.social_dopamine_spent > 0);
+      assert.ok(episode, `${member}: missing real exclusion with paid identity evidence`);
+      return { member, episode };
+    });
     assert.equal(world.progress.status, 'Won');
-    results.push({ levelId, tick: world.tick, status: world.progress.status, instructedPostures: outcomes });
-    console.log(`MCP verified the-wave with six real instructed posture transitions in ${world.tick} ticks`);
+    results.push({ levelId, tick: world.tick, status: world.progress.status, instructedPostures: outcomes, exclusions });
+    console.log(`MCP verified the-wave with six real instructed posture transitions and two genuine outsider exclusions in ${world.tick} ticks`);
     return;
   }
   if (levelId === 'gosling') {

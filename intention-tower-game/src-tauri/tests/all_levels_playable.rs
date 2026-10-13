@@ -687,14 +687,29 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                     );
                 }
             }
-            act(
-                world,
-                runner,
-                "teacher-wenger",
-                Some("student-a"),
-                "reject-outsider",
-                1,
+            act(world, runner, "outsider", None, "voice-dissent", 1);
+            for _ in 0..8 {
+                runner.tick(world, 0.5);
+            }
+            assert!(
+                world.characters["outsider"].mind_graph.nodes["outsider-loneliness"].value >= 0.3,
+                "the-wave: actual exclusion must increase the living outsider's deficit"
             );
+            for member in ["tim", "student-b"] {
+                assert!(world.characters[member].mind_graph.action_episodes.iter().any(|episode|
+                    episode.action_schema_id == "it:concept/exclude-outsider"
+                    && episode.stimulus.as_ref().is_some_and(|cue| cue.emitter_id.as_deref() == Some("outsider")
+                        && cue.observation_schema_id == "it:concept/group-dissent")
+                    && matches!(episode.physical_outcome.as_ref(),
+                        Some(intention_tower_game_lib::models::mind_graph::ActionPhysicalOutcome::SocialExclusion {
+                            target_character_id, group_id, target_need_schema_id, from, to,
+                            learned_identity_instance_id, social_edge_id, social_dopamine_spent
+                        }) if target_character_id == "outsider" && group_id == "the-wave"
+                            && target_need_schema_id == "it:concept/loneliness" && to - from >= 0.1
+                            && !learned_identity_instance_id.is_empty() && !social_edge_id.is_empty()
+                            && *social_dopamine_spent > 0.0)
+                ), "{member}: exclusion must leave target-specific paid identity evidence");
+            }
         }
         "trigger-addiction" => {
             act(

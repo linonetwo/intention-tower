@@ -74,6 +74,31 @@ fn world() -> WorldState {
             definition.effect_templates = serde_json::from_value(effects).unwrap();
         }
     }
+    // Rejection remains a generic social-signal regression, not Wave's
+    // authored exclusion path (which now requires an outsider motor effect).
+    let mut rejection = state
+        .command_defs
+        .iter()
+        .find(|d| d.command_id == "give-approval")
+        .unwrap()
+        .clone();
+    rejection.command_id = "test-social-rejection".into();
+    for effect in &mut rejection.effect_templates {
+        if let intention_tower_game_lib::models::commands::CommandEffect::SpawnObservation {
+            schema_id,
+            signal_type,
+            strength,
+            action_credit,
+            ..
+        } = effect
+        {
+            *schema_id = "it:concept/social-rejection".into();
+            *signal_type = Some(SignalType::Rejection);
+            *strength = 0.7;
+            *action_credit = None;
+        }
+    }
+    state.command_defs.push(rejection);
     state.tick = 10;
     execute(&mut state, "introduce-uniform", "tim");
     state
@@ -501,7 +526,7 @@ fn only_realized_relief_learns_and_duplicate_bindings_do_not_multiply_it() {
 #[test]
 fn rejection_aggravates_need_and_pays_to_weaken_but_never_creates_a_negative_edge() {
     let mut state = world();
-    present(&mut state, "reject-outsider");
+    present(&mut state, "test-social-rejection");
     let before = dopamine(&state);
     SocialSignalSystem.run(&mut state, 0.0);
     close(value(&state, NEED), 1.0);
@@ -513,9 +538,27 @@ fn rejection_aggravates_need_and_pays_to_weaken_but_never_creates_a_negative_edg
     SocialSignalSystem.run(&mut state, 0.0);
     present(&mut state, "give-approval");
     SocialSignalSystem.run(&mut state, 0.0);
+    // A legacy association can be weakened with paid rejection, but this must
+    // never mint positive identity-learning proof for exclusion eligibility.
+    state
+        .characters
+        .get_mut("tim")
+        .unwrap()
+        .mind_graph
+        .edges
+        .get_mut(EDGE)
+        .unwrap()
+        .evidence
+        .social_dopamine_spent = 0.0;
     let before = dopamine(&state);
-    present(&mut state, "reject-outsider");
+    present(&mut state, "test-social-rejection");
     SocialSignalSystem.run(&mut state, 0.0);
+    assert_eq!(
+        state.characters["tim"].mind_graph.edges[EDGE]
+            .evidence
+            .social_dopamine_spent,
+        0.0
+    );
     close(value(&state, NEED), 0.6);
     close(state.characters["tim"].mind_graph.edges[EDGE].weight, 0.088);
     close(dopamine(&state), before - 0.068);

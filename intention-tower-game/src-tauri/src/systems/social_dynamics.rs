@@ -23,7 +23,11 @@ impl System for SocialDynamicsSystem {
 
         for character in state.characters.values() {
             for node in character.mind_graph.nodes.values() {
-                if node.node_type == NodeType::Meme && node.active {
+                if node.node_type == NodeType::Meme
+                    && node.active
+                    && node.effective_strength().is_finite()
+                    && node.effective_strength() > 0.0
+                {
                     if let Some(group_id) = node
                         .meme
                         .as_ref()

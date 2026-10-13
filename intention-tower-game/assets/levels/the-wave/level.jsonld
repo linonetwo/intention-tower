@@ -7,6 +7,14 @@
   "initialMode": "observe",
   "characters": [
     {
+      "@id": "it:entity/outsider",
+      "@type": "schema:Person",
+      "label": "level.the-wave.character.outsider.label",
+      "position": { "x": 740, "y": 300 },
+      "fallbackChar": "D",
+      "mindGraphRef": "it:level/the-wave/outsider-mind"
+    },
+    {
       "@id": "it:entity/teacher-wenger",
       "@type": "schema:Person",
       "label": "level.the-wave.character.teacher-wenger.label",
@@ -84,8 +92,8 @@
       { "type": "actionEpisodes", "characterId": "student-b", "actionSchemaId": "it:concept/stand-on-command", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/instruction-stand", "emitterId": "teacher-wenger", "groupContext": "the-wave" }, "physicalPosture": "standing" }
     ] } },
     { "objectiveId": "produce-exclusion", "label": "level.the-wave.objective.2", "condition": { "type": "all", "conditions": [
-      { "type": "commandUsed", "commandId": "give-approval", "minCount": 1 },
-      { "type": "commandUsed", "commandId": "reject-outsider", "minCount": 1 }
+      { "type": "actionEpisodes", "characterId": "tim", "actionSchemaId": "it:concept/exclude-outsider", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/group-dissent", "emitterId": "outsider", "groupContext": "the-wave" }, "socialExclusion": { "targetCharacterId": "outsider", "groupId": "the-wave", "targetNeedSchemaId": "it:concept/loneliness", "minIncrease": 0.1, "requirePaidIdentityLearning": true } },
+      { "type": "actionEpisodes", "characterId": "student-b", "actionSchemaId": "it:concept/exclude-outsider", "minCount": 1, "stimulus": { "observationSchemaId": "it:concept/group-dissent", "emitterId": "outsider", "groupContext": "the-wave" }, "socialExclusion": { "targetCharacterId": "outsider", "groupId": "the-wave", "targetNeedSchemaId": "it:concept/loneliness", "minIncrease": 0.1, "requirePaidIdentityLearning": true } }
     ] } }
   ],
   "defaultActorId": "teacher-wenger",

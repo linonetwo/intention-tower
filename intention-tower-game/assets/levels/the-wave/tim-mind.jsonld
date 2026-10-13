@@ -5,6 +5,22 @@
   "belongsToCharacter": "it:entity/tim",
   "nodes": [
     {
+      "instanceId": "tim-exclude-outsider",
+      "schemaId": "it:concept/exclude-outsider",
+      "label": "concept.exclude-outsider.label",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3,
+        "instructionCue": { "observationSchemaIds": ["it:concept/group-dissent"], "emitterId": "outsider", "groupContext": "the-wave", "maxAgeTicks": 10, "minValue": 0.3 },
+        "physicalEffect": { "type": "SocialExclusion", "groupId": "the-wave", "target": "StimulusEmitter", "targetNeedSchemaId": "it:concept/loneliness", "aggravation": 0.2, "identitySchemaId": "it:concept/group-identity", "minimumSocialWeight": 0.1, "minimumNeedValue": 0.05 }
+      }
+    },
+    {
       "instanceId": "tim-sit-on-command",
       "schemaId": "it:concept/sit-on-command",
       "label": "concept.sit-on-command.label",

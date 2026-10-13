@@ -101,6 +101,7 @@ impl System for OperantConditioningSystem {
                                 decay_rate_per_tick: 0.0,
                                 learn_type: LearnType::Operant,
                                 evidence: Evidence {
+                                    social_dopamine_spent: 0.0,
                                     co_occurrence_count: 0,
                                     last_co_occurred_at: 0,
                                     window_sec: 1.0,

@@ -442,6 +442,7 @@ pub fn load_level_from_assets(
     let level_text = std::fs::read_to_string(&level_path).map_err(LoadError::Io)?;
 
     let level_json: LevelJson = serde_json::from_str(&level_text).map_err(LoadError::Json)?;
+    validate_exclusion_conditions(&level_json)?;
 
     let mut world = WorldState::new(42);
 
@@ -531,6 +532,7 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
     let level_path = level_dir.join("level.jsonld");
     let level_text = std::fs::read_to_string(&level_path).map_err(LoadError::Io)?;
     let level_json: LevelJson = serde_json::from_str(&level_text).map_err(LoadError::Json)?;
+    validate_exclusion_conditions(&level_json)?;
 
     let mut world = WorldState::new(42);
 
@@ -610,6 +612,40 @@ pub fn load_level_from_path(level_dir: &std::path::Path) -> Result<WorldState, L
 }
 
 // ── Parse Helpers ──
+
+fn validate_exclusion_conditions(level: &LevelJson) -> Result<(), LoadError> {
+    fn valid(condition: &LevelCondition) -> bool {
+        match condition {
+            LevelCondition::ActionEpisodes {
+                social_exclusion: Some(filter),
+                ..
+            } => {
+                filter.min_increase.is_finite()
+                    && (0.0..=1.0).contains(&filter.min_increase)
+                    && [
+                        &filter.target_character_id,
+                        &filter.group_id,
+                        &filter.target_need_schema_id,
+                    ]
+                    .iter()
+                    .all(|s| s.as_ref().is_none_or(|v| !v.trim().is_empty()))
+            }
+            LevelCondition::All { conditions } | LevelCondition::Any { conditions } => {
+                conditions.iter().all(valid)
+            }
+            _ => true,
+        }
+    }
+    if level.objective_rules.iter().any(|r| !valid(&r.condition))
+        || level.failure_rules.iter().any(|r| !valid(&r.condition))
+    {
+        return Err(LoadError::InvalidAction(
+            "socialExclusion filter requires finite minIncrease in [0,1] and nonblank identifiers"
+                .into(),
+        ));
+    }
+    Ok(())
+}
 
 fn extract_local_id(full_id: &str) -> String {
     // "it:entity/dog" → "dog", "it:level/pavlov/dog-mind" → "dog-mind"
@@ -813,6 +849,43 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> Result<MindGraph, Load
     let mut graph = MindGraph::new(char_id.to_string());
 
     for node_json in &mg.nodes {
+        if let Some(ActionPhysicalEffect::SocialExclusion {
+            group_id,
+            target_need_schema_id,
+            identity_schema_id,
+            aggravation,
+            minimum_social_weight,
+            minimum_need_value,
+            ..
+        }) = node_json
+            .action
+            .as_ref()
+            .and_then(|a| a.physical_effect.as_ref())
+        {
+            let cue = node_json
+                .action
+                .as_ref()
+                .and_then(|a| a.instruction_cue.as_ref());
+            if [group_id, target_need_schema_id, identity_schema_id]
+                .iter()
+                .any(|s| s.trim().is_empty())
+                || [aggravation, minimum_social_weight, minimum_need_value]
+                    .iter()
+                    .any(|v| !v.is_finite() || !(0.0..=1.0).contains(*v))
+                || *aggravation <= 0.0
+                || *minimum_social_weight <= 0.0
+                || *minimum_need_value <= 0.0
+                || cue.is_none()
+                || cue.is_some_and(|c| {
+                    c.group_context.as_ref().is_some_and(|g| g != group_id)
+                        || c.emitter_id
+                            .as_ref()
+                            .is_some_and(|e| e.trim().is_empty() || e == char_id)
+                })
+            {
+                return Err(LoadError::InvalidAction(format!("character '{}', node '{}': invalid SocialExclusion config or incompatible instructionCue", char_id, node_json.instance_id)));
+            }
+        }
         if let Some(cue) = node_json
             .action
             .as_ref()
@@ -956,6 +1029,7 @@ fn parse_mind_graph(char_id: &str, mg: &MindGraphJson) -> Result<MindGraph, Load
                     .map(parse_learn_type)
                     .unwrap_or(LearnType::Classical),
                 evidence: Evidence {
+                    social_dopamine_spent: 0.0,
                     co_occurrence_count: edge_json
                         .evidence
                         .as_ref()

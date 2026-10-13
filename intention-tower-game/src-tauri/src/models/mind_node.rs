@@ -249,9 +249,28 @@ pub struct InstructionCue {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ActionPhysicalEffect {
+    SocialExclusion {
+        #[serde(alias = "groupId")]
+        group_id: String,
+        target: SocialExclusionTarget,
+        #[serde(alias = "targetNeedSchemaId")]
+        target_need_schema_id: String,
+        aggravation: f64,
+        #[serde(alias = "identitySchemaId")]
+        identity_schema_id: String,
+        #[serde(alias = "minimumSocialWeight")]
+        minimum_social_weight: f64,
+        #[serde(alias = "minimumNeedValue")]
+        minimum_need_value: f64,
+    },
     ActorPosture {
         posture: super::scene::CharacterPosture,
     },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SocialExclusionTarget {
+    StimulusEmitter,
 }
 
 // ── Meme fields ──
@@ -355,6 +374,10 @@ impl MindNode {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Evidence {
+    /// Actual dopamine paid for positive Social strengthening only. Rejection
+    /// payments and legacy/preseeded associations never establish belonging.
+    #[serde(default)]
+    pub social_dopamine_spent: f64,
     pub co_occurrence_count: u32,
     pub last_co_occurred_at: u64,
     pub window_sec: f64,
@@ -363,6 +386,7 @@ pub struct Evidence {
 impl Default for Evidence {
     fn default() -> Self {
         Self {
+            social_dopamine_spent: 0.0,
             co_occurrence_count: 0,
             last_co_occurred_at: 0,
             window_sec: 10.0,

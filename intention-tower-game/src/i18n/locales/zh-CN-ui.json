@@ -1,4 +1,5 @@
 {
+  "event.socialExclusion": "{{name}}排斥了{{target}}：对方的{{need}}增加 {{amount}}",
   "event.commandRejected": "{{name}}未能执行「{{command}}」：{{reason}}",
   "event.commandName": "命令",
   "event.commandRejection.unknown_command": "命令不存在",

@@ -121,6 +121,7 @@ impl System for ImprintingSystem {
                         decay_rate_per_tick: 0.0, // Imprinted bonds don't decay
                         learn_type: LearnType::Imprinting,
                         evidence: Evidence {
+                            social_dopamine_spent: 0.0,
                             co_occurrence_count: 1,
                             last_co_occurred_at: current_tick,
                             window_sec: 0.0,

@@ -1180,6 +1180,12 @@
       ],
       "sittingSrc": "/mods/gpt-image-2-pack/sideview/animals/dog-sit.png"
     },
+    "outsider": {
+      "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
+      "height": 150,
+      "facing": "right",
+      "groundAnchor": 0.97
+    },
     "it:entity/student-worker": {
       "src": "/mods/gpt-image-2-pack/sprites/student-female.png",
       "height": 150,
@@ -2124,6 +2130,9 @@
       "facing": "right",
       "groundAnchor": 0.97
     }
+  },
+  "spriteAliases": {
+    "outsider": "student-worker"
   },
   "spriteArtDirection": "Four-head-tall full-body anime side-scrolling characters; transparent generated RGBA atlas crops with intact feet.",
   "spriteSource": "/mods/gpt-image-2-pack/sprites/ensemble-source.png"

@@ -47,7 +47,20 @@ export function presentEvent(event: WorldEvent, world: WorldState | null): { ico
     case 'NodeDeactivated': text = `${name}: ${node} · ${i18n.t('event.deactivated')}`; break;
     case 'NodeDespawned': text = `${name}: ${node} · ${i18n.t('event.expired')}`; break;
     case 'NodeValueChanged': text = `${Number(data.new_value) > Number(data.old_value) ? '↑' : '↓'} ${name}: ${node} ${Number(data.new_value).toFixed(2)}`; break;
-    case 'ActionExecuted': icon = '🐾'; color = '#557647'; text = i18n.t(data.autonomous ? 'event.actionAutonomous' : 'event.actionExecuted', { name, action: node }); break;
+    case 'ActionExecuted': {
+      const outcome = character?.mind_graph.action_episodes?.find(episode => episode.action_id === data.instance_id && episode.executed_at === data.executed_at)?.physical_outcome;
+      if (outcome?.type === 'SocialExclusion') {
+        const target = world?.characters[outcome.target_character_id];
+        text = i18n.t('event.socialExclusion', {
+          name, target: target ? readable(target.label, 'event.character') : i18n.t('event.character'),
+          need: objectName(world, outcome.target_need_schema_id), amount: (outcome.to - outcome.from).toFixed(2),
+        });
+        icon = '💬'; color = '#8b5434';
+      } else {
+        icon = '🐾'; color = '#557647'; text = i18n.t(data.autonomous ? 'event.actionAutonomous' : 'event.actionExecuted', { name, action: node });
+      }
+      break;
+    }
     case 'LearningUpdated': icon = '🔗'; color = '#64d8a2'; text = `${name}: ${i18n.t(`graph.learning.${String(data.phase)}`)} ${Number(data.old_weight).toFixed(2)} → ${Number(data.new_weight).toFixed(2)}`; break;
     case 'EdgeCreated': icon = '🔗'; text = `${name}: ${i18n.t('graph.learning.created')}`; break;
     case 'EdgeWeightChanged': icon = '🔗'; text = `${name}: ${i18n.t('event.relationChanged')} ${Number(data.new_weight).toFixed(2)}`; break;
