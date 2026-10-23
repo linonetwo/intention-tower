@@ -92,6 +92,40 @@
       ]
     },
     {
+      "commandId": "give-weak-approval",
+      "label": "command.give-weak-approval.label",
+      "hotkey": "8",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
+      "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/social-approval",
+          "actionCredit": {
+            "actions": [
+              { "actionSchemaId": "it:concept/sit-on-command", "stimulusSchemaId": "it:concept/instruction-sit", "posture": "sitting" },
+              { "actionSchemaId": "it:concept/stand-on-command", "stimulusSchemaId": "it:concept/instruction-stand", "posture": "standing" }
+            ],
+            "emitterId": "teacher-wenger",
+            "groupContext": "the-wave",
+            "maxAgeTicks": 10
+          },
+          "socialRewardScale": 0.05,
+          "signalType": "Approval",
+          "groupContext": "the-wave",
+          "modality": "Social",
+          "about": "it:entity/teacher-wenger",
+          "ttl": 200,
+          "strength": 0.8,
+          "targetCharacterId": "__target"
+        }
+      ]
+    },
+    {
       "commandId": "give-approval",
       "label": "command.give-approval.label",
       "hotkey": "4",

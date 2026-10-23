@@ -39,6 +39,7 @@ fn observation() -> CommandEffect {
         signal_type: None,
         group_context: None,
         action_credit: None,
+        social_reward_scale: 1.0,
         ttl: 12,
         strength: 1.0,
         target_character_id: None,

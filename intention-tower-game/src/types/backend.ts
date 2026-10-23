@@ -178,17 +178,35 @@ export interface MindGraph {
 }
 
 export interface ActionEpisode {
+  social_reward_expectation?: SocialRewardExpectation | null;
   stimulus?: ActionStimulus | null;
   physical_outcome?: ActionPhysicalOutcome | null;
   action_id: string;
   action_schema_id: string;
   executed_at: number;
-  contexts: { instance_id: string; schema_id: string; value: number }[];
+  contexts: ActionContext[];
   autonomous: boolean;
   reward_consumed_at?: number | null;
   social_reward_delivered_at?: number | null;
   reinforcement_dopamine_spent?: number;
   rewarded_at: number | null;
+}
+
+export interface ActionContext {
+  instance_id: string;
+  schema_id: string;
+  value: number;
+}
+
+export interface SocialRewardExpectation {
+  config: ActionCreditConfig;
+  deadline: number;
+  sources: ActionContext[];
+  prediction: number;
+  settled_at?: number | null;
+  outcome?: 'delivered' | 'omitted' | null;
+  reward?: number | null;
+  extinction_dopamine_spent: number;
 }
 
 export interface ActionStimulus {
@@ -296,6 +314,7 @@ export interface ResourceCost {
 }
 
 export interface ObservationData {
+  social_reward_scale?: number;
   action_credit?: ActionCreditPin | null;
   presentation_count?: number;
   social_consumed_at?: number | null;
@@ -436,7 +455,7 @@ export type Precondition =
   | { IsVirtualContext: { value: boolean } };
 
 export type CommandEffect =
-  | { SpawnObservation: { schema_id: string; modality: string; about: string; ttl: number; strength: number; signal_type?: SignalType | null; group_context?: string | null; action_credit?: ActionCreditConfig | null; target_character_id: string | null } }
+  | { SpawnObservation: { schema_id: string; modality: string; about: string; ttl: number; strength: number; social_reward_scale?: number; signal_type?: SignalType | null; group_context?: string | null; action_credit?: ActionCreditConfig | null; target_character_id: string | null } }
   | { ModifyNodeValue: { schema_id: string; delta: number; target_character_id: string | null } }
   | { ConsumeResource: { resource_schema_id: string; amount: number; target_character_id: string | null } }
   | { ReinforceEdge: { source_schema_id: string; target_schema_id: string; delta: number; character_id: string | null } }

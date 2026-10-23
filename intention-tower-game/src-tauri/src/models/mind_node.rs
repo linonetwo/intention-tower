@@ -120,8 +120,10 @@ pub struct ResourceCost {
 
 // ── Observation fields ──
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObservationData {
+    #[serde(default = "default_social_reward_scale", alias = "socialRewardScale")]
+    pub social_reward_scale: f64,
     /// Number of distinct presentation ticks of this persistent percept.
     /// Passive simulation ticks are not exposures; old saves default to zero.
     #[serde(default)]
@@ -143,6 +145,32 @@ pub struct ObservationData {
     pub emitter_id: Option<String>,
     pub group_context: Option<String>,
     pub replica_of: Option<String>,
+}
+
+pub fn default_social_reward_scale() -> f64 {
+    1.0
+}
+
+impl Default for ObservationData {
+    fn default() -> Self {
+        Self {
+            social_reward_scale: 1.0,
+            presentation_count: 0,
+            social_consumed_at: None,
+            action_credit: None,
+            modality: None,
+            about: None,
+            novelty_key: None,
+            credibility: 0.0,
+            satisfaction: 0.0,
+            source: None,
+            is_signal: false,
+            signal_type: None,
+            emitter_id: None,
+            group_context: None,
+            replica_of: None,
+        }
+    }
 }
 
 // ── PriorInstinct fields ──

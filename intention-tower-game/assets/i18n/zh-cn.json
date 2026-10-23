@@ -426,7 +426,7 @@
   "level.trigger-addiction.item.vr-terminal.label": "VR终端",
 
   "level.the-wave.name": "浪潮实验",
-  "level.the-wave.description": "用制服与仪式建立集体认同。以老师为操作者，向三名成员分别发出坐下与起立指令，等待实际姿势改变后及时认可。完成六次真实且付费的响应后，将操作者切换为异议同学，无需选择目标，表达异议。观察蒂姆与学生B自己作出排斥行动，使仍然存活的外人更孤独；表达异议本身不等于排斥，也不提供奖励。",
+  "level.the-wave.description": "用制服与仪式建立集体认同。以老师为操作者，向三名成员分别发出坐下与起立指令，等待实际姿势改变后及时认可。敷衍认可同样需要真实响应，只提供正常认可5%的实际需求缓解，不是任意降低学习权重或让认可无法被察觉；也可在响应后不予认可，比较奖励缺失的结果。完成六次真实且付费的响应后，将操作者切换为异议同学，无需选择目标，表达异议。观察蒂姆与学生B自己作出排斥行动，使仍然存活的外人更孤独；表达异议本身不等于排斥，也不提供奖励。",
   "level.the-wave.objective.0": "引入制服和手势建立集体认同",
   "level.the-wave.objective.1": "观察三名学生分别响应坐下与起立指令",
   "level.the-wave.objective.2": "观察蒂姆与学生B真正排斥异议同学",
@@ -669,6 +669,8 @@
   "command.enforce-discipline.label": "执行纪律",
   "command.enforce-discipline.description": "强制执行纪律规则强化服从",
   "command.give-approval.label": "给予认可",
+  "command.give-weak-approval.label": "敷衍认可",
+  "command.give-weak-approval.description": "及时敷衍认可学生对本教师指令的真实坐下或起立动作，每次响应仅奖励一次；认可同样可被察觉，但实际孤独与价值感缺失缓解仅为正常认可的5%",
   "command.give-approval.description": "及时认可学生对本教师指令的真实坐下或起立动作；每次响应只能奖励一次，缓解孤独与价值感缺失",
   "command.reject-outsider.label": "排斥异己",
   "command.reject-outsider.description": "对不服从者施加社会排斥",

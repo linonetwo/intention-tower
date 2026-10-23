@@ -61,6 +61,11 @@ pub enum CommandEffect {
         about: String,
         ttl: u64,
         strength: f64,
+        #[serde(
+            default = "super::mind_node::default_social_reward_scale",
+            alias = "socialRewardScale"
+        )]
+        social_reward_scale: f64,
         #[serde(default)]
         signal_type: Option<SignalType>,
         #[serde(default)]

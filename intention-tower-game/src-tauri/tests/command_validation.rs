@@ -43,6 +43,7 @@ mod dispatch_contract {
             signal_type: None,
             group_context: None,
             action_credit: None,
+            social_reward_scale: 1.0,
             ttl: 12,
             strength: 1.0,
             target_character_id: None,
@@ -552,6 +553,7 @@ fn authored_social_metadata_and_need_bindings_reach_command_templates() {
             signal_type: None,
             group_context: None,
             action_credit: None,
+            social_reward_scale: 1.0,
             ..
         }
     ));
@@ -571,6 +573,7 @@ fn legacy_observation_effect_dtos_default_social_fields_without_name_inference()
             signal_type: None,
             group_context: None,
             action_credit: None,
+            social_reward_scale: 1.0,
             ..
         }
     ));

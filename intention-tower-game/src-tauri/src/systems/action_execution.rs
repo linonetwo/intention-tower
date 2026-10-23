@@ -316,6 +316,7 @@ impl System for ActionExecutionSystem {
                 });
                 let autonomous = learned_need && !recent_prompt;
                 graph.action_episodes.push(ActionEpisode {
+                    social_reward_expectation: None,
                     stimulus: motor_result.and_then(|(_, stimulus, _)| stimulus.clone()),
                     physical_outcome: motor_result.map(|(_, _, outcome)| outcome.clone()),
                     action_id: action_id.clone(),
@@ -328,6 +329,8 @@ impl System for ActionExecutionSystem {
                     reinforcement_dopamine_spent: 0.0,
                     rewarded_at: None,
                 });
+                let index = graph.action_episodes.len() - 1;
+                super::social_signal::arm_expectation(graph, index, &state.command_defs);
                 state.pending_events.push(WorldEvent::ActionExecuted {
                     character_id: char_id.clone(),
                     instance_id: action_id,

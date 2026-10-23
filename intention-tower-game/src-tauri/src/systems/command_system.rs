@@ -184,7 +184,15 @@ fn apply_effect(
         CommandEffect::ModifyNodeValue { delta, .. }
         | CommandEffect::ReinforceEdge { delta, .. }
         | CommandEffect::WeakenEdge { delta, .. } => delta.is_finite(),
-        CommandEffect::SpawnObservation { strength, .. } => strength.is_finite(),
+        CommandEffect::SpawnObservation {
+            strength,
+            social_reward_scale,
+            ..
+        } => {
+            strength.is_finite()
+                && social_reward_scale.is_finite()
+                && (0.0..=1.0).contains(social_reward_scale)
+        }
         CommandEffect::ModifyResourceRegen { new_regen_rate, .. } => new_regen_rate.is_finite(),
         CommandEffect::SetAssetPrice { unit_price, .. } => unit_price.is_finite(),
         _ => true,
@@ -224,6 +232,7 @@ fn apply_effect(
             about,
             ttl,
             strength,
+            social_reward_scale,
             signal_type,
             group_context,
             action_credit,
@@ -342,6 +351,7 @@ fn apply_effect(
                             presentation_count,
                             social_consumed_at,
                             action_credit: credit_pin,
+                            social_reward_scale: *social_reward_scale,
                             modality: Some(*modality),
                             about: Some(about.clone()),
                             novelty_key: Some(format!("{}-{}", modality_str(*modality), about)),

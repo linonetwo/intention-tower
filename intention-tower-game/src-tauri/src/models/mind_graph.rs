@@ -30,6 +30,8 @@ pub struct MindGraph {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActionEpisode {
     #[serde(default)]
+    pub social_reward_expectation: Option<SocialRewardExpectation>,
+    #[serde(default)]
     pub stimulus: Option<ActionStimulus>,
     #[serde(default)]
     pub physical_outcome: Option<ActionPhysicalOutcome>,
@@ -48,6 +50,18 @@ pub struct ActionEpisode {
     #[serde(default)]
     pub reinforcement_dopamine_spent: f64,
     pub rewarded_at: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocialRewardExpectation {
+    pub config: super::commands::ActionCreditConfig,
+    pub deadline: u64,
+    pub sources: Vec<ActionContext>,
+    pub prediction: f64,
+    pub settled_at: Option<u64>,
+    pub outcome: Option<String>,
+    pub reward: Option<f64>,
+    pub extinction_dopamine_spent: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -146,7 +160,12 @@ impl MindGraph {
             .rposition(|episode| Self::credit_matches(episode, config, tick))
             .filter(|index| {
                 let episode = &self.action_episodes[*index];
-                episode.rewarded_at.is_none() && episode.reward_consumed_at.is_none()
+                episode.rewarded_at.is_none()
+                    && episode.reward_consumed_at.is_none()
+                    && episode
+                        .social_reward_expectation
+                        .as_ref()
+                        .is_none_or(|e| e.settled_at.is_none() && tick <= e.deadline)
             })
     }
 
@@ -191,6 +210,10 @@ impl MindGraph {
                         && episode.stimulus.as_ref() == Some(&pin.stimulus)
                         && episode.reward_consumed_at == Some(pin.reserved_at)
                         && episode.social_reward_delivered_at.is_none()
+                        && episode
+                            .social_reward_expectation
+                            .as_ref()
+                            .is_none_or(|e| e.settled_at.is_none() && tick <= e.deadline)
                         && episode.rewarded_at.is_none()
                         && Self::credit_matches(episode, &pin.config, tick)
                 })

@@ -44,6 +44,7 @@ impl System for OperantConditioningSystem {
             // Context is captured BEFORE feeding changes body state.
             let Some(index) = graph.action_episodes.iter().rposition(|episode| {
                 episode.rewarded_at.is_none()
+                    && episode.social_reward_expectation.is_none()
                     && episode.reward_consumed_at.is_none()
                     && episode.executed_at < current_tick
                     && current_tick - episode.executed_at <= 10

@@ -6,6 +6,9 @@ import type { GraphNode } from './types';
 
 export type LearningUpdate = Extract<WorldEvent, { LearningUpdated: unknown }>['LearningUpdated'];
 
+// Small, genuinely paid updates must not appear as a free "0.000" change.
+const learningNumber = (value: number) => value.toFixed(value !== 0 && Math.abs(value) < 0.001 ? 6 : 3);
+
 export function LearningTrace({ updates, nodes }: { updates: LearningUpdate[]; nodes: GraphNode[] }) {
   const { t } = useTranslation();
   if (updates.length === 0) return null;
@@ -17,7 +20,7 @@ export function LearningTrace({ updates, nodes }: { updates: LearningUpdate[]; n
           <Box key={`${update.edge_id}:${index}`} sx={{ mb: 0.35 }}>
             <Typography sx={{ fontSize: 11, color, overflowWrap: 'anywhere' }}>
               {t(`graph.learning.${update.phase}`)}
-              {' · '}{update.old_weight.toFixed(3)} → {update.new_weight.toFixed(3)}
+              {' · '}{learningNumber(update.old_weight)} → {learningNumber(update.new_weight)}
             </Typography>
             <Typography title={`${update.edge_id}: ${update.source_id} → ${update.target_id}`} sx={{ fontSize: 10, color: '#52616b', overflowWrap: 'anywhere' }}>
               {[update.source_id, update.target_id].map((id) => {
@@ -26,10 +29,10 @@ export function LearningTrace({ updates, nodes }: { updates: LearningUpdate[]; n
               }).join(' → ')}
             </Typography>
             <Typography sx={{ fontSize: 10, color: '#5f6a73', fontVariantNumeric: 'tabular-nums' }}>
-              {t('graph.learning.prediction')} {update.prediction.toFixed(3)}
-              {' · '}{t('graph.learning.reward')} {update.reward.toFixed(3)}
-              {' · '}{t('graph.learning.error')} {update.prediction_error > 0 ? '+' : ''}{update.prediction_error.toFixed(3)}
-              {' · '}{t('graph.learning.dopamine')} {update.dopamine_spent.toFixed(3)}
+              {t('graph.learning.prediction')} {learningNumber(update.prediction)}
+              {' · '}{t('graph.learning.reward')} {learningNumber(update.reward)}
+              {' · '}{t('graph.learning.error')} {update.prediction_error > 0 ? '+' : ''}{learningNumber(update.prediction_error)}
+              {' · '}{t('graph.learning.dopamine')} {learningNumber(update.dopamine_spent)}
             </Typography>
           </Box>
         );

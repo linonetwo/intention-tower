@@ -139,6 +139,266 @@ fn expose_effect(state: &mut WorldState) {
         .clear();
 }
 
+fn expected_response() -> WorldState {
+    let mut state = world();
+    execute_sit(&mut state);
+    for schema in NEEDS {
+        set(&mut state, schema, 0.8);
+    }
+    set(&mut state, "it:concept/dopamine", 1.0);
+    command(&mut state, "give-approval");
+    deliver(&mut state);
+    queue(&mut state, "request-stand", "teacher-wenger", "tim");
+    for _ in 0..3 {
+        SimulationRunner::new().tick(&mut state, 0.0);
+    }
+    for schema in NEEDS {
+        set(&mut state, schema, 0.8);
+    }
+    set(&mut state, "it:concept/dopamine", 1.0);
+    execute_sit(&mut state);
+    assert!(expectation(&state).prediction > 0.0);
+    state
+}
+
+fn expectation(
+    state: &WorldState,
+) -> &intention_tower_game_lib::models::mind_graph::SocialRewardExpectation {
+    state.characters["tim"]
+        .mind_graph
+        .action_episodes
+        .last()
+        .unwrap()
+        .social_reward_expectation
+        .as_ref()
+        .unwrap()
+}
+
+fn action_weights(state: &WorldState) -> Vec<f64> {
+    state.characters["tim"]
+        .mind_graph
+        .edges
+        .values()
+        .filter(|edge| edge.target_instance_id == ACTION && edge.learn_type == LearnType::Operant)
+        .map(|edge| edge.weight)
+        .collect()
+}
+
+fn restore(state: &WorldState) -> WorldState {
+    serde_json::from_str(&serde_json::to_string(state).unwrap()).unwrap()
+}
+
+#[test]
+fn authored_weak_approval_relief_pays_negative_prediction_error() {
+    let mut state = expected_response();
+    let before = needs(&state);
+    let weights = action_weights(&state);
+    command(&mut state, "give-weak-approval");
+    deliver(&mut state);
+    for (old, new) in before.into_iter().zip(needs(&state)) {
+        assert!(new < old && old - new < 0.05);
+    }
+    assert_eq!(expectation(&state).outcome.as_deref(), Some("delivered"));
+    assert!(expectation(&state).extinction_dopamine_spent > 0.0);
+    assert!(action_weights(&state)
+        .iter()
+        .zip(weights)
+        .all(|(new, old)| *new < old));
+    assert!(state.pending_events.iter().any(|event| matches!(event,
+        WorldEvent::LearningUpdated { reward, prediction_error, dopamine_spent, .. }
+        if *reward > 0.0 && *prediction_error < 0.0 && *dopamine_spent > 0.0)));
+}
+
+#[test]
+fn deadline_is_inclusive_and_omission_is_once_across_save_restore() {
+    let original = expected_response();
+    let mut delivered = restore(&original);
+    delivered.tick = expectation(&delivered).deadline - 1;
+    command(&mut delivered, "give-approval");
+    deliver(&mut delivered);
+    assert_eq!(
+        expectation(&delivered).outcome.as_deref(),
+        Some("delivered")
+    );
+    let mut omitted = restore(&original);
+    omitted.tick = expectation(&omitted).deadline;
+    deliver(&mut omitted);
+    assert!(expectation(&omitted).settled_at.is_none());
+    omitted.tick += 1;
+    deliver(&mut omitted);
+    assert_eq!(expectation(&omitted).outcome.as_deref(), Some("omitted"));
+    assert_eq!(expectation(&omitted).reward, Some(0.0));
+    assert!(expectation(&omitted).extinction_dopamine_spent > 0.0);
+    let weights = action_weights(&omitted);
+    let dopamine = value(&omitted, "it:concept/dopamine");
+    let mut omitted = restore(&omitted);
+    omitted.pending_events.clear();
+    for _ in 0..3 {
+        omitted.tick += 1;
+        deliver(&mut omitted);
+    }
+    assert_eq!(action_weights(&omitted), weights);
+    assert_eq!(value(&omitted, "it:concept/dopamine"), dopamine);
+    assert_eq!(paid(&omitted), 0);
+}
+
+#[test]
+fn reserved_unattended_reward_expires_without_late_relief_or_recharge_backpay() {
+    for unfunded in [false, true] {
+        let mut state = expected_response();
+        if unfunded {
+            set(&mut state, "it:concept/dopamine", 0.0);
+        }
+        command(&mut state, "give-approval");
+        let mut state = restore(&state);
+        let before = needs(&state);
+        for node in state
+            .characters
+            .get_mut("tim")
+            .unwrap()
+            .mind_graph
+            .nodes
+            .values_mut()
+        {
+            if node.schema_id == "it:concept/social-approval" {
+                node.attended = false;
+            }
+        }
+        state.tick = expectation(&state).deadline + 1;
+        SocialSignalSystem.run(&mut state, 0.0);
+        assert_eq!(expectation(&state).outcome.as_deref(), Some("omitted"));
+        if unfunded {
+            assert_eq!(expectation(&state).extinction_dopamine_spent, 0.0);
+        }
+        let weights = action_weights(&state);
+        set(&mut state, "it:concept/dopamine", 1.0);
+        state.pending_events.clear();
+        deliver(&mut state);
+        assert_eq!(needs(&state), before);
+        assert_eq!(action_weights(&state), weights);
+        assert_eq!(value(&state, "it:concept/dopamine"), 1.0);
+        assert_eq!(paid(&state), 0);
+    }
+}
+
+#[test]
+fn zero_scale_or_saturated_need_settles_zero_reward_without_repeat() {
+    for saturated in [false, true] {
+        let mut state = expected_response();
+        if saturated {
+            for schema in NEEDS {
+                set(&mut state, schema, 0.0);
+            }
+        } else {
+            let command = state
+                .command_defs
+                .iter_mut()
+                .find(|c| c.command_id == "give-approval")
+                .unwrap();
+            for effect in &mut command.effect_templates {
+                if let intention_tower_game_lib::models::commands::CommandEffect::SpawnObservation { social_reward_scale, .. } = effect { *social_reward_scale = 0.0; }
+            }
+        }
+        let before = needs(&state);
+        command(&mut state, "give-approval");
+        deliver(&mut state);
+        assert_eq!(needs(&state), before);
+        assert_eq!(expectation(&state).reward, Some(0.0));
+        assert_eq!(expectation(&state).outcome.as_deref(), Some("delivered"));
+        let weights = action_weights(&state);
+        let spent = expectation(&state).extinction_dopamine_spent;
+        assert!(spent > 0.0);
+        let mut state = restore(&state);
+        state.tick = expectation(&state).deadline + 1;
+        deliver(&mut state);
+        assert_eq!(action_weights(&state), weights);
+        assert_eq!(expectation(&state).extinction_dopamine_spent, spent);
+    }
+}
+
+#[test]
+fn legacy_or_invalid_sources_never_decay_unrelated_edges() {
+    for case in 0..4 {
+        let mut state = expected_response();
+        let deadline = expectation(&state).deadline;
+        let graph = &mut state.characters.get_mut("tim").unwrap().mind_graph;
+        match case {
+            0 => {
+                graph
+                    .action_episodes
+                    .last_mut()
+                    .unwrap()
+                    .social_reward_expectation = None
+            }
+            1 => {
+                for edge in graph
+                    .edges
+                    .values_mut()
+                    .filter(|e| e.target_instance_id == ACTION)
+                {
+                    edge.learnable = false;
+                }
+            }
+            2 => {
+                let e = graph
+                    .action_episodes
+                    .last_mut()
+                    .unwrap()
+                    .social_reward_expectation
+                    .as_mut()
+                    .unwrap();
+                for source in &mut e.sources {
+                    source.instance_id = "missing-source".into();
+                }
+            }
+            3 => {
+                let e = graph
+                    .action_episodes
+                    .last_mut()
+                    .unwrap()
+                    .social_reward_expectation
+                    .as_mut()
+                    .unwrap();
+                for source in &mut e.sources {
+                    source.schema_id = "it:concept/unrelated".into();
+                }
+            }
+            _ => unreachable!(),
+        }
+        let weights = action_weights(&state);
+        state.tick = deadline + 1;
+        state.pending_events.clear();
+        deliver(&mut state);
+        assert_eq!(action_weights(&state), weights, "case {case}");
+        assert_eq!(paid(&state), 0, "case {case}");
+    }
+}
+
+#[test]
+fn no_response_cannot_create_extinction_and_zero_dopamine_never_backpays() {
+    let mut empty = world();
+    let weights = action_weights(&empty);
+    empty.tick += 1001;
+    deliver(&mut empty);
+    assert_eq!(action_weights(&empty), weights);
+    assert!(empty.characters["tim"]
+        .mind_graph
+        .action_episodes
+        .is_empty());
+    let mut state = expected_response();
+    set(&mut state, "it:concept/dopamine", 0.0);
+    let weights = action_weights(&state);
+    state.tick = expectation(&state).deadline + 1;
+    deliver(&mut state);
+    assert_eq!(expectation(&state).outcome.as_deref(), Some("omitted"));
+    assert_eq!(expectation(&state).extinction_dopamine_spent, 0.0);
+    set(&mut state, "it:concept/dopamine", 1.0);
+    state.tick += 1;
+    deliver(&mut state);
+    assert_eq!(action_weights(&state), weights);
+    assert_eq!(value(&state, "it:concept/dopamine"), 1.0);
+}
+
 #[test]
 fn real_runner_action_receives_real_relief_and_paid_edges_to_exact_action() {
     let mut state = world();
@@ -177,6 +437,10 @@ fn real_runner_action_receives_real_relief_and_paid_edges_to_exact_action() {
         .last()
         .unwrap();
     assert!(episode.reward_consumed_at.is_some());
+    assert!((episode.reinforcement_dopamine_spent - 0.012).abs() < 1e-12);
+    let expectation = episode.social_reward_expectation.as_ref().unwrap();
+    assert!((expectation.reward.unwrap() - 0.4).abs() < 1e-12);
+    assert_eq!(expectation.extinction_dopamine_spent, 0.0);
 }
 
 #[test]

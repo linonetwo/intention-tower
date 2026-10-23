@@ -375,6 +375,8 @@ struct PreconditionJson {
 
 #[derive(Deserialize, Debug)]
 struct EffectJson {
+    #[serde(default, alias = "socialRewardScale")]
+    social_reward_scale: Option<f64>,
     #[serde(rename = "type")]
     type_: String,
     #[serde(rename = "schemaId")]
@@ -1179,6 +1181,11 @@ fn parse_compare_op(s: &str) -> Option<CompareOp> {
 }
 
 fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
+    if e.social_reward_scale
+        .is_some_and(|v| !v.is_finite() || !(0.0..=1.0).contains(&v))
+    {
+        return None;
+    }
     if let Some(config) = &e.action_credit {
         if e.type_ != "SpawnObservation"
             || e.modality.as_deref() != Some("Social")
@@ -1203,6 +1210,7 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
             about: e.about.clone()?,
             ttl: e.ttl?,
             strength: e.strength?,
+            social_reward_scale: e.social_reward_scale.unwrap_or(1.0),
             signal_type: e.signal_type,
             group_context: e.group_context.clone(),
             action_credit: e.action_credit.clone(),

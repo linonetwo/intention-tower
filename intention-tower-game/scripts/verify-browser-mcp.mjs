@@ -386,6 +386,80 @@ try {
   }
 
   try {
+    await load('the-wave');
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('teacher-wenger');window.__INTENTION_TEST__.selectTarget('tim')`);
+    await clickMode('observe');
+    if (await evaluate(`document.querySelector('[data-testid="dialogue-hud"]').dataset.expanded==='false'`)) await call('click', { selector: '[data-testid="dialogue-toggle"]' });
+    await clickCommand('introduce-uniform'); await advance(1);
+    await clickCommand('teach-gesture'); await advance(1);
+    const latest = world => world.characters.tim.mind_graph.action_episodes.at(-1);
+    const actionWeights = (world, action) => Object.fromEntries(Object.entries(world.characters.tim.mind_graph.edges)
+      .filter(([, edge]) => edge.learn_type === 'Operant' && edge.target_instance_id === action)
+      .map(([id, edge]) => [id, edge.weight]));
+    // Establish two independent action predictions using real completed responses.
+    for (const posture of ['sit', 'stand']) {
+      await clickCommand(`request-${posture}`); await advance(4);
+      await clickCommand('give-approval'); await advance(1);
+    }
+    await clickCommand('request-sit'); await advance(4);
+    const expectingWeak = await call('snapshot');
+    const weakTrial = latest(expectingWeak).social_reward_expectation;
+    assert.ok(weakTrial && weakTrial.prediction > .02 && weakTrial.settled_at == null);
+    const beforeWeak = actionWeights(expectingWeak, 'tim-sit-on-command');
+    await clickCommand('give-weak-approval'); await advance(1);
+    const weakened = await call('snapshot');
+    const weakReceipt = latest(weakened);
+    assert.equal(weakReceipt.social_reward_expectation.outcome, 'delivered');
+    assert.ok(Math.abs(weakReceipt.social_reward_expectation.reward - .02) < 1e-9);
+    assert.ok(weakReceipt.social_reward_expectation.extinction_dopamine_spent > 0);
+    assert.equal(weakReceipt.rewarded_at, null, 'Paid negative updates are not successful reinforcement');
+    const afterWeak = actionWeights(weakened, 'tim-sit-on-command');
+    assert.ok(Object.entries(beforeWeak).some(([id, weight]) => afterWeak[id] < weight));
+    await clickMode('graph');
+    const weakTrace = await evaluate(`document.querySelector('[data-testid="graph-learning-trace"]')?.textContent ?? ''`);
+    assert.ok(weakTrace.includes('消退') && weakTrace.includes('多巴胺'), 'Diminished reward has an actual paid extinction trace');
+    await shot('wave-weaker-reward');
+    await clickMode('observe');
+    await clickCommand('request-stand'); await advance(4);
+    let pending = await call('snapshot');
+    const pendingReceipt = latest(pending);
+    assert.ok(pendingReceipt.social_reward_expectation.prediction > 0);
+    const deadline = pendingReceipt.social_reward_expectation.deadline;
+    const beforeOmission = actionWeights(pending, 'tim-stand-on-command');
+    await advance(deadline - pending.tick);
+    pending = await call('snapshot');
+    assert.equal(latest(pending).social_reward_expectation.settled_at, null, 'The final reward tick remains eligible');
+    await advance(1);
+    const omitted = await call('snapshot');
+    const omittedReceipt = latest(omitted);
+    assert.equal(omittedReceipt.social_reward_expectation.outcome, 'omitted');
+    assert.equal(omittedReceipt.social_reward_expectation.reward, 0);
+    assert.ok(omittedReceipt.social_reward_expectation.extinction_dopamine_spent > 0);
+    const afterOmission = actionWeights(omitted, 'tim-stand-on-command');
+    assert.ok(Object.entries(beforeOmission).some(([id, weight]) => afterOmission[id] != null && afterOmission[id] < weight));
+    await clickMode('graph');
+    const omissionTrace = await evaluate(`document.querySelector('[data-testid="graph-learning-trace"]')?.textContent ?? ''`);
+    assert.ok(omissionTrace.includes('消退') && omissionTrace.includes('多巴胺'));
+    await shot('wave-omitted-reward');
+    await advance(5);
+    const later = await call('snapshot');
+    assert.deepEqual(actionWeights(later, 'tim-stand-on-command'), afterOmission, 'Quiet waiting cannot repeatedly extinguish the same response');
+    assert.equal(latest(later).social_reward_expectation.settled_at, omittedReceipt.social_reward_expectation.settled_at);
+    await clickMode('observe');
+    await clickCommand('request-sit'); await advance(4);
+    const beforeRecovery = await call('snapshot');
+    await clickCommand('give-approval'); await advance(1);
+    const recovered = await call('snapshot');
+    assert.ok(latest(recovered).reinforcement_dopamine_spent > 0 && latest(recovered).rewarded_at != null, 'Fresh full approval can reinforce again after extinction');
+    assert.ok(Object.entries(actionWeights(beforeRecovery, 'tim-sit-on-command')).some(([id, weight]) => actionWeights(recovered, 'tim-sit-on-command')[id] > weight));
+    report.waveRewardExtinction = { realButtons: true, weakReceipt, beforeWeak, afterWeak, weakTrace, omittedReceipt, beforeOmission, afterOmission, omissionTrace, noIdleRepeat: true, recovery: latest(recovered), passed: true };
+  } catch (error) {
+    report.waveRewardExtinction = { passed: false, error: String(error) };
+    process.exitCode = 1;
+    await shot('wave-reward-extinction-failure');
+  }
+
+  try {
     const members = ['tim', 'student-b'];
     const exclusions = world => Object.fromEntries(members.map(member => [member, world.characters[member].mind_graph.action_episodes.filter(episode => episode.physical_outcome?.type === 'SocialExclusion')]));
     const prepare = async () => {
