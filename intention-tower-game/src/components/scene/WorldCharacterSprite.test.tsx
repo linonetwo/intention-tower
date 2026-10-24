@@ -8,6 +8,35 @@ const props = { character, asset: { src: '/dog.png', height: 90 }, revision: 1, 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('full-body world character', () => {
+  it('nests real PNG limbs at joints and changes clothes without moving the root or head', () => {
+    const paperDoll = { rig: 'humanoid-v1' as const, headId: 'boy', headSrc: '/head.png', outfitId: 'student',
+      availableOutfits: ['student', 'teal'], parts: { torso: '/torso.png', upperArm: '/upper.png', forearm: '/hand.png', thigh: '/thigh.png', shin: '/shoe.png' } };
+    const { rerender } = render(<WorldCharacterSprite {...props} asset={{ ...props.asset, paperDoll }} />);
+    const root = screen.getByTestId('scene-character-dog');
+    const before = root.style.cssText;
+    const rig = screen.getByTestId('scene-character-rig-dog');
+    expect(rig.querySelector('[data-rig-joint="left-arm-lower"]')?.parentElement?.getAttribute('data-rig-joint')).toBe('left-arm');
+    expect(rig.querySelectorAll('img')).toHaveLength(10);
+    const thigh = rig.querySelector('[data-rig-part="left-leg-upper"]') as HTMLImageElement;
+    const shin = rig.querySelector('[data-rig-part="left-leg-lower"]') as HTMLImageElement;
+    expect(thigh.style.top).toBe('-4px');
+    expect(thigh.style.height).toBe('54px');
+    expect(shin.style.top).toBe('-4px');
+    expect(shin.style.height).toBe('54px');
+    // Shin textures bleed upward only: their lower edge remains at the IK foot.
+    expect(Number.parseFloat(shin.style.top) + Number.parseFloat(shin.style.height)).toBe(50);
+    const hip = rig.querySelector('[data-rig-joint="hip"]')!;
+    expect(hip.lastElementChild?.getAttribute('data-rig-joint')).toBe('left-arm');
+    expect((hip.lastElementChild as HTMLElement).style.left).toBe('-24px');
+    expect((rig.querySelector('[data-rig-part="torso"]') as HTMLImageElement).style.top).toBe('-76px');
+    rerender(<WorldCharacterSprite {...props} asset={{ ...props.asset, paperDoll: { ...paperDoll, outfitId: 'teal', parts: { ...paperDoll.parts, torso: '/teal.png' } } }} />);
+    expect(root.style.cssText).toBe(before);
+    expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/head.png?rev=1');
+    expect(rig.getAttribute('data-outfit')).toBe('teal');
+    fireEvent.error(rig.querySelector('[data-rig-part="torso"]')!);
+    expect(root.getAttribute('data-asset-missing')).toBe('true');
+    expect(screen.queryByTestId('scene-character-rig-dog')).toBeNull();
+  });
   it('snaps changed projections during a walk and preserves that decision through art rerenders', () => {
     vi.useFakeTimers();
     const { rerender } = render(<WorldCharacterSprite {...props} />);

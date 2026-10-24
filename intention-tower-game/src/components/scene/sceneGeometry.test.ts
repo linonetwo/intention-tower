@@ -22,6 +22,11 @@ describe('authoritative sideview geometry', () => {
     expect(390 / worldScale).toBeLessThan(800);
     expect(backgroundTop).toBeCloseTo(60);
   });
+  it.each([400, 1600])('fits an authored %s-unit room without assuming an 800-unit background', worldWidth => {
+    const geometry = sceneCameraGeometry(900, 500, worldWidth, room);
+    expect(room.width * geometry.backgroundScale).toBeCloseTo(worldWidth * geometry.worldScale);
+    expect(geometry.backgroundTop + room.floorY * geometry.backgroundScale).toBeCloseTo(500);
+  });
   it('uses actual sprite height to avoid unnecessarily shrinking landscape actors', () => {
     const { worldScale } = sceneCameraGeometry(844, 210, 800, room);
     expect(characterArtScale(worldScale, 210, 150)).toBeCloseTo(140 / 150);

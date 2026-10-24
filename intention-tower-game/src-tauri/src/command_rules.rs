@@ -25,8 +25,9 @@ pub fn check_precondition(
         }
         Precondition::TargetIsNotActor => target_id.is_some_and(|target| target != actor_id),
         Precondition::EnvHasItem { item_schema_id } => world.items.values().any(|item| {
-            item.schema_type == *item_schema_id
-                || item.abstract_type.as_deref() == Some(item_schema_id.as_str())
+            world.same_room(actor_id, &item.id)
+                && (item.schema_type == *item_schema_id
+                    || item.abstract_type.as_deref() == Some(item_schema_id.as_str()))
         }),
         Precondition::TargetHasNode { schema_id } => target_id
             .and_then(|id| world.characters.get(id))
@@ -99,6 +100,9 @@ pub fn command_available(
         return false;
     }
     if target_id.is_some_and(|id| !world.characters.contains_key(id)) {
+        return false;
+    }
+    if target_id.is_some_and(|id| !world.same_room(actor_id, id)) {
         return false;
     }
     command.preconditions.iter().all(|precondition| {

@@ -1,4 +1,10 @@
 {
+  "scene.wardrobe": "Outfit",
+  "scene.enterRoom": "Walk to {{room}}",
+  "scene.outfit.student": "Student",
+  "scene.outfit.teacher": "Teacher",
+  "scene.outfit.scientist": "Scientist",
+  "scene.outfit.teal": "Teal",
   "event.socialExclusion": "{{name}} excluded {{target}}: their {{need}} increased by {{amount}}",
   "event.commandRejected": "{{name}} could not perform {{command}}: {{reason}}",
   "event.commandName": "Command",

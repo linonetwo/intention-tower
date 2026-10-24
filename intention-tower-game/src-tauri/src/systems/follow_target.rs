@@ -188,6 +188,9 @@ impl System for FollowTargetSystem {
         follows.sort_by(|a, b| (&a.0, &a.1).cmp(&(&b.0, &b.1)));
         let mut moved = std::collections::HashSet::new();
         for (id, motivation_id, target, config) in follows {
+            if !state.same_room(&id, &target) {
+                continue;
+            }
             if moved.contains(&id) {
                 continue;
             }

@@ -13,7 +13,9 @@ export interface Position {
 export type CharacterPosture = 'standing' | 'sitting';
 export interface ScenePlatform { id: string; x_min: number; x_max: number; y: number }
 export interface SceneConnector { id: string; kind: 'stairs' | 'ladder'; from_platform: string; to_platform: string; from_x: number; to_x: number }
-export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[] }
+export interface SceneRoom { id: string; label: string; x_min: number; x_max: number; platform_ids: string[]; background_key?: string | null }
+export interface ScenePortal { id: string; from_room: string; to_room: string; from_platform: string; to_platform: string; x: number }
+export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[]; rooms?: SceneRoom[]; portals?: ScenePortal[]; non_blocking_characters?: string[] }
 
 // ── World State ──
 
@@ -32,6 +34,8 @@ export interface WorldState {
   characters: Record<string, WorldCharacter>;
   scene?: SceneDefinition;
   character_postures?: Record<string, CharacterPosture>;
+  character_rooms?: Record<string, string>;
+  item_rooms?: Record<string, string>;
   items: Record<string, WorldItem>;
   event_log: WorldEvent[];
   command_defs: CommandDef[];

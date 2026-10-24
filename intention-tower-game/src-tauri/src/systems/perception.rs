@@ -33,18 +33,19 @@ impl System for PerceptionSystem {
                     about,
                     modality,
                 } => {
-                    let source_position = state
-                        .characters
-                        .get(source_entity_id)
-                        .map(|character| (character.position.x, character.position.y));
+                    let source_position =
+                        state.entity_position(source_entity_id).map(|p| (p.x, p.y));
                     // Characters within the readable scene radius perceive the signal.
                     let char_ids: Vec<String> = state
                         .characters
                         .values()
                         .filter(|character| {
-                            source_position.is_none_or(|(x, y)| {
-                                (character.position.x - x).hypot(character.position.y - y) <= 450.0
-                            })
+                            (state.same_room(source_entity_id, &character.id)
+                                || (state.scene.rooms.is_empty() && source_position.is_none()))
+                                && source_position.is_none_or(|(x, y)| {
+                                    (character.position.x - x).hypot(character.position.y - y)
+                                        <= 450.0
+                                })
                         })
                         .map(|character| character.id.clone())
                         .collect();
@@ -106,11 +107,20 @@ impl System for PerceptionSystem {
                     }
                 }
                 WorldEvent::FoodPresented {
-                    source_entity_id: _,
+                    source_entity_id,
                     about,
                 } => {
                     // All characters perceive food (olfactory/visual)
-                    let char_ids: Vec<String> = state.characters.keys().cloned().collect();
+                    let char_ids: Vec<String> = state
+                        .characters
+                        .keys()
+                        .filter(|id| {
+                            state.same_room(source_entity_id, id)
+                                || (state.scene.rooms.is_empty()
+                                    && state.entity_room(source_entity_id).is_none())
+                        })
+                        .cloned()
+                        .collect();
                     for char_id in char_ids {
                         if let Some(character) = state.characters.get_mut(&char_id) {
                             let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));

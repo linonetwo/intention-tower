@@ -153,6 +153,64 @@ for (const url of spriteUrls) {
   } catch (error) { errors.push(`sprite cannot be verified: ${url} (${error.message})`); }
 }
 
+// Articulated humans must resolve to independently generated transparent parts,
+// never a whole-body idle PNG masquerading as one of the skeleton textures.
+try {
+  const doll = manifest.paperDoll;
+  assert(doll?.version === 1, 'missing version-one articulated paper-doll pack');
+  const provenance = JSON.parse(await fs.readFile(path.join(packRoot, 'paper-doll/provenance.json'), 'utf8'));
+  assert(provenance.model === 'gpt-image-2' && provenance.generator === 'proxy-imagegen', 'paper-doll source has incorrect generator provenance');
+  const source = await fs.readFile(path.join(packRoot, 'paper-doll/source-v1.png'));
+  assert(createHash('sha256').update(source).digest('hex') === provenance.source.sha256, 'paper-doll source hash differs from reviewed generation');
+  assert(provenance.parts?.length === 20, 'paper-doll atlas must derive exactly twenty distinct source parts');
+  const expectedSizes = { head: [56, 56], torso: [60, 72], upperArm: [18, 39], forearm: [18, 39], thigh: [22, 46], shin: [22, 50] };
+  const partUrls = new Map();
+  for (const [id, url] of Object.entries(doll?.heads ?? {})) partUrls.set(url, 'head');
+  for (const outfit of Object.values(doll?.outfits ?? {})) for (const part of ['torso', 'upperArm', 'forearm', 'thigh', 'shin']) {
+    assert(typeof outfit[part] === 'string', `paper-doll outfit lacks ${part}`);
+    if (typeof outfit[part] === 'string') partUrls.set(outfit[part], part);
+  }
+  assert(partUrls.size === 20, `expected 20 independent articulated PNG parts, found ${partUrls.size}`);
+  const partHashes = new Set();
+  for (const [url, type] of partUrls) {
+    assert(/^\/mods\/gpt-image-2-pack\/paper-doll\/[\w-]+\.png$/.test(url), `paper-doll part is not a dedicated production part: ${url}`);
+    const bytes = await fs.readFile(path.join(packRoot, url.replace(/^\/mods\/gpt-image-2-pack\//, '')));
+    const image = decodeRgbaPng(bytes), [width, height] = expectedSizes[type];
+    assert(image.width === width && image.height === height, `paper-doll ${type} geometry differs from skeleton: ${url}`);
+    let clear = 0, solid = 0, partial = 0;
+    for (let i = 3; i < image.pixels.length; i += 4) {
+      clear += image.pixels[i] === 0;
+      solid += image.pixels[i] >= 128;
+      partial += image.pixels[i] > 0 && image.pixels[i] < 255;
+    }
+    assert(clear >= width * 2 + height * 2 - 4 && solid > width * height * .15 && partial > 0, `paper-doll part lacks a substantial antialiased transparent silhouette: ${url}`);
+    const bounds = alphaBounds(image, 16);
+    assert(bounds && bounds.left > 0 && bounds.top > 0 && bounds.right < width - 1 && bounds.bottom < height - 1, `paper-doll part is not transparently padded: ${url}`);
+    const hash = createHash('sha256').update(bytes).digest('hex');
+    assert(!partHashes.has(hash), `paper-doll part duplicates another full texture: ${url}`); partHashes.add(hash);
+    const record = provenance.parts.find(part => url.endsWith(`/${part.id}.png`));
+    assert(record?.sha256 === hash && record?.type === type, `paper-doll part differs from deterministic source derivation: ${url}`);
+  }
+  for (const [id, sprite] of Object.entries(manifest.spritesByCharacter ?? {})) {
+    const nonhuman = /animals\/|\/(hive|dog|gosling|cat)(?:-idle)?\.png$/.test(sprite.src);
+    const character = doll?.characters?.[id];
+    if (nonhuman) { assert(!character, `animal/nonhuman must not use a human paper-doll skeleton: ${id}`); continue; }
+    assert(character?.height === 150 && sprite.height === 150, `human does not use canonical 150-unit geometry: ${id}`);
+    assert(typeof doll?.heads?.[character?.headId] === 'string', `human has no valid articulated head: ${id}`);
+    assert(!!doll?.outfits?.[character?.outfitId], `human has no valid articulated outfit: ${id}`);
+  }
+  assert(doll?.characters?.outsider?.headId === 'student-girl' && doll?.characters?.outsider?.outfitId === 'teal', 'outsider must retain the female teal articulated identity');
+  for (const room of ['pavlov_lab', 'pavlov_pantry']) assert(typeof manifest.backgrounds?.[room] === 'string' && Number.isFinite(manifest.backgroundsMetadata?.[room]?.floorY), `Pavlov room lacks an explicit production background and floor: ${room}`);
+  const pantryRecord = JSON.parse(await fs.readFile(path.join(packRoot, 'sideview/pavlov-pantry-provenance.json'), 'utf8'));
+  const pantryBytes = await fs.readFile(path.join(packRoot, 'sideview', pantryRecord.file));
+  assert(pantryBytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), 'pantry source is not PNG');
+  const pantryImage = { width: pantryBytes.readUInt32BE(16), height: pantryBytes.readUInt32BE(20) };
+  assert(pantryRecord.model === 'gpt-image-2' && pantryRecord.generator === 'proxy-imagegen', 'pantry art provenance differs from requested generator');
+  assert(createHash('sha256').update(pantryBytes).digest('hex') === pantryRecord.sha256, 'pantry source hash differs');
+  assert(manifest.backgrounds.pavlov_pantry === `/mods/gpt-image-2-pack/sideview/${pantryRecord.file}`, 'pantry still uses temporary room art');
+  assert(pantryImage.width === pantryRecord.width && pantryImage.height === pantryRecord.height && manifest.backgroundsMetadata.pavlov_pantry.floorY === pantryRecord.floorY, 'pantry floor and source dimensions disagree');
+} catch (error) { errors.push(`paper-doll production assets cannot be verified: ${error.message}`); }
+
 const hashes = new Map();
 for (const record of fileRecords) {
   const duplicate = hashes.get(record.hash);

@@ -1,7 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { modAssetsStore, PRODUCTION_ASSET_MANIFEST_URL, resolveCharacterSprite } from './useModAssets';
+import { canCharacterSit, modAssetsStore, PRODUCTION_ASSET_MANIFEST_URL, resolveCharacterSprite } from './useModAssets';
 
 describe('production mod assets', () => {
+  it('changes only outfit parts, retaining the exact shared head and flat metadata', () => {
+    const parts = { torso: '/t', upperArm: '/u', forearm: '/f', thigh: '/h', shin: '/s' };
+    const manifest = { id: 'atlas', paperDoll: { version: 1 as const, heads: { boy: '/boy' }, outfits: { student: parts, teal: { ...parts, torso: '/teal' } }, characters: { boy: { headId: 'boy', outfitId: 'student' } } } };
+    const initial = resolveCharacterSprite(manifest, 'it:entity/boy');
+    const changed = resolveCharacterSprite(manifest, 'it:entity/boy', 'teal');
+    expect(changed?.paperDoll?.headSrc).toBe(initial?.paperDoll?.headSrc);
+    expect(changed?.paperDoll?.parts.torso).toBe('/teal');
+    expect(canCharacterSit(initial)).toBe(true);
+    expect(canCharacterSit({ src: '/flat' })).toBe(false);
+  });
   it('resolves full-body art by canonical and short IDs without using portraits', () => {
     const sprite = { src: '/dog.png', height: 90, groundAnchor: .96 };
     expect(resolveCharacterSprite({ id: 'test', spritesByCharacter: { dog: sprite } }, 'it:entity/dog')).toEqual(sprite);

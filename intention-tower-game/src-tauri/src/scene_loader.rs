@@ -22,6 +22,14 @@ pub fn load_scene_from_path(
         world.scene.platforms[0].x_max = max_x.max(800.0);
     }
     world.scene.validate().map_err(LoadError::NotFound)?;
+    if world
+        .scene
+        .non_blocking_characters
+        .iter()
+        .any(|id| !world.characters.contains_key(id))
+    {
+        return Err(LoadError::NotFound("non-blocking character missing".into()));
+    }
     scene::normalize_positions(world);
     scene::resolve_spawn_overlaps(world);
     Ok(())

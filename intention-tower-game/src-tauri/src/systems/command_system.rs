@@ -174,6 +174,11 @@ fn apply_effect(
         _ => None,
     };
     if let Some(explicit) = explicit {
+        if resolve_target(explicit, cmd.target_id.as_deref(), &cmd.actor_id)
+            .is_some_and(|id| !state.same_room(&cmd.actor_id, id))
+        {
+            return EffectOutcome::Rejected("recipient_in_different_room");
+        }
         if !resolve_target(explicit, cmd.target_id.as_deref(), &cmd.actor_id)
             .is_some_and(|id| state.characters.contains_key(id))
         {
@@ -760,6 +765,9 @@ fn apply_effect(
                 .to_owned();
             if !state.characters.contains_key(&buyer) || !state.characters.contains_key(&seller) {
                 return EffectOutcome::Rejected("trade_party_not_found");
+            }
+            if !state.same_room(&cmd.actor_id, &buyer) || !state.same_room(&cmd.actor_id, &seller) {
+                return EffectOutcome::Rejected("recipient_in_different_room");
             }
             let asset = state.economy.assets.get(item_id).cloned();
             let total_price = asset

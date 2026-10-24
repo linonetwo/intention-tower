@@ -1,4 +1,10 @@
 {
+  "scene.wardrobe": "换装",
+  "scene.enterRoom": "走向{{room}}",
+  "scene.outfit.student": "学生装",
+  "scene.outfit.teacher": "教师装",
+  "scene.outfit.scientist": "科研装",
+  "scene.outfit.teal": "青绿装",
   "event.socialExclusion": "{{name}}排斥了{{target}}：对方的{{need}}增加 {{amount}}",
   "event.commandRejected": "{{name}}未能执行「{{command}}」：{{reason}}",
   "event.commandName": "命令",

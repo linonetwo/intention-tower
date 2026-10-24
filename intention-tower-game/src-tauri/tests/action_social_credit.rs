@@ -45,6 +45,7 @@ fn world() -> WorldState {
 }
 
 fn execute_sit(state: &mut WorldState) {
+    let prior_episode_count = state.characters["tim"].mind_graph.action_episodes.len();
     queue(state, "request-sit", "teacher-wenger", "tim");
     let runner = SimulationRunner::new();
     for _ in 0..3 {
@@ -53,11 +54,13 @@ fn execute_sit(state: &mut WorldState) {
             .mind_graph
             .action_episodes
             .iter()
+            .skip(prior_episode_count)
             .any(|episode| episode.action_id == ACTION && episode.physical_outcome.is_some())
         {
             break;
         }
     }
+    assert!(state.characters["tim"].mind_graph.action_episodes.len() > prior_episode_count);
     let episode = state.characters["tim"]
         .mind_graph
         .action_episodes

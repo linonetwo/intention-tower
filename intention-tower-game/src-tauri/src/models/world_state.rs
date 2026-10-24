@@ -68,6 +68,10 @@ pub struct WorldState {
     pub scene: SceneDefinition,
     #[serde(default)]
     pub character_postures: HashMap<String, CharacterPosture>,
+    #[serde(default)]
+    pub character_rooms: HashMap<String, String>,
+    #[serde(default)]
+    pub item_rooms: HashMap<String, String>,
     pub characters: HashMap<String, WorldCharacter>,
     pub items: HashMap<String, WorldItem>,
     pub event_log: Vec<WorldEvent>,
@@ -101,6 +105,29 @@ fn default_ui_mode() -> String {
 }
 
 impl WorldState {
+    pub fn entity_room(&self, entity: &str) -> Option<&str> {
+        let id = entity.strip_prefix("it:entity/").unwrap_or(entity);
+        if let Some(c) = self.characters.get(id) {
+            Some(
+                self.character_rooms
+                    .get(id)
+                    .map(String::as_str)
+                    .unwrap_or_else(|| self.scene.room_at(c.position.x, c.position.y)),
+            )
+        } else {
+            self.items.get(id).map(|i| {
+                self.item_rooms
+                    .get(id)
+                    .map(String::as_str)
+                    .unwrap_or_else(|| self.scene.room_at(i.position.x, i.position.y))
+            })
+        }
+    }
+    pub fn same_room(&self, a: &str, b: &str) -> bool {
+        self.entity_room(a)
+            .zip(self.entity_room(b))
+            .is_some_and(|(a, b)| a == b)
+    }
     /// Query a real world entity, accepting its local ID or canonical entity IRI.
     /// Conceptual schemas are not entities and cannot be spatial targets.
     pub fn entity_position(&self, entity: &str) -> Option<Position> {
@@ -125,6 +152,8 @@ impl WorldState {
             default_target_id: None,
             scene: SceneDefinition::default(),
             character_postures: HashMap::new(),
+            character_rooms: HashMap::new(),
+            item_rooms: HashMap::new(),
             characters: HashMap::new(),
             items: HashMap::new(),
             event_log: Vec::new(),

@@ -27,6 +27,12 @@ export interface ImageAssetManifest {
   portraitsByCharacter?: Record<string, string>;
   /** Transparent full-body art; old portraits are never substituted. */
   spritesByCharacter?: Record<string, CharacterSpriteAsset>;
+  paperDoll?: {
+    version: 1;
+    heads: Record<string, string>;
+    outfits: Record<string, PaperDollParts>;
+    characters: Record<string, { headId: string; outfitId: string }>;
+  };
   backgrounds?: Record<string, string>;
   backgroundsMetadata?: Record<string, { width: number; height: number; floorY: number }>;
   items?: ImageAssetManifestItem[];
@@ -40,11 +46,29 @@ export interface CharacterSpriteAsset {
   walkFrames?: string[];
   sittingSrc?: string;
   chairSrc?: string;
+  paperDoll?: ResolvedPaperDoll;
 }
 
-export function resolveCharacterSprite(manifest: ImageAssetManifest | null, id: string) {
-  return manifest?.spritesByCharacter?.[id]
+export interface PaperDollParts {
+  torso: string; upperArm: string; forearm: string; thigh: string; shin: string;
+}
+export interface ResolvedPaperDoll {
+  rig: 'humanoid-v1'; headId: string; headSrc: string; outfitId: string;
+  parts: PaperDollParts; availableOutfits: string[];
+}
+export function canCharacterSit(asset?: CharacterSpriteAsset): boolean {
+  return Boolean(asset?.paperDoll || asset?.sittingSrc);
+}
+export function resolveCharacterSprite(manifest: ImageAssetManifest | null, id: string, outfitId?: string): CharacterSpriteAsset | undefined {
+  const flat = manifest?.spritesByCharacter?.[id]
     ?? manifest?.spritesByCharacter?.[id.replace(/^it:entity\//, '')];
+  const atlas = manifest?.paperDoll;
+  const character = atlas?.characters[id] ?? atlas?.characters[id.replace(/^it:entity\//, '')];
+  if (!atlas || !character) return flat;
+  const chosen = outfitId && atlas.outfits[outfitId] ? outfitId : character.outfitId;
+  return { ...flat, src: flat?.src ?? atlas.heads[character.headId] ?? '', height: flat?.height ?? 150,
+    paperDoll: { rig: 'humanoid-v1', headId: character.headId, headSrc: atlas.heads[character.headId],
+      outfitId: chosen, parts: atlas.outfits[chosen], availableOutfits: Object.keys(atlas.outfits) } };
 }
 
 interface ModAssetsState {
@@ -52,6 +76,8 @@ interface ModAssetsState {
   revision: number;
   loading: boolean;
   error: string | null;
+  selectedOutfits: Record<string, string>;
+  setCharacterOutfit: (charId: string, outfitId: string) => void;
   init: () => Promise<void>;
   reload: () => Promise<void>;
 }
@@ -72,6 +98,14 @@ export const modAssetsStore = createStore<ModAssetsState>()((set, get) => ({
   revision: 0,
   loading: false,
   error: null,
+  selectedOutfits: {},
+  setCharacterOutfit: (charId, outfitId) => {
+    const manifest = get().manifest;
+    if (!manifest?.paperDoll?.outfits[outfitId]) return;
+    const selectedOutfits = { ...get().selectedOutfits, [charId]: outfitId };
+    set({ selectedOutfits });
+    try { localStorage.setItem('it-paper-doll-outfits', JSON.stringify({ manifest: `${manifest.id}:${manifest.version}:${manifest.paperDoll.version}`, selectedOutfits })); } catch { /* Storage may be disabled. */ }
+  },
 
   init: async () => {
     if (get().manifest || get().loading) return;
@@ -83,7 +117,14 @@ export const modAssetsStore = createStore<ModAssetsState>()((set, get) => ({
     set({ loading: true, error: null, revision: nextRev });
     try {
       const manifest = await loadManifest(nextRev);
-      set({ manifest, loading: false, error: null });
+      let selectedOutfits: Record<string, string> = {};
+      try {
+        const saved = JSON.parse(localStorage.getItem('it-paper-doll-outfits') ?? 'null');
+        if (saved?.manifest === `${manifest.id}:${manifest.version}:${manifest.paperDoll?.version}`) {
+          selectedOutfits = Object.fromEntries(Object.entries(saved.selectedOutfits ?? {}).filter(([, value]) => typeof value === 'string' && manifest.paperDoll?.outfits[value])) as Record<string, string>;
+        }
+      } catch { /* Invalid/disabled local storage must not break art loading. */ }
+      set({ manifest, selectedOutfits, loading: false, error: null });
     } catch (err) {
       set({ loading: false, error: String(err) });
     }
