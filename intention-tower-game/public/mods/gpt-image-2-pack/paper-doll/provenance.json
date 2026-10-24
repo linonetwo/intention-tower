@@ -12,7 +12,8 @@
     ],
     "sha256": "d54d8a5b182785296d6667350fd207089b0fbbc8fd90d392cd75b303dec1e5d2"
   },
-  "processing": "Per-cell largest 8-connected alpha>=16 component; nearby low-alpha edge retained; tight crop; premultiplied-alpha bilinear resize, transparent 1px padding. Heads retain aspect and bottom-centered neck.",
+  "processing": "Per-cell largest 8-connected alpha>=16 component; nearby low-alpha edge retained; tight crop; premultiplied-alpha bilinear resize, transparent 3px padding (one canonical unit). Heads retain aspect and bottom-centered neck.",
+  "pixelRatio": 3,
   "runtimeSizes": {
     "head": [
       56,
@@ -55,10 +56,10 @@
       },
       "componentPixels": 33166,
       "size": [
-        56,
-        56
+        168,
+        168
       ],
-      "sha256": "5dd84ba11ac11bbcd0749e5569807d8839b7022ad7ab7791a0c95c9057d40443"
+      "sha256": "6d0e44ba9588fc3b8f57516e8e72b978923347ff343fdbaef6c7b05eb5164962"
     },
     {
       "id": "student-girl",
@@ -75,10 +76,10 @@
       },
       "componentPixels": 37351,
       "size": [
-        56,
-        56
+        168,
+        168
       ],
-      "sha256": "0f586ccaddc40ab2e3bcfc3ce27451d28256f7b92fddabdb68ae854c57375804"
+      "sha256": "b9ff85aae078963e40d760ae93d1b6fa5abb2ba4b64d018fe0c238e05609eab6"
     },
     {
       "id": "teacher",
@@ -95,10 +96,10 @@
       },
       "componentPixels": 35788,
       "size": [
-        56,
-        56
+        168,
+        168
       ],
-      "sha256": "0ce0f1f1e55517c11213e5e1f4fe12a7bcbd92c397c2baaedb604cf16136d42c"
+      "sha256": "b36c15da7e3caf7578cfb99e360315b9107192a047d7b87c491fb0c3ea19ef2e"
     },
     {
       "id": "scientist",
@@ -115,10 +116,10 @@
       },
       "componentPixels": 36281,
       "size": [
-        56,
-        56
+        168,
+        168
       ],
-      "sha256": "60ebaa7fec63053906ca298e4c63e42cdbe5c35ec12e85768b72a177fe3f026f"
+      "sha256": "86c4428d05c411b208f31e18144bc3afd07b8c6cabe80112086126c2a3b4e561"
     },
     {
       "id": "student-torso",
@@ -135,10 +136,10 @@
       },
       "componentPixels": 30293,
       "size": [
-        60,
-        72
+        180,
+        216
       ],
-      "sha256": "1afcda4c335fd1107d8e859930bb32e0ccf063d82211e0d87e83e7bc87a205ab"
+      "sha256": "eb159ecdaa0b9696934a3a19a5683517c43919f4637ad1e033e0cb501b8ea363"
     },
     {
       "id": "student-upperArm",
@@ -155,10 +156,10 @@
       },
       "componentPixels": 15517,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "86a27721eba4bd37cdc2daa62df80c072ea042e95441346e0e5ed5b5176ca282"
+      "sha256": "6d7bbd6978215552796cacbe9ea90e0b8cb006f5447a6af9837913044ed7ce52"
     },
     {
       "id": "student-forearm",
@@ -175,10 +176,10 @@
       },
       "componentPixels": 14330,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "4ef5a32ecf1cec63b8f7645480bcc72a285009ff6ae0648a608b252d735e1ffb"
+      "sha256": "4a6e39e4fdd2b7e311f1414a6bd890d60cb947eb9f79c5a40f6729c29ae5df81"
     },
     {
       "id": "navy-thigh",
@@ -195,10 +196,10 @@
       },
       "componentPixels": 22313,
       "size": [
-        22,
-        46
+        66,
+        138
       ],
-      "sha256": "1893fd6a6340d12ef40c388de8675f3e274c42522735b7734e9d9416339b710f"
+      "sha256": "15c37cacf1813a8a70a6d200415f6ed9d7772ffa6d2eda811a61e94049ed696c"
     },
     {
       "id": "navy-shin",
@@ -215,10 +216,10 @@
       },
       "componentPixels": 20332,
       "size": [
-        22,
-        50
+        66,
+        150
       ],
-      "sha256": "669beb952d587e1d6098696400966feca79ed5a971b946cfa954477dc06df358"
+      "sha256": "61dfebbb2eeca99616efe1df88f5b4af70599839be8c098d4927fcc8484d834c"
     },
     {
       "id": "teacher-torso",
@@ -235,10 +236,10 @@
       },
       "componentPixels": 32170,
       "size": [
-        60,
-        72
+        180,
+        216
       ],
-      "sha256": "91c8b1a85578206e54d92231549c10b4182f38be6ce1d23dc9e4a51620f59420"
+      "sha256": "e33d8ae7d8cae658a251601d30f2b44cf2d86f41ca407b7bcf36402408975f9b"
     },
     {
       "id": "teacher-upperArm",
@@ -255,10 +256,10 @@
       },
       "componentPixels": 15342,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "6073f5d097ebc03cdd378d550c21128e39e679a87c7c007a3f068c46c86e8d01"
+      "sha256": "ee1e2620922e25ddd42a5a3bef74bd7c0f5e6308d7cf31b4935c5e0446a05274"
     },
     {
       "id": "teacher-forearm",
@@ -275,10 +276,10 @@
       },
       "componentPixels": 14440,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "8a385c847016e0c9a5953830faeb4ef561f92036577dc73d5c5e6b8a9b239737"
+      "sha256": "dec30c799899ed84031fa6bd87b0b482945b2d4af5e7e3f4df71560f7bf4c598"
     },
     {
       "id": "brown-thigh",
@@ -295,10 +296,10 @@
       },
       "componentPixels": 24320,
       "size": [
-        22,
-        46
+        66,
+        138
       ],
-      "sha256": "f91d342481b958f6c5e033edb068828b4c09f302d049b1d26ab2a7dd85708f5f"
+      "sha256": "3559379fd0c0819d120ab2b10cb09fd889035808107585884b8947f280c999b9"
     },
     {
       "id": "brown-shin",
@@ -315,10 +316,10 @@
       },
       "componentPixels": 20434,
       "size": [
-        22,
-        50
+        66,
+        150
       ],
-      "sha256": "3c6d96aecd72722b94be637d94a1165c9fb4a51215b905d895e1deafea7bbbc2"
+      "sha256": "bc96fc2540e2863c6f730e9586e3ffefab7e992d948e69b8a3463dae56bbfc8b"
     },
     {
       "id": "scientist-torso",
@@ -335,10 +336,10 @@
       },
       "componentPixels": 37741,
       "size": [
-        60,
-        72
+        180,
+        216
       ],
-      "sha256": "c097b03049d597a623586e773223da0eece70d94479455a23565b226acb11041"
+      "sha256": "15918d39c96975d7bde9553012fe796892436d5eed45a5add3bb19282a1e2dda"
     },
     {
       "id": "scientist-upperArm",
@@ -355,10 +356,10 @@
       },
       "componentPixels": 17451,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "abc139e783d4b26a42135ffe11ed8a93b707ef95362147d14fcce6490881a9a9"
+      "sha256": "e757113ff5660a77568812c7bf01778d37cb2023d6662b44a35733e69272947d"
     },
     {
       "id": "scientist-forearm",
@@ -375,10 +376,10 @@
       },
       "componentPixels": 15891,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "84b71d41f5e9f612028fae8649b5c3d7cc5e15e8fc2d359f23aeb93691182c55"
+      "sha256": "c24047b8fb752b6a8e80b8268637b5fd596311b876d541bc42abbdd36b1001ba"
     },
     {
       "id": "teal-torso",
@@ -395,10 +396,10 @@
       },
       "componentPixels": 31095,
       "size": [
-        60,
-        72
+        180,
+        216
       ],
-      "sha256": "a2a464f30736c7562cb6a11d5d53e759d2831a5d8584ac264d30f0c089c3d2f0"
+      "sha256": "9e86a793c6d2f1a848f5b431afc21f4d95bac9a4d9cbf30b696a393202cd08ac"
     },
     {
       "id": "teal-upperArm",
@@ -415,10 +416,10 @@
       },
       "componentPixels": 16797,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "9c3afc3c4e21ab7798822b1873ce3abe0a8b53e0f7dd69064114762a968dda65"
+      "sha256": "7f31f0b3321bf4684506fab63dcab96b28e7e789511de24a44080289f1f7b895"
     },
     {
       "id": "teal-forearm",
@@ -435,10 +436,10 @@
       },
       "componentPixels": 14549,
       "size": [
-        18,
-        39
+        54,
+        117
       ],
-      "sha256": "9cc3af19f03ba20f8da56445bb322bf4f948d469cb14b7560e16310d0bf700d1"
+      "sha256": "9bd61bf8936bc065d86bee2d9faf9e4db4f83eb7aa4b64e83c4c31cda38c4aca"
     }
   ],
   "characters": {

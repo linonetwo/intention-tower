@@ -1,4 +1,6 @@
 {
+  "room.pavlov.lab": "Laboratory",
+  "room.pavlov.pantry": "Supply room",
   "scene.wardrobe": "Outfit",
   "scene.enterRoom": "Walk to {{room}}",
   "scene.outfit.student": "Student",

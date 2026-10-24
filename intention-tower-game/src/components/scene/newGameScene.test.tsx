@@ -23,6 +23,24 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('continuous multi-room scene', () => {
+  it('draws mobile ladders with two rails and separated open rungs, while stairs keep solid steps', () => {
+    const world = makeWorld();
+    world.scene!.platforms.push({ id: 'loft', x_min: 1200, x_max: 1600, y: 180 });
+    world.scene!.rooms![1].platform_ids.push('loft');
+    world.scene!.connectors.push({ id: 'ladder', kind: 'ladder', from_platform: 'pantry-floor', to_platform: 'loft', from_x: 1250, to_x: 1250 }, { id: 'stairs', kind: 'stairs', from_platform: 'pantry-floor', to_platform: 'loft', from_x: 1100, to_x: 1200 });
+    gameStore.setState({ worldState: world });
+    render(<GameScene width={320} height={640} />);
+    const ladder = screen.getByTestId('scene-connector-ladder');
+    expect(ladder.tagName.toLowerCase()).toBe('svg');
+    expect(ladder.querySelectorAll('[data-ladder-rail]')).toHaveLength(2);
+    const rungs = ladder.querySelectorAll('[data-ladder-rung]');
+    expect(rungs.length).toBeGreaterThan(4);
+    const heights = Array.from(rungs, rung => Number(rung.querySelector('line')!.getAttribute('y1'))).sort((a, b) => a - b);
+    expect(heights[1] - heights[0]).toBeGreaterThan(5);
+    expect(ladder.querySelector('rect')).toBeNull();
+    expect(screen.getByTestId('scene-connector-stairs').querySelectorAll('div')).toHaveLength(8);
+    expect(gameStore.getState().worldState).toBe(world);
+  });
   it('filters by occupancy and anchors the right-hand room background to its nonzero world origin', () => {
     render(<GameScene width={390} height={800} />);
     expect(screen.getByTestId('scene-room-title').textContent).toBe('Pantry');
@@ -35,6 +53,7 @@ describe('continuous multi-room scene', () => {
     expect(camera).toBeLessThan(0);
     expect(floor.style.top).toBe(`${screen.getByTestId('scene-ground').getAttribute('data-ground-y')}px`);
     expect(screen.getByTestId('scene-portal-door').style.minWidth).toBe('44px');
+    expect(Number(screen.getByTestId('scene-portal-door').style.zIndex)).toBeGreaterThan(300);
   });
   it('changes only cosmetic state and preserves the current scene/world', () => {
     const world = gameStore.getState().worldState;

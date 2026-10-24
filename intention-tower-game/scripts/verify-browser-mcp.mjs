@@ -102,8 +102,11 @@ async function clickMode(mode) {
   // Selecting the current mode must close the notebook as well.
   await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(!document.querySelector('[data-testid="experiment-menu"]')){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Mode selection left experiment notebook open'))}},50)})`);
 }
-async function waitPosition(character, x, y) {
-  await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{const p=window.__INTENTION_TEST__.state().characters[${JSON.stringify(character)}].position;if(Math.abs(p.x-${x})<.01&&Math.abs(p.y-${y})<.01){clearInterval(timer);resolve(true)}else if(++n>240){clearInterval(timer);reject(new Error('Expected actual position ${character} ${x},${y}'))}},50)})`);
+async function waitPosition(character, x, y, pointerTolerance = .01) {
+  // Pointer coordinates are rasterized by Chromium and walkTo stops below one
+  // world unit. Button steps and connector endpoints still require exact x/y.
+  assert.ok(pointerTolerance > 0 && pointerTolerance <= 1);
+  await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{const p=window.__INTENTION_TEST__.state().characters[${JSON.stringify(character)}].position;if(Math.abs(p.x-${x})<${pointerTolerance}&&Math.abs(p.y-${y})<.01){clearInterval(timer);resolve(true)}else if(++n>240){clearInterval(timer);reject(new Error('Expected actual position ${character} ${x},${y}; got '+JSON.stringify(p)))}},50)})`);
 }
 async function clickWorldX(x, fractionY) {
   const position = await evaluate(`(()=>{const r=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect(),d=window.__itSceneDebug();return{x:${x}*d.scale+d.cameraX,y:r.height*${fractionY}}})()`);
@@ -715,16 +718,18 @@ try {
       await shot(`rig-${viewport.name}-outfit`);
       await call('click', { selector: '[data-testid="scene-wardrobe"]' });
       await call('click', { selector: '[data-testid="scene-posture"]' });
+      await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().character_postures.tim==='sitting'&&document.querySelector('[data-testid="scene-character-rig-tim"]')?.dataset.pose==='sitting'){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Actual posture request did not finish'))}},20)})`);
       const sittingRig = await rigEvidence('tim');
       assert.equal(sittingRig.pose, 'sitting');
       await shot(`rig-${viewport.name}-sitting`);
       const beforeWalk = await call('snapshot');
-      await clickWorldX(beforeWalk.characters.tim.position.x + 160, .25);
+      const walkingTarget = beforeWalk.characters.tim.position.x - 120;
+      await clickWorldX(walkingTarget, .25);
       await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(document.querySelector('[data-testid="scene-character-rig-tim"]')?.dataset.pose==='walking'){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Real movement did not produce canonical walking pose'))}},10)})`);
       const walkingRig = await rigEvidence('tim');
       assert.equal(walkingRig.pose, 'walking');
       await shot(`rig-${viewport.name}-walking`);
-      await waitPosition('tim', beforeWalk.characters.tim.position.x + 160, 300);
+      await waitPosition('tim', walkingTarget, 300, 1);
       const afterWalk = await call('snapshot');
       assert.equal(afterWalk.character_postures.tim, 'standing');
       assert.equal(afterWalk.characters.tim.position.y, beforeWalk.characters.tim.position.y);
@@ -800,7 +805,7 @@ try {
     assert.ok(Math.abs(afterSeamCamera.cameraX - beforeSeamCamera.cameraX) <= Math.abs(afterSeamCamera.x - beforeSeamCamera.x) * beforeSeamCamera.scale + 1, 'Seam camera displacement is bounded by actual horizontal travel, not a room-width jump');
     const invariant = world => ({ tick: world.tick, progress: world.progress, minds: Object.fromEntries(Object.entries(world.characters).map(([id,c])=>[id,c.mind_graph])), characters: Object.keys(world.characters).sort(), items: Object.keys(world.items).sort() });
     assert.deepEqual(invariant(pantry.world), invariant(beforeCross), 'Room crossing preserves tick, complete minds, progress and entity counts');
-    await clickWorldX(1200, .25); await waitPosition('pavlov', 1200, 300);
+    await clickWorldX(1200, .25); await waitPosition('pavlov', 1200, 300, 1);
     await call('click', { selector: '[data-testid="scene-traverse"]' });
     await waitPosition('pavlov', 1200, 180);
     await shot('pavlov-pantry-real-ladder-up');

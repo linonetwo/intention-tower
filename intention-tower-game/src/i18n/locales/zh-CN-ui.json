@@ -1,4 +1,6 @@
 {
+  "room.pavlov.lab": "实验室",
+  "room.pavlov.pantry": "储藏室",
   "scene.wardrobe": "换装",
   "scene.enterRoom": "走向{{room}}",
   "scene.outfit.student": "学生装",

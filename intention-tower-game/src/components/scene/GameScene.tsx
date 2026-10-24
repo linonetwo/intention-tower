@@ -134,12 +134,32 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
         {(world?.scene?.portals ?? []).filter(p => p.from_room === room?.id || p.to_room === room?.id).map(portal => {
           const destination = world?.scene?.rooms?.find(r => r.id === (portal.from_room === room?.id ? portal.to_room : portal.from_room));
           const direction = destination && destination.x_min >= (room?.x_max ?? worldMax) ? 1 : -1;
-          return <button key={portal.id} data-testid={`scene-portal-${portal.id}`} disabled={!enabled} aria-label={t('scene.enterRoom', { room: translateLabel(destination?.label ?? '') })} onClick={() => { void walkTo(portal.x + direction * 28); }} style={{ ...controlStyle, position: 'absolute', left: Math.max(22, Math.min(width - 22, portal.x * worldScale + cameraX)), top: ground - 56, transform: 'translateX(-50%)', pointerEvents: 'auto', background: '#fff7dccc' }}>{direction > 0 ? '›' : '‹'}</button>;
+          return <button key={portal.id} data-testid={`scene-portal-${portal.id}`} disabled={!enabled} aria-label={t('scene.enterRoom', { room: translateLabel(destination?.label ?? '') })} onClick={() => { void walkTo(portal.x + direction * 28); }} style={{ ...controlStyle, position: 'absolute', zIndex: 700, left: Math.max(22, Math.min(width - 22, portal.x * worldScale + cameraX)), top: ground - 56, transform: 'translateX(-50%)', pointerEvents: 'auto', background: '#fff7dccc' }}>{direction > 0 ? '›' : '‹'}</button>;
         })}
         {connectors.map(c => {
           const from = world?.scene?.platforms.find(p => p.id === c.from_platform);
           const to = world?.scene?.platforms.find(p => p.id === c.to_platform);
           if (!from || !to) return null;
+          if (c.kind === 'ladder') {
+            const left = Math.min(c.from_x, c.to_x) - 16;
+            const top = Math.min(from.y, to.y);
+            const ladderWidth = Math.abs(c.to_x - c.from_x) + 32;
+            const ladderHeight = Math.max(1, Math.abs(to.y - from.y));
+            const x1 = c.from_x - left;
+            const x2 = c.to_x - left;
+            const y1 = from.y - top;
+            const y2 = to.y - top;
+            const rungCount = Math.max(1, Math.floor(ladderHeight / 18));
+            return <svg key={c.id} data-testid={`scene-connector-${c.id}`} data-connector-kind="ladder" aria-hidden="true" viewBox={`0 0 ${ladderWidth} ${ladderHeight}`} style={{ position: 'absolute', left: left * worldScale + cameraX, top: projectY(top), width: ladderWidth * worldScale, height: ladderHeight * worldScale, overflow: 'visible', pointerEvents: 'none' }}>
+              {[-11, 11].map(offset => <g key={offset} data-ladder-rail="true"><line x1={x1 + offset} y1={y1} x2={x2 + offset} y2={y2} stroke="#a97643" strokeWidth={6} strokeLinecap="round" /><line x1={x1 + offset - 1} y1={y1} x2={x2 + offset - 1} y2={y2} stroke="#dfb77b" strokeWidth={3} strokeLinecap="round" /></g>)}
+              {Array.from({ length: rungCount }, (_, i) => {
+                const ratio = (i + .5) / rungCount;
+                const x = x1 + (x2 - x1) * ratio;
+                const y = y1 + (y2 - y1) * ratio;
+                return <g key={i} data-ladder-rung="true"><line x1={x - 11} y1={y} x2={x + 11} y2={y} stroke="#946438" strokeWidth={5} strokeLinecap="round" /><line x1={x - 11} y1={y - 1} x2={x + 11} y2={y - 1} stroke="#edca8f" strokeWidth={2} strokeLinecap="round" /></g>;
+              })}
+            </svg>;
+          }
           const steps = Math.max(1, Math.round(Math.abs(to.y - from.y) / 15));
           return <div key={c.id} data-testid={`scene-connector-${c.id}`} style={{ display: 'contents' }}>{Array.from({ length: steps }, (_, i) => {
             const ratio = i / steps;

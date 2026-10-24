@@ -164,6 +164,8 @@ try {
   assert(createHash('sha256').update(source).digest('hex') === provenance.source.sha256, 'paper-doll source hash differs from reviewed generation');
   assert(provenance.parts?.length === 20, 'paper-doll atlas must derive exactly twenty distinct source parts');
   const expectedSizes = { head: [56, 56], torso: [60, 72], upperArm: [18, 39], forearm: [18, 39], thigh: [22, 46], shin: [22, 50] };
+  assert(provenance.pixelRatio === 3, 'paper-doll textures must use 3x canonical resolution');
+  assert(JSON.stringify(provenance.runtimeSizes) === JSON.stringify(expectedSizes), 'paper-doll runtime geometry must remain canonical');
   const partUrls = new Map();
   for (const [id, url] of Object.entries(doll?.heads ?? {})) partUrls.set(url, 'head');
   for (const outfit of Object.values(doll?.outfits ?? {})) for (const part of ['torso', 'upperArm', 'forearm', 'thigh', 'shin']) {
@@ -175,8 +177,8 @@ try {
   for (const [url, type] of partUrls) {
     assert(/^\/mods\/gpt-image-2-pack\/paper-doll\/[\w-]+\.png$/.test(url), `paper-doll part is not a dedicated production part: ${url}`);
     const bytes = await fs.readFile(path.join(packRoot, url.replace(/^\/mods\/gpt-image-2-pack\//, '')));
-    const image = decodeRgbaPng(bytes), [width, height] = expectedSizes[type];
-    assert(image.width === width && image.height === height, `paper-doll ${type} geometry differs from skeleton: ${url}`);
+    const image = decodeRgbaPng(bytes), [width, height] = expectedSizes[type].map(dimension => dimension * 3);
+    assert(image.width === width && image.height === height, `paper-doll ${type} texture dimensions differ from 3x skeleton geometry: ${url}`);
     let clear = 0, solid = 0, partial = 0;
     for (let i = 3; i < image.pixels.length; i += 4) {
       clear += image.pixels[i] === 0;
@@ -185,11 +187,12 @@ try {
     }
     assert(clear >= width * 2 + height * 2 - 4 && solid > width * height * .15 && partial > 0, `paper-doll part lacks a substantial antialiased transparent silhouette: ${url}`);
     const bounds = alphaBounds(image, 16);
-    assert(bounds && bounds.left > 0 && bounds.top > 0 && bounds.right < width - 1 && bounds.bottom < height - 1, `paper-doll part is not transparently padded: ${url}`);
+    assert(bounds && bounds.left >= 3 && bounds.top >= 3 && bounds.right < width - 3 && bounds.bottom < height - 3, `paper-doll part lacks three-texture-pixel transparent padding: ${url}`);
     const hash = createHash('sha256').update(bytes).digest('hex');
     assert(!partHashes.has(hash), `paper-doll part duplicates another full texture: ${url}`); partHashes.add(hash);
     const record = provenance.parts.find(part => url.endsWith(`/${part.id}.png`));
     assert(record?.sha256 === hash && record?.type === type, `paper-doll part differs from deterministic source derivation: ${url}`);
+    assert(record?.size?.[0] === width && record?.size?.[1] === height, `paper-doll provenance lacks actual texture dimensions: ${url}`);
   }
   for (const [id, sprite] of Object.entries(manifest.spritesByCharacter ?? {})) {
     const nonhuman = /animals\/|\/(hive|dog|gosling|cat)(?:-idle)?\.png$/.test(sprite.src);
