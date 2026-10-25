@@ -91,6 +91,42 @@ async function findTarget(world, commandId, actorId, distinctTargets) {
 async function playLevel(levelId) {
   await call('load_level', { level_id: levelId });
   await call('set_time_speed', { speed: 0 });
+  if (levelId === 'antimeme-division') {
+    const actor = 'antimeme-agent';
+    const step = async count => { for (let i = 0; i < count; i++) await call('step_tick'); };
+    const walk = async destination => {
+      for (let i = 0; i < 100; i++) {
+        const world = await call('snapshot'), dx = destination - world.characters[actor].position.x;
+        if (Math.abs(dx) < .001) return;
+        await call('move_character', { character_id: actor, delta_x: Math.max(-40, Math.min(40, dx)), delta_y: 0 });
+      }
+      throw new Error(`antimeme-division: actual collision-aware movement did not reach ${destination}`);
+    };
+    const execute = async (command_id, target_id) => {
+      await call('execute_command', { command_id, actor_id: actor, ...(target_id ? { target_id } : {}) });
+      await step(1);
+    };
+    await walk(820); await walk(780); await step(6); await walk(820);
+    const changed = await call('snapshot');
+    assert.equal(changed.room_memory[actor].rooms.archive.forgotten_revisits.length, 1);
+    await walk(780);
+    await execute('ask-bystander', 'bystander');
+    await execute('take-memory-drug');
+    await walk(820); await execute('remember-this-place');
+    const anchored = (await call('snapshot')).room_memory[actor].rooms.archive;
+    assert.ok(anchored.anchored_at_tick != null);
+    await walk(780); await step(6); await walk(820); await step(1);
+    const won = await call('snapshot'), memory = won.room_memory[actor].rooms.archive;
+    assert.equal(won.progress.status, 'Won');
+    assert.equal(memory.variant_id, anchored.variant_id);
+    assert.equal(memory.generation, anchored.generation);
+    assert.equal(memory.witness_recalls.length, 1);
+    assert.equal(memory.anchored_revisits.length, 1);
+    assert.ok(won.progress.objectives.every(objective => objective.completed));
+    results.push({ levelId, tick: won.tick, status: won.progress.status, roomMemory: memory });
+    console.log(`MCP verified antimeme-division with forgotten revisit, witness and drug-backed anchored return in ${won.tick} ticks`);
+    return;
+  }
   if (levelId === 'the-wave') {
     const execute = (command_id, target_id) => call('execute_command', { command_id, actor_id: 'teacher-wenger', target_id });
     const advance = async count => { for (let tick = 0; tick < count; tick++) await call('step_tick'); };

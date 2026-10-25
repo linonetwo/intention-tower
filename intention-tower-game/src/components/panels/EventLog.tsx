@@ -8,7 +8,7 @@ import { useGameState } from '../../store/useGameState';
 import { t as translateLabel } from '../../i18n';
 import { eventType, eventPayload, type WorldEvent } from '../../types/backend';
 import type { WorldState } from '../../types/backend';
-import { presentEvent } from '../hud/eventPresentation';
+import { objectName, presentEvent } from '../hud/eventPresentation';
 
 type EventCategory = 'all' | 'command' | 'node' | 'edge' | 'resource' | 'env';
 
@@ -32,7 +32,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
 
   const nodeName = (charId: string, instanceId: string) => {
     const node = worldState?.characters[charId]?.mind_graph.nodes[instanceId];
-    return node ? translateLabel(node.label) : String(instanceId);
+    return node ? objectName(worldState, instanceId) : String(instanceId);
   };
 
   switch (type) {
@@ -72,6 +72,7 @@ function formatEvent(ev: WorldEvent, worldState: WorldState | null): { icon: str
       return { icon: '💧', text: `${charName(data.character_id as string)}: ${String(data.resource_schema_id)} -${(data.amount as number).toFixed(2)} (${(data.remaining as number).toFixed(2)})`, color: '#ab47bc' };
     case 'CommandExecuted':
     case 'CommandRejected':
+    case 'RoomMemoryChanged':
       return presentEvent(ev, worldState);
     case 'CharacterMoved':
       return { icon: '🧭', text: `${charName(data.character_id as string)} → (${Number(data.to_x).toFixed(0)}, ${Number(data.to_y).toFixed(0)})`, color: '#48726e' };

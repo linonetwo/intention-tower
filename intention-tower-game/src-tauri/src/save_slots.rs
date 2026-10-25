@@ -1,3 +1,17 @@
+/// Shared desktop/MCP restore boundary. Missing optional legacy memory state
+/// can observe the actor's current room, but never invents historical receipts.
+/// This checks structural consistency, not authenticity against whole-save editing.
+pub fn prepare_restored_world(
+    mut world: crate::models::world_state::WorldState,
+) -> Result<crate::models::world_state::WorldState, String> {
+    world.scene.validate()?;
+    crate::models::scene::normalize_positions(&mut world);
+    crate::room_memory::validate_world(&world)?;
+    crate::room_memory::initialize(&mut world);
+    crate::room_memory::validate_world(&world)?;
+    Ok(world)
+}
+
 /// Validate a user-visible save slot before it is used as a filesystem name.
 /// The same grammar is mirrored by the browser adapter for platform parity.
 pub fn validate_save_slot(slot: &str) -> Result<(), String> {

@@ -47,6 +47,8 @@ pub struct WorldCharacter {
 /// The complete world state
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorldState {
+    #[serde(default)]
+    pub room_memory: HashMap<String, super::room_memory::ObserverRoomMemory>,
     pub tick: u64,
     pub time_speed: u8, // 0-4
     pub paused: bool,
@@ -140,6 +142,7 @@ impl WorldState {
 
     pub fn new(seed: u64) -> Self {
         Self {
+            room_memory: HashMap::new(),
             tick: 0,
             time_speed: 1,
             paused: false,

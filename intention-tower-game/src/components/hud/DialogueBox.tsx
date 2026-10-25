@@ -26,6 +26,7 @@ function formatEventBrief(ev: WorldEvent, ws: WorldState | null): string {
 }
 
 function describeEffect(effect: CommandEffect, t: (k: string, v?: Record<string, unknown>) => string, world: WorldState | null): string {
+  if (typeof effect === 'string') return t(`command.effect.${effect}`);
   const name = (id: string) => objectName(world, id);
   if ('MoveCharacter' in effect) return t('command.effect.move', { x: effect.MoveCharacter.delta_x, y: effect.MoveCharacter.delta_y });
   if ('SpawnObservation' in effect) return t('command.effect.spawn', { schema: name(effect.SpawnObservation.schema_id), modality: t(`event.modality.${effect.SpawnObservation.modality}`, { defaultValue: t('event.modality.other') }) });
@@ -66,7 +67,7 @@ export const DialogueBox: React.FC = () => {
   const recentText = useMemo(() => {
     const meaningful = recentEvents.filter(e => !('TickCompleted' in e));
     const rejections: WorldEvent[] = meaningful.filter(e => 'CommandRejected' in e);
-    const prominent: WorldEvent[] = meaningful.filter(e => 'ActionExecuted' in e || 'LearningUpdated' in e || 'ObjectiveCompleted' in e);
+    const prominent: WorldEvent[] = meaningful.filter(e => 'RoomMemoryChanged' in e || 'ActionExecuted' in e || 'LearningUpdated' in e || 'ObjectiveCompleted' in e);
     return [...rejections, ...prominent, ...meaningful.filter(e => !prominent.includes(e) && !rejections.includes(e))]
       .slice(0, 5)
       .map(e => formatEventBrief(e, worldState));

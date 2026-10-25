@@ -79,6 +79,7 @@ impl SimulationRunner {
         }
 
         state.tick += 1;
+        crate::room_memory::tick(state);
 
         for system in &self.systems {
             system.run(state, dt);

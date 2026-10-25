@@ -1200,6 +1200,10 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
         }
     }
     match e.type_.as_str() {
+        "ApplyMemoryDrug" => Some(CommandEffect::ApplyMemoryDrug),
+        "AnchorCurrentRoom" => Some(CommandEffect::AnchorCurrentRoom),
+        "RecallRoomWithWitness" => Some(CommandEffect::RecallRoomWithWitness),
+        "ObserveCurrentRoom" => Some(CommandEffect::ObserveCurrentRoom),
         "SpawnObservation" => Some(CommandEffect::SpawnObservation {
             schema_id: e.schema_id.clone()?,
             modality: match e.modality.as_deref()? {

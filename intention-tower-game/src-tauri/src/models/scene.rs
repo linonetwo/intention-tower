@@ -57,6 +57,8 @@ pub struct Portal {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneDefinition {
+    #[serde(default)]
+    pub room_memory: Option<super::room_memory::RoomMemoryConfig>,
     /// Authored pass-through actors; all other characters remain solid.
     #[serde(default)]
     pub non_blocking_characters: Vec<String>,
@@ -72,6 +74,7 @@ pub struct SceneDefinition {
 impl Default for SceneDefinition {
     fn default() -> Self {
         Self {
+            room_memory: None,
             non_blocking_characters: vec![],
             platforms: vec![Platform {
                 id: "ground".into(),
@@ -198,6 +201,62 @@ impl SceneDefinition {
                         && ra.x_min == portal.x))
             {
                 return Err("portal must join adjacent same-height endpoints".into());
+            }
+        }
+        if let Some(config) = &self.room_memory {
+            let unique = |ids: Vec<&str>| {
+                let mut seen = std::collections::HashSet::new();
+                !ids.is_empty()
+                    && ids
+                        .into_iter()
+                        .all(|id| !id.trim().is_empty() && seen.insert(id))
+            };
+            if !unique(config.observer_ids.iter().map(String::as_str).collect())
+                || !unique(config.witness_ids.iter().map(String::as_str).collect())
+                || !unique(config.rooms.iter().map(|r| r.room_id.as_str()).collect())
+                || config.fade_after_ticks == 0
+                || config.forget_after_ticks <= config.fade_after_ticks
+                || config.drug_duration_ticks == 0
+                || config.drug_item_id.trim().is_empty()
+                || config.observation_schema_id.trim().is_empty()
+                || config
+                    .observer_ids
+                    .iter()
+                    .any(|id| config.witness_ids.contains(id))
+            {
+                return Err("invalid room-memory configuration".into());
+            }
+            for room in &config.rooms {
+                if !self.rooms.iter().any(|r| r.id == room.room_id)
+                    || room.variants.len() < 2
+                    || !unique(room.variants.iter().map(|v| v.id.as_str()).collect())
+                    || !unique(
+                        room.variants
+                            .iter()
+                            .map(|v| v.background_key.as_str())
+                            .collect(),
+                    )
+                {
+                    return Err("invalid room-memory variants".into());
+                }
+            }
+            if config.observation_node_ids.iter().any(|(room, id)| {
+                id.trim().is_empty() || !config.rooms.iter().any(|r| &r.room_id == room)
+            }) || {
+                let ids: Vec<_> = config
+                    .rooms
+                    .iter()
+                    .map(|r| {
+                        config
+                            .observation_node_ids
+                            .get(&r.room_id)
+                            .cloned()
+                            .unwrap_or_else(|| format!("room-memory:{}", r.room_id))
+                    })
+                    .collect();
+                !unique(ids.iter().map(String::as_str).collect())
+            } {
+                return Err("invalid room-memory observation IDs".into());
             }
         }
         Ok(())

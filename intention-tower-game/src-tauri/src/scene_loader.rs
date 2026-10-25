@@ -32,5 +32,7 @@ pub fn load_scene_from_path(
     }
     scene::normalize_positions(world);
     scene::resolve_spawn_overlaps(world);
+    crate::room_memory::validate_world(world).map_err(LoadError::NotFound)?;
+    crate::room_memory::initialize(world);
     Ok(())
 }

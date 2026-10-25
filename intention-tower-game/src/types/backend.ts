@@ -15,7 +15,25 @@ export interface ScenePlatform { id: string; x_min: number; x_max: number; y: nu
 export interface SceneConnector { id: string; kind: 'stairs' | 'ladder'; from_platform: string; to_platform: string; from_x: number; to_x: number }
 export interface SceneRoom { id: string; label: string; x_min: number; x_max: number; platform_ids: string[]; background_key?: string | null }
 export interface ScenePortal { id: string; from_room: string; to_room: string; from_platform: string; to_platform: string; x: number }
-export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[]; rooms?: SceneRoom[]; portals?: ScenePortal[]; non_blocking_characters?: string[] }
+export interface SceneRoomMemoryConfig {
+  observer_ids: string[]; witness_ids: string[];
+  rooms: { room_id: string; variants: { id: string; background_key: string }[] }[];
+  fade_after_ticks: number; forget_after_ticks: number; drug_duration_ticks: number;
+  drug_item_id: string; observation_schema_id: string; observation_node_ids: Record<string, string>;
+}
+export type RoomMemoryPhase = 'visible' | 'remembered' | 'fading' | 'forgotten' | 'anchored';
+export interface ForgottenRoomRevisit { left_at_tick: number; forgotten_at_tick: number; revisited_at_tick: number; generation: number; previous_variant_id: string; variant_id: string }
+export interface AnchoredRoomRevisit { left_at_tick: number; returned_at_tick: number; anchored_at_tick: number; drug_used_at_tick: number; drug_until_tick: number; generation: number; variant_id: string }
+export interface RoomWitnessRecall { witness_id: string; meeting_room_id: string; recalled_at_tick: number; revisited_at_tick: number; generation: number }
+export interface RoomMemoryEntry {
+  phase: RoomMemoryPhase; generation: number; variant_id: string; background_key: string;
+  visit_count: number; entered_at_tick: number; last_seen_tick: number; left_at_tick: number | null;
+  forgotten_at_tick: number | null; forgotten_count: number; revisit_count: number;
+  anchored_at_tick: number | null; anchor_drug_used_at_tick: number | null; anchor_drug_until_tick: number | null; anchored_revisit_count: number;
+  forgotten_revisits: ForgottenRoomRevisit[]; anchored_revisits: AnchoredRoomRevisit[]; witness_recalls: RoomWitnessRecall[];
+}
+export interface ObserverRoomMemory { drug_until_tick: number | null; drug_used_at_tick: number | null; rooms: Record<string, RoomMemoryEntry> }
+export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[]; rooms?: SceneRoom[]; portals?: ScenePortal[]; non_blocking_characters?: string[]; room_memory?: SceneRoomMemoryConfig | null }
 
 // ── World State ──
 
@@ -36,6 +54,7 @@ export interface WorldState {
   character_postures?: Record<string, CharacterPosture>;
   character_rooms?: Record<string, string>;
   item_rooms?: Record<string, string>;
+  room_memory?: Record<string, ObserverRoomMemory>;
   items: Record<string, WorldItem>;
   event_log: WorldEvent[];
   command_defs: CommandDef[];
@@ -459,6 +478,7 @@ export type Precondition =
   | { IsVirtualContext: { value: boolean } };
 
 export type CommandEffect =
+  | 'ApplyMemoryDrug' | 'AnchorCurrentRoom' | 'RecallRoomWithWitness' | 'ObserveCurrentRoom'
   | { SpawnObservation: { schema_id: string; modality: string; about: string; ttl: number; strength: number; social_reward_scale?: number; signal_type?: SignalType | null; group_context?: string | null; action_credit?: ActionCreditConfig | null; target_character_id: string | null } }
   | { ModifyNodeValue: { schema_id: string; delta: number; target_character_id: string | null } }
   | { ConsumeResource: { resource_schema_id: string; amount: number; target_character_id: string | null } }
@@ -476,6 +496,7 @@ export type CommandEffect =
 // Rust tagged enum serialized by serde: {"VariantName": {fields}}
 
 export type WorldEvent =
+  | { RoomMemoryChanged: { observer_id: string; room_id: string | null; kind: string; tick: number } }
   | { NodeSpawned: { character_id: string; instance_id: string; schema_id: string; node_type: string } }
   | { NodeDespawned: { character_id: string; instance_id: string } }
   | { NodeValueChanged: { character_id: string; instance_id: string; old_value: number; new_value: number } }

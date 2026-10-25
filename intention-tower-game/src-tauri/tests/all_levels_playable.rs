@@ -76,15 +76,30 @@ fn act(
 fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunner) {
     match level_id {
         "antimeme-division" => {
-            act(world, runner, "antimeme-agent", None, "take-memory-drug", 1);
-            act(
-                world,
-                runner,
-                "antimeme-agent",
-                None,
-                "remember-this-place",
-                2,
-            );
+            let walk_to = |world: &mut WorldState, destination: f64| {
+                for _ in 0..100 {
+                    let dx = destination - world.characters["antimeme-agent"].position.x;
+                    if dx.abs() < 0.001 {
+                        return;
+                    }
+                    intention_tower_game_lib::movement::move_character(
+                        world,
+                        "antimeme-agent",
+                        dx.clamp(-40.0, 40.0),
+                        0.0,
+                    )
+                    .unwrap();
+                }
+                panic!("antimeme route could not reach {destination}");
+            };
+            // An actual forgotten revisit, not command counts, starts the investigation.
+            walk_to(world, 820.0);
+            walk_to(world, 780.0);
+            for _ in 0..6 {
+                runner.tick(world, 0.5);
+            }
+            walk_to(world, 820.0);
+            walk_to(world, 780.0);
             act(
                 world,
                 runner,
@@ -93,6 +108,22 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
                 "ask-bystander",
                 1,
             );
+            act(world, runner, "antimeme-agent", None, "take-memory-drug", 1);
+            walk_to(world, 820.0);
+            act(
+                world,
+                runner,
+                "antimeme-agent",
+                None,
+                "remember-this-place",
+                1,
+            );
+            walk_to(world, 780.0);
+            for _ in 0..6 {
+                runner.tick(world, 0.5);
+            }
+            walk_to(world, 820.0);
+            runner.tick(world, 0.5);
         }
         "chen-sheng-uprising" => {
             for target in ["soldier-1", "soldier-2", "soldier-3"] {

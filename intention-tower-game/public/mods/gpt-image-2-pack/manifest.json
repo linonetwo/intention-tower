@@ -145,7 +145,11 @@
     "trigger-addiction": "/mods/gpt-image-2-pack/sideview/rooms/trigger-addiction.png",
     "water-is-poison": "/mods/gpt-image-2-pack/sideview/rooms/water-is-poison.png",
     "pavlov_lab": "/mods/gpt-image-2-pack/sideview/research-room.png",
-    "pavlov_pantry": "/mods/gpt-image-2-pack/sideview/pavlov-pantry.png"
+    "pavlov_pantry": "/mods/gpt-image-2-pack/sideview/pavlov-pantry.png",
+    "antimeme_archive": "/mods/gpt-image-2-pack/sideview/room-memory/archive.png",
+    "antimeme_maproom": "/mods/gpt-image-2-pack/sideview/room-memory/maproom.png",
+    "antimeme_conservatory": "/mods/gpt-image-2-pack/sideview/room-memory/conservatory.png",
+    "antimeme_reception": "/mods/gpt-image-2-pack/sideview/rooms/antimeme-division.png"
   },
   "items": [
     {
@@ -1079,6 +1083,26 @@
       "width": 1536,
       "height": 1024,
       "floorY": 754
+    },
+    "antimeme_archive": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 736
+    },
+    "antimeme_maproom": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 787
+    },
+    "antimeme_conservatory": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 697
+    },
+    "antimeme_reception": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 786
     }
   },
   "spritesByCharacter": {

@@ -313,10 +313,9 @@ pub fn load_save(
     }
 
     let json = std::fs::read_to_string(&file_path).map_err(|e| format!("Read error: {}", e))?;
-    let mut loaded: WorldState =
+    let loaded: WorldState =
         serde_json::from_str(&json).map_err(|e| format!("Deserialize error: {}", e))?;
-    loaded.scene.validate()?;
-    crate::models::scene::normalize_positions(&mut loaded);
+    let loaded = crate::save_slots::prepare_restored_world(loaded)?;
 
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
     *world = loaded;

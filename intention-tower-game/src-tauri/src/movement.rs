@@ -113,7 +113,14 @@ fn move_character_impl(
     character.position.y = to_y;
     world
         .character_rooms
-        .insert(character_id.to_owned(), destination_room);
+        .insert(character_id.to_owned(), destination_room.clone());
+    crate::room_memory::crossed(
+        world,
+        character_id,
+        &current_room,
+        &destination_room,
+        record_history,
+    );
     // Walking automatically stands the character up; sitting is never a way
     // to glide along a platform.
     if to_x != current.x {

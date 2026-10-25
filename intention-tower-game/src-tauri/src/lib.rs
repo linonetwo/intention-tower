@@ -4,6 +4,7 @@ pub mod command_rules;
 pub mod level_loader;
 pub mod models;
 pub mod movement;
+pub mod room_memory;
 pub mod save_slots;
 pub mod scene_loader;
 pub mod systems;

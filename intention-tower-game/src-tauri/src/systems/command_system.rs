@@ -208,6 +208,27 @@ fn apply_effect(
     let event_count = state.pending_events.len();
     let mut outcome = EffectOutcome::NoOp;
     match effect {
+        CommandEffect::ApplyMemoryDrug
+        | CommandEffect::AnchorCurrentRoom
+        | CommandEffect::RecallRoomWithWitness
+        | CommandEffect::ObserveCurrentRoom => {
+            let result = match effect {
+                CommandEffect::ApplyMemoryDrug => {
+                    crate::room_memory::apply_drug(state, &cmd.actor_id)
+                }
+                CommandEffect::AnchorCurrentRoom => {
+                    crate::room_memory::anchor(state, &cmd.actor_id)
+                }
+                CommandEffect::ObserveCurrentRoom => {
+                    crate::room_memory::inspect(state, &cmd.actor_id)
+                }
+                _ => crate::room_memory::recall(state, &cmd.actor_id, cmd.target_id.as_deref()),
+            };
+            match result {
+                Ok(()) => outcome = EffectOutcome::Applied,
+                Err(reason) => return EffectOutcome::Rejected(reason),
+            }
+        }
         CommandEffect::MoveCharacter {
             delta_x,
             delta_y,

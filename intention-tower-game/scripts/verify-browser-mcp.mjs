@@ -740,13 +740,25 @@ try {
     await shot('articulated-humans-failure');
   }
 
+  for (const roomViewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
+  const roomPrefix = roomViewport.name === 'mobile' ? 'mobile-' : '';
   try {
-    await call('set_viewport', { width: 1440, height: 900 });
+    await call('set_viewport', { width: roomViewport.width, height: roomViewport.height });
     await load('pavlov');
-    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.selectActor('pavlov')`);
+    await evaluate(`window.__INTENTION_TEST__.setAutoStep(false)`);
     await clickMode('micro');
+    await call('click', { selector: '[data-testid="scene-character-pavlov"]' });
+    assert.equal(await evaluate(`window.__itSceneDebug().actorId`), 'pavlov', 'Select Pavlov through his actual visible actor');
+    const touchControl = async testId => {
+      const target = await evaluate(`(()=>{const el=document.querySelector('[data-testid="${testId}"]'),r=el.getBoundingClientRect(),stage=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return{id:el.dataset.testid,rect:r.toJSON(),stage:stage.toJSON(),enabled:!el.disabled,hit:!!hit&&(hit===el||el.contains(hit))}})()`);
+      assert.ok(target.enabled && target.hit, `${testId}: real enabled unobscured pointer target`);
+      assert.ok(target.rect.width >= 44 && target.rect.height >= 44, `${testId}: minimum 44px touch target`);
+      assert.ok(target.rect.left >= target.stage.left - 1 && target.rect.right <= target.stage.right + 1 && target.rect.top >= target.stage.top - 1 && target.rect.bottom <= target.stage.bottom + 1, `${testId}: whole control is visible inside scene`);
+      return target;
+    };
+    const roomControls = { moveRight: await touchControl('scene-move-right'), moveLeft: await touchControl('scene-move-left') };
     const roomEvidence = async roomId => {
-      await settle(`pavlov-room-${roomId}`);
+      await settle(`${roomPrefix}pavlov-room-${roomId}`);
       const world = await call('snapshot');
       assert.equal(world.character_rooms.pavlov, roomId);
       const visible = await evaluate(`(()=>({characters:[...document.querySelectorAll('[data-testid^="scene-character-"]')].filter(el=>el.tagName==='BUTTON').map(el=>el.dataset.testid.slice('scene-character-'.length)),items:[...document.querySelectorAll('[data-testid^="scene-item-"]')].map(el=>el.dataset.testid.slice('scene-item-'.length)),background:{src:document.querySelector('[data-testid="scene-background"]').currentSrc,loaded:document.querySelector('[data-testid="scene-background"]').naturalWidth>0}}))()`);
@@ -783,10 +795,11 @@ try {
         const room = world.scene.rooms.find(room => room.id === bg.room);
         assert.equal(new URL(bg.src).pathname, new URL(manifest.backgrounds[room.background_key], 'http://localhost').pathname);
       }
-      await shot(`pavlov-room-${roomId}`);
+      await shot(`${roomPrefix}pavlov-room-${roomId}`);
       return { world, visible };
     };
     const lab = await roomEvidence('lab');
+    await shot(`${roomPrefix}pavlov-room-initial-lab`);
     // Approach using the same real movement controls as a player, not snapshot edits.
     while ((await call('snapshot')).characters.pavlov.position.x < 760) {
       const x = (await call('snapshot')).characters.pavlov.position.x;
@@ -794,32 +807,62 @@ try {
       await waitPosition('pavlov', x + 28, 300);
     }
     const beforeCross = await call('snapshot');
-    await shot('pavlov-room-before-crossing');
+    await shot(`${roomPrefix}pavlov-room-before-crossing`);
     const seamCamera = () => evaluate(`(()=>{const d=window.__itSceneDebug(),w=window.__INTENTION_TEST__.state();return{cameraX:d.cameraX,scale:d.scale,x:w.characters.pavlov.position.x,room:w.character_rooms.pavlov}})()`);
     const beforeSeamCamera = await seamCamera();
+    roomControls.enterPantry = await touchControl('scene-portal-lab_pantry');
     await call('click', { selector: '[data-testid="scene-portal-lab_pantry"]' });
     await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().character_rooms.pavlov==='pantry'){clearInterval(timer);resolve(true)}else if(++n>200){clearInterval(timer);reject(new Error('Real portal walk failed'))}},50)})`);
     const pantry = await roomEvidence('pantry');
+    assert.equal(pantry.world.characters.pavlov.position.y, 300, 'Entering pantry preserves authored ground floor');
     const afterSeamCamera = await seamCamera();
     assert.equal(afterSeamCamera.scale, beforeSeamCamera.scale, 'Crossing a room seam preserves world scale');
     assert.ok(Math.abs(afterSeamCamera.cameraX - beforeSeamCamera.cameraX) <= Math.abs(afterSeamCamera.x - beforeSeamCamera.x) * beforeSeamCamera.scale + 1, 'Seam camera displacement is bounded by actual horizontal travel, not a room-width jump');
     const invariant = world => ({ tick: world.tick, progress: world.progress, minds: Object.fromEntries(Object.entries(world.characters).map(([id,c])=>[id,c.mind_graph])), characters: Object.keys(world.characters).sort(), items: Object.keys(world.items).sort() });
     assert.deepEqual(invariant(pantry.world), invariant(beforeCross), 'Room crossing preserves tick, complete minds, progress and entity counts');
-    await clickWorldX(1200, .25); await waitPosition('pavlov', 1200, 300, 1);
+    if (roomViewport.name === 'mobile') {
+      // The ladder's global x=1200 lies offscreen after entering the pantry.
+      // Walk with real 28-unit buttons until it is reachable, not an offscreen
+      // pointer click or an injected position. Traversal itself snaps to 1200.
+      while ((await call('snapshot')).characters.pavlov.position.x < 1172) {
+        const x = (await call('snapshot')).characters.pavlov.position.x;
+        await call('click', { selector: '[data-testid="scene-move-right"]' });
+        await waitPosition('pavlov', x + 28, 300);
+      }
+    } else {
+      await clickWorldX(1200, .25); await waitPosition('pavlov', 1200, 300, 1);
+    }
+    roomControls.ladderUp = await touchControl('scene-traverse');
     await call('click', { selector: '[data-testid="scene-traverse"]' });
     await waitPosition('pavlov', 1200, 180);
-    await shot('pavlov-pantry-real-ladder-up');
+    const ladderUp = await call('snapshot');
+    assert.equal(ladderUp.character_rooms.pavlov, 'pantry');
+    assert.deepEqual(invariant(ladderUp), invariant(beforeCross), 'Ladder ascent preserves ticks, complete minds, progress and entities');
+    await shot(`${roomPrefix}pavlov-pantry-real-ladder-up`);
+    roomControls.ladderDown = await touchControl('scene-traverse');
     await call('click', { selector: '[data-testid="scene-traverse"]' });
     await waitPosition('pavlov', 1200, 300);
-    await shot('pavlov-pantry-real-ladder-down');
+    const ladderDown = await call('snapshot');
+    assert.equal(ladderDown.character_rooms.pavlov, 'pantry');
+    assert.deepEqual(invariant(ladderDown), invariant(beforeCross), 'Ladder descent preserves ticks, complete minds, progress and entities');
+    await shot(`${roomPrefix}pavlov-pantry-real-ladder-down`);
+    const beforeReturnCamera = await seamCamera();
+    roomControls.returnLab = await touchControl('scene-portal-lab_pantry');
     await call('click', { selector: '[data-testid="scene-portal-lab_pantry"]' });
     await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().character_rooms.pavlov==='lab'){clearInterval(timer);resolve(true)}else if(++n>300){clearInterval(timer);reject(new Error('Real return portal walk failed'))}},50)})`);
     const returned = await roomEvidence('lab');
+    assert.equal(returned.world.characters.pavlov.position.y, 300, 'Returning to lab preserves authored ground floor');
+    await shot(`${roomPrefix}pavlov-room-returned-lab`);
+    const afterReturnCamera = await seamCamera();
+    assert.equal(afterReturnCamera.scale, beforeReturnCamera.scale);
+    assert.ok(Math.abs(afterReturnCamera.cameraX - beforeReturnCamera.cameraX) <= Math.abs(afterReturnCamera.x - beforeReturnCamera.x) * beforeReturnCamera.scale + 1, 'Return camera displacement is bounded by actual horizontal travel');
     assert.deepEqual(invariant(returned.world), invariant(beforeCross), 'Portal round trip and ladder traversal never reset simulation');
-    report.multipleRooms = { lab, beforeCross, pantry, returned, beforeSeamCamera, afterSeamCamera, realPortalClicks: true, realLadderClicks: true, passed: true };
+    assert.deepEqual(invariant(returned.world), invariant(lab.world), 'Normal actor selection, approach, both crossings and ladder preserve all simulation learning');
+    report[roomViewport.name === 'mobile' ? 'mobileMultipleRooms' : 'multipleRooms'] = { viewport: roomViewport, lab, beforeCross, pantry, returned, ladderUp: ladderUp.characters.pavlov.position, ladderDown: ladderDown.characters.pavlov.position, beforeSeamCamera, afterSeamCamera, beforeReturnCamera, afterReturnCamera, roomControls, realActorSelection: true, realPortalClicks: true, realLadderClicks: true, passed: true };
   } catch (error) {
-    report.multipleRooms = { passed: false, error: String(error) }; process.exitCode = 1;
-    await shot('multiple-rooms-failure');
+    report[roomViewport.name === 'mobile' ? 'mobileMultipleRooms' : 'multipleRooms'] = { passed: false, error: String(error) }; process.exitCode = 1;
+    await shot(`${roomPrefix}multiple-rooms-failure`);
+  }
   }
 
   const levels = (await readdir(resolve('assets/levels'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();

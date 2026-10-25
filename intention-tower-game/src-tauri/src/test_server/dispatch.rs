@@ -220,11 +220,10 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
         }
 
         "restore_snapshot" => {
-            let mut restored: crate::models::world_state::WorldState =
+            let restored: crate::models::world_state::WorldState =
                 serde_json::from_value(args["world"].clone())
                     .map_err(|error| format!("存档数据无效: {error}"))?;
-            restored.scene.validate()?;
-            crate::models::scene::normalize_positions(&mut restored);
+            let restored = crate::save_slots::prepare_restored_world(restored)?;
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
             *world = restored;
             Ok(json!({ "success": true, "level_id": world.level_id, "tick": world.tick }))

@@ -7,9 +7,22 @@ const readable = (label: string, fallback: string) => {
 };
 
 export function objectName(world: WorldState | null, id: string): string {
+  const roomMemoryName = (about: string | null | undefined) => {
+    const match = about?.match(/^it:room\/([^/]+)\/variant\/([^/]+)$/);
+    if (!match) return null;
+    const room = world?.scene?.rooms?.find(candidate => candidate.id === match[1]);
+    const roomName = room ? readable(room.label, 'memory.location') : i18n.t('memory.location');
+    const variant = i18n.t(`memory.variant.${match[2]}`, { defaultValue: i18n.t('memory.location') });
+    return i18n.t('memory.observationName', { room: roomName, variant });
+  };
   for (const character of Object.values(world?.characters ?? {})) {
     const node = Object.values(character.mind_graph.nodes).find((candidate) => candidate.instance_id === id || candidate.schema_id === id);
-    if (node) return readable(node.label, node.node_type === 'Meme' ? 'event.emergentMeme' : 'event.unknownObject');
+    if (node) return roomMemoryName(node.observation?.about) ?? readable(node.label, node.node_type === 'Meme' ? 'event.emergentMeme' : 'event.unknownObject');
+  }
+  // A URI alone is not evidence: only name content held by an existing observation node.
+  for (const character of Object.values(world?.characters ?? {})) {
+    const node = Object.values(character.mind_graph.nodes).find(candidate => candidate.observation?.about === id);
+    if (node) return roomMemoryName(id) ?? readable(node.label, 'event.unknownObject');
   }
   const item = Object.values(world?.items ?? {}).find((candidate) => candidate.id === id || candidate.schema_type === id);
   if (item) return readable(item.label, 'event.unknownObject');
@@ -27,6 +40,16 @@ export function presentEvent(event: WorldEvent, world: WorldState | null): { ico
   let text = i18n.t(`event.type.${type}`, { defaultValue: i18n.t('event.updated') });
   let color = '#9aaebd';
   switch (type) {
+    case 'RoomMemoryChanged': {
+      const observer = world?.characters[String(data.observer_id)];
+      const observerName = observer ? readable(observer.label, 'event.character') : i18n.t('event.character');
+      const roomId = String(data.room_id ?? world?.character_rooms?.[String(data.observer_id)] ?? '');
+      const room = world?.scene?.rooms?.find(candidate => candidate.id === roomId);
+      const roomLabel = room ? readable(room.label, 'memory.location') : i18n.t('memory.location');
+      const remaining = Math.max(0, (world?.room_memory?.[String(data.observer_id)]?.drug_until_tick ?? 0) - Number(data.tick));
+      text = i18n.t(`event.memory.${String(data.kind)}`, { name: observerName, room: roomLabel, ticks: remaining, defaultValue: i18n.t('event.memory.unknown', { name: observerName, room: roomLabel }) });
+      icon = '📖'; color = '#947044'; break;
+    }
     case 'CommandExecuted':
     case 'CommandRejected': {
       const command = world?.command_defs.find((candidate) => candidate.command_id === data.command_id);

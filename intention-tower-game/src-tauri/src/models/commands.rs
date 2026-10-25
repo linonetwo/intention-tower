@@ -50,6 +50,10 @@ pub struct CommandDTO {
 /// Declarative command effects — no closures, fully serializable.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CommandEffect {
+    ApplyMemoryDrug,
+    AnchorCurrentRoom,
+    RecallRoomWithWitness,
+    ObserveCurrentRoom,
     MoveCharacter {
         delta_x: f64,
         delta_y: f64,

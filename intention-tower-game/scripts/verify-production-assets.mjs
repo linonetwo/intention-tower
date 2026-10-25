@@ -214,6 +214,41 @@ try {
   assert(pantryImage.width === pantryRecord.width && pantryImage.height === pantryRecord.height && manifest.backgroundsMetadata.pavlov_pantry.floorY === pantryRecord.floorY, 'pantry floor and source dimensions disagree');
 } catch (error) { errors.push(`paper-doll production assets cannot be verified: ${error.message}`); }
 
+// Antimeme location changes must resolve to genuinely different reviewed room
+// artwork, not repeated aliases or a successful API response without a file.
+try {
+  const root = path.join(packRoot, 'sideview/room-memory');
+  const provenance = JSON.parse(await fs.readFile(path.join(root, 'provenance.json'), 'utf8'));
+  assert(provenance.generator === 'proxy-imagegen' && provenance.model === 'gpt-image-2', 'room-memory artwork uses an unexpected image generator');
+  const prompts = await fs.readFile(path.resolve(projectRoot, '..', provenance.promptFile));
+  assert(createHash('sha256').update(prompts).digest('hex') === provenance.promptFileSha256, 'room-memory prompt archive hash differs');
+  const roomHashes = new Set(), roomUrls = new Set();
+  for (const id of ['antimeme_archive', 'antimeme_maproom', 'antimeme_conservatory']) {
+    const room = provenance.rooms?.[id];
+    assert(room && typeof room.prompt === 'string' && room.visualReview?.includes('Reviewed actual'), `room-memory ${id} lacks prompt or actual-image review`);
+    if (!room) continue;
+    assert(/^[a-z]+\.png$/.test(room.file), `room-memory ${id} has an invalid source path`);
+    const bytes = await fs.readFile(path.join(root, room.file));
+    const hash = createHash('sha256').update(bytes).digest('hex');
+    assert(hash === room.sha256 && !roomHashes.has(hash), `room-memory ${id} source hash differs or repeats another location`);
+    roomHashes.add(hash);
+    assert(bytes.subarray(0, 8).toString('hex') === '89504e470d0a1a0a', `room-memory ${id} is not PNG`);
+    assert(bytes.readUInt32BE(16) === 1536 && bytes.readUInt32BE(20) === 1024 && room.width === 1536 && room.height === 1024, `room-memory ${id} must be 1536x1024`);
+    assert(Number.isFinite(room.floorY) && room.floorY > 600 && room.floorY < 900, `room-memory ${id} lacks a reviewed platform anchor`);
+    const url = `/mods/gpt-image-2-pack/sideview/room-memory/${room.file}`;
+    assert(manifest.backgrounds?.[id] === url && !roomUrls.has(url), `room-memory ${id} is missing or reuses another room URL`);
+    roomUrls.add(url);
+    const geometry = manifest.backgroundsMetadata?.[id];
+    assert(geometry?.width === room.width && geometry?.height === room.height && geometry?.floorY === room.floorY, `room-memory ${id} geometry differs from reviewed provenance`);
+  }
+  const reception = provenance.reused?.antimeme_reception;
+  assert(reception?.sourceKey === 'antimeme-division', 'room-memory reception lacks explicit existing-art reuse provenance');
+  const bytes = await fs.readFile(path.join(root, reception.file));
+  assert(createHash('sha256').update(bytes).digest('hex') === reception.sha256, 'room-memory reception reused source hash differs');
+  assert(manifest.backgrounds?.antimeme_reception === manifest.backgrounds?.[reception.sourceKey], 'room-memory reception does not use its declared existing background');
+  assert(JSON.stringify(manifest.backgroundsMetadata?.antimeme_reception) === JSON.stringify(manifest.backgroundsMetadata?.[reception.sourceKey]), 'room-memory reception floor differs from reused art');
+} catch (error) { errors.push(`room-memory production assets cannot be verified: ${error.message}`); }
+
 const hashes = new Map();
 for (const record of fileRecords) {
   const duplicate = hashes.get(record.hash);

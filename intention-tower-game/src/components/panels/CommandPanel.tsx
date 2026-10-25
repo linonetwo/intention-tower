@@ -14,6 +14,7 @@ import { t as translateLabel } from '../../i18n';
 import type { CommandDef, CommandEffect } from '../../types/backend';
 
 function describeEffect(effect: CommandEffect, t: (key: string, vars?: Record<string, unknown>) => string): string {
+  if (typeof effect === 'string') return t(`command.effect.${effect}`);
   if ('SpawnObservation' in effect) {
     return t('command.effect.spawn', { schema: effect.SpawnObservation.schema_id.split('/').pop(), modality: effect.SpawnObservation.modality });
   }

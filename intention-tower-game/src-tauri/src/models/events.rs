@@ -3,6 +3,12 @@ use serde::{Deserialize, Serialize};
 /// All events that can occur in the simulation, forming the StateDiff event stream.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WorldEvent {
+    RoomMemoryChanged {
+        observer_id: String,
+        room_id: Option<String>,
+        kind: String,
+        tick: u64,
+    },
     // ── Node lifecycle ──
     NodeSpawned {
         character_id: String,
