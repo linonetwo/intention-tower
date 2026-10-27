@@ -5,19 +5,23 @@ use crate::models::world_state::WorldState;
 pub struct ResourceRegenSystem;
 
 impl System for ResourceRegenSystem {
-    fn name(&self) -> &'static str { "ResourceRegenSystem" }
+    fn name(&self) -> &'static str {
+        "ResourceRegenSystem"
+    }
 
     fn run(&self, state: &mut WorldState, dt: f64) {
         for character in state.characters.values_mut() {
-            let resource_ids: Vec<String> = character.mind_graph.nodes.values()
+            let resource_ids: Vec<String> = character
+                .mind_graph
+                .nodes
+                .values()
                 .filter(|n| n.is_resource())
                 .map(|n| n.instance_id.clone())
                 .collect();
 
             for id in resource_ids {
                 if let Some(node) = character.mind_graph.nodes.get_mut(&id) {
-                    let set_point = node.prior_instinct.as_ref()
-                        .map_or(1.0, |pi| pi.set_point);
+                    let set_point = node.prior_instinct.as_ref().map_or(1.0, |pi| pi.set_point);
                     let regen = node.value_velocity * dt;
 
                     let old_value = node.value;
@@ -33,7 +37,7 @@ impl System for ResourceRegenSystem {
                                 instance_id: id.clone(),
                                 old_value,
                                 new_value: node.value,
-                            }
+                            },
                         );
                     }
                 }

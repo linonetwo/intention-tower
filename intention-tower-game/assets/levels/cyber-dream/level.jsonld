@@ -1,5 +1,7 @@
 {
-  "@context": { "@import": "../../schema/context.jsonld" },
+  "@context": {
+    "@import": "../../schema/context.jsonld"
+  },
   "@id": "it:level/cyber-dream",
   "@type": "it:Level",
   "label": "level.cyber-dream.name",
@@ -10,7 +12,10 @@
       "@id": "it:entity/player",
       "@type": "schema:Person",
       "label": "level.cyber-dream.character.player.label",
-      "position": { "x": 300, "y": 300 },
+      "position": {
+        "x": 300,
+        "y": 300
+      },
       "fallbackChar": "@",
       "mindGraphRef": "it:level/cyber-dream/player-mind"
     }
@@ -20,26 +25,108 @@
       "@id": "it:entity/vr-terminal-l1",
       "@type": "schema:Product",
       "label": "level.cyber-dream.item.vr-terminal-l1.label",
-      "position": { "x": 200, "y": 200 },
+      "position": {
+        "x": 200,
+        "y": 240
+      },
       "fallbackChar": "V"
     },
     {
       "@id": "it:entity/vr-terminal-l2",
       "@type": "schema:Product",
       "label": "level.cyber-dream.item.vr-terminal-l2.label",
-      "position": { "x": 400, "y": 200 },
-      "fallbackChar": "v"
+      "position": {
+        "x": 3000,
+        "y": 240
+      },
+      "fallbackChar": "V"
     },
     {
-      "@id": "it:entity/real-object",
+      "@id": "it:entity/return-outer",
       "@type": "schema:Product",
-      "label": "level.cyber-dream.item.real-object.label",
-      "position": { "x": 100, "y": 400 },
-      "fallbackChar": "R"
+      "label": "level.cyber-dream.item.return-outer.label",
+      "position": {
+        "x": 1800,
+        "y": 240
+      },
+      "fallbackChar": "V"
+    },
+    {
+      "@id": "it:entity/return-inner",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.return-inner.label",
+      "position": {
+        "x": 3400,
+        "y": 240
+      },
+      "fallbackChar": "V"
+    },
+    {
+      "@id": "it:entity/reality-cue",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.reality-cue.label",
+      "position": {
+        "x": 1100,
+        "y": 240
+      },
+      "fallbackChar": "V"
+    },
+    {
+      "@id": "it:entity/outer-cue",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.outer-cue.label",
+      "position": {
+        "x": 2600,
+        "y": 240
+      },
+      "fallbackChar": "V"
+    },
+    {
+      "@id": "it:entity/inner-cue",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.inner-cue.label",
+      "position": {
+        "x": 4300,
+        "y": 240
+      },
+      "fallbackChar": "V"
+    },
+    {
+      "@id": "it:entity/real-meal",
+      "@type": "schema:Product",
+      "label": "level.cyber-dream.item.real-meal.label",
+      "position": {
+        "x": 1300,
+        "y": 240
+      },
+      "fallbackChar": "F",
+      "quantity": 1
     }
   ],
   "objectives": [
     "level.cyber-dream.objective.0",
     "level.cyber-dream.objective.1"
-  ]
+  ],
+  "objectiveRules": [
+    {
+      "objectiveId": "navigate-virtual-layer",
+      "label": "level.cyber-dream.objective.0",
+      "condition": {
+        "type": "layeredJourney",
+        "characterId": "player",
+        "complete": false
+      }
+    },
+    {
+      "objectiveId": "return-to-reality",
+      "label": "level.cyber-dream.objective.1",
+      "condition": {
+        "type": "layeredJourney",
+        "characterId": "player",
+        "complete": true
+      }
+    }
+  ],
+  "defaultActorId": "player",
+  "defaultTargetId": "player"
 }

@@ -5,6 +5,15 @@
   "belongsToCharacter": "it:entity/skeptic",
   "nodes": [
     {
+      "instanceId": "skp-struggle-action",
+      "schemaId": "it:concept/struggle-action",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.3,
+      "active": false,
+      "it:action": { "innate": false, "goap": false, "proficiencyLevel": 0.2 }
+    },
+    {
       "instanceId": "skp-critical-thinking",
       "schemaId": "it:concept/critical-thinking",
       "nodeType": "Meme",

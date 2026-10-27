@@ -42,5 +42,21 @@
     "level.internet-addict.objective.0",
     "level.internet-addict.objective.1",
     "level.internet-addict.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "reduce-boredom", "label": "level.internet-addict.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "show-real-world", "minCount": 2 },
+      { "type": "nodeValue", "characterId": "addict-teen", "schemaId": "it:concept/boredom", "op": "LTE", "value": 0.1 }
+    ] } },
+    { "objectiveId": "cut-reward-loop", "label": "level.internet-addict.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "cut-game-connection", "minCount": 2 },
+      { "type": "edgeWeight", "characterId": "addict-teen", "sourceSchemaId": "it:concept/game-rank", "targetSchemaId": "it:concept/virtual-pleasure", "op": "LTE", "value": 0.31 }
+    ] } },
+    { "objectiveId": "build-real-meaning", "label": "level.internet-addict.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "build-real-meaning", "minCount": 2 },
+      { "type": "edgeWeight", "characterId": "addict-teen", "sourceSchemaId": "it:concept/real-study", "targetSchemaId": "it:concept/real-friendship", "op": "GTE", "value": 0.7 }
+    ] } }
+  ],
+  "defaultActorId": "addict-teen",
+  "defaultTargetId": "addict-teen"
 }

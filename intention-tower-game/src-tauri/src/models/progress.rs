@@ -1,0 +1,515 @@
+use std::collections::{HashMap, HashSet};
+
+use serde::{Deserialize, Serialize};
+
+use super::commands::CompareOp;
+use super::mind_graph::ActionPhysicalOutcome;
+use super::scene::CharacterPosture;
+use super::world_state::{WorldCharacter, WorldState};
+
+/// Authoritative lifecycle of the currently loaded level.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum LevelStatus {
+    #[default]
+    InProgress,
+    Won,
+    Lost,
+}
+
+/// A data-driven predicate used by objectives and failure rules.
+/// Stable schema IDs keep level logic independent from runtime node IDs.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
+pub enum LevelCondition {
+    LayeredJourney {
+        character_id: String,
+        complete: bool,
+    },
+    RoomMemoryEvidence {
+        character_id: String,
+        #[serde(default)]
+        room_id: Option<String>,
+        evidence: super::room_memory::RoomMemoryEvidence,
+    },
+    ActionEpisodes {
+        character_id: String,
+        action_schema_id: String,
+        #[serde(default = "one")]
+        min_count: u32,
+        #[serde(default)]
+        rewarded: bool,
+        #[serde(default)]
+        autonomous: bool,
+        #[serde(default)]
+        stimulus: Option<ActionStimulusFilter>,
+        #[serde(default)]
+        physical_posture: Option<CharacterPosture>,
+        #[serde(default)]
+        social_exclusion: Option<SocialExclusionFilter>,
+    },
+    ImprintedTarget {
+        character_id: String,
+        motivation_schema_id: String,
+        target_entity: String,
+    },
+    FollowedTarget {
+        character_id: String,
+        motivation_schema_id: String,
+        target_entity: String,
+        min_distance: f64,
+        min_ticks: u32,
+        min_separation_distance: f64,
+        max_target_distance: f64,
+    },
+    CommandUsed {
+        command_id: String,
+        #[serde(default = "one")]
+        min_count: u32,
+        #[serde(default)]
+        distinct_targets: u32,
+    },
+    NodeValue {
+        #[serde(default)]
+        character_id: Option<String>,
+        schema_id: String,
+        op: CompareOp,
+        value: f64,
+    },
+    NodePresent {
+        #[serde(default)]
+        character_id: Option<String>,
+        schema_id: String,
+    },
+    NodeSuppression {
+        #[serde(default)]
+        character_id: Option<String>,
+        schema_id: String,
+        op: CompareOp,
+        value: f64,
+    },
+    EdgeWeight {
+        #[serde(default)]
+        character_id: Option<String>,
+        source_schema_id: String,
+        target_schema_id: String,
+        op: CompareOp,
+        value: f64,
+    },
+    ConditioningTrials {
+        #[serde(default)]
+        character_id: Option<String>,
+        source_schema_id: String,
+        target_schema_id: String,
+        #[serde(default)]
+        min_paired: u32,
+        #[serde(default)]
+        min_independent_responses: u32,
+    },
+    VirtualContext {
+        value: bool,
+    },
+    SocialGroup {
+        group_id: String,
+        #[serde(default = "one")]
+        min_members: u32,
+        #[serde(default)]
+        min_cohesion: f64,
+    },
+    AssetTransactions {
+        item_id: String,
+        #[serde(default = "one")]
+        min_count: u32,
+        #[serde(default)]
+        distinct_buyers: u32,
+    },
+    TickAtLeast {
+        tick: u64,
+    },
+    All {
+        conditions: Vec<LevelCondition>,
+    },
+    Any {
+        conditions: Vec<LevelCondition>,
+    },
+}
+
+const fn one() -> u32 {
+    1
+}
+
+/// Optional causal constraints on a completed motor episode, not a live cue.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActionStimulusFilter {
+    #[serde(default)]
+    pub observation_schema_id: Option<String>,
+    #[serde(default)]
+    pub emitter_id: Option<String>,
+    #[serde(default)]
+    pub group_context: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SocialExclusionFilter {
+    #[serde(default)]
+    pub target_character_id: Option<String>,
+    #[serde(default)]
+    pub group_id: Option<String>,
+    #[serde(default)]
+    pub target_need_schema_id: Option<String>,
+    #[serde(default)]
+    pub min_increase: f64,
+    #[serde(default)]
+    pub require_paid_identity_learning: bool,
+}
+
+impl LevelCondition {
+    pub fn evaluate(&self, world: &WorldState) -> bool {
+        match self {
+            Self::LayeredJourney { character_id, complete } => crate::layered_world::evidence(world, character_id, *complete),
+            Self::RoomMemoryEvidence { character_id, room_id, evidence } => crate::room_memory::evidence(world, character_id, room_id.as_deref(), *evidence),
+            Self::ActionEpisodes {
+                character_id,
+                action_schema_id,
+                min_count,
+                rewarded,
+                autonomous,
+                stimulus,
+                physical_posture,
+                social_exclusion,
+            } => world.characters.get(character_id).is_some_and(|character| {
+                character
+                    .mind_graph
+                    .action_episodes
+                    .iter()
+                    .filter(|episode| {
+                        episode.action_schema_id == *action_schema_id
+                            && social_exclusion.as_ref().is_none_or(|filter| {
+                                let Some(ActionPhysicalOutcome::SocialExclusion { target_character_id, group_id, target_need_schema_id, from, to, learned_identity_instance_id, social_edge_id, social_dopamine_spent }) = episode.physical_outcome.as_ref() else { return false; };
+                                from.is_finite() && to.is_finite() && to > from && to - from >= filter.min_increase
+                                    && target_character_id != character_id
+                                    && episode.stimulus.as_ref().is_some_and(|s| s.emitter_id.as_ref() == Some(target_character_id) && s.presentation_count > 0 && s.presented_at <= episode.executed_at)
+                                    && world.characters.get(target_character_id).is_some_and(|c| !super::social::member(&c.mind_graph, group_id))
+                                    && filter.target_character_id.as_ref().is_none_or(|id| id == target_character_id)
+                                    && filter.group_id.as_ref().is_none_or(|id| id == group_id)
+                                    && filter.target_need_schema_id.as_ref().is_none_or(|id| id == target_need_schema_id)
+                                    && (!filter.require_paid_identity_learning || (!learned_identity_instance_id.is_empty() && !social_edge_id.is_empty() && social_dopamine_spent.is_finite() && *social_dopamine_spent > 0.0))
+                            })
+                            && (!rewarded
+                                || (episode.rewarded_at.is_some()
+                                    && episode.reinforcement_dopamine_spent > 0.0))
+                            && (!autonomous || episode.autonomous)
+                            && stimulus.as_ref().is_none_or(|filter| {
+                                episode.stimulus.as_ref().is_some_and(|receipt| {
+                                    receipt.presented_at <= episode.executed_at
+                                        && receipt.presentation_count > 0
+                                        && filter.observation_schema_id.as_ref().is_none_or(|schema|
+                                            receipt.observation_schema_id == *schema)
+                                        && filter.emitter_id.as_ref().is_none_or(|emitter|
+                                            receipt.emitter_id.as_ref() == Some(emitter))
+                                        && filter.group_context.as_ref().is_none_or(|group|
+                                            receipt.group_context.as_ref() == Some(group))
+                                })
+                            })
+                            && physical_posture.as_ref().is_none_or(|posture| {
+                                episode.physical_outcome.as_ref().is_some_and(|outcome|
+                                    matches!(outcome, ActionPhysicalOutcome::ActorPosture { from, to }
+                                        if from != to && to == posture))
+                            })
+                    })
+                    .count()
+                    >= *min_count as usize
+            }),
+            Self::ImprintedTarget {
+                character_id,
+                motivation_schema_id,
+                target_entity,
+            } => imprinted_evidence(world, character_id, motivation_schema_id, target_entity)
+                .is_some(),
+            Self::FollowedTarget {
+                character_id,
+                motivation_schema_id,
+                target_entity,
+                min_distance,
+                min_ticks,
+                min_separation_distance,
+                max_target_distance,
+            } => {
+                let Some(evidence) =
+                    imprinted_evidence(world, character_id, motivation_schema_id, target_entity)
+                else {
+                    return false;
+                };
+                let Some(position) = world.entity_position(target_entity) else {
+                    return false;
+                };
+                let character = &world.characters[character_id];
+                let distance =
+                    (character.position.x - position.x).hypot(character.position.y - position.y);
+                evidence.followed_distance >= *min_distance
+                    && evidence.follow_ticks >= *min_ticks
+                    && evidence.max_separation_distance >= *min_separation_distance
+                    && distance <= *max_target_distance
+            }
+            Self::CommandUsed {
+                command_id,
+                min_count,
+                distinct_targets,
+            } => {
+                let total = world
+                    .progress
+                    .command_counts
+                    .get(command_id)
+                    .copied()
+                    .unwrap_or_default();
+                total >= *min_count
+                    && (*distinct_targets == 0
+                        || world
+                            .progress
+                            .command_targets
+                            .get(command_id)
+                            .is_some_and(|targets| targets.len() as u32 >= *distinct_targets))
+            }
+            Self::NodeValue {
+                character_id,
+                schema_id,
+                op,
+                value,
+            } => matching_characters(world, character_id.as_deref()).any(|character| {
+                character
+                    .mind_graph
+                    .find_by_schema(schema_id)
+                    .is_some_and(|node| op.evaluate(node.value, *value))
+            }),
+            Self::NodePresent {
+                character_id,
+                schema_id,
+            } => matching_characters(world, character_id.as_deref())
+                .any(|character| character.mind_graph.find_by_schema(schema_id).is_some()),
+            Self::NodeSuppression {
+                character_id,
+                schema_id,
+                op,
+                value,
+            } => matching_characters(world, character_id.as_deref()).any(|character| {
+                character
+                    .mind_graph
+                    .find_by_schema(schema_id)
+                    .is_some_and(|node| op.evaluate(node.suppression, *value))
+            }),
+            Self::EdgeWeight {
+                character_id,
+                source_schema_id,
+                target_schema_id,
+                op,
+                value,
+            } => matching_characters(world, character_id.as_deref()).any(|character| {
+                character.mind_graph.edges.values().any(|edge| {
+                    let source = character.mind_graph.nodes.get(&edge.source_instance_id);
+                    let target = character.mind_graph.nodes.get(&edge.target_instance_id);
+                    source.is_some_and(|node| node.schema_id == *source_schema_id)
+                        && target.is_some_and(|node| node.schema_id == *target_schema_id)
+                        && op.evaluate(edge.weight, *value)
+                })
+            }),
+            Self::ConditioningTrials {
+                character_id,
+                source_schema_id,
+                target_schema_id,
+                min_paired,
+                min_independent_responses,
+            } => matching_characters(world, character_id.as_deref()).any(|character| {
+                character
+                    .mind_graph
+                    .conditioning_stats
+                    .iter()
+                    .any(|(edge_id, stats)| {
+                        let Some(edge) = character.mind_graph.edges.get(edge_id) else {
+                            return false;
+                        };
+                        character
+                            .mind_graph
+                            .nodes
+                            .get(&edge.source_instance_id)
+                            .is_some_and(|node| node.schema_id == *source_schema_id)
+                            && character
+                                .mind_graph
+                                .nodes
+                                .get(&edge.target_instance_id)
+                                .is_some_and(|node| node.schema_id == *target_schema_id)
+                            && stats.paired_trials >= *min_paired
+                            && stats.independent_responses >= *min_independent_responses
+                    })
+            }),
+            Self::VirtualContext { value } => world.in_virtual_context == *value,
+            Self::SocialGroup {
+                group_id,
+                min_members,
+                min_cohesion,
+            } => world.social_groups.get(group_id).is_some_and(|group| {
+                group.members.len() as u32 >= *min_members && group.cohesion >= *min_cohesion
+            }),
+            Self::AssetTransactions {
+                item_id,
+                min_count,
+                distinct_buyers,
+            } => {
+                let matching: Vec<_> = world
+                    .economy
+                    .transactions
+                    .iter()
+                    .filter(|transaction| transaction.item_id == *item_id)
+                    .collect();
+                let buyers: HashSet<&str> = matching
+                    .iter()
+                    .map(|transaction| transaction.buyer_id.as_str())
+                    .collect();
+                matching.len() as u32 >= *min_count && buyers.len() as u32 >= *distinct_buyers
+            }
+            Self::TickAtLeast { tick } => world.tick >= *tick,
+            Self::All { conditions } => {
+                !conditions.is_empty()
+                    && conditions.iter().all(|condition| condition.evaluate(world))
+            }
+            Self::Any { conditions } => {
+                conditions.iter().any(|condition| condition.evaluate(world))
+            }
+        }
+    }
+}
+
+fn imprinted_evidence<'a>(
+    world: &'a WorldState,
+    character_id: &str,
+    motivation_schema_id: &str,
+    target_entity: &str,
+) -> Option<&'a super::mind_node::ImprintingEvidence> {
+    use super::mind_node::{LearnType, NodeType};
+    world.entity_position(target_entity)?;
+    let character = world.characters.get(character_id)?;
+    character
+        .mind_graph
+        .nodes
+        .values()
+        .filter(|node| {
+            node.node_type == NodeType::Motivation && node.schema_id == motivation_schema_id
+        })
+        .find_map(|node| {
+            let motivation = node.motivation.as_ref()?;
+            let evidence = motivation.imprinting_evidence.as_ref()?;
+            let target = motivation.target_entity.as_ref()?;
+            let canonical = |entity: &str| {
+                entity
+                    .strip_prefix("it:entity/")
+                    .unwrap_or(entity)
+                    .to_owned()
+            };
+            let valid_edge = character.mind_graph.edges.values().any(|edge| {
+                edge.source_instance_id == evidence.source_id
+                    && edge.target_instance_id == node.instance_id
+                    && edge.learn_type == LearnType::Imprinting
+                    && edge.evidence.co_occurrence_count > 0
+                    && edge.evidence.last_co_occurred_at == evidence.imprinted_at
+                    && edge.weight > 0.0
+                    && character
+                        .mind_graph
+                        .nodes
+                        .get(&evidence.source_id)
+                        .is_some_and(|source| source.node_type == NodeType::Observation)
+            });
+            (canonical(target) == canonical(target_entity)
+                && canonical(&evidence.target_entity) == canonical(target_entity)
+                && evidence.dopamine_spent > 0.0
+                && motivation
+                    .critical_period_end
+                    .is_some_and(|end| evidence.imprinted_at < end)
+                && valid_edge)
+                .then_some(evidence)
+        })
+}
+
+fn matching_characters<'a>(
+    world: &'a WorldState,
+    character_id: Option<&str>,
+) -> Box<dyn Iterator<Item = &'a WorldCharacter> + 'a> {
+    match character_id {
+        Some(id) if id != "__any" => Box::new(world.characters.get(id).into_iter()),
+        _ => Box::new(world.characters.values()),
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ObjectiveState {
+    pub objective_id: String,
+    pub label: String,
+    pub condition: LevelCondition,
+    #[serde(default = "yes")]
+    pub required: bool,
+    #[serde(default)]
+    pub completed: bool,
+    #[serde(default)]
+    pub completed_at_tick: Option<u64>,
+}
+
+const fn yes() -> bool {
+    true
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FailureRule {
+    pub rule_id: String,
+    pub label: String,
+    pub condition: LevelCondition,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LevelProgress {
+    #[serde(default)]
+    pub status: LevelStatus,
+    #[serde(default)]
+    pub objectives: Vec<ObjectiveState>,
+    #[serde(default)]
+    pub failure_rules: Vec<FailureRule>,
+    #[serde(default)]
+    pub command_counts: HashMap<String, u32>,
+    #[serde(default)]
+    pub command_targets: HashMap<String, HashSet<String>>,
+    #[serde(default)]
+    pub completed_at_tick: Option<u64>,
+    #[serde(default)]
+    pub outcome_label: Option<String>,
+}
+
+impl Default for LevelProgress {
+    fn default() -> Self {
+        Self {
+            status: LevelStatus::InProgress,
+            objectives: Vec::new(),
+            failure_rules: Vec::new(),
+            command_counts: HashMap::new(),
+            command_targets: HashMap::new(),
+            completed_at_tick: None,
+            outcome_label: None,
+        }
+    }
+}
+
+impl LevelProgress {
+    pub fn record_command(&mut self, command_id: &str, target_id: Option<&str>) {
+        *self
+            .command_counts
+            .entry(command_id.to_string())
+            .or_default() += 1;
+        if let Some(target_id) = target_id {
+            self.command_targets
+                .entry(command_id.to_string())
+                .or_default()
+                .insert(target_id.to_string());
+        }
+    }
+}

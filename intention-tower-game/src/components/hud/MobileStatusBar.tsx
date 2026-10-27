@@ -49,9 +49,9 @@ export const MobileStatusBar: React.FC = () => {
           gap: 0.5,
           px: 1,
           py: 0.3,
-          bgcolor: 'rgba(14,14,26,0.8)',
+          bgcolor: 'rgba(255,248,232,0.94)',
           backdropFilter: 'blur(6px)',
-          borderBottom: '1px solid rgba(42,42,78,0.4)',
+          borderBottom: '1px solid rgba(255,248,232,0.94)',
           cursor: 'pointer',
         }}
       >
@@ -74,7 +74,7 @@ export const MobileStatusBar: React.FC = () => {
               sx={{
                 height: 4,
                 borderRadius: 1,
-                bgcolor: 'rgba(255,255,255,0.06)',
+                bgcolor: 'rgba(149,112,64,0.06)',
                 '& .MuiLinearProgress-bar': { bgcolor: '#66bb6a', borderRadius: 1 },
               }}
             />
@@ -93,10 +93,10 @@ export const MobileStatusBar: React.FC = () => {
 
       {/* Expanded details */}
       <Collapse in={expanded}>
-        <Box sx={{ bgcolor: 'rgba(14,14,26,0.9)', px: 1, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+        <Box sx={{ bgcolor: 'rgba(255,248,232,0.94)', px: 1, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.3 }}>
           {resources.map(res => (
             <Box key={res.instance_id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Typography sx={{ fontSize: 9, color: '#999', width: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <Typography sx={{ fontSize: 9, color: '#806c55', width: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {translateLabel(res.label)}
               </Typography>
               <LinearProgress
@@ -106,7 +106,7 @@ export const MobileStatusBar: React.FC = () => {
                   flex: 1,
                   height: 6,
                   borderRadius: 1,
-                  bgcolor: 'rgba(255,255,255,0.06)',
+                  bgcolor: 'rgba(149,112,64,0.06)',
                   '& .MuiLinearProgress-bar': { bgcolor: '#66bb6a', borderRadius: 1 },
                 }}
               />

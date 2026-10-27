@@ -1,0 +1,58 @@
+$ vitest run
+
+ RUN  v3.2.4 /home/user/workspace/intention-tower/intention-tower-game
+
+ ✓ src/components/scene/roomMemory.test.tsx (10 tests) 555ms
+stdout | src/components/panels/TutorialGuidePanel.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+stdout | src/components/hud/DialogueBox.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+stdout | src/components/hud/ObjectiveHud.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+stdout | src/components/scene/WorldCharacterSprite.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+ ✓ src/components/scene/newGameScene.test.tsx (8 tests) 703ms
+ ✓ src/components/scene/WorldCharacterSprite.test.tsx (8 tests) 296ms
+ ✓ src/i18n/locales.test.ts (4 tests) 78ms
+stdout | src/components/hud/eventPresentation.test.ts
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+ ✓ src/components/hud/eventPresentation.test.ts (12 tests) 45ms
+ ✓ src/hooks/useKeyboardShortcuts.test.tsx (4 tests) 31ms
+stdout | src/store/useGameState.test.ts
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+ ✓ src/store/useGameState.test.ts (4 tests) 18ms
+ ✓ src/components/panels/mindgraph/useFixedMindGraphLayout.test.ts (4 tests) 75ms
+ ✓ src/api/tauriApi.test.ts (5 tests) 12ms
+ ✓ src/components/scene/characterRig.test.ts (3 tests) 16ms
+ ✓ src/store/useModAssets.test.ts (3 tests) 9ms
+ ✓ src/components/scene/sceneGeometry.test.ts (16 tests) 6ms
+stdout | src/components/panels/mindgraph/MindGraphWorkbench.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+stdout | src/components/panels/mindgraph/LearningTrace.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+stdout | src/components/panels/mindgraph/GraphSvg.test.tsx
+🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙
+
+ ✓ src/components/panels/mindgraph/LearningTrace.test.tsx (1 test) 39ms
+ ✓ src/components/hud/ObjectiveHud.test.tsx (4 tests) 363ms
+ ✓ src/components/panels/TutorialGuidePanel.test.tsx (10 tests) 260ms
+ ✓ src/components/hud/DialogueBox.test.tsx (6 tests) 511ms
+ ✓ src/components/panels/mindgraph/GraphSvg.test.tsx (4 tests) 575ms
+ ✓ src/components/panels/mindgraph/MindGraphWorkbench.test.tsx (4 tests) 2777ms
+   ✓ Neo4j/Palantir mind graph workbench > keeps isolated resources as live badges while making their graph nodes opt-in  1027ms
+   ✓ Neo4j/Palantir mind graph workbench > shows real extinction error and dopamine expenditure in the graph and inspector  335ms
+   ✓ Neo4j/Palantir mind graph workbench > switches layouts, searches objects, and opens the relationship-aware inspector  931ms
+   ✓ Neo4j/Palantir mind graph workbench > uses a bottom drawer inspector on mobile-sized play surfaces  483ms
+
+ Test Files  18 passed (18)
+      Tests  110 passed (110)
+   Start at  22:35:21
+   Duration  71.82s (transform 1.57s, setup 0ms, collect 294.36s, tests 6.37s, environment 210.58s, prepare 5.75s)

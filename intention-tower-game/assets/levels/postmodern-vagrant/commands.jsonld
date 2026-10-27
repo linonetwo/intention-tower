@@ -78,7 +78,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/communism-primitive",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/participation-sense"], "isBelief": true, "isIdentity": true, "groupId": "vagrant-community", "resilience": 0.55 }
         }
       ]
     }

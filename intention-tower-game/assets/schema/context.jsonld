@@ -7,6 +7,10 @@
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "label": { "@id": "rdfs:label" },
     "comment": { "@id": "rdfs:comment" },
+    "subActionSchemas": { "@id": "it:subActionSchemas", "@type": "@id", "@container": "@list" },
+    "emittedObservationSchemas": { "@id": "it:emittedObservationSchemas", "@type": "@id", "@container": "@list" },
+    "autonomousNeedSchemaIds": { "@id": "it:autonomousNeedSchemaIds", "@type": "@id", "@container": "@list" },
+    "autonomousNeedMinValue": { "@id": "it:autonomousNeedMinValue", "@type": "xsd:double" },
     "subClassOf": { "@id": "rdfs:subClassOf", "@type": "@id" },
     "domain": { "@id": "rdfs:domain", "@type": "@id" },
     "range": { "@id": "rdfs:range", "@type": "@id" }

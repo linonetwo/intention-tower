@@ -5,6 +5,54 @@
   "belongsToCharacter": "it:entity/student-a",
   "nodes": [
     {
+      "instanceId": "student-a-exclude-outsider",
+      "schemaId": "it:concept/exclude-outsider",
+      "label": "concept.exclude-outsider.label",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3,
+        "instructionCue": { "observationSchemaIds": ["it:concept/group-dissent"], "emitterId": "outsider", "groupContext": "the-wave", "maxAgeTicks": 10, "minValue": 0.3 },
+        "physicalEffect": { "type": "SocialExclusion", "groupId": "the-wave", "target": "StimulusEmitter", "targetNeedSchemaId": "it:concept/loneliness", "aggravation": 0.2, "identitySchemaId": "it:concept/group-identity", "minimumSocialWeight": 0.1, "minimumNeedValue": 0.05 }
+      }
+    },
+    {
+      "instanceId": "student-a-sit-on-command",
+      "schemaId": "it:concept/sit-on-command",
+      "label": "concept.sit-on-command.label",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3,
+        "instructionCue": { "observationSchemaIds": ["it:concept/instruction-sit"], "emitterId": "teacher-wenger", "groupContext": "the-wave", "maxAgeTicks": 3, "minValue": 0.5 },
+        "physicalEffect": { "type": "ActorPosture", "posture": "sitting" }
+      }
+    },
+    {
+      "instanceId": "student-a-stand-on-command",
+      "schemaId": "it:concept/stand-on-command",
+      "label": "concept.stand-on-command.label",
+      "nodeType": "Action",
+      "value": 0.0,
+      "strength": 0.8,
+      "active": false,
+      "it:action": {
+        "innate": false,
+        "goap": false,
+        "proficiencyLevel": 0.3,
+        "instructionCue": { "observationSchemaIds": ["it:concept/instruction-stand"], "emitterId": "teacher-wenger", "groupContext": "the-wave", "maxAgeTicks": 3, "minValue": 0.5 },
+        "physicalEffect": { "type": "ActorPosture", "posture": "standing" }
+      }
+    },
+    {
       "instanceId": "student-a-loneliness",
       "schemaId": "it:concept/loneliness",
       "nodeType": "PriorInstinct",
@@ -31,6 +79,17 @@
         }
       ],
       "it:motivation": { "goal": "find-belonging", "lookbackWindowSec": 10.0 }
+    },
+    {
+      "instanceId": "student-a-value-deficit",
+      "schemaId": "it:concept/value-deficit",
+      "label": "concept.value-deficit.label",
+      "nodeType": "PriorInstinct",
+      "value": 0.3,
+      "valueVelocity": 0.01,
+      "strength": 0.4,
+      "active": true,
+      "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
     },
     {
       "instanceId": "student-a-self-worth",

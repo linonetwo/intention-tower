@@ -1,6 +1,6 @@
 use super::System;
-use crate::models::world_state::WorldState;
 use crate::models::mind_node::NodeType;
+use crate::models::world_state::WorldState;
 
 /// System #21: Mood cascade — active mood nodes modify other nodes' thresholds.
 /// When a mood (PriorInstinct { isMood: true }) is active, its thresholdModifiers
@@ -10,19 +10,21 @@ use crate::models::mind_node::NodeType;
 pub struct MoodCascadeSystem;
 
 impl System for MoodCascadeSystem {
-    fn name(&self) -> &'static str { "MoodCascadeSystem" }
+    fn name(&self) -> &'static str {
+        "MoodCascadeSystem"
+    }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
         for character in state.characters.values_mut() {
             // Collect active mood modifiers
-            let modifiers: Vec<(String, f64)> = character.mind_graph.nodes.values()
-                .filter(|n| {
-                    n.node_type == NodeType::PriorInstinct
-                        && n.active
-                        && n.is_mood()
-                })
+            let modifiers: Vec<(String, f64)> = character
+                .mind_graph
+                .nodes
+                .values()
+                .filter(|n| n.node_type == NodeType::PriorInstinct && n.active && n.is_mood())
                 .flat_map(|n| {
-                    n.prior_instinct.as_ref()
+                    n.prior_instinct
+                        .as_ref()
                         .map(|pi| &pi.threshold_modifiers)
                         .unwrap_or(&Vec::new())
                         .iter()

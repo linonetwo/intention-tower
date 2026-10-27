@@ -18,7 +18,10 @@ static TEST_CHANNEL: std::sync::OnceLock<TestChannel> = std::sync::OnceLock::new
 pub fn init_test_channel() -> Sender<TestMessage> {
     let (tx, rx) = crossbeam_channel::unbounded();
     let sender_clone = tx.clone();
-    let _ = TEST_CHANNEL.set(TestChannel { sender: tx, receiver: rx });
+    let _ = TEST_CHANNEL.set(TestChannel {
+        sender: tx,
+        receiver: rx,
+    });
     sender_clone
 }
 

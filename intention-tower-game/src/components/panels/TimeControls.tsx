@@ -62,21 +62,21 @@ export const TimeControls: React.FC = () => {
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 },
         px: { xs: 1, sm: 2 }, py: 0.5,
-        bgcolor: '#1a1a2e',
-        borderBottom: '1px solid #2a2a4e',
+        bgcolor: '#f4ead5',
+        borderBottom: '1px solid #d6bf99',
         minHeight: 44,
         flexWrap: 'wrap',
         overflow: 'hidden',
       }}>
         {/* Back button */}
         <Tooltip title={t('game.backToMenu')} arrow>
-          <IconButton size="small" onClick={() => { reset(); navigate('/'); }} sx={{ color: '#aaa' }}>
+          <IconButton size="small" onClick={() => { reset(); navigate('/'); }} sx={{ color: '#806c55' }}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
         </Tooltip>
 
         {/* Level name */}
-        <Typography sx={{ fontSize: { xs: 12, sm: 14 }, fontWeight: 600, color: '#ddd', mx: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: { xs: 80, sm: 200 } }}>
+        <Typography sx={{ fontSize: { xs: 12, sm: 14 }, fontWeight: 600, color: '#584431', mx: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: { xs: 80, sm: 200 } }}>
           {levelName}
         </Typography>
 
@@ -84,12 +84,12 @@ export const TimeControls: React.FC = () => {
         <Chip
           label={`T${tick}`}
           size="small"
-          sx={{ height: 22, fontSize: 11, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.05)' }}
+          sx={{ height: 22, fontSize: 11, fontFamily: 'monospace', bgcolor: 'rgba(149,112,64,0.05)' }}
         />
 
         {/* Save button */}
         <Tooltip title={t('save.title')} arrow>
-          <IconButton size="small" onClick={() => setSaveOpen(true)} sx={{ color: '#aaa' }}>
+          <IconButton size="small" onClick={() => setSaveOpen(true)} sx={{ color: '#806c55' }}>
             <SaveIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -106,9 +106,9 @@ export const TimeControls: React.FC = () => {
             mr: 1,
             display: { xs: 'none', sm: 'flex' },
             '& .MuiToggleButton-root': {
-              color: '#8aa0b4', borderColor: '#2f3540',
+              color: '#66523d', borderColor: '#d6bf99',
               fontSize: 11, textTransform: 'none', px: 0.9, py: 0.25,
-              '&.Mui-selected': { color: '#fff', bgcolor: 'rgba(83,109,254,0.28)' },
+              '&.Mui-selected': { color: '#443627', bgcolor: 'rgba(154,113,62,0.28)' },
             },
           }}
         >
@@ -125,14 +125,14 @@ export const TimeControls: React.FC = () => {
                 size="small"
                 onClick={() => setAutoStepOnCommand(!autoStepOnCommand)}
                 sx={{
-                  color: autoStepOnCommand ? '#90caf9' : '#555',
-                  borderColor: autoStepOnCommand ? '#536dfe' : '#333',
+                  color: autoStepOnCommand ? '#537d86' : '#555',
+                  borderColor: autoStepOnCommand ? '#9b693b' : '#ad9271',
                   border: '1px solid',
                   borderRadius: 1,
                   mx: 0.25,
                   transition: 'all 0.2s',
-                  bgcolor: autoStepOnCommand ? 'rgba(83,109,254,0.18)' : 'transparent',
-                  '&:hover': { bgcolor: 'rgba(100,100,255,0.15)', color: '#fff' },
+                  bgcolor: autoStepOnCommand ? 'rgba(154,113,62,0.18)' : 'transparent',
+                  '&:hover': { bgcolor: 'rgba(154,113,62,0.15)', color: '#443627' },
                 }}
               >
                 <FlashAutoIcon sx={{ fontSize: 16 }} />
@@ -146,13 +146,13 @@ export const TimeControls: React.FC = () => {
                   disabled={stepping}
                   data-tutorial="step-button"
                   sx={{
-                    color: '#888',
-                    borderColor: '#333',
-                    border: '1px solid #333',
+                    color: '#79644d',
+                    borderColor: '#ad9271',
+                    border: '1px solid #ad9271',
                     borderRadius: 1,
                     mx: 0.25,
                     transition: 'all 0.2s',
-                    '&:hover': { bgcolor: 'rgba(100,100,255,0.15)', color: '#fff' },
+                    '&:hover': { bgcolor: 'rgba(154,113,62,0.15)', color: '#443627' },
                   }}
                 >
                   <SkipNextIcon sx={{ fontSize: 18 }} />
@@ -170,9 +170,9 @@ export const TimeControls: React.FC = () => {
           size="small"
           sx={{
             '& .MuiToggleButton-root': {
-              color: '#888', borderColor: '#333',
+              color: '#79644d', borderColor: '#ad9271',
               fontSize: 12, py: 0.25, px: 1,
-              '&.Mui-selected': { color: '#fff', bgcolor: 'rgba(100,100,255,0.2)' },
+              '&.Mui-selected': { color: '#443627', bgcolor: 'rgba(154,113,62,0.2)' },
             },
           }}
         >

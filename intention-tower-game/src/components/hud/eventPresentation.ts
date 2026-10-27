@@ -1,0 +1,106 @@
+import { i18n, translateLabel } from '../../i18n';
+import { eventPayload, eventType, type WorldEvent, type WorldState } from '../../types/backend';
+
+const readable = (label: string, fallback: string) => {
+  const translated = translateLabel(label);
+  return /^(it:|schema:|https?:)/.test(translated) || translated.includes('.label') ? i18n.t(fallback) : translated;
+};
+
+export function objectName(world: WorldState | null, id: string): string {
+  const roomMemoryName = (about: string | null | undefined) => {
+    const match = about?.match(/^it:room\/([^/]+)\/variant\/([^/]+)$/);
+    if (!match) return null;
+    const variant = i18n.t(`memory.variant.${match[2]}`, { defaultValue: i18n.t('memory.location') });
+    return i18n.t('memory.observationName', { variant });
+  };
+  for (const character of Object.values(world?.characters ?? {})) {
+    const node = Object.values(character.mind_graph.nodes).find((candidate) => candidate.instance_id === id || candidate.schema_id === id);
+    if (node) return roomMemoryName(node.observation?.about) ?? readable(node.label, node.node_type === 'Meme' ? 'event.emergentMeme' : 'event.unknownObject');
+  }
+  // A URI alone is not evidence: only name content held by an existing observation node.
+  for (const character of Object.values(world?.characters ?? {})) {
+    const node = Object.values(character.mind_graph.nodes).find(candidate => candidate.observation?.about === id);
+    if (node) return roomMemoryName(id) ?? readable(node.label, 'event.unknownObject');
+  }
+  const item = Object.values(world?.items ?? {}).find((candidate) => candidate.id === id || candidate.schema_type === id);
+  if (item) return readable(item.label, 'event.unknownObject');
+  const translated = translateLabel(id);
+  return translated !== id ? readable(translated, 'event.unknownObject') : i18n.t('event.unknownObject');
+}
+
+export function presentEvent(event: WorldEvent, world: WorldState | null): { icon: string; text: string; color: string } {
+  const type = eventType(event);
+  const data = eventPayload(event);
+  const character = Object.values(world?.characters ?? {}).find((candidate) => candidate.id === data.character_id || candidate.id === data.actor_id);
+  const name = character ? readable(character.label, 'event.character') : i18n.t('event.character');
+  const node = objectName(world, String(data.instance_id ?? data.resource_schema_id ?? data.item_id ?? ''));
+  let icon = '📌';
+  let text = i18n.t(`event.type.${type}`, { defaultValue: i18n.t('event.updated') });
+  let color = '#9aaebd';
+  switch (type) {
+    case 'LayeredWorldChanged': {
+      // Historical payload only: today's context and notebook may be different.
+      const fact = data.fact && typeof data.fact === 'object' ? data.fact as Record<string, unknown> : {};
+      const context = i18n.t(`layer.context.${String(data.context_id)}`, { defaultValue: i18n.t('layer.context.unknown') });
+      const detail = typeof fact.fact === 'string' ? translateLabel(fact.fact) : '';
+      text = i18n.t(`event.layer.${String(data.kind)}`, { name, context, depth: data.depth, detail, before: typeof fact.before === 'number' ? fact.before.toFixed(2) : '—', after: typeof fact.after === 'number' ? fact.after.toFixed(2) : '—', defaultValue: i18n.t('event.layer.unknown', { name, context }) });
+      icon = '◈'; color = '#678c72'; break;
+    }
+    case 'RoomMemoryChanged': {
+      const observer = world?.characters[String(data.observer_id)];
+      const observerName = observer ? readable(observer.label, 'event.character') : i18n.t('event.character');
+      // Never infer historical identity or drug duration from today's mutable room.
+      // Legacy events did not carry this evidence, so name only "this place".
+      const roomLabel = data.variant_id ? i18n.t(`memory.variant.${String(data.variant_id)}`, { defaultValue: i18n.t('memory.location') }) : i18n.t('memory.location');
+      const remaining = data.drug_ticks_remaining ?? '—';
+      text = i18n.t(`event.memory.${String(data.kind)}`, { name: observerName, room: roomLabel, ticks: remaining, defaultValue: i18n.t('event.memory.unknown', { name: observerName, room: roomLabel }) });
+      icon = '📖'; color = '#947044'; break;
+    }
+    case 'CommandExecuted':
+    case 'CommandRejected': {
+      const command = world?.command_defs.find((candidate) => candidate.command_id === data.command_id);
+      const commandLabel = command?.label ?? `command.${String(data.command_id)}.label`;
+      const label = readable(commandLabel, 'event.commandName');
+      if (type === 'CommandRejected') {
+        text = i18n.t('event.commandRejected', {
+          name, command: label,
+          reason: i18n.t(`event.commandRejection.${String(data.reason)}`, { defaultValue: i18n.t('event.commandRejection.unknown') }),
+        });
+        icon = '⚠️'; color = '#d88943'; break;
+      }
+      text = `${name} → ${label}`;
+      icon = '🎮'; color = '#42a5f5'; break;
+    }
+    case 'NodeSpawned': icon = '✨'; color = '#66bb6a'; text = `${name}: +${node}`; break;
+    case 'NodeActivated': icon = '⚡'; color = '#42a5f5'; text = `${name}: ${node} · ${i18n.t('event.activated')}`; break;
+    case 'NodeDeactivated': text = `${name}: ${node} · ${i18n.t('event.deactivated')}`; break;
+    case 'NodeDespawned': text = `${name}: ${node} · ${i18n.t('event.expired')}`; break;
+    case 'NodeValueChanged': text = `${Number(data.new_value) > Number(data.old_value) ? '↑' : '↓'} ${name}: ${node} ${Number(data.new_value).toFixed(2)}`; break;
+    case 'ActionExecuted': {
+      const outcome = character?.mind_graph.action_episodes?.find(episode => episode.action_id === data.instance_id && episode.executed_at === data.executed_at)?.physical_outcome;
+      if (outcome?.type === 'SocialExclusion') {
+        const target = world?.characters[outcome.target_character_id];
+        text = i18n.t('event.socialExclusion', {
+          name, target: target ? readable(target.label, 'event.character') : i18n.t('event.character'),
+          need: objectName(world, outcome.target_need_schema_id), amount: (outcome.to - outcome.from).toFixed(2),
+        });
+        icon = '💬'; color = '#8b5434';
+      } else {
+        icon = '🐾'; color = '#557647'; text = i18n.t(data.autonomous ? 'event.actionAutonomous' : 'event.actionExecuted', { name, action: node });
+      }
+      break;
+    }
+    case 'LearningUpdated': icon = '🔗'; color = '#64d8a2'; text = `${name}: ${i18n.t(`graph.learning.${String(data.phase)}`)} ${Number(data.old_weight).toFixed(2)} → ${Number(data.new_weight).toFixed(2)}`; break;
+    case 'EdgeCreated': icon = '🔗'; text = `${name}: ${i18n.t('graph.learning.created')}`; break;
+    case 'EdgeWeightChanged': icon = '🔗'; text = `${name}: ${i18n.t('event.relationChanged')} ${Number(data.new_weight).toFixed(2)}`; break;
+    case 'EdgeRemoved': text = `${name}: ${i18n.t('event.edgeRemoved')}`; break;
+    case 'SoundEmitted': icon = '🔔'; color = '#ffa726'; text = i18n.t('event.sound'); break;
+    case 'FoodPresented': icon = '🍖'; color = '#ffa726'; text = i18n.t('event.food'); break;
+    case 'ThresholdCrossed': icon = '📐'; text = `${name}: ${i18n.t('event.threshold')}`; break;
+    case 'ResourceConsumed': text = `${name}: ${node} −${Number(data.amount).toFixed(3)}`; break;
+    case 'CharacterMoved': icon = '🧭'; text = `${name}: ${i18n.t('event.moved')}`; break;
+    case 'AssetTraded': icon = '🪙'; text = `${i18n.t('event.traded')}: ${node}`; break;
+    case 'ObjectiveCompleted': icon = '✅'; color = '#66bb6a'; text = readable(String(data.label), 'event.objective'); break;
+  }
+  return { icon, text, color };
+}

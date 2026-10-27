@@ -8,6 +8,9 @@
       "hotkey": "1",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["pavlov"] },
+        { "type": "TargetIs", "characterIds": ["dog"] },
+        { "type": "TargetIsNotActor" },
         { "type": "EnvHasItem", "itemSchemaId": "it:entity-type/metronome" }
       ],
       "effects": [
@@ -16,7 +19,7 @@
           "schemaId": "it:concept/hear-metronome",
           "modality": "Auditory",
           "about": "it:entity-type/metronome",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
         }
       ]
@@ -27,6 +30,9 @@
       "hotkey": "2",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["pavlov"] },
+        { "type": "TargetIs", "characterIds": ["dog"] },
+        { "type": "TargetIsNotActor" },
         { "type": "EnvHasItem", "itemSchemaId": "schema:Food" }
       ],
       "effects": [
@@ -35,7 +41,7 @@
           "schemaId": "it:concept/see-food",
           "modality": "Olfactory",
           "about": "schema:Food",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 1.0
         },
         {

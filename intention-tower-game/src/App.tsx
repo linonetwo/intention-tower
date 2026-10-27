@@ -11,16 +11,27 @@ import { setWindowResolution } from './api/tauriApi';
 
 const RESOLUTION_STORAGE_KEY = 'it-resolution';
 
-const darkTheme = createTheme({
+const adventureTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
+    primary: { main: '#8b5735' },
+    secondary: { main: '#577b60' },
+    text: { primary: '#433426', secondary: '#78634e' },
     background: {
-      default: '#0a0a1e',
-      paper: '#141428',
+      default: '#efe5cf',
+      paper: '#fffaf0',
     },
   },
+  shape: { borderRadius: 14 },
+  components: {
+    MuiButton: { styleOverrides: { root: { minHeight: 44, textTransform: 'none', fontWeight: 700 } } },
+    MuiIconButton: { styleOverrides: { root: { minWidth: 44, minHeight: 44 } } },
+    MuiToggleButton: { styleOverrides: { root: { minHeight: 44, minWidth: 44, textTransform: 'none' } } },
+    MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+    MuiCssBaseline: { styleOverrides: { body: { backgroundImage: 'radial-gradient(ellipse at top, #fffaf0, #efe5cf)', color: '#433426' } } },
+  },
   typography: {
-    fontFamily: '"Noto Sans SC", "Roboto", sans-serif',
+    fontFamily: '"Intention CJK", "Roboto", Arial, sans-serif',
   },
 });
 
@@ -42,7 +53,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={adventureTheme}>
       <CssBaseline />
       <Routes>
         <Route path='/' element={<LevelSelectPage />} />

@@ -14,7 +14,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/water-is-poison",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/rational-knowledge", "it:concept/thirst"], "isBelief": true, "overridesInstinct": ["it:concept/thirst"], "conflictResolution": "BeliefWins", "resilience": 0.98 }
         },
         {
           "type": "ModifyNodeValue",

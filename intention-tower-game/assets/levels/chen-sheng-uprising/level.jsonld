@@ -74,5 +74,15 @@
     "level.chen-sheng-uprising.objective.0",
     "level.chen-sheng-uprising.objective.1",
     "level.chen-sheng-uprising.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "reveal-doom", "label": "level.chen-sheng-uprising.objective.0", "condition": { "type": "commandUsed", "commandId": "announce-situation", "minCount": 3, "distinctTargets": 3 } },
+    { "objectiveId": "plant-prophecy", "label": "level.chen-sheng-uprising.objective.1", "condition": { "type": "commandUsed", "commandId": "plant-prophecy", "minCount": 1 } },
+    { "objectiveId": "rally-soldiers", "label": "level.chen-sheng-uprising.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "inspire-hope", "minCount": 3, "distinctTargets": 3 },
+      { "type": "commandUsed", "commandId": "rally-troops", "minCount": 3, "distinctTargets": 3 }
+    ] } }
+  ],
+  "defaultActorId": "chen-sheng",
+  "defaultTargetId": "soldier-1"
 }

@@ -43,5 +43,21 @@
     "level.illusion-trap.objective.0",
     "level.illusion-trap.objective.1",
     "level.illusion-trap.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "ground-with-pain", "label": "level.illusion-trap.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "inflict-real-pain", "minCount": 2 },
+      { "type": "nodeValue", "characterId": "trapped-person", "schemaId": "it:concept/pain-from-reality", "op": "GTE", "value": 0.7 }
+    ] } },
+    { "objectiveId": "restore-memory", "label": "level.illusion-trap.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "trigger-memory-fragment", "minCount": 3 },
+      { "type": "nodeValue", "characterId": "trapped-person", "schemaId": "it:concept/real-identity", "op": "GTE", "value": 0.55 }
+    ] } },
+    { "objectiveId": "call-true-name", "label": "level.illusion-trap.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "call-name", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "shake-illusion", "minCount": 2 }
+    ] } }
+  ],
+  "defaultActorId": "illusionist",
+  "defaultTargetId": "trapped-person"
 }

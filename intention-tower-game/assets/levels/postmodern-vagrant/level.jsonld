@@ -74,5 +74,22 @@
     "level.postmodern-vagrant.objective.0",
     "level.postmodern-vagrant.objective.1",
     "level.postmodern-vagrant.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "dismantle-old-story", "label": "level.postmodern-vagrant.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "deconstruct-narrative", "minCount": 2 },
+      { "type": "nodeValue", "characterId": "protagonist", "schemaId": "it:concept/grand-narrative-1", "op": "LTE", "value": 0.0 }
+    ] } },
+    { "objectiveId": "survive-wilderness", "label": "level.postmodern-vagrant.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "go-to-wilderness", "minCount": 1 },
+      { "type": "nodeValue", "characterId": "protagonist", "schemaId": "it:concept/hunger", "op": "GTE", "value": 0.6 }
+    ] } },
+    { "objectiveId": "create-shared-meaning", "label": "level.postmodern-vagrant.objective.2", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "help-with-work", "minCount": 2 },
+      { "type": "commandUsed", "commandId": "reflect-on-meaning", "minCount": 2 },
+      { "type": "commandUsed", "commandId": "accept-new-narrative", "minCount": 1 }
+    ] } }
+  ],
+  "defaultActorId": "protagonist",
+  "defaultTargetId": "protagonist"
 }

@@ -5,7 +5,6 @@
 import React, { useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useGameState } from '../../store/useGameState';
-import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const DOT_COLORS = {
   actor: '#4caf50',
@@ -15,12 +14,11 @@ const DOT_COLORS = {
 };
 
 export const MiniMapHud: React.FC = () => {
-  const layout = useResponsiveLayout();
   const worldState = useGameState((s) => s.worldState);
   const selectedActorId = useGameState((s) => s.selectedActorId);
   const selectedTargetId = useGameState((s) => s.selectedTargetId);
 
-  const { w, h } = layout.miniMapSize;
+  const h = 130;
 
   const characters = useMemo(() =>
     worldState ? Object.values(worldState.characters) : [],
@@ -51,19 +49,16 @@ export const MiniMapHud: React.FC = () => {
     return ((val - min) / (max - min)) * 100;
   };
 
-  if (w === 0 || h === 0) return null;
-
   return (
     <Box
       sx={{
-        position: 'absolute',
-        top: 56,
-        right: 8,
-        width: w,
+        position: 'relative',
+        mb: 2,
+        width: '100%',
         height: h,
-        bgcolor: 'rgba(14,14,26,0.85)',
+        bgcolor: 'rgba(255,248,232,0.94)',
         backdropFilter: 'blur(6px)',
-        border: '1px solid rgba(42,42,78,0.6)',
+        border: '1px solid #d6bf99',
         borderRadius: 1,
         overflow: 'hidden',
         pointerEvents: 'auto',
@@ -72,8 +67,8 @@ export const MiniMapHud: React.FC = () => {
     >
       {/* Grid reference */}
       <Box sx={{ position: 'absolute', inset: 0, opacity: 0.06 }}>
-        <Box sx={{ position: 'absolute', left: '50%', top: 0, bottom: 0, borderLeft: '1px dashed #fff' }} />
-        <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, borderTop: '1px dashed #fff' }} />
+        <Box sx={{ position: 'absolute', left: '50%', top: 0, bottom: 0, borderLeft: '1px dashed #443627' }} />
+        <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, borderTop: '1px dashed #443627' }} />
       </Box>
 
       {/* Items */}
@@ -108,7 +103,7 @@ export const MiniMapHud: React.FC = () => {
               height: isActor || isTarget ? 9 : 7,
               borderRadius: '50%',
               bgcolor: color,
-              border: isActor ? '1.5px solid #81c784' : isTarget ? '1.5px solid #ffcc80' : 'none',
+              border: isActor ? '1.5px solid #81c784' : isTarget ? '1.5px solid #92622f' : 'none',
               left: `${toPercent(char.position.x, bounds.minX, bounds.maxX)}%`,
               top: `${toPercent(char.position.y, bounds.minY, bounds.maxY)}%`,
               transform: 'translate(-50%, -50%)',

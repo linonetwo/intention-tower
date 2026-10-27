@@ -29,6 +29,14 @@
       | feed              | trainer | 3        |
     # 训练后猫应建立可学习边
     那么 "cat-billi" 应至少有 1 条可学习边
+    而且 "cat-billi" 中从 "hear-button-sound" 到 "press-button" 的边权重应大于 0.3
+
+  场景: 无奖励示范不能建立关联或替猫按键
+    假如 已加载关卡 "smart-cat"
+    当 重复 8 次: 执行 "demonstrate-press" 由 "trainer" 对 "cat-billi" 然后推进 12 tick
+    那么 "cat-billi" 中从 "hear-button-sound" 到 "press-button" 的边权重应小于 0.01
+    而且 "cat-billi" 的 "it:concept/press-button" 节点应未激活
+    而且 执行者 "trainer" 对目标 "cat-billi" 的可用命令不应包含 "feed-after-press"
 
   场景: 猫的饥饿驱动进食
     假如 已加载关卡 "smart-cat"
@@ -39,3 +47,20 @@
     # 喂食降低饥饿 (delta -0.3，从 ~1.0 降到 ~0.7)
     当 执行命令 "feed" 执行者 "trainer" 目标 "cat-billi"
     那么 "cat-billi" 的 "it:concept/hunger" 节点值应小于 0.8
+
+  场景: 真正执行按键之后的奖励建立操作性联结
+    假如 已加载关卡 "smart-cat"
+    当 对目标 "cat-billi" 重复以下训练 3 轮
+      | 命令              | 执行者  | tick间隔 |
+      | demonstrate-press | trainer | 1        |
+      | feed              | trainer | 12       |
+    当 执行命令 "demonstrate-press" 执行者 "trainer" 目标 "cat-billi"
+    当 推进 2 个 tick
+    那么 执行者 "trainer" 对目标 "cat-billi" 的可用命令应包含 "feed-after-press"
+    当 执行命令 "feed-after-press" 执行者 "trainer" 目标 "cat-billi"
+    那么 "cat-billi" 应有 "Operant" 类型的学习边
+
+  场景: 实际饥饿需求训练后无提示自主按键求食并保持完整存档
+    假如 已加载聪明猫真实目标关卡
+    当 用真实饥饿按键回合训练聪明猫并恢复完整存档
+    那么 聪明猫应凭无提示自主按键回合完成关卡

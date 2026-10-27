@@ -28,6 +28,7 @@
       "@id": "it:entity/meme-workbench",
       "@type": "schema:Product",
       "label": "level.meme-magic.item.meme-workbench.label",
+      "it:abstractType": "it:entity-type/meme-workbench",
       "position": { "x": 100, "y": 200 },
       "fallbackChar": "W"
     },
@@ -42,6 +43,7 @@
       "@id": "it:entity/magic-meme-carrier",
       "@type": "schema:Product",
       "label": "level.meme-magic.item.magic-meme-carrier.label",
+      "it:abstractType": "it:entity-type/magic-meme-carrier",
       "position": { "x": 300, "y": 200 },
       "fallbackChar": "M"
     }
@@ -50,5 +52,18 @@
     "level.meme-magic.objective.0",
     "level.meme-magic.objective.1",
     "level.meme-magic.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "craft-two-meme-types", "label": "level.meme-magic.objective.0", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "craft-normal-meme", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "craft-magic-meme", "minCount": 1 }
+    ] } },
+    { "objectiveId": "inject-and-observe", "label": "level.meme-magic.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "inject-meme", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "observe-binding", "minCount": 1 }
+    ] } },
+    { "objectiveId": "study-transmission", "label": "level.meme-magic.objective.2", "condition": { "type": "commandUsed", "commandId": "spread-via-carrier", "minCount": 2 } }
+  ],
+  "defaultActorId": "meme-engineer",
+  "defaultTargetId": "meme-target"
 }
