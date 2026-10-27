@@ -496,7 +496,7 @@ export type CommandEffect =
 // Rust tagged enum serialized by serde: {"VariantName": {fields}}
 
 export type WorldEvent =
-  | { RoomMemoryChanged: { observer_id: string; room_id: string | null; kind: string; tick: number } }
+  | { RoomMemoryChanged: { observer_id: string; room_id: string | null; variant_id?: string | null; drug_ticks_remaining?: number | null; kind: string; tick: number } }
   | { NodeSpawned: { character_id: string; instance_id: string; schema_id: string; node_type: string } }
   | { NodeDespawned: { character_id: string; instance_id: string } }
   | { NodeValueChanged: { character_id: string; instance_id: string; old_value: number; new_value: number } }

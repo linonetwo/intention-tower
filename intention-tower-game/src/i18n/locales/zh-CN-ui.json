@@ -1,6 +1,6 @@
 {
   "memory.location": "记忆中的地点",
-  "memory.observationName": "{{room}}的记忆 · {{variant}}",
+  "memory.observationName": "{{variant}}的地点记忆",
   "event.memory.room_observed": "{{name}}看见了{{room}}，形成对此地的记忆。",
   "event.memory.room_left": "{{name}}离开{{room}}；随着模拟推进，此处的记忆会逐渐消退。",
   "event.memory.room_fading": "{{name}}：{{room}}的记忆正褪为灰色，逐渐消退。",

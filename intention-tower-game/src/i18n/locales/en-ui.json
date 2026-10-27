@@ -1,6 +1,6 @@
 {
   "memory.location": "a remembered place",
-  "memory.observationName": "Memory of {{room}} · {{variant}}",
+  "memory.observationName": "Place memory · {{variant}}",
   "event.memory.room_observed": "{{name}} sees {{room}} and forms a memory of this place.",
   "event.memory.room_left": "{{name}} leaves {{room}}; its memory will fade as the simulation advances.",
   "event.memory.room_fading": "{{name}}: the memory of {{room}} is turning gray and fading.",

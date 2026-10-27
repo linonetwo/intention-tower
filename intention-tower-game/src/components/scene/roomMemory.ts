@@ -14,9 +14,11 @@ export function roomMemoryPresentation(world: WorldState | null | undefined, roo
   const hidden = phase === 'unvisited' || phase === 'forgotten';
   return {
     phase, entry, hidden,
+    // A room's physical address is stable, but its perceived identity can change.
+    labelKey: hidden ? `memory.phase.${phase}` : entry ? `memory.variant.${entry.variant_id}` : undefined,
     backgroundKey: hidden ? undefined : entry?.background_key ?? room.background_key,
-    filter: phase === 'fading' ? 'grayscale(1)' : phase === 'remembered' ? 'grayscale(.65)' : undefined,
-    opacity: phase === 'fading' ? .38 : phase === 'remembered' ? .72 : 1,
+    filter: phase === 'fading' ? 'grayscale(1)' : undefined,
+    opacity: phase === 'fading' ? .38 : 1,
     anchored: entry?.anchored_at_tick != null || phase === 'anchored',
   };
 }

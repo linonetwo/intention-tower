@@ -18,17 +18,27 @@ describe('human-readable event presentation', () => {
     const scene = { ...world, characters: { agent: { id: 'agent', label: 'Agent', mind_graph: { nodes: { location: { instance_id: 'location', schema_id: 'it:concept/memory-of-location', label: 'Memory', node_type: 'Observation', observation: { about: 'it:room/archive/variant/maproom' } } } } } }, scene: { rooms: [{ id: 'archive', label: 'room.antimeme.archive' }] }, character_rooms: { agent: 'archive' }, room_memory: { agent: { drug_until_tick: 50 } } } as unknown as WorldState;
     const kinds = ['room_observed', 'room_left', 'room_fading', 'room_forgotten', 'forgotten_room_revisited', 'room_anchored', 'anchored_room_revisited', 'memory_drug_taken', 'memory_drug_expired', 'witness_you_forgot_this_place', 'room_investigated', 'future_memory_change'];
     for (const kind of kinds) {
-      const result = presentEvent({ RoomMemoryChanged: { observer_id: 'agent', room_id: 'archive', kind, tick: 10 } }, scene);
+      const result = presentEvent({ RoomMemoryChanged: { observer_id: 'agent', room_id: 'archive', variant_id: 'maproom', drug_ticks_remaining: 40, kind, tick: 10 } }, scene);
       expect(result.text).toContain('Agent');
       expect(result.text).not.toMatch(/event\.|observer_id|future_memory_change|room_observed|it:/);
       if (kind === 'witness_you_forgot_this_place') expect(result.text).toContain(language === 'en' ? 'You simply forgot' : '你只是忘记了');
       if (kind === 'memory_drug_taken') { expect(result.text).toContain('40'); expect(result.text).toContain(language === 'en' ? 'drug alone' : '仅服药'); }
     }
     const name = objectName(scene, 'location');
-    expect(name).toContain(i18n.t('room.antimeme.archive'));
+    expect(name).not.toContain(i18n.t('room.antimeme.archive'));
     expect(name).toContain(i18n.t('memory.variant.maproom'));
     expect(objectName(scene, 'it:room/archive/variant/maproom')).toBe(name);
     expect(objectName(scene, 'it:room/conservatory/variant/archive')).toBe(i18n.t('event.unknownObject'));
+  });
+  it('keeps historical room identity and medicine duration after later regeneration or dosing', () => {
+    const changed = { ...world, room_memory: { agent: { drug_until_tick: 200, rooms: { archive: { variant_id: 'archive' } } } } } as unknown as WorldState;
+    const event = { RoomMemoryChanged: { observer_id: 'agent', room_id: 'archive', variant_id: 'maproom', drug_ticks_remaining: 40, kind: 'room_fading', tick: 10 } };
+    expect(presentEvent(event, changed).text).toContain(i18n.t('memory.variant.maproom'));
+    expect(presentEvent(event, changed).text).not.toContain(i18n.t('memory.variant.archive'));
+    expect(presentEvent({ RoomMemoryChanged: { ...event.RoomMemoryChanged, kind: 'memory_drug_taken' } }, changed).text).toContain('40');
+    const legacy = presentEvent({ RoomMemoryChanged: { observer_id: 'agent', room_id: 'archive', kind: 'room_fading', tick: 10 } }, changed);
+    expect(legacy.text).toContain(i18n.t('memory.location'));
+    expect(legacy.text).not.toContain(i18n.t('memory.variant.archive'));
   });
   const rejectionReasons = [
     'unknown_command', 'preconditions_failed', 'no_effect_applied', 'character_not_found',

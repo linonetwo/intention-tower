@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const endpoint = process.env.BROWSER_MCP_URL ?? 'http://127.0.0.1:9233/mcp';
 const output = resolve(process.env.EVIDENCE_DIR ?? 'verification-evidence');
 await mkdir(output, { recursive: true });
 const actor = 'antimeme-agent';
+const dictionaries = await Promise.all(['zh-CN-ui', 'en-ui'].map(async locale => JSON.parse(await readFile(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8'))));
 const report = { started: new Date().toISOString(), source: 'real Chromium compositor / authoritative Rust', viewports: [], errors: [] };
 let sequence = 0;
 async function call(name, args = {}) {
@@ -38,7 +39,9 @@ async function mode(value) {
   await closeNotebook();
   await call('click', { selector: '[data-testid="experiment-menu-open"]' });
   await call('click', { selector: `[data-testid="experiment-menu"] [data-testid="mode-${value}"]` });
-  await closeNotebook();
+  // Mode selection already closes the notebook. Wait for its exit transition;
+  // clicking the outgoing close button races MUI unmounting and is not gameplay.
+  await waitFor(`!document.querySelector('[data-testid="experiment-menu"]')`, 'Mode selection closes notebook');
 }
 async function load() {
   await closeNotebook();
@@ -57,7 +60,17 @@ async function control(testId, mobile) {
   if (mobile) assert.ok(result.width >= 44 && result.height >= 44, `${testId}: 44px mobile operation (${result.width}×${result.height})`);
   return result;
 }
-async function step(count) { for (let i = 0; i < count; i++) await call('step_tick'); }
+async function step(count) {
+  for (let i = 0; i < count; i++) {
+    const result = await call('step_tick');
+    for (const event of result.events ?? []) {
+      const memoryEvent = event.RoomMemoryChanged;
+      if (!memoryEvent) continue;
+      if (memoryEvent.room_id) assert.equal(typeof memoryEvent.variant_id, 'string', 'Memory event captures its historical perceived identity');
+      assert.equal(typeof memoryEvent.drug_ticks_remaining, 'number', 'Memory event captures historical remaining drug window');
+    }
+  }
+}
 async function portal(destination, mobile) {
   await mode('micro');
   await control('scene-portal-reception_archive', mobile);
@@ -68,6 +81,10 @@ async function portal(destination, mobile) {
   const after = await snapshot();
   assert.equal(after.characters[actor].position.y, 300);
   assert.equal(after.tick, before.tick, 'Walking alone never advances learning ticks');
+  const variant = memory(after).variant_id;
+  const expectedNames = dictionaries.map(dictionary => dictionary[`memory.variant.${variant}`]);
+  const feedback = await evaluate(`[...document.querySelectorAll('[data-testid^="dialogue-event-"]')].map(el=>el.textContent).find(line=>line.startsWith('📖'))`);
+  assert.ok(expectedNames.some(name => feedback?.includes(name)), `${destination}: real portal movement immediately publishes its entered/left memory feedback without a tick`);
   return after;
 }
 async function command(commandId, mobile, accepted = true) {
@@ -92,10 +109,105 @@ async function presentation() {
 }
 async function capture(run, label) {
   const world = await snapshot(), view = await presentation();
-  const evidence = { label, tick: world.tick, status: world.progress.status, entry: memory(world), about: about(world), view };
+  const phase = memory(world)?.phase ?? 'unvisited';
+  const key = phase === 'unvisited' || phase === 'forgotten' ? `memory.phase.${phase}` : `memory.variant.${memory(world).variant_id}`;
+  const labels = dictionaries.map(dictionary => dictionary[key]);
+  const actorRoom = world.character_rooms[actor];
+  const title = await evaluate(`document.querySelector('[data-testid="scene-room-title"]').textContent`);
+  if (actorRoom === 'archive') assert.ok(labels.includes(title), `${label}: scene title describes actual perceived identity`);
+  let portalLabel;
+  if (actorRoom === 'reception') {
+    portalLabel = await evaluate(`document.querySelector('[data-testid="scene-portal-reception_archive"]').getAttribute('aria-label')`);
+    const portalLabels = phase === 'unvisited' || phase === 'forgotten' ? dictionaries.map(dictionary => dictionary['memory.unknownExit']) : labels;
+    assert.ok(portalLabels.some(text => portalLabel.includes(text)), `${label}: portal names perceived destination (or unknown fog), not static room identity`);
+  }
+  let notebookLabel;
+  // The real victory modal intentionally prevents further scene interaction.
+  // Check every interactive phase, retaining the victory overlay in its artifact.
+  if (world.progress.status !== 'Won') {
+    await call('click', { selector: '[data-testid="scene-memory-map"]' });
+    await waitFor(`document.querySelector('[data-testid="room-memory-notes"]')`, 'Memory map opens');
+    notebookLabel = await evaluate(`document.querySelector('[data-testid="memory-map-room-archive"]').textContent`);
+    assert.ok(labels.some(text => notebookLabel.includes(text)), `${label}: map names actual perceived room identity`);
+    await call('click', { selector: '[data-testid="scene-memory-map"]' });
+    await waitFor(`!document.querySelector('[data-testid="room-memory-notes"]')`, 'Memory map closes');
+  }
+  const eventLines = await evaluate(`[...document.querySelectorAll('[data-testid^="dialogue-event-"]')].map(el=>el.textContent)`);
+  const eventText = eventLines.find(line => line.startsWith('📖'));
+  // Real movements must publish authoritative event-log deltas immediately;
+  // tick aging and command feedback arrive through the actual tick RPC.
+  // Rejections intentionally have HUD priority above the newest memory message.
+  if (['observed', 'remembered', 'fading', 'forgotten', 'new-variant', 'witness-recall', 'anchored', 'anchored-away-six-ticks', 'drug-only-observed', 'drug-only-forgotten'].includes(label)) {
+    const variants = dictionaries.map(dictionary => dictionary[`memory.variant.${memory(world).variant_id}`]);
+    assert.ok(variants.some(text => eventText?.includes(text)), `${label}: newest memory feedback names actual historical variant`);
+  }
+  const evidence = { label, tick: world.tick, status: world.progress.status, entry: memory(world), about: about(world), view, identity: { title, portalLabel, notebookLabel, eventText } };
   run.stages.push(evidence);
   await shot(`${run.viewport.name}-room-memory-${label}`);
   return { world, view, entry: memory(world) };
+}
+
+async function verifyThirdRoom(run) {
+  await load();
+  await portal('archive', true);
+  const initialArchive = structuredClone(memory(await snapshot()));
+  // Approach the second seam with actual mobile movement controls. Never inject
+  // positions or use an offscreen world coordinate as a pointer target.
+  while ((await snapshot()).characters[actor].position.x < 1556) {
+    const x = (await snapshot()).characters[actor].position.x;
+    await control('scene-move-right', true);
+    await call('click', { selector: '[data-testid="scene-move-right"]' });
+    await waitFor(`Math.abs(window.__INTENTION_TEST__.state().characters[${JSON.stringify(actor)}].position.x-${x + 28})<.01`, 'Real second-room approach');
+  }
+  const camera = async () => {
+    await evaluate(`new Promise(resolve=>setTimeout(resolve,180))`);
+    return evaluate(`(()=>{const d=window.__itSceneDebug(),w=window.__INTENTION_TEST__.state();return{x:w.characters[${JSON.stringify(actor)}].position.x,cameraX:d.cameraX,scale:d.scale}})()`);
+  };
+  const cross = async destination => {
+    const before = await snapshot(), beforeCamera = await camera();
+    const target = await control('scene-portal-archive_conservatory', true);
+    await call('click', { selector: '[data-testid="scene-portal-archive_conservatory"]' });
+    const x = destination === 'conservatory' ? 1628 : 1572;
+    await waitFor(`window.__INTENTION_TEST__.state().character_rooms[${JSON.stringify(actor)}]===${JSON.stringify(destination)}&&Math.abs(window.__INTENTION_TEST__.state().characters[${JSON.stringify(actor)}].position.x-${x})<.01`, `Second portal ${destination}`);
+    const after = await snapshot(), afterCamera = await camera();
+    assert.equal(after.characters[actor].position.y, 300);
+    assert.equal(after.tick, before.tick);
+    assert.deepEqual(after.progress, before.progress);
+    assert.deepEqual(Object.keys(after.characters).sort(), Object.keys(before.characters).sort());
+    assert.equal(afterCamera.scale, beforeCamera.scale);
+    assert.ok(Math.abs(afterCamera.cameraX-beforeCamera.cameraX) <= Math.abs(afterCamera.x-beforeCamera.x)*beforeCamera.scale+1, 'Second seam camera follows travel without room-width jump');
+    const variant = after.room_memory[actor].rooms[destination].variant_id;
+    const labels = dictionaries.map(dictionary => dictionary[`memory.variant.${variant}`]);
+    const feedback = await evaluate(`[...document.querySelectorAll('[data-testid^="dialogue-event-"]')].map(el=>el.textContent).find(line=>line.startsWith('📖'))`);
+    assert.ok(labels.some(name => feedback?.includes(name)), 'Second portal immediately publishes its perceived destination feedback');
+    await shot(`mobile-room-memory-second-seam-${destination}-${after.room_memory[actor].rooms[destination].generation}`);
+    return { beforeCamera, afterCamera, target, feedback, world: after };
+  };
+  const entered = await cross('conservatory');
+  const initialConservatory = structuredClone(entered.world.room_memory[actor].rooms.conservatory);
+  assert.equal(initialConservatory.phase, 'visible');
+  assert.equal(memory(entered.world).phase, 'remembered');
+  await step(6);
+  let world = await snapshot();
+  assert.equal(memory(world).phase, 'forgotten');
+  assert.equal(world.room_memory[actor].rooms.conservatory.phase, 'visible');
+  assert.equal(world.room_memory[actor].rooms.conservatory.generation, initialConservatory.generation);
+  await shot('mobile-room-memory-conservatory-visible-archive-forgotten');
+  const returned = await cross('archive');
+  assert.notEqual(memory(returned.world).variant_id, initialArchive.variant_id);
+  assert.equal(memory(returned.world).forgotten_revisits.length, 1);
+  assert.equal(returned.world.room_memory[actor].rooms.conservatory.phase, 'remembered');
+  await step(6);
+  world = await snapshot();
+  assert.equal(memory(world).phase, 'visible');
+  assert.equal(world.room_memory[actor].rooms.conservatory.phase, 'forgotten');
+  assert.equal(memory(world).generation, memory(returned.world).generation);
+  await shot('mobile-room-memory-archive-visible-conservatory-forgotten');
+  const revisited = await cross('conservatory');
+  assert.notEqual(revisited.world.room_memory[actor].rooms.conservatory.variant_id, initialConservatory.variant_id);
+  assert.equal(revisited.world.room_memory[actor].rooms.conservatory.forgotten_revisits.length, 1);
+  assert.equal(memory(revisited.world).generation, memory(returned.world).generation);
+  run.thirdRoom = { entered, returned, revisited, independentMemory: true, passed: true };
 }
 
 try {
@@ -119,7 +231,10 @@ try {
       await capture(run, 'drugless-cannot-anchor');
       await portal('reception', mobile);
       await step(2);
-      assert.equal((await capture(run, 'remembered')).entry.phase, 'remembered');
+      const remembered = await capture(run, 'remembered');
+      assert.equal(remembered.entry.phase, 'remembered');
+      assert.equal(remembered.view.filter, 'none', 'Still-remembered room keeps its full colors until fade threshold');
+      assert.equal(remembered.view.opacity, 1);
       await step(1);
       const fading = await capture(run, 'fading');
       assert.equal(fading.entry.phase, 'fading');
@@ -183,6 +298,7 @@ try {
       assert.equal(drugForgotten.view.backgroundCount, 0);
       assert.ok(drugForgotten.world.room_memory[actor].drug_until_tick > drugForgotten.world.tick);
       assert.notEqual(drugForgotten.world.progress.status, 'Won');
+      if (mobile) await verifyThirdRoom(run);
       run.passed = true;
     } catch (error) {
       run.passed = false; run.error = String(error); process.exitCode = 1;

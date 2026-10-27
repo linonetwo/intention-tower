@@ -12,6 +12,13 @@ import type { WorldState, WorldEvent, CommandDef, SaveMeta } from '../types/back
 export type Page = 'menu' | 'game';
 export type UiMode = 'observe' | 'micro' | 'graph';
 
+/** Direct movement commits room perceptions outside the tick event stream. */
+function movementFeedback(before: WorldState | null, after: WorldState, movement: WorldEvent): WorldEvent[] {
+  const perceptions = after.event_log.slice(before?.event_log.length ?? 0)
+    .filter(event => 'RoomMemoryChanged' in event).reverse();
+  return [...perceptions, movement];
+}
+
 interface GameState {
   // Navigation
   page: Page;
@@ -252,7 +259,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       const state = await api.snapshot();
       set((previous) => ({
         worldState: state,
-        recentEvents: [event, ...previous.recentEvents].slice(0, 500),
+        recentEvents: [...movementFeedback(previous.worldState, state, event), ...previous.recentEvents].slice(0, 500),
       }));
     } catch (err) {
       set({ error: t('app.error.moveCharacter', { message: String(err) }) });
@@ -274,7 +281,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     try {
       const event = await api.traverseConnector(id, connectorId);
       const state = await api.snapshot();
-      set(previous => ({ worldState: state, recentEvents: [event, ...previous.recentEvents].slice(0, 500) }));
+      set(previous => ({ worldState: state, recentEvents: [...movementFeedback(previous.worldState, state, event), ...previous.recentEvents].slice(0, 500) }));
     } catch (err) { set({ error: t('app.error.moveCharacter', { message: String(err) }) }); }
   },
 

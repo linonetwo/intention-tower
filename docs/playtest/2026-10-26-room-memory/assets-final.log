@@ -1,0 +1,2 @@
+$ node scripts/verify-production-assets.mjs
+Production assets verified: bundled variable Noto Sans SC with OFL license, 21 backgrounds, 55 portraits, 55 mapped characters / 43 transparent full-body sprites, 76 unique legacy PNG files.

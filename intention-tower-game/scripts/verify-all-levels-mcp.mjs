@@ -3,6 +3,7 @@ import { readdir, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const endpoint = process.env.MCP_URL ?? 'http://127.0.0.1:9222/mcp';
+const output = resolve(process.env.EVIDENCE_DIR ?? 'verification-evidence');
 let sequence = 1;
 const results = [];
 const failures = [];
@@ -353,7 +354,7 @@ const levelIds = (await readdir(levelsRoot, { withFileTypes: true }))
   .map((entry) => entry.name)
   .sort();
 if (levelIds.length !== 21) throw new Error(`expected 21 levels, found ${levelIds.length}`);
-await mkdir('verification-evidence', { recursive: true });
+await mkdir(output, { recursive: true });
 try {
   for (const levelId of levelIds) {
     try {
@@ -379,7 +380,7 @@ try {
     }
   }
 } finally {
-  await writeFile('verification-evidence/all-levels.json', JSON.stringify({ expectedLevels: levelIds.length, results, failures }, null, 2));
+  await writeFile(resolve(output, 'all-levels.json'), JSON.stringify({ expectedLevels: levelIds.length, results, failures }, null, 2));
 }
 if (failures.length > 0) {
   console.error(`MCP verified ${results.length}/${levelIds.length} levels; ${failures.length} failed`);

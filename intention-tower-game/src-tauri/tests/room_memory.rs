@@ -78,6 +78,62 @@ fn forgotten_revisit(w: &mut WorldState) {
 }
 
 #[test]
+fn memory_events_capture_historical_identity_and_drug_window_with_legacy_compatibility() {
+    let mut w = world();
+    assert!(command(&mut w, "take-memory-drug", None));
+    let dose = w
+        .event_log
+        .iter()
+        .find(|event| {
+            matches!(event,
+        WorldEvent::RoomMemoryChanged { kind, .. } if kind == "memory_drug_taken")
+        })
+        .unwrap()
+        .clone();
+    assert!(matches!(
+        dose,
+        WorldEvent::RoomMemoryChanged {
+            drug_ticks_remaining: Some(40),
+            ..
+        }
+    ));
+    walk(&mut w, 820.0);
+    let original = entry(&w, "archive").variant_id.clone();
+    let observed = w
+        .event_log
+        .iter()
+        .find(|event| {
+            matches!(event,
+        WorldEvent::RoomMemoryChanged { kind, .. } if kind == "room_observed")
+        })
+        .unwrap()
+        .clone();
+    walk(&mut w, 780.0);
+    ticks(&mut w, 6);
+    walk(&mut w, 820.0);
+    assert_ne!(entry(&w, "archive").variant_id, original);
+    assert!(
+        matches!(&observed, WorldEvent::RoomMemoryChanged { variant_id: Some(id), .. } if id == &original)
+    );
+    let decoded: WorldEvent =
+        serde_json::from_value(serde_json::to_value(&observed).unwrap()).unwrap();
+    assert!(
+        matches!(decoded, WorldEvent::RoomMemoryChanged { variant_id: Some(id), .. } if id == original)
+    );
+    let legacy: WorldEvent = serde_json::from_value(serde_json::json!({
+        "RoomMemoryChanged": { "observer_id": AGENT, "room_id": "archive", "kind": "room_observed", "tick": 0 }
+    })).unwrap();
+    assert!(matches!(
+        legacy,
+        WorldEvent::RoomMemoryChanged {
+            variant_id: None,
+            drug_ticks_remaining: None,
+            ..
+        }
+    ));
+}
+
+#[test]
 fn authored_positions_items_and_initial_memory_do_not_fabricate_visits() {
     let w = world();
     assert_eq!(w.characters[AGENT].position.x, 300.0);

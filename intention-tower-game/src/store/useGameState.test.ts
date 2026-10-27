@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { CommandDef, WorldState } from '../types/backend';
+import type { CommandDef, WorldEvent, WorldState } from '../types/backend';
 
 const api = vi.hoisted(() => ({
   loadLevel: vi.fn(),
@@ -117,6 +117,23 @@ describe('backend-driven game store', () => {
     expect(state.selectedTargetId).toBe('dog');
     expect(state.worldState).toMatchObject({ paused: true, time_speed: 0 });
     expect(state.availableCommands).toEqual([command]);
+  });
+  it('presents direct room perception immediately without replaying earlier memory history', async () => {
+    const oldMemory: WorldEvent = { RoomMemoryChanged: { observer_id: 'pavlov', room_id: 'archive', variant_id: 'archive', kind: 'room_left', tick: 0 } };
+    const initial = { ...world(), event_log: [oldMemory] };
+    api.loadLevel.mockResolvedValue(initial);
+    await gameStore.getState().loadLevel('pavlov');
+    gameStore.getState().setUiMode('micro');
+    const perception: WorldEvent = { RoomMemoryChanged: { observer_id: 'pavlov', room_id: 'archive', variant_id: 'maproom', kind: 'forgotten_room_revisited', tick: 6 } };
+    const movement: WorldEvent = { CharacterMoved: { character_id: 'pavlov', from_x: 0, from_y: 0, to_x: 28, to_y: 0 } };
+    api.moveCharacter.mockResolvedValue(movement);
+    const moved = { ...initial, event_log: [oldMemory, perception, movement] };
+    api.snapshot.mockResolvedValue(moved);
+    await gameStore.getState().moveSelectedActor(28, 0);
+    expect(gameStore.getState().recentEvents).toEqual([perception, movement]);
+    api.snapshot.mockResolvedValue({ ...moved, event_log: [...moved.event_log, movement] });
+    await gameStore.getState().moveSelectedActor(28, 0);
+    expect(gameStore.getState().recentEvents.filter(event => 'RoomMemoryChanged' in event)).toEqual([perception]);
   });
 
   it('clears commands and stops interaction when the backend declares victory', async () => {

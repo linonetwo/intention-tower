@@ -10,10 +10,8 @@ export function objectName(world: WorldState | null, id: string): string {
   const roomMemoryName = (about: string | null | undefined) => {
     const match = about?.match(/^it:room\/([^/]+)\/variant\/([^/]+)$/);
     if (!match) return null;
-    const room = world?.scene?.rooms?.find(candidate => candidate.id === match[1]);
-    const roomName = room ? readable(room.label, 'memory.location') : i18n.t('memory.location');
     const variant = i18n.t(`memory.variant.${match[2]}`, { defaultValue: i18n.t('memory.location') });
-    return i18n.t('memory.observationName', { room: roomName, variant });
+    return i18n.t('memory.observationName', { variant });
   };
   for (const character of Object.values(world?.characters ?? {})) {
     const node = Object.values(character.mind_graph.nodes).find((candidate) => candidate.instance_id === id || candidate.schema_id === id);
@@ -43,10 +41,10 @@ export function presentEvent(event: WorldEvent, world: WorldState | null): { ico
     case 'RoomMemoryChanged': {
       const observer = world?.characters[String(data.observer_id)];
       const observerName = observer ? readable(observer.label, 'event.character') : i18n.t('event.character');
-      const roomId = String(data.room_id ?? world?.character_rooms?.[String(data.observer_id)] ?? '');
-      const room = world?.scene?.rooms?.find(candidate => candidate.id === roomId);
-      const roomLabel = room ? readable(room.label, 'memory.location') : i18n.t('memory.location');
-      const remaining = Math.max(0, (world?.room_memory?.[String(data.observer_id)]?.drug_until_tick ?? 0) - Number(data.tick));
+      // Never infer historical identity or drug duration from today's mutable room.
+      // Legacy events did not carry this evidence, so name only "this place".
+      const roomLabel = data.variant_id ? i18n.t(`memory.variant.${String(data.variant_id)}`, { defaultValue: i18n.t('memory.location') }) : i18n.t('memory.location');
+      const remaining = data.drug_ticks_remaining ?? '—';
       text = i18n.t(`event.memory.${String(data.kind)}`, { name: observerName, room: roomLabel, ticks: remaining, defaultValue: i18n.t('event.memory.unknown', { name: observerName, room: roomLabel }) });
       icon = '📖'; color = '#947044'; break;
     }

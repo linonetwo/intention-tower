@@ -6,6 +6,11 @@ pub enum WorldEvent {
     RoomMemoryChanged {
         observer_id: String,
         room_id: Option<String>,
+        /// Perception at emission time; later room regeneration must not rewrite history.
+        #[serde(default)]
+        variant_id: Option<String>,
+        #[serde(default)]
+        drug_ticks_remaining: Option<u64>,
         kind: String,
         tick: u64,
     },

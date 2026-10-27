@@ -292,6 +292,20 @@ fn feedback(world: &mut WorldState, observer: &str, room: Option<&str>, kind: &s
     let event = WorldEvent::RoomMemoryChanged {
         observer_id: observer.into(),
         room_id: room.map(str::to_owned),
+        variant_id: room.and_then(|id| {
+            world
+                .room_memory
+                .get(observer)?
+                .rooms
+                .get(id)
+                .map(|entry| entry.variant_id.clone())
+        }),
+        drug_ticks_remaining: world.room_memory.get(observer).map(|state| {
+            state
+                .drug_until_tick
+                .unwrap_or_default()
+                .saturating_sub(world.tick)
+        }),
         kind: kind.into(),
         tick: world.tick,
     };

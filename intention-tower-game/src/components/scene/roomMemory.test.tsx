@@ -7,7 +7,7 @@ import { GameScene } from './GameScene';
 import { primaryRoomMemory, roomMemoryDrugTicks, roomMemoryPresentation } from './roomMemory';
 
 vi.mock('../../hooks/useResponsiveLayout', () => ({ useResponsiveLayout: () => ({ dialogueHeight: 25 }) }));
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string, args?: Record<string, unknown>) => key + (args?.ticks != null ? `:${args.ticks}` : '') }) }));
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string, args?: Record<string, unknown>) => key + (args?.ticks != null ? `:${args.ticks}` : args?.room ? `:${args.room}` : '') }) }));
 vi.mock('../../i18n', () => ({ translateLabel: (value: string) => value, t: (value: string) => value }));
 
 function entry(phase: RoomMemoryPhase, extra: Partial<RoomMemoryEntry> = {}): RoomMemoryEntry {
@@ -32,6 +32,7 @@ describe('observer-owned antimemetic room presentation', () => {
     expect(view.phase).toBe(phase);
     expect(view.hidden).toBe(phase === 'forgotten');
     if (phase === 'fading') { expect(view.filter).toBe('grayscale(1)'); expect(view.opacity).toBeLessThan(.5); }
+    if (phase === 'remembered') { expect(view.filter).toBeUndefined(); expect(view.opacity).toBe(1); }
     expect(roomMemoryPresentation(world, world.scene!.rooms![0]).phase).toBe('stable');
     expect(roomMemoryPresentation(world, world.scene!.rooms![2]).hidden).toBe(true);
     expect(primaryRoomMemory(world).observerId).toBe('antimeme-agent');
@@ -82,6 +83,18 @@ describe('observer-owned antimemetic room presentation', () => {
     expect(screen.getByTestId('room-memory-notes').style.overflowY).toBe('auto');
     expect(gameStore.getState().worldState).toBe(world);
     expect(roomMemoryDrugTicks({ ...world!, tick: 100 })).toBe(0);
+  });
+  it('uses the regenerated identity consistently in the notebook, passage and scene title', () => {
+    const world = memoryWorld('remembered');
+    world.room_memory!['antimeme-agent'].rooms.archive = entry('remembered', { variant_id: 'maproom', background_key: 'antimeme_maproom' });
+    gameStore.setState({ worldState: world });
+    render(<GameScene width={390} height={800} />);
+    fireEvent.click(screen.getByTestId('scene-memory-map'));
+    expect(screen.getByTestId('memory-map-room-archive').textContent).toContain('memory.variant.maproom');
+    expect(screen.getByTestId('memory-map-room-archive').textContent).not.toContain('room.antimeme.archive');
+    expect(screen.getByTestId('scene-portal-door').getAttribute('aria-label')).toBe('scene.enterRoom:memory.variant.maproom');
+    act(() => gameStore.setState({ worldState: { ...world, character_rooms: { ...world.character_rooms, 'antimeme-agent': 'archive' } } }));
+    expect(screen.getByTestId('scene-room-title').textContent).toBe('memory.variant.maproom');
   });
   it('leaves legacy scenes untouched when no memory config exists', () => {
     const world = memoryWorld('forgotten');
