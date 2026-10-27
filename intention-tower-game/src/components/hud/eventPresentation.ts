@@ -38,6 +38,14 @@ export function presentEvent(event: WorldEvent, world: WorldState | null): { ico
   let text = i18n.t(`event.type.${type}`, { defaultValue: i18n.t('event.updated') });
   let color = '#9aaebd';
   switch (type) {
+    case 'LayeredWorldChanged': {
+      // Historical payload only: today's context and notebook may be different.
+      const fact = data.fact && typeof data.fact === 'object' ? data.fact as Record<string, unknown> : {};
+      const context = i18n.t(`layer.context.${String(data.context_id)}`, { defaultValue: i18n.t('layer.context.unknown') });
+      const detail = typeof fact.fact === 'string' ? translateLabel(fact.fact) : '';
+      text = i18n.t(`event.layer.${String(data.kind)}`, { name, context, depth: data.depth, detail, before: typeof fact.before === 'number' ? fact.before.toFixed(2) : '—', after: typeof fact.after === 'number' ? fact.after.toFixed(2) : '—', defaultValue: i18n.t('event.layer.unknown', { name, context }) });
+      icon = '◈'; color = '#678c72'; break;
+    }
     case 'RoomMemoryChanged': {
       const observer = world?.characters[String(data.observer_id)];
       const observerName = observer ? readable(observer.label, 'event.character') : i18n.t('event.character');

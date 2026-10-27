@@ -1,6 +1,7 @@
 #[cfg(feature = "desktop")]
 pub mod api;
 pub mod command_rules;
+pub mod layered_world;
 pub mod level_loader;
 pub mod models;
 pub mod movement;

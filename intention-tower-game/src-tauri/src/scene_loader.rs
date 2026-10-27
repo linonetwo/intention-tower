@@ -34,5 +34,8 @@ pub fn load_scene_from_path(
     scene::resolve_spawn_overlaps(world);
     crate::room_memory::validate_world(world).map_err(LoadError::NotFound)?;
     crate::room_memory::initialize(world);
+    crate::layered_world::validate_world(world).map_err(LoadError::NotFound)?;
+    crate::layered_world::initialize(world);
+    crate::layered_world::validate_world(world).map_err(LoadError::NotFound)?;
     Ok(())
 }

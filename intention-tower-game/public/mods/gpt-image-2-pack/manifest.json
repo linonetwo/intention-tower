@@ -149,7 +149,13 @@
     "antimeme_archive": "/mods/gpt-image-2-pack/sideview/room-memory/archive.png",
     "antimeme_maproom": "/mods/gpt-image-2-pack/sideview/room-memory/maproom.png",
     "antimeme_conservatory": "/mods/gpt-image-2-pack/sideview/room-memory/conservatory.png",
-    "antimeme_reception": "/mods/gpt-image-2-pack/sideview/rooms/antimeme-division.png"
+    "antimeme_reception": "/mods/gpt-image-2-pack/sideview/rooms/antimeme-division.png",
+    "cyber_reality_workshop": "/mods/gpt-image-2-pack/sideview/cyber-layers/reality-workshop.png",
+    "cyber_outer_exchange": "/mods/gpt-image-2-pack/sideview/cyber-layers/outer-exchange.png",
+    "cyber_inner_arrival": "/mods/gpt-image-2-pack/sideview/cyber-layers/inner-arrival.png",
+    "cyber_inner_archive": "/mods/gpt-image-2-pack/sideview/cyber-layers/inner-archive.png",
+    "cyber_reality_garden": "/mods/gpt-image-2-pack/sideview/room-memory/conservatory.png",
+    "cyber_outer_arrival": "/mods/gpt-image-2-pack/sideview/rooms/cyber-dream.png"
   },
   "items": [
     {
@@ -1103,6 +1109,36 @@
       "width": 1536,
       "height": 1024,
       "floorY": 786
+    },
+    "cyber_reality_workshop": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 692
+    },
+    "cyber_outer_exchange": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 766
+    },
+    "cyber_inner_arrival": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 719
+    },
+    "cyber_inner_archive": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 848
+    },
+    "cyber_reality_garden": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 697
+    },
+    "cyber_outer_arrival": {
+      "width": 1536,
+      "height": 1024,
+      "floorY": 726
     }
   },
   "spritesByCharacter": {

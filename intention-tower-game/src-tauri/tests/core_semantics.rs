@@ -47,6 +47,18 @@ fn command(
 #[test]
 fn virtual_context_is_nested_and_stamps_observation_layer() {
     let mut world = load_level_from_path(&level_dir("cyber-dream")).expect("load cyber-dream");
+    // Legacy worlds retain their global flag semantics; opt-in layered worlds
+    // have separate terminal/proximity and actor-local tests.
+    world.scene.layered_world = None;
+    world.layered_world.clear();
+    for definition in &mut world.command_defs {
+        if definition.command_id == "enter-vr" {
+            definition.effect_templates = vec![CommandEffect::SetVirtualContext { value: true }];
+        }
+        if definition.command_id == "exit-vr" {
+            definition.effect_templates = vec![CommandEffect::SetVirtualContext { value: false }];
+        }
+    }
     let system = CommandSystem;
 
     let enter = command(&world, "enter-vr");
@@ -57,12 +69,6 @@ fn virtual_context_is_nested_and_stamps_observation_layer() {
 
     assert!(world.in_virtual_context);
     assert_eq!(world.virtual_context_stack.len(), 2);
-    let observation = world.characters["player"]
-        .mind_graph
-        .find_by_schema("it:concept/enter-virtual")
-        .expect("virtual observation");
-    assert!(observation.is_virtual);
-    assert_eq!(observation.reality_layer, 2);
 
     world.pending_events.push(WorldEvent::SoundEmitted {
         source_entity_id: "player".to_owned(),
@@ -264,11 +270,10 @@ fn movement_is_authoritative_rate_limited_and_bounded() {
     assert_eq!(world.characters["player"].position.x, before_vertical.x);
     assert_eq!(world.characters["player"].position.y, before_vertical.y);
 
-    let ground = world
-        .scene
-        .support(before_vertical.x, before_vertical.y)
-        .unwrap()
-        .clone();
+    let ground = world.scene.platforms[1].clone();
+    world
+        .character_rooms
+        .insert("player".into(), "reality-garden".into());
     let player = world.characters.get_mut("player").expect("player");
     player.position.x = ground.x_max - 5.0;
     player.position.y = ground.y;

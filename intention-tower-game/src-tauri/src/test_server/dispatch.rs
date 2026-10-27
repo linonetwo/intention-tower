@@ -223,7 +223,12 @@ pub async fn call_tool(state: &TestServerState, name: &str, args: &Value) -> Res
             let restored: crate::models::world_state::WorldState =
                 serde_json::from_value(args["world"].clone())
                     .map_err(|error| format!("存档数据无效: {error}"))?;
-            let restored = crate::save_slots::prepare_restored_world(restored)?;
+            crate::save_slots::validate_level_id(&restored.level_id)?;
+            let level_dir = find_level_dir(&restored.level_id)?;
+            let authored =
+                crate::level_loader::load_level_from_path(&level_dir).map_err(|e| e.to_string())?;
+            let restored =
+                crate::save_slots::prepare_restored_world_with_authoring(restored, Some(authored))?;
             let mut world = state.world.lock().map_err(|e| e.to_string())?;
             *world = restored;
             Ok(json!({ "success": true, "level_id": world.level_id, "tick": world.tick }))
@@ -659,6 +664,7 @@ fn wrap_script_for_callback(
 }
 
 fn find_level_dir(level_id: &str) -> Result<std::path::PathBuf, String> {
+    crate::save_slots::validate_level_id(level_id)?;
     if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
         let path = std::path::PathBuf::from(&manifest_dir)
             .join("..")

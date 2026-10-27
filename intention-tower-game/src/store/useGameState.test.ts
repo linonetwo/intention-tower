@@ -118,6 +118,19 @@ describe('backend-driven game store', () => {
     expect(state.worldState).toMatchObject({ paused: true, time_speed: 0 });
     expect(state.availableCommands).toEqual([command]);
   });
+  it('refreshes backend proximity commands after moving while paused in a layered world', async () => {
+    api.loadLevel.mockResolvedValue(world());
+    await gameStore.getState().loadLevel('pavlov');
+    gameStore.getState().setUiMode('micro');
+    const moved = { ...world(), paused: true, scene: { platforms: [], connectors: [], layered_world: { actor_ids: ['pavlov'], contexts: [], interaction_range: 60, need_schema_id: 'hunger', meal_item_id: 'meal', need_relief: .8, need_max: .2 } } } as WorldState;
+    api.snapshot.mockResolvedValue(moved);
+    api.moveCharacter.mockResolvedValue({ CharacterMoved: { character_id: 'pavlov', from_x: 0, from_y: 0, to_x: 28, to_y: 0 } });
+    const enter = { ...command, command_id: 'enter-vr', targeting: 'NoTarget' } as CommandDef;
+    api.listCommands.mockClear().mockResolvedValue([enter]);
+    await gameStore.getState().moveSelectedActor(28, 0);
+    expect(api.listCommands).toHaveBeenCalledWith('pavlov', 'dog');
+    expect(gameStore.getState().availableCommands).toEqual([enter]);
+  });
   it('presents direct room perception immediately without replaying earlier memory history', async () => {
     const oldMemory: WorldEvent = { RoomMemoryChanged: { observer_id: 'pavlov', room_id: 'archive', variant_id: 'archive', kind: 'room_left', tick: 0 } };
     const initial = { ...world(), event_log: [oldMemory] };

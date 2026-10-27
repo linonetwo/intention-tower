@@ -133,7 +133,7 @@ fn reject_command(state: &mut WorldState, cmd: &crate::models::commands::Command
         reason: reason.to_owned(),
     });
 }
-fn apply_effect(
+pub(crate) fn apply_effect(
     state: &mut WorldState,
     cmd: &crate::models::commands::CommandDTO,
     effect: &CommandEffect,
@@ -208,6 +208,22 @@ fn apply_effect(
     let event_count = state.pending_events.len();
     let mut outcome = EffectOutcome::NoOp;
     match effect {
+        CommandEffect::EnterLayer
+        | CommandEffect::ExitLayer
+        | CommandEffect::ObserveLayer
+        | CommandEffect::CompareLayers
+        | CommandEffect::EarnLayerReward
+        | CommandEffect::SatisfyLayerNeed => {
+            return match crate::layered_world::apply(
+                state,
+                &cmd.actor_id,
+                cmd.target_id.as_deref(),
+                effect,
+            ) {
+                Ok(()) => EffectOutcome::Applied,
+                Err(reason) => EffectOutcome::Rejected(reason),
+            };
+        }
         CommandEffect::ApplyMemoryDrug
         | CommandEffect::AnchorCurrentRoom
         | CommandEffect::RecallRoomWithWitness
@@ -270,6 +286,13 @@ fn apply_effect(
                 &cmd.actor_id,
             );
             if let Some(char_id) = target_char {
+                let layer_depth = crate::layered_world::depth(state, char_id);
+                let layer_virtual = crate::layered_world::context(state, char_id)
+                    .map(|(_, d)| d > 0)
+                    .unwrap_or(state.in_virtual_context);
+                let context_suffix = crate::layered_world::context(state, char_id)
+                    .map(|(id, _)| format!("__{id}"))
+                    .unwrap_or_default();
                 if let Some(character) = state.characters.get_mut(char_id) {
                     let credit_pin = if let Some(config) = action_credit {
                         if *modality != Modality::Social
@@ -330,7 +353,7 @@ fn apply_effect(
                         format!("obs_{}__{}", sanitized, about.replace([':', '/'], "_"))
                     } else {
                         format!("obs_{}", sanitized)
-                    };
+                    } + &context_suffix;
                     let presentation_count = character
                         .mind_graph
                         .next_presentation_count(&instance_id, state.tick);
@@ -383,7 +406,7 @@ fn apply_effect(
                             novelty_key: Some(format!("{}-{}", modality_str(*modality), about)),
                             credibility: 1.0,
                             satisfaction,
-                            source: Some(if state.in_virtual_context {
+                            source: Some(if layer_virtual {
                                 ObservationSource::Virtual
                             } else {
                                 ObservationSource::Environment
@@ -399,9 +422,8 @@ fn apply_effect(
                         action: None,
                         meme: None,
                         prev_value: 0.0,
-                        reality_layer: state.virtual_context_stack.len().min(u8::MAX as usize)
-                            as u8,
-                        is_virtual: state.in_virtual_context,
+                        reality_layer: layer_depth,
+                        is_virtual: layer_virtual,
                     };
                     outcome = EffectOutcome::Applied;
                     character.mind_graph.add_node(node);
@@ -598,6 +620,10 @@ fn apply_effect(
                 &cmd.actor_id,
             );
             if let Some(char_id) = target_char {
+                let meme_depth = crate::layered_world::depth(state, char_id);
+                let meme_virtual = crate::layered_world::context(state, char_id)
+                    .map(|(_, d)| d > 0)
+                    .unwrap_or(state.in_virtual_context);
                 if let Some(character) = state.characters.get_mut(char_id) {
                     if let Some(existing) = character.mind_graph.nodes.values_mut().find(|node| {
                         node.schema_id == *meme_schema_id && node.node_type == NodeType::Meme
@@ -645,8 +671,8 @@ fn apply_effect(
                             action: None,
                             meme: Some(meme.clone()),
                             prev_value: 0.0,
-                            reality_layer: 0,
-                            is_virtual: false,
+                            reality_layer: meme_depth,
+                            is_virtual: meme_virtual,
                         };
                         character.mind_graph.add_node(node);
                         outcome = EffectOutcome::Applied;
@@ -733,6 +759,9 @@ fn apply_effect(
             }
         }
         CommandEffect::SetVirtualContext { value } => {
+            if state.scene.layered_world.is_some() {
+                return EffectOutcome::Rejected("use_layered_terminal");
+            }
             if *value || !state.virtual_context_stack.is_empty() {
                 outcome = EffectOutcome::Applied;
             }

@@ -33,7 +33,15 @@ export interface RoomMemoryEntry {
   forgotten_revisits: ForgottenRoomRevisit[]; anchored_revisits: AnchoredRoomRevisit[]; witness_recalls: RoomWitnessRecall[];
 }
 export interface ObserverRoomMemory { drug_until_tick: number | null; drug_used_at_tick: number | null; rooms: Record<string, RoomMemoryEntry> }
-export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[]; rooms?: SceneRoom[]; portals?: ScenePortal[]; non_blocking_characters?: string[]; room_memory?: SceneRoomMemoryConfig | null }
+export interface LayerContext { id: string; room_ids: string[]; arrival: Position; arrival_room: string; entry_item_id: string | null; return_item_id: string | null; cue_item_id: string; cue_fact: string }
+export interface LayeredConfig { actor_ids: string[]; contexts: LayerContext[]; interaction_range: number; need_schema_id: string; meal_item_id: string; need_relief: number; need_max: number }
+export interface LayerObservation { sequence: number; id: string; context_id: string; room_id: string; item_id: string; position: Position; fact: string; depth: number; is_virtual: boolean; observed_at_tick: number }
+export interface LayerTransition { sequence: number; kind: 'entered' | 'returned'; from_context_id: string; to_context_id: string; from_room: string; to_room: string; from_position: Position; to_position: Position; at_tick: number }
+export interface LayerComparison { sequence: number; observation_ids: string[]; compared_at_tick: number }
+export interface LayerNeedReceipt { sequence: number; item_id: string; room_id: string; position: Position; before: number; after: number; satisfied_at_tick: number }
+export interface LayerMigrationReceipt { level_id: string; migrated_at_tick: number; legacy_in_virtual_context: boolean; legacy_virtual_context_stack: string[]; legacy_progress: LevelProgress; message_key: string }
+export interface LayeredState { next_sequence: number; context_id: string; stack: { context_id: string; room_id: string; position: Position; entered_at_tick: number }[]; observations: Record<string, LayerObservation>; comparison: LayerComparison | null; max_depth: number; unwind_count: number; transitions: LayerTransition[]; need_receipt: LayerNeedReceipt | null; rewards: Record<string, number>; legacy_virtual_context_stack: string[]; legacy_in_virtual_context: boolean }
+export interface SceneDefinition { platforms: ScenePlatform[]; connectors: SceneConnector[]; rooms?: SceneRoom[]; portals?: ScenePortal[]; non_blocking_characters?: string[]; room_memory?: SceneRoomMemoryConfig | null; layered_world?: LayeredConfig | null }
 
 // ── World State ──
 
@@ -55,6 +63,8 @@ export interface WorldState {
   character_rooms?: Record<string, string>;
   item_rooms?: Record<string, string>;
   room_memory?: Record<string, ObserverRoomMemory>;
+  layered_world?: Record<string, LayeredState>;
+  layered_world_migration?: LayerMigrationReceipt | null;
   items: Record<string, WorldItem>;
   event_log: WorldEvent[];
   command_defs: CommandDef[];
@@ -478,6 +488,7 @@ export type Precondition =
   | { IsVirtualContext: { value: boolean } };
 
 export type CommandEffect =
+  | 'EnterLayer' | 'ExitLayer' | 'ObserveLayer' | 'CompareLayers' | 'EarnLayerReward' | 'SatisfyLayerNeed'
   | 'ApplyMemoryDrug' | 'AnchorCurrentRoom' | 'RecallRoomWithWitness' | 'ObserveCurrentRoom'
   | { SpawnObservation: { schema_id: string; modality: string; about: string; ttl: number; strength: number; social_reward_scale?: number; signal_type?: SignalType | null; group_context?: string | null; action_credit?: ActionCreditConfig | null; target_character_id: string | null } }
   | { ModifyNodeValue: { schema_id: string; delta: number; target_character_id: string | null } }
@@ -496,6 +507,7 @@ export type CommandEffect =
 // Rust tagged enum serialized by serde: {"VariantName": {fields}}
 
 export type WorldEvent =
+  | { LayeredWorldChanged: { actor_id: string; context_id: string; depth: number; kind: string; fact: LayerMigrationReceipt | LayerObservation | LayerTransition | LayerComparison | LayerNeedReceipt | { context_id: string; quantity: number; physical_need_relief: number } | null } }
   | { RoomMemoryChanged: { observer_id: string; room_id: string | null; variant_id?: string | null; drug_ticks_remaining?: number | null; kind: string; tick: number } }
   | { NodeSpawned: { character_id: string; instance_id: string; schema_id: string; node_type: string } }
   | { NodeDespawned: { character_id: string; instance_id: string } }

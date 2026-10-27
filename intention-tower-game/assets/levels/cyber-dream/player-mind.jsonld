@@ -4,6 +4,7 @@
   "@type": "it:MindGraph",
   "belongsToCharacter": "it:entity/player",
   "nodes": [
+    {"instanceId":"player-hunger","schemaId":"it:concept/hunger","nodeType":"PriorInstinct","value":0.75,"valueVelocity":0.0,"strength":0.8,"active":true,"it:priorInstinct":{"setPoint":0.0,"brainRegion":"Hypothalamus","isResource":false,"isMood":false,"overridableByMeme":false,"satisfiedByAbout":[]}},
     {
       "instanceId": "player-reality-sense",
       "schemaId": "it:concept/reality-sense",
@@ -23,6 +24,8 @@
     },
     {
       "instanceId": "player-virtual-achievement-l1",
+      "realityLayer": 1,
+      "isVirtual": true,
       "schemaId": "it:concept/virtual-achievement-l1",
       "nodeType": "Meme",
       "value": 0.3,
@@ -32,6 +35,8 @@
     },
     {
       "instanceId": "player-virtual-achievement-l2",
+      "realityLayer": 2,
+      "isVirtual": true,
       "schemaId": "it:concept/virtual-achievement-l2",
       "nodeType": "Meme",
       "value": 0.1,

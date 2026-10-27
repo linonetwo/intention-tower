@@ -14,13 +14,6 @@ impl System for PerceptionSystem {
     }
 
     fn run(&self, state: &mut WorldState, _dt: f64) {
-        let virtual_depth = state.virtual_context_stack.len().min(u8::MAX as usize) as u8;
-        let in_virtual_context = state.in_virtual_context;
-        let perception_source = if in_virtual_context {
-            ObservationSource::Virtual
-        } else {
-            ObservationSource::Environment
-        };
         // Process sensory events from this tick and convert to Observation nodes
         // We iterate over pending_events (accumulated from earlier systems like CommandSystem)
         // and generate observation nodes for relevant characters.
@@ -50,10 +43,23 @@ impl System for PerceptionSystem {
                         .map(|character| character.id.clone())
                         .collect();
                     for char_id in char_ids {
+                        let virtual_depth = crate::layered_world::depth(state, &char_id);
+                        let in_virtual_context = crate::layered_world::context(state, &char_id)
+                            .map(|(_, d)| d > 0)
+                            .unwrap_or(state.in_virtual_context);
+                        let perception_source = if in_virtual_context {
+                            ObservationSource::Virtual
+                        } else {
+                            ObservationSource::Environment
+                        };
+                        let context_suffix = crate::layered_world::context(state, &char_id)
+                            .map(|(id, _)| format!("__{id}"))
+                            .unwrap_or_default();
                         if let Some(character) = state.characters.get_mut(&char_id) {
                             // One percept identity survives repeated presentations;
                             // otherwise each sound produces an untrainable new edge.
-                            let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));
+                            let instance_id =
+                                format!("obs_{}{context_suffix}", about.replace([':', '/'], "_"));
                             let presentation_count = character
                                 .mind_graph
                                 .next_presentation_count(&instance_id, state.tick);
@@ -122,8 +128,21 @@ impl System for PerceptionSystem {
                         .cloned()
                         .collect();
                     for char_id in char_ids {
+                        let virtual_depth = crate::layered_world::depth(state, &char_id);
+                        let in_virtual_context = crate::layered_world::context(state, &char_id)
+                            .map(|(_, d)| d > 0)
+                            .unwrap_or(state.in_virtual_context);
+                        let perception_source = if in_virtual_context {
+                            ObservationSource::Virtual
+                        } else {
+                            ObservationSource::Environment
+                        };
+                        let context_suffix = crate::layered_world::context(state, &char_id)
+                            .map(|(id, _)| format!("__{id}"))
+                            .unwrap_or_default();
                         if let Some(character) = state.characters.get_mut(&char_id) {
-                            let instance_id = format!("obs_{}", about.replace([':', '/'], "_"));
+                            let instance_id =
+                                format!("obs_{}{context_suffix}", about.replace([':', '/'], "_"));
                             let presentation_count = character
                                 .mind_graph
                                 .next_presentation_count(&instance_id, state.tick);

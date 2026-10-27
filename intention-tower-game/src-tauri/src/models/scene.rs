@@ -58,6 +58,8 @@ pub struct Portal {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneDefinition {
     #[serde(default)]
+    pub layered_world: Option<crate::layered_world::LayeredConfig>,
+    #[serde(default)]
     pub room_memory: Option<super::room_memory::RoomMemoryConfig>,
     /// Authored pass-through actors; all other characters remain solid.
     #[serde(default)]
@@ -74,6 +76,7 @@ pub struct SceneDefinition {
 impl Default for SceneDefinition {
     fn default() -> Self {
         Self {
+            layered_world: None,
             room_memory: None,
             non_blocking_characters: vec![],
             platforms: vec![Platform {

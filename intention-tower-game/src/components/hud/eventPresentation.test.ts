@@ -13,6 +13,18 @@ const world = {
 afterEach(async () => { await i18n.changeLanguage('zh-CN'); });
 
 describe('human-readable event presentation', () => {
+  it.each(['zh-CN', 'en'])('uses historical layered facts, contexts and meal receipts in %s', async language => {
+    await i18n.changeLanguage(language);
+    const changed = { ...world, layered_world: { dog: { context_id: 'reality', observations: {}, need_receipt: { before: .7, after: .1 } } } } as unknown as WorldState;
+    const observed = presentEvent({ LayeredWorldChanged: { actor_id: 'dog', context_id: 'inner', depth: 2, kind: 'observed', fact: { sequence: 5, id: 'old', context_id: 'inner', room_id: 'inner-archive', item_id: 'inner-cue', position: { x: 4300, y: 300 }, fact: 'layer.fact.inner', depth: 2, is_virtual: true, observed_at_tick: 5 } } }, changed);
+    expect(observed.text).toContain(i18n.t('layer.context.inner'));
+    expect(observed.text).toContain(i18n.t('layer.fact.inner'));
+    const meal = presentEvent({ LayeredWorldChanged: { actor_id: 'dog', context_id: 'reality', depth: 0, kind: 'need_satisfied', fact: { sequence: 9, item_id: 'meal', room_id: 'garden', position: { x: 1300, y: 300 }, before: .9, after: .2, satisfied_at_tick: 8 } } }, changed);
+    expect(meal.text).toContain('0.90'); expect(meal.text).toContain('0.20');
+    for (const kind of ['entered', 'returned', 'observed', 'compared', 'rewarded', 'need_satisfied', 'migrated', 'future_kind']) {
+      expect(presentEvent({ LayeredWorldChanged: { actor_id: 'dog', context_id: 'outer', depth: 1, kind, fact: null } }, changed).text).not.toMatch(/event\.|future_kind|layer\./);
+    }
+  });
   it.each(['zh-CN', 'en'])('names all room-memory changes and existing observation contents without raw IDs in %s', async language => {
     await i18n.changeLanguage(language);
     const scene = { ...world, characters: { agent: { id: 'agent', label: 'Agent', mind_graph: { nodes: { location: { instance_id: 'location', schema_id: 'it:concept/memory-of-location', label: 'Memory', node_type: 'Observation', observation: { about: 'it:room/archive/variant/maproom' } } } } } }, scene: { rooms: [{ id: 'archive', label: 'room.antimeme.archive' }] }, character_rooms: { agent: 'archive' }, room_memory: { agent: { drug_until_tick: 50 } } } as unknown as WorldState;

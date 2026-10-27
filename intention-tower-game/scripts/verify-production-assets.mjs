@@ -249,6 +249,43 @@ try {
   assert(JSON.stringify(manifest.backgroundsMetadata?.antimeme_reception) === JSON.stringify(manifest.backgroundsMetadata?.[reception.sourceKey]), 'room-memory reception floor differs from reused art');
 } catch (error) { errors.push(`room-memory production assets cannot be verified: ${error.message}`); }
 
+// Layered cyber rooms retain four distinct generated sources and two explicit
+// existing-art aliases, with geometry tied to the reviewed native PNGs.
+try {
+  const root = path.join(packRoot, 'sideview/cyber-layers');
+  const provenance = JSON.parse(await fs.readFile(path.join(root, 'provenance.json'), 'utf8'));
+  assert(provenance.generator === 'proxy-imagegen' && provenance.model === 'gpt-image-2', 'cyber art generator provenance differs');
+  const prompts = await fs.readFile(path.resolve(projectRoot, '..', provenance.promptFile));
+  assert(createHash('sha256').update(prompts).digest('hex') === provenance.promptFileSha256, 'cyber prompt archive hash differs');
+  const distinct = new Set();
+  const expectedFloors = { cyber_reality_workshop: 692, cyber_outer_exchange: 766, cyber_inner_arrival: 719, cyber_inner_archive: 848 };
+  assert(Object.keys(provenance.rooms ?? {}).length === 4, 'cyber art must have exactly four new rooms');
+  for (const [key, floorY] of Object.entries(expectedFloors)) {
+    const room = provenance.rooms?.[key];
+    assert(room?.prompt?.length > 100 && room.visualReview?.includes('Reviewed actual'), `cyber ${key} lacks exact prompt or visual review`);
+    if (!room) continue;
+    assert(/^[a-z-]+\.png$/.test(room.file), `cyber ${key} invalid source path`);
+    const bytes = await fs.readFile(path.join(root, room.file));
+    const hash = createHash('sha256').update(bytes).digest('hex');
+    assert(hash === room.sha256 && !distinct.has(hash), `cyber ${key} hash differs or duplicates a room`);
+    distinct.add(hash);
+    assert(bytes.subarray(0, 8).toString('hex') === '89504e470d0a1a0a' && bytes.readUInt32BE(16) === 1536 && bytes.readUInt32BE(20) === 1024, `cyber ${key} must be native 1536x1024 PNG`);
+    assert(room.width === 1536 && room.height === 1024 && room.floorY === floorY, `cyber ${key} reviewed geometry differs`);
+    assert(manifest.backgrounds?.[key] === `/mods/gpt-image-2-pack/sideview/cyber-layers/${room.file}`, `cyber ${key} is not mapped to dedicated art`);
+    const meta = manifest.backgroundsMetadata?.[key];
+    assert(meta?.width === room.width && meta?.height === room.height && meta?.floorY === floorY, `cyber ${key} manifest geometry differs`);
+  }
+  for (const [key, sourceKey, floorY] of [['cyber_reality_garden', 'antimeme_conservatory', 697], ['cyber_outer_arrival', 'cyber-dream', 726]]) {
+    const reuse = provenance.reused?.[key];
+    assert(reuse?.sourceKey === sourceKey && reuse.floorY === floorY, `cyber ${key} lacks explicit reuse provenance`);
+    if (!reuse) continue;
+    const bytes = await fs.readFile(path.join(root, reuse.file));
+    assert(createHash('sha256').update(bytes).digest('hex') === reuse.sha256, `cyber ${key} reused source hash differs`);
+    assert(manifest.backgrounds?.[key] === manifest.backgrounds?.[sourceKey], `cyber ${key} does not reuse declared art`);
+    assert(JSON.stringify(manifest.backgroundsMetadata?.[key]) === JSON.stringify(manifest.backgroundsMetadata?.[sourceKey]), `cyber ${key} reused geometry differs`);
+  }
+} catch (error) { errors.push(`cyber production assets cannot be verified: ${error.message}`); }
+
 const hashes = new Map();
 for (const record of fileRecords) {
   const duplicate = hashes.get(record.hash);

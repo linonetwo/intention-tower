@@ -1200,6 +1200,12 @@ fn parse_effect(e: &EffectJson) -> Option<CommandEffect> {
         }
     }
     match e.type_.as_str() {
+        "EnterLayer" => Some(CommandEffect::EnterLayer),
+        "ExitLayer" => Some(CommandEffect::ExitLayer),
+        "ObserveLayer" => Some(CommandEffect::ObserveLayer),
+        "CompareLayers" => Some(CommandEffect::CompareLayers),
+        "EarnLayerReward" => Some(CommandEffect::EarnLayerReward),
+        "SatisfyLayerNeed" => Some(CommandEffect::SatisfyLayerNeed),
         "ApplyMemoryDrug" => Some(CommandEffect::ApplyMemoryDrug),
         "AnchorCurrentRoom" => Some(CommandEffect::AnchorCurrentRoom),
         "RecallRoomWithWitness" => Some(CommandEffect::RecallRoomWithWitness),

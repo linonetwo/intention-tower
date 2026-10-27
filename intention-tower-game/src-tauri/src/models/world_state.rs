@@ -48,6 +48,10 @@ pub struct WorldCharacter {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorldState {
     #[serde(default)]
+    pub layered_world_migration: Option<crate::save_slots::LayeredMigrationReceipt>,
+    #[serde(default)]
+    pub layered_world: HashMap<String, crate::layered_world::LayeredState>,
+    #[serde(default)]
     pub room_memory: HashMap<String, super::room_memory::ObserverRoomMemory>,
     pub tick: u64,
     pub time_speed: u8, // 0-4
@@ -142,6 +146,8 @@ impl WorldState {
 
     pub fn new(seed: u64) -> Self {
         Self {
+            layered_world_migration: None,
+            layered_world: HashMap::new(),
             room_memory: HashMap::new(),
             tick: 0,
             time_speed: 1,

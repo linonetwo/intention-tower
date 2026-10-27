@@ -72,7 +72,13 @@ impl System for LevelProgressSystem {
                 .objectives
                 .iter()
                 .filter(|objective| objective.required)
-                .all(|objective| objective.completed);
+                .all(|objective| {
+                    objective.completed
+                        && (!matches!(
+                            objective.condition,
+                            crate::models::progress::LevelCondition::LayeredJourney { .. }
+                        ) || objective.condition.evaluate(state))
+                });
 
         if all_required_complete {
             state.progress.status = LevelStatus::Won;

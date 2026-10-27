@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readdir, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { layeredRoute } from './layered-route.mjs';
 
 const endpoint = process.env.MCP_URL ?? 'http://127.0.0.1:9222/mcp';
 const output = resolve(process.env.EVIDENCE_DIR ?? 'verification-evidence');
@@ -92,6 +93,25 @@ async function findTarget(world, commandId, actorId, distinctTargets) {
 async function playLevel(levelId) {
   await call('load_level', { level_id: levelId });
   await call('set_time_speed', { speed: 0 });
+  if ((await call('snapshot')).scene?.layered_world) {
+    const actor = (await call('snapshot')).default_actor_id;
+    const world = await layeredRoute({
+      snapshot: () => call('snapshot'),
+      available: () => call('list_commands', { actor_id: actor }),
+      walk: async destination => {
+        for (let step = 0; step < 500; step++) {
+          const world = await call('snapshot'), dx = destination - world.characters[actor].position.x;
+          if (Math.abs(dx) < .001) return;
+          await call('move_character', { character_id: actor, delta_x: Math.max(-40, Math.min(40, dx)), delta_y: 0 });
+        }
+        throw new Error(`Actual layered walking failed to reach ${destination}`);
+      },
+      command: async command_id => { await call('execute_command', { command_id, actor_id: actor }); await call('step_tick'); },
+    });
+    results.push({ levelId, tick: world.tick, status: world.progress.status, layeredWorld: world.layered_world[actor] });
+    console.log(`MCP verified ${levelId} with actual nested visits, observations, unwind and finite physical meal`);
+    return;
+  }
   if (levelId === 'antimeme-division') {
     const actor = 'antimeme-agent';
     const step = async count => { for (let i = 0; i < count; i++) await call('step_tick'); };

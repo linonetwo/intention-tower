@@ -261,6 +261,9 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
         worldState: state,
         recentEvents: [...movementFeedback(previous.worldState, state, event), ...previous.recentEvents].slice(0, 500),
       }));
+      // Layer terminals are proximity-gated by the backend. Movement must refresh
+      // authoritative actions even while the simulation is paused.
+      if (state.scene?.layered_world) await get().refreshCommands();
     } catch (err) {
       set({ error: t('app.error.moveCharacter', { message: String(err) }) });
     }

@@ -255,10 +255,40 @@ fn play_scenario(level_id: &str, world: &mut WorldState, runner: &SimulationRunn
             );
         }
         "cyber-dream" => {
-            act(world, runner, "player", None, "enter-vr", 1);
-            act(world, runner, "player", None, "compare-layers", 1);
+            let walk = |w: &mut WorldState, x: f64| {
+                for _ in 0..150 {
+                    let dx = x - w.characters["player"].position.x;
+                    if dx.abs() < 0.001 {
+                        return;
+                    }
+                    intention_tower_game_lib::movement::move_character(
+                        w,
+                        "player",
+                        dx.clamp(-40.0, 40.0),
+                        0.0,
+                    )
+                    .unwrap();
+                }
+                panic!("cannot reach {x}");
+            };
+            walk(world, 1100.0);
             act(world, runner, "player", None, "examine-reality", 1);
+            walk(world, 200.0);
+            act(world, runner, "player", None, "enter-vr", 1);
+            walk(world, 2600.0);
+            act(world, runner, "player", None, "examine-reality", 1);
+            act(world, runner, "player", None, "earn-virtual-reward", 1);
+            walk(world, 3000.0);
+            act(world, runner, "player", None, "enter-vr", 1);
+            walk(world, 4300.0);
+            act(world, runner, "player", None, "examine-reality", 1);
+            act(world, runner, "player", None, "compare-layers", 1);
+            walk(world, 3400.0);
             act(world, runner, "player", None, "exit-vr", 1);
+            walk(world, 1800.0);
+            act(world, runner, "player", None, "exit-vr", 1);
+            walk(world, 1300.0);
+            act(world, runner, "player", None, "satisfy-real-need", 1);
         }
         "destroy-hive-mind" => {
             act(world, runner, "player-agent", None, "defend-station", 2);

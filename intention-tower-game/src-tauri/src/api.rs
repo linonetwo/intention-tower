@@ -315,7 +315,10 @@ pub fn load_save(
     let json = std::fs::read_to_string(&file_path).map_err(|e| format!("Read error: {}", e))?;
     let loaded: WorldState =
         serde_json::from_str(&json).map_err(|e| format!("Deserialize error: {}", e))?;
-    let loaded = crate::save_slots::prepare_restored_world(loaded)?;
+    crate::save_slots::validate_level_id(&loaded.level_id)?;
+    let authored = crate::level_loader::load_level_from_assets(&loaded.level_id, &app_handle)
+        .map_err(|e| e.to_string())?;
+    let loaded = crate::save_slots::prepare_restored_world_with_authoring(loaded, Some(authored))?;
 
     let mut world = sim.world.lock().map_err(|e| e.to_string())?;
     *world = loaded;

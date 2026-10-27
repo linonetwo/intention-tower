@@ -67,7 +67,7 @@ export const DialogueBox: React.FC = () => {
   const recentText = useMemo(() => {
     const meaningful = recentEvents.filter(e => !('TickCompleted' in e));
     const rejections: WorldEvent[] = meaningful.filter(e => 'CommandRejected' in e);
-    const prominent: WorldEvent[] = meaningful.filter(e => 'RoomMemoryChanged' in e || 'ActionExecuted' in e || 'LearningUpdated' in e || 'ObjectiveCompleted' in e);
+    const prominent: WorldEvent[] = meaningful.filter(e => 'LayeredWorldChanged' in e || 'RoomMemoryChanged' in e || 'ActionExecuted' in e || 'LearningUpdated' in e || 'ObjectiveCompleted' in e);
     return [...rejections, ...prominent, ...meaningful.filter(e => !prominent.includes(e) && !rejections.includes(e))]
       .slice(0, 5)
       .map(e => formatEventBrief(e, worldState));

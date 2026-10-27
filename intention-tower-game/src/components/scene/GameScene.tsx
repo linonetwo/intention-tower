@@ -7,6 +7,7 @@ import { translateLabel } from '../../i18n';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { WorldCharacterSprite } from './WorldCharacterSprite';
 import { RoomMemoryNotes } from './RoomMemoryNotes';
+import { LayeredWorldActionRail, LayeredWorldHotspots, LayeredWorldStatus } from './LayeredWorldUI';
 import { roomMemoryPresentation } from './roomMemory';
 import { activeSceneRoom, connectedSceneRooms, entityInRoom, characterArtScale, clampCameraX, connectorReachable, pointerWorldX, projectPlatformY, sceneCameraGeometry } from './sceneGeometry';
 
@@ -16,6 +17,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const levelId = useGameState(s => s.currentLevelId);
   const actorId = useGameState(s => s.selectedActorId);
   const targetId = useGameState(s => s.selectedTargetId);
+  const availableCommands = useGameState(s => s.availableCommands);
   const manifest = useModAssets(s => s.manifest);
   const revision = useModAssets(s => s.revision);
   const selectedOutfits = useModAssets(s => s.selectedOutfits);
@@ -33,6 +35,8 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const room = activeSceneRoom(world, actorId);
   const stripRooms = connectedSceneRooms(world?.scene, room);
   const hasRoomMemory = !!world?.scene?.room_memory;
+  const layerState = actorId ? world?.layered_world?.[actorId] : undefined;
+  const hasLayers = !!layerState && !!world?.scene?.layered_world;
   const presentationFor = (id: string | undefined) => {
     const r = world?.scene?.rooms?.find(candidate => candidate.id === id);
     return r ? roomMemoryPresentation(world, r) : undefined;
@@ -45,9 +49,11 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const actorAsset = resolveCharacterSprite(manifest, actorId ?? '', selectedOutfits[actorId ?? '']);
   const stageHeight = Math.max(1, height - (dialoguePixels ?? height * layout.dialogueHeight / 100));
   // Reserve a second tool row on tiny screens so wrapping never covers the floor.
-  const baseToolHeight = width < (hasRoomMemory ? 500 : actorAsset?.paperDoll ? 440 : 372) ? 107 : 58;
+  const controlsHeight = width < (hasRoomMemory || hasLayers ? 500 : actorAsset?.paperDoll ? 440 : 372) ? 107 : 58;
+  const actionRailHeight = hasLayers ? (width < 500 ? 100 : 52) : 0;
+  const baseToolHeight = controlsHeight + actionRailHeight;
   // An open notebook reserves its own space below the floor rather than covering the cast.
-  const notesHeight = notesVisible && hasRoomMemory ? Math.max(88, Math.min(230, stageHeight - baseToolHeight - 160)) : 0;
+  const notesHeight = notesVisible && (hasRoomMemory || hasLayers) ? Math.max(88, Math.min(230, stageHeight - baseToolHeight - 160)) : 0;
   const toolHeight = baseToolHeight + notesHeight;
   const ground = stageHeight - toolHeight;
   // Narrow screens show a slice of the world rather than compressing the cast
@@ -60,10 +66,11 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const { backgroundScale, backgroundTop, metadata, worldScale: legacyScale } = sceneCameraGeometry(width, ground, room ? room.x_max - room.x_min : worldMax - worldMin,
     backgroundKey ? manifest?.backgroundsMetadata?.[backgroundKey] : undefined);
   // One projection for the whole strip: changing occupancy cannot change zoom at the seam.
-  const worldScale = stripRooms.length ? Math.max(...stripRooms.map(r => sceneCameraGeometry(width, ground, r.x_max - r.x_min, manifest?.backgroundsMetadata?.[r.background_key ?? levelId ?? '']).worldScale)) : legacyScale;
+  const scaleRooms = hasLayers ? world?.scene?.rooms ?? stripRooms : stripRooms;
+  const worldScale = scaleRooms.length ? Math.max(...scaleRooms.map(r => sceneCameraGeometry(width, ground, r.x_max - r.x_min, manifest?.backgroundsMetadata?.[r.background_key ?? levelId ?? '']).worldScale)) : legacyScale;
   const scale = characterArtScale(worldScale, ground, 150);
   const cameraX = clampCameraX(width, actor?.position.x ?? 400, worldScale, worldMin, worldMax);
-  const projectionKey = `${worldScale}:${cameraX}:${ground}:${scale}`;
+  const projectionKey = `${layerState?.context_id ?? ''}:${worldScale}:${cameraX}:${ground}:${scale}`;
   const projectY = (y: number) => projectPlatformY(y, ground, worldScale);
   const items = Object.values(world?.items ?? {}).filter(item => !item.owner_id && inStrip(world?.item_rooms, item.id) && !presentationFor(world?.item_rooms?.[item.id] ?? fallbackRoom)?.hidden);
   const itemGroups: typeof items[] = [];
@@ -83,6 +90,8 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   useEffect(() => { setItemsVisible(false); setInspectedItem(null); }, [levelId]);
   useEffect(() => { setNotesVisible(false); }, [levelId]);
   useEffect(() => { setWardrobeVisible(false); }, [room?.id]);
+  // A context transfer is not a walk through an adjacent seam. Cancel queued walking.
+  useEffect(() => { walkRun.current++; setInspectedItem(null); setWardrobeVisible(false); }, [layerState?.context_id]);
   useEffect(() => {
     const previous = lastActorPosition.current;
     if (actor && previous?.id === actorId && (Math.abs(actor.position.x - previous.x) > 40 || actor.position.y !== previous.y)) walkRun.current++;
@@ -145,7 +154,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
       }) : background && <img data-testid="scene-background" src={`${background}?rev=${revision}`} alt="" draggable={false} style={metadata ? { position: 'absolute', left: worldMin * worldScale + cameraX, top: backgroundTop, width: metadata.width * backgroundScale, height: metadata.height * backgroundScale, pointerEvents: 'none' } : { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom', pointerEvents: 'none' }} />}
       {room && <div data-testid="scene-room-title" style={{ position: 'absolute', left: 72, bottom: toolHeight + 8, maxWidth: Math.max(0, width - 144), padding: '5px 12px', borderRadius: 12, background: '#fff7dcd9', color: '#755731', fontSize: 13, pointerEvents: 'none' }}>{activeView?.labelKey ? t(activeView.labelKey, { defaultValue: translateLabel(room.label) }) : translateLabel(room.label)}</div>}
       <div data-testid="scene-ground" data-ground-y={ground} style={{ position: 'absolute', top: ground, left: 0, right: 0, height: toolHeight, background: '#e9cf8d44', borderTop: '2px solid #bda06b66', pointerEvents: 'none' }} />
-      <div data-testid="scene-world" data-camera-x={cameraX} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+      <div data-testid="scene-world" data-camera-x={cameraX} data-context-id={layerState?.context_id} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         {platforms.map(p => <div key={p.id} data-testid={`scene-platform-${p.id}`} data-world-y={p.y} style={{ position: 'absolute', left: p.x_min * worldScale + cameraX, top: projectY(p.y), width: (p.x_max - p.x_min) * worldScale, height: p.y === 300 ? 0 : 12 * worldScale, borderRadius: 2, opacity: platformPresentation(p.id)?.hidden ? 0 : platformPresentation(p.id)?.opacity, filter: platformPresentation(p.id)?.filter, background: 'repeating-linear-gradient(90deg,#bd8d58 0 32px,#987044 32px 34px)', boxShadow: p.y === 300 ? undefined : '0 4px 0 #704f34', pointerEvents: 'none' }} />)}
         {(world?.scene?.portals ?? []).filter(p => p.from_room === room?.id || p.to_room === room?.id).map(portal => {
           const destination = world?.scene?.rooms?.find(r => r.id === (portal.from_room === room?.id ? portal.to_room : portal.from_room));
@@ -201,9 +210,12 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
           </button>;
         })}
       </div>
-      {notesHeight > 0 && world && <div style={{ position: 'absolute', left: 8, right: 8, bottom: baseToolHeight + 4, height: notesHeight - 8, zIndex: 800 }}><RoomMemoryNotes world={world} height={notesHeight - 8} /></div>}
+      {hasLayers && world && actorId && room && <><LayeredWorldStatus world={world} actorId={actorId} notes={false} available={availableCommands} execute={id => { void gameStore.getState().executeCommand(id); }} /><LayeredWorldHotspots world={world} actorId={actorId} roomId={room.id} available={availableCommands} cameraX={cameraX} scale={worldScale} ground={ground} width={width} enabled={enabled} execute={id => { walkRun.current++; void gameStore.getState().executeCommand(id); }} walkTo={x => { void walkTo(x); }} /></>}
+      {notesHeight > 0 && world && <div style={{ position: 'absolute', left: 8, right: 8, bottom: baseToolHeight + 4, height: notesHeight - 8, zIndex: 800 }}>{hasLayers && actorId ? <LayeredWorldStatus world={world} actorId={actorId} notes height={notesHeight - 8} available={availableCommands} execute={id => { void gameStore.getState().executeCommand(id); }} /> : <RoomMemoryNotes world={world} height={notesHeight - 8} />}</div>}
+      {hasLayers && world && actorId && room && <LayeredWorldActionRail world={world} actorId={actorId} roomId={room.id} available={availableCommands} bottom={controlsHeight} height={actionRailHeight} enabled={enabled} execute={id => { walkRun.current++; void gameStore.getState().executeCommand(id); }} />}
       <div data-testid="scene-selected-info" style={{ position: 'absolute', bottom: 5, left: 8, right: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
         {hasRoomMemory && <button data-testid="scene-memory-map" aria-label={t('memory.notes')} aria-expanded={notesVisible} onClick={() => { setNotesVisible(!notesVisible); setWardrobeVisible(false); }} style={{ ...controlStyle, fontSize: 13 }}>{t('memory.map')}</button>}
+        {hasLayers && <button data-testid="scene-layer-map" aria-label={t('layer.notebook')} aria-expanded={notesVisible} onClick={() => { setNotesVisible(!notesVisible); setWardrobeVisible(false); }} style={{ ...controlStyle, fontSize: 13 }}>{t('layer.map')}</button>}
         {actorAsset?.paperDoll && <div data-testid="scene-wardrobe-anchor" style={{ position: 'relative', zIndex: 600, flexShrink: 0 }}>
           <button data-testid="scene-wardrobe" aria-label={t('scene.wardrobe')} aria-expanded={wardrobeVisible} onClick={() => setWardrobeVisible(!wardrobeVisible)} style={{ ...controlStyle, fontSize: 13 }}>{t('scene.wardrobe')}</button>
           {wardrobeVisible && <div data-testid="scene-outfits" style={{ position: 'absolute', left: 0, bottom: 'calc(100% + 8px)', display: 'flex', flexDirection: 'column', width: 138, maxWidth: Math.max(44, width - 32), maxHeight: Math.max(88, ground - 72), overflowY: 'auto', padding: 5, borderRadius: 12, background: '#fff7dc', boxShadow: '0 3px 16px #75573133' }}>{actorAsset.paperDoll.availableOutfits.map(outfit => <button key={outfit} data-testid={`scene-outfit-${outfit}`} aria-pressed={actorAsset.paperDoll?.outfitId === outfit} onClick={() => { if (actorId) setCharacterOutfit(actorId, outfit); }} style={{ ...controlStyle, fontSize: 13, flexShrink: 0 }}>{t(`scene.outfit.${outfit}`, { defaultValue: outfit })}</button>)}</div>}

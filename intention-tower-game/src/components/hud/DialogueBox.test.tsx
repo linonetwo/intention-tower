@@ -26,8 +26,8 @@ describe('dialogue feedback visibility', () => {
     render(<DialogueBox />);
     expect(screen.getByTestId('dialogue-event-0').textContent).toContain(i18n.language === 'en' ? 'You simply forgot' : '你只是忘记了');
   });
-  it.each([{ label: 'dialogue', Component: DialogueBox }, { label: 'command panel', Component: CommandPanel }])('previews all four unit memory effects safely in $label', ({ Component }) => {
-    fixture.state.availableCommands = [{ command_id: 'memory-test', label: 'Memory Test', hotkey: null, targeting: 'NoTarget', preconditions: [], effect_templates: ['ApplyMemoryDrug', 'AnchorCurrentRoom', 'RecallRoomWithWitness', 'ObserveCurrentRoom'] }];
+  it.each([{ label: 'dialogue', Component: DialogueBox }, { label: 'command panel', Component: CommandPanel }])('previews unit memory and layered effects safely in $label', ({ Component }) => {
+    fixture.state.availableCommands = [{ command_id: 'memory-test', label: 'Memory Test', hotkey: null, targeting: 'NoTarget', preconditions: [], effect_templates: ['ApplyMemoryDrug', 'AnchorCurrentRoom', 'RecallRoomWithWitness', 'ObserveCurrentRoom', 'EnterLayer', 'ExitLayer', 'ObserveLayer', 'CompareLayers', 'EarnLayerReward', 'SatisfyLayerNeed'] }];
     fixture.state.selectedActorId = 'agent';
     fixture.state.worldState = { tick: 0, paused: true, characters: { agent: { id: 'agent', label: 'Agent' } }, items: {}, pending_commands: [] } as unknown as WorldState;
     render(<Component />);

@@ -175,6 +175,13 @@ pub enum WorldEvent {
         value: bool,
         depth: u8,
     },
+    LayeredWorldChanged {
+        actor_id: String,
+        context_id: String,
+        depth: u8,
+        kind: String,
+        fact: Option<serde_json::Value>,
+    },
     ObjectiveCompleted {
         objective_id: String,
         label: String,

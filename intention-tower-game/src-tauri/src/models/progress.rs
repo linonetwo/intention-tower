@@ -25,6 +25,10 @@ pub enum LevelStatus {
     rename_all_fields = "camelCase"
 )]
 pub enum LevelCondition {
+    LayeredJourney {
+        character_id: String,
+        complete: bool,
+    },
     RoomMemoryEvidence {
         character_id: String,
         #[serde(default)]
@@ -167,6 +171,7 @@ pub struct SocialExclusionFilter {
 impl LevelCondition {
     pub fn evaluate(&self, world: &WorldState) -> bool {
         match self {
+            Self::LayeredJourney { character_id, complete } => crate::layered_world::evidence(world, character_id, *complete),
             Self::RoomMemoryEvidence { character_id, room_id, evidence } => crate::room_memory::evidence(world, character_id, room_id.as_deref(), *evidence),
             Self::ActionEpisodes {
                 character_id,

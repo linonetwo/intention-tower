@@ -79,7 +79,12 @@ pub fn check_precondition(
                 *threshold,
             )
         }),
-        Precondition::IsVirtualContext { value } => world.in_virtual_context == *value,
+        Precondition::IsVirtualContext { value } => {
+            crate::layered_world::context(world, actor_id)
+                .map(|(_, d)| d > 0)
+                .unwrap_or(world.in_virtual_context)
+                == *value
+        }
     }
 }
 
@@ -104,6 +109,41 @@ pub fn command_available(
     }
     if target_id.is_some_and(|id| !world.same_room(actor_id, id)) {
         return false;
+    }
+    if command.effect_templates.iter().any(|effect| {
+        matches!(
+            effect,
+            CommandEffect::EnterLayer
+                | CommandEffect::ExitLayer
+                | CommandEffect::ObserveLayer
+                | CommandEffect::CompareLayers
+                | CommandEffect::EarnLayerReward
+                | CommandEffect::SatisfyLayerNeed
+        )
+    }) {
+        use crate::systems::command_system::{apply_effect, EffectOutcome};
+        let mut staged = world.clone();
+        let command_dto = crate::models::commands::CommandDTO {
+            command_id: command.command_id.clone(),
+            actor_id: actor_id.into(),
+            target_id: target_id.map(str::to_owned),
+            effects: vec![],
+        };
+        let mut applied = false;
+        for effect in &command.effect_templates {
+            match apply_effect(&mut staged, &command_dto, effect) {
+                EffectOutcome::Rejected(_) => return false,
+                EffectOutcome::Applied
+                    if !matches!(effect, CommandEffect::ConsumeResource { .. }) =>
+                {
+                    applied = true
+                }
+                _ => (),
+            }
+        }
+        if !applied {
+            return false;
+        }
     }
     command.preconditions.iter().all(|precondition| {
         check_precondition(precondition, actor_id, target_id.or(Some(actor_id)), world)
