@@ -8,6 +8,7 @@ export interface SceneMotion {
   startedAt: number;
   durationMs: number;
   from: MotionPoint;
+  via?: MotionPoint;
   to: MotionPoint;
   fromPosture: CharacterPosture;
   toPosture: CharacterPosture;
@@ -15,7 +16,7 @@ export interface SceneMotion {
 }
 export interface AcceptWorldOptions {
   resetMotions?: boolean;
-  traversal?: { characterId: string; kind: 'stairs' | 'ladder'; from: MotionPoint; to: MotionPoint };
+  traversal?: { characterId: string; kind: 'stairs' | 'ladder'; from: MotionPoint; via: MotionPoint; to: MotionPoint };
 }
 
 // These are semantic IDs from all shipped command definitions, never display labels.
@@ -113,7 +114,13 @@ export function deriveSceneMotions(before: WorldState | null, after: WorldState,
     const traversal = options.traversal?.characterId === id ? options.traversal : undefined;
     if (moved) {
       // Non-connector vertical jumps are teleports, not inferred climbing.
-      if (traversal) { emit(id, traversal.kind === 'stairs' ? 'stairs' : 'climb', null, 5); result[id].from = traversal.from; result[id].to = traversal.to; }
+      if (traversal) {
+        emit(id, traversal.kind === 'stairs' ? 'stairs' : 'climb', null, 5);
+        result[id].from = traversal.from;
+        result[id].via = traversal.via;
+        result[id].to = traversal.to;
+        result[id].durationMs = Math.max(180, (Math.hypot(traversal.via.x - traversal.from.x, traversal.via.y - traversal.from.y) + Math.hypot(traversal.to.x - traversal.via.x, traversal.to.y - traversal.via.y)) * 4);
+      }
       else if (current.position.y === old.position.y) emit(id, 'walk', null, 5);
       else delete result[id];
     } else if ((before.character_postures?.[id] ?? 'standing') !== (after.character_postures?.[id] ?? 'standing')) emit(id, after.character_postures?.[id] === 'sitting' ? 'sit-down' : 'stand-up', null, 4);

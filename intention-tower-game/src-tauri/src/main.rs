@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    intention_tower_game_lib::run()
+    intention_tower_game_lib::run(tauri::generate_context!())
 }

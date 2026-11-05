@@ -285,10 +285,15 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     if (!id || get().worldState?.progress.status !== 'InProgress') return;
     const before = get().worldState!;
     const connector = before.scene?.connectors.find(candidate => candidate.id === connectorId);
+    const from = before.characters[id].position;
+    const fromPlatform = before.scene?.platforms.find(platform => platform.id === connector?.from_platform);
+    const toPlatform = before.scene?.platforms.find(platform => platform.id === connector?.to_platform);
+    const supportedBy = (platform: typeof fromPlatform) => platform && platform.y === from.y && from.x >= platform.x_min && from.x <= platform.x_max;
+    const entryX = supportedBy(fromPlatform) ? connector!.from_x : supportedBy(toPlatform) ? connector!.to_x : undefined;
     try {
       const event = await api.traverseConnector(id, connectorId);
       const state = await api.snapshot();
-      get().acceptWorld(state, movementFeedback(before, state, event), connector ? { traversal: { characterId: id, kind: connector.kind, from: before.characters[id].position, to: state.characters[id].position } } : {});
+      get().acceptWorld(state, movementFeedback(before, state, event), connector && entryX !== undefined ? { traversal: { characterId: id, kind: connector.kind, from, via: { x: entryX, y: from.y }, to: state.characters[id].position } } : {});
     } catch (err) { set({ error: t('app.error.moveCharacter', { message: String(err) }) }); }
   },
 

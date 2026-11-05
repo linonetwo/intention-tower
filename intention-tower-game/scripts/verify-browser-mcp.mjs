@@ -400,8 +400,26 @@ try {
         }
       }
       assert.deepEqual(visible.characters.sort(), Object.keys(world.characters).filter(id => strip.has(world.character_rooms[id] ?? firstRoom)).sort(), 'Connected-strip actors remain rendered; disconnected-room actors are excluded');
-      await evaluate(`new Promise(resolve=>setTimeout(resolve,180))`);
-      visible.projection = await evaluate(`(()=>{const stage=document.querySelector('[data-testid="scene-viewport"]'),r=stage.getBoundingClientRect(),d=window.__itSceneDebug();return{clipping:getComputedStyle(stage).overflow,actors:[...stage.querySelectorAll('button[data-testid^="scene-character-"]')].map(actor=>{const a=actor.getBoundingClientRect();return{id:actor.dataset.testid.slice('scene-character-'.length),actualX:a.left+a.width/2-r.left,expectedX:Number(actor.dataset.worldX)*d.scale+d.cameraX}})}})()`);
+      visible.projection = await evaluate(`(async()=>{
+        const started=performance.now();let movingProjectionChecks=0;
+        while(true) {
+          const stage=document.querySelector('[data-testid="scene-viewport"]'),r=stage.getBoundingClientRect(),d=window.__itSceneDebug();
+          const actors=[...stage.querySelectorAll('button[data-testid^="scene-character-"]')].map(actor=>{
+            const a=actor.getBoundingClientRect();
+            return{id:actor.dataset.testid.slice('scene-character-'.length),clip:actor.dataset.motionClip,
+              actualX:a.left+a.width/2-r.left,expectedX:Number(actor.dataset.worldX)*d.scale+d.cameraX,
+              renderedX:Number(actor.dataset.renderX)*d.scale+d.cameraX,
+              arrived:Math.abs(Number(actor.dataset.renderX)-Number(actor.dataset.worldX))<.01&&Math.abs(Number(actor.dataset.renderY)-Number(actor.dataset.worldY))<.01};
+          });
+          // During interpolation the same global projection must use the actual
+          // rendered world point, never a clamped screen edge or future endpoint.
+          for(const actor of actors)if(Math.abs(actor.actualX-actor.renderedX)>=1)throw new Error(actor.id+': animated body is not projected from its global rendered position');
+          if(actors.every(actor=>actor.arrived&&!['walk','stairs','climb'].includes(actor.clip)))return{clipping:getComputedStyle(stage).overflow,actors,movingProjectionChecks};
+          movingProjectionChecks++;
+          if(performance.now()-started>5000)throw new Error('Room actors did not finish their actual movement animations');
+          await new Promise(requestAnimationFrame);
+        }
+      })()`);
       assert.equal(visible.projection.clipping, 'hidden', 'World strip is clipped by the actual scene viewport');
       for (const actor of visible.projection.actors) assert.ok(Math.abs(actor.actualX - actor.expectedX) < 1, `${actor.id}: connected actors use global world positions, never clamp to screen edges`);
       await call('click', { selector: '[data-testid="scene-toggle-items"]' });

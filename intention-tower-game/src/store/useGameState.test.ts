@@ -138,15 +138,25 @@ describe('backend-driven game store', () => {
 
   it('uses connector metadata and clears motion on load, layer jumps and character removal', async () => {
     const initial = world();
-    initial.scene = { platforms: [], connectors: [{ id: 'ladder', kind: 'ladder', from_platform: 'a', to_platform: 'b', from_x: 0, to_x: 0 }] };
+    initial.scene = { platforms: [{ id: 'a', x_min: -100, x_max: 100, y: 0 }, { id: 'b', x_min: -100, x_max: 100, y: 100 }], connectors: [{ id: 'ladder', kind: 'ladder', from_platform: 'a', to_platform: 'b', from_x: 10, to_x: 30 }] };
     api.loadLevel.mockResolvedValue(initial);
     await gameStore.getState().loadLevel('pavlov');
     const climbed = world();
-    climbed.characters.pavlov.position = { x: 0, y: 100 };
+    climbed.scene = initial.scene;
+    climbed.characters.pavlov.position = { x: 30, y: 100 };
     api.snapshot.mockResolvedValue(climbed);
-    api.traverseConnector.mockResolvedValue({ CharacterMoved: { character_id: 'pavlov', from_x: 0, from_y: 0, to_x: 0, to_y: 100 } });
+    api.traverseConnector.mockResolvedValue({ CharacterMoved: { character_id: 'pavlov', from_x: 0, from_y: 0, to_x: 30, to_y: 100 } });
     await gameStore.getState().traverseSelectedConnector('ladder');
-    expect(gameStore.getState().sceneMotions.pavlov).toMatchObject({ clip: 'climb', to: { x: 0, y: 100 } });
+    expect(gameStore.getState().sceneMotions.pavlov).toMatchObject({ clip: 'climb', from: { x: 0, y: 0 }, via: { x: 10, y: 0 }, to: { x: 30, y: 100 }, durationMs: (10 + Math.hypot(20, 100)) * 4 });
+    const nearTop = structuredClone(climbed);
+    nearTop.characters.pavlov.position.x = 40;
+    gameStore.getState().acceptWorld(nearTop);
+    const descended = structuredClone(initial);
+    descended.characters.pavlov.position.x = 10;
+    api.snapshot.mockResolvedValue(descended);
+    api.traverseConnector.mockResolvedValue({ CharacterMoved: { character_id: 'pavlov', from_x: 40, from_y: 100, to_x: 10, to_y: 0 } });
+    await gameStore.getState().traverseSelectedConnector('ladder');
+    expect(gameStore.getState().sceneMotions.pavlov).toMatchObject({ clip: 'climb', from: { x: 40, y: 100 }, via: { x: 30, y: 100 }, to: { x: 10, y: 0 } });
     api.loadSave.mockResolvedValue(initial);
     await gameStore.getState().loadSave('slot');
     expect(gameStore.getState().sceneMotions).toEqual({});

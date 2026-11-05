@@ -35,10 +35,9 @@ export function blendCharacterPose(a: CharacterPose, b: CharacterPose, amount: n
 }
 
 /** Pure joint sampling. Gait is distance-driven; one foot supports while the other clears the floor. */
-export function sampleCharacterPose(clip: MotionClip, progress: number, phase: number, sitting = 0, reducedMotion = false): CharacterPose {
+export function sampleCharacterPose(clip: MotionClip, progress: number, phase: number, sitting?: number, reducedMotion = false): CharacterPose {
   if (reducedMotion) { clip = 'idle'; phase = 0; }
-  if (clip === 'sit-down') sitting = ease(progress);
-  if (clip === 'stand-up') sitting = 1 - ease(progress);
+  sitting ??= clip === 'sit-down' ? ease(progress) : clip === 'stand-up' ? 1 - ease(progress) : 0;
   const moving = clip === 'walk' || clip === 'stairs' || clip === 'climb';
   const stride = Math.sin(phase), breath = reducedMotion ? 0 : (1 - Math.cos(phase * .35)) * .7;
   const pulse = Math.sin(Math.PI * Math.max(0, Math.min(1, progress))) ** 2;

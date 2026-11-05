@@ -65,6 +65,13 @@ describe('shared humanoid-v1 authored rig', () => {
     const fromSeat = { ...motion, sequence: 3, startedAt: 350, fromPosture: 'sitting' as const, from: { x: 600, y: 180 }, to: { x: 620, y: 180 } };
     acceptMotion(player, fromSeat, fromSeat.to, false, 350);
     expect(samplePlayback(player, 400).sitting).toBeCloseTo(.5);
+    const rising = samplePlayback(player, 415);
+    const secondStep = { ...fromSeat, sequence: 4, startedAt: 415, fromPosture: 'standing' as const, from: fromSeat.to, to: { x: 640, y: 180 } };
+    acceptMotion(player, secondStep, secondStep.to, false, 415);
+    const retargeted = samplePlayback(player, 415);
+    expect(retargeted.sitting).toBe(rising.sitting);
+    expect(retargeted.pose.hip).toEqual(rising.pose.hip);
+    expect(retargeted.pose.leftArm).toEqual(rising.pose.leftArm);
     expect(samplePlayback(player, 455).sitting).toBe(0);
   });
   it('plays connector paths continuously and reduced motion lands immediately', () => {
@@ -73,5 +80,18 @@ describe('shared humanoid-v1 authored rig', () => {
     acceptMotion(player, motion, motion.to, false, 0);
     expect(samplePlayback(player, 400).position).toEqual({ x: 105, y: 200 });
     expect(samplePlayback(player, 410, true).position).toEqual(motion.to);
+    const ladder = { ...motion, from: { x: 80, y: 300 }, via: { x: 100, y: 300 }, to: { x: 100, y: 100 }, durationMs: 880 };
+    const approach = createPlayback(ladder.from, false, 'right', 0);
+    acceptMotion(approach, ladder, ladder.to, false, 0);
+    expect(samplePlayback(approach, 40).position).toEqual({ x: 90, y: 300 });
+    expect(samplePlayback(approach, 40).clip).toBe('walk');
+    expect(samplePlayback(approach, 80).position).toEqual(ladder.via);
+    expect(samplePlayback(approach, 480).position).toEqual({ x: 100, y: 200 });
+    expect(samplePlayback(approach, 480).clip).toBe('climb');
+    const slanted = { ...ladder, to: { x: 160, y: 220 }, durationMs: 480 };
+    const diagonal = createPlayback(slanted.from, false, 'right', 0);
+    acceptMotion(diagonal, slanted, slanted.to, false, 0);
+    expect(samplePlayback(diagonal, 280).position).toEqual({ x: 130, y: 260 });
+    expect(samplePlayback(diagonal, 300, true).position).toEqual(slanted.to);
   });
 });

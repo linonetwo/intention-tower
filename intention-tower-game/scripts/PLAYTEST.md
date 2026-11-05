@@ -1,6 +1,10 @@
-# Built Rust-core browser playtest
+# Developer browser verification
 
-This artifact contains an already compiled Linux Rust MCP core, built production
+The default player delivery is the Windows installer; see the [Windows playtest
+guide](../../docs/playtest/windows.md). This document describes a separate Linux
+developer verification artifact, not the player installation.
+
+The verification artifact contains an already compiled Linux Rust MCP core, built production
 web UI and authored levels. It contains no node_modules or build cache.
 
 From the extracted artifact directory, run (Node 22 and Linux required):
