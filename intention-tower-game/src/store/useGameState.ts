@@ -8,6 +8,7 @@ import { createStore, useStore } from 'zustand';
 import * as api from '../api/tauriApi';
 import { t } from '../i18n';
 import type { WorldState, WorldEvent, CommandDef, SaveMeta } from '../types/backend';
+import { deriveSceneMotions, type AcceptWorldOptions, type SceneMotion } from '../animation/motion';
 
 export type Page = 'menu' | 'game';
 export type UiMode = 'observe' | 'micro' | 'graph';
@@ -28,6 +29,7 @@ interface GameState {
 
   // Backend-driven world state
   worldState: WorldState | null;
+  sceneMotions: Record<string, SceneMotion>;
 
   // Selection
   selectedActorId: string | null;
@@ -55,6 +57,7 @@ interface GameState {
 }
 
 interface GameActions {
+  acceptWorld: (state: WorldState, events?: WorldEvent[], options?: AcceptWorldOptions) => void;
   setPage: (page: Page) => void;
   loadLevel: (levelId: string) => Promise<void>;
   selectActor: (id: string | null) => void;
@@ -105,6 +108,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   page: 'menu',
   currentLevelId: null,
   worldState: null,
+  sceneMotions: {},
   selectedActorId: null,
   selectedTargetId: null,
   inspectedCharacterId: null,
@@ -120,6 +124,15 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
 
   // ── Actions ──
 
+  acceptWorld: (state, events = [], options = {}) => {
+    const meaningful = events.filter(event => !('TickCompleted' in event));
+    set(previous => ({
+      worldState: state,
+      sceneMotions: deriveSceneMotions(previous.worldState, state, events, previous.sceneMotions, performance.now(), options),
+      recentEvents: options.resetMotions ? [] : [...meaningful, ...previous.recentEvents].slice(0, 500),
+    }));
+  },
+
   setPage: (page) => set({ page }),
 
   loadLevel: async (levelId) => {
@@ -130,9 +143,9 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       await api.setTimeSpeed(0);
       const pausedState = { ...state, time_speed: 0 as 0, paused: true };
       const initial = pickInitialSelection(state);
+      get().acceptWorld(pausedState, [], { resetMotions: true });
 
       set({
-        worldState: pausedState,
         sceneNotebookOpen: false,
         currentLevelId: levelId,
         selectedActorId: initial.actorId,
@@ -196,14 +209,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       const events = await api.executeCommand(commandId, selectedActorId, selectedTargetId);
       // After executing/queueing, refresh the full state
       const state = await api.snapshot();
-      const meaningful = events.filter((e) => !('TickCompleted' in e));
-      set((prev) => ({
-        worldState: state,
-        recentEvents: [
-          ...meaningful,
-          ...prev.recentEvents,
-        ].slice(0, 500),
-      }));
+      get().acceptWorld(state, events);
       if (state.progress.status !== 'InProgress') {
         get().stopTickLoop();
         set({ availableCommands: [] });
@@ -226,7 +232,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     try {
       await api.cancelPendingCommand(commandId);
       const state = await api.snapshot();
-      set({ worldState: state });
+      get().acceptWorld(state);
     } catch (err) {
       set({ error: t('app.error.executeCommand', { message: String(err) }) });
     }
@@ -236,11 +242,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     try {
       const events = await api.stepTick();
       const state = await api.snapshot();
-      const meaningful = events.filter((e) => !('TickCompleted' in e));
-      set((prev) => ({
-        worldState: state,
-        recentEvents: [...meaningful, ...prev.recentEvents].slice(0, 500),
-      }));
+      get().acceptWorld(state, events);
       if (state.progress.status !== 'InProgress') {
         get().stopTickLoop();
         set({ availableCommands: [] });
@@ -260,10 +262,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     try {
       const event = await api.moveCharacter(selectedActorId, deltaX, deltaY);
       const state = await api.snapshot();
-      set((previous) => ({
-        worldState: state,
-        recentEvents: [...movementFeedback(previous.worldState, state, event), ...previous.recentEvents].slice(0, 500),
-      }));
+      get().acceptWorld(state, movementFeedback(get().worldState, state, event));
       // Layer terminals are proximity-gated by the backend. Movement must refresh
       // authoritative actions even while the simulation is paused.
       if (state.scene?.layered_world) await get().refreshCommands();
@@ -277,17 +276,19 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     if (!id || get().worldState?.progress.status !== 'InProgress') return;
     try {
       await api.setCharacterPosture(id, posture);
-      set({ worldState: await api.snapshot() });
+      get().acceptWorld(await api.snapshot());
     } catch (err) { set({ error: t('app.error.moveCharacter', { message: String(err) }) }); }
   },
 
   traverseSelectedConnector: async (connectorId) => {
     const id = get().selectedActorId;
     if (!id || get().worldState?.progress.status !== 'InProgress') return;
+    const before = get().worldState!;
+    const connector = before.scene?.connectors.find(candidate => candidate.id === connectorId);
     try {
       const event = await api.traverseConnector(id, connectorId);
       const state = await api.snapshot();
-      set(previous => ({ worldState: state, recentEvents: [...movementFeedback(previous.worldState, state, event), ...previous.recentEvents].slice(0, 500) }));
+      get().acceptWorld(state, movementFeedback(before, state, event), connector ? { traversal: { characterId: id, kind: connector.kind, from: before.characters[id].position, to: state.characters[id].position } } : {});
     } catch (err) { set({ error: t('app.error.moveCharacter', { message: String(err) }) }); }
   },
 
@@ -299,16 +300,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       const dt = 0.5 * Math.max(1, ws?.time_speed ?? 1);
       const events = await api.tick(dt);
       const state = await api.snapshot();
-      // Only add non-TickCompleted events to the log
-      const meaningful = events.filter((e) => !('TickCompleted' in e));
-      if (meaningful.length > 0) {
-        set((prev) => ({
-          worldState: state,
-          recentEvents: [...meaningful, ...prev.recentEvents].slice(0, 500),
-        }));
-      } else {
-        set({ worldState: state });
-      }
+      get().acceptWorld(state, events);
       if (state.progress.status !== 'InProgress') {
         get().stopTickLoop();
         set({ availableCommands: [] });
@@ -323,7 +315,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     try {
       await api.setTimeSpeed(speed);
       const state = await api.snapshot();
-      set({ worldState: state });
+      get().acceptWorld(state);
       if (speed === 0) {
         get().stopTickLoop();
       } else {
@@ -372,8 +364,8 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
     try {
       const state = await api.loadSave(slot);
       const initial = pickInitialSelection(state);
+      get().acceptWorld(state, [], { resetMotions: true });
       set({
-        worldState: state,
         currentLevelId: state.level_id || slot.split('-tick')[0] || null,
         sceneNotebookOpen: false,
         selectedActorId: initial.actorId,
@@ -417,6 +409,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       page: 'menu',
       currentLevelId: null,
       worldState: null,
+      sceneMotions: {},
       sceneNotebookOpen: false,
       selectedActorId: null,
       selectedTargetId: null,

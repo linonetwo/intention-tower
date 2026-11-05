@@ -14,6 +14,7 @@ import { activeSceneRoom, connectedSceneRooms, entityInRoom, characterArtScale, 
 export const GameScene: React.FC<{ width: number; height: number }> = ({ width, height }) => {
   const { t } = useTranslation();
   const world = useGameState(s => s.worldState);
+  const sceneMotions = useGameState(s => s.sceneMotions);
   const levelId = useGameState(s => s.currentLevelId);
   const actorId = useGameState(s => s.selectedActorId);
   const targetId = useGameState(s => s.selectedTargetId);
@@ -86,7 +87,6 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   // Notebook/dialogue visibility must not resize the same physical paperdoll.
   const scale = hasLayers ? layerArtScale : characterArtScale(worldScale, ground, 150);
   const cameraX = clampCameraX(width, actor?.position.x ?? 400, worldScale, worldMin, worldMax);
-  const projectionKey = `${layerState?.context_id ?? ''}:${worldScale}:${cameraX}:${ground}:${scale}`;
   const projectY = (y: number) => projectPlatformY(y, ground, worldScale);
   const items = Object.values(world?.items ?? {}).filter(item => !item.owner_id && inStrip(world?.item_rooms, item.id) && !presentationFor(world?.item_rooms?.[item.id] ?? fallbackRoom)?.hidden);
   const itemGroups: typeof items[] = [];
@@ -214,7 +214,7 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
           })}</div>;
         })}
         {characters.map(character => <div key={`${levelId}:${character.id}`} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', filter: presentationFor(world?.character_rooms?.[character.id] ?? fallbackRoom)?.filter, opacity: presentationFor(world?.character_rooms?.[character.id] ?? fallbackRoom)?.opacity }}><WorldCharacterSprite character={character} asset={resolveCharacterSprite(manifest, character.id, selectedOutfits[character.id])} revision={revision} posture={world?.character_postures?.[character.id] ?? 'standing'}
-          x={character.position.x * worldScale + cameraX} ground={projectY(character.position.y)} scale={scale} projectionKey={projectionKey} selected={character.id === actorId} targeted={character.id === targetId}
+          x={character.position.x * worldScale + cameraX} ground={projectY(character.position.y)} scale={scale} worldScale={worldScale} motion={sceneMotions[character.id]} selected={character.id === actorId} targeted={character.id === targetId}
           onSelect={e => { walkRun.current++; const state = gameStore.getState(); if (e.shiftKey || targetSelection) state.selectTarget(character.id); else state.selectActor(character.id); state.inspectCharacter(character.id); setTargetSelection(false); }} /></div>)}
         {itemsVisible && itemGroups.map(group => {
           const item = group[0];

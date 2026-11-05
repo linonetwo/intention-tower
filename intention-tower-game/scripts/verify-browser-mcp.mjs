@@ -117,14 +117,48 @@ async function advance(count) {
   for (let i = 0; i < count; i++) events.push(...((await call('step_tick')).events ?? []));
   return events;
 }
+async function waitFinalPosture(character, posture) {
+  await evaluate(`new Promise((resolve,reject)=>{const started=performance.now();const poll=()=>{const actor=document.querySelector(${JSON.stringify(`[data-testid="scene-character-${character}"]`)});if(window.__INTENTION_TEST__.state().character_postures[${JSON.stringify(character)}]===${JSON.stringify(posture)}&&actor?.dataset.posture===${JSON.stringify(posture)}&&actor.dataset.motionClip==='idle')resolve(true);else if(performance.now()-started>3000)reject(new Error('Actual ${character} ${posture} transition did not finish'));else requestAnimationFrame(poll)};poll()})`);
+}
 // Bounds are the union of articulated image parts, never the padded rig canvas.
 async function rigEvidence(character) {
-  const result = await evaluate(`(async()=>{const actor=document.querySelector('[data-testid="scene-character-${character}"]'),rig=document.querySelector('[data-testid="scene-character-rig-${character}"]');if(!rig)throw new Error('Missing articulated rig ${character}');const imgs=[...rig.querySelectorAll('[data-rig-part]')];await Promise.all(imgs.map(img=>img.decode()));const boxes=imgs.map(img=>img.getBoundingClientRect()),a=actor.getBoundingClientRect(),stage=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect();return{pose:rig.dataset.pose,outfit:rig.dataset.outfit,head:rig.dataset.head,headSrc:rig.querySelector('[data-rig-part="head"]').currentSrc,torsoSrc:rig.querySelector('[data-rig-part="torso"]').currentSrc,parts:imgs.map(img=>({part:img.dataset.rigPart,width:img.naturalWidth,height:img.naturalHeight,complete:img.complete})),bounds:{left:Math.min(...boxes.map(r=>r.left)),right:Math.max(...boxes.map(r=>r.right)),top:Math.min(...boxes.map(r=>r.top)),bottom:Math.max(...boxes.map(r=>r.bottom))},actor:a.toJSON(),stage:stage.toJSON(),ground:window.__itSceneDebug().ground}})()`);
+  const result = await evaluate(`(async()=>{const actor=document.querySelector('[data-testid="scene-character-${character}"]'),rig=document.querySelector('[data-testid="scene-character-rig-${character}"]');if(!rig)throw new Error('Missing articulated rig ${character}');const imgs=[...rig.querySelectorAll('[data-rig-part]')];await Promise.all(imgs.map(img=>img.decode()));const boxes=imgs.map(img=>img.getBoundingClientRect()),a=actor.getBoundingClientRect(),stage=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect();return{pose:actor.dataset.motionClip==='walk'?'walking':actor.dataset.posture,outfit:rig.dataset.outfit,head:rig.dataset.head,headSrc:rig.querySelector('[data-rig-part="head"]').currentSrc,torsoSrc:rig.querySelector('[data-rig-part="torso"]').currentSrc,parts:imgs.map(img=>({part:img.dataset.rigPart,width:img.naturalWidth,height:img.naturalHeight,complete:img.complete})),bounds:{left:Math.min(...boxes.map(r=>r.left)),right:Math.max(...boxes.map(r=>r.right)),top:Math.min(...boxes.map(r=>r.top)),bottom:Math.max(...boxes.map(r=>r.bottom))},actor:a.toJSON(),stage:stage.toJSON(),ground:window.__itSceneDebug().ground}})()`);
   assert.equal(result.parts.length, 10, `${character}: head, torso and eight articulated limb parts`);
   assert.ok(result.parts.every(part => part.complete && part.width > 0 && part.height > 0), `${character}: every rig image decoded`);
   assert.ok(result.bounds.bottom - result.bounds.top > result.actor.height * .45, `${character}: real human body height`);
   assert.ok(Math.abs(result.actor.bottom - result.stage.top - result.ground) < 1, `${character}: outer actor feet on authored floor`);
   return result;
+}
+// Sample the real compositor-facing joints, not merely the semantic clip label.
+// One short sampler is shared by the existing human, animal and connector journey.
+async function motionEvidence(character, clip, { travel = false, facing } = {}) {
+  const samples = await evaluate(`(async()=>{
+    const selector=${JSON.stringify(`[data-testid="scene-character-${character}"]`)};
+    const started=performance.now();
+    while(document.querySelector(selector)?.dataset.motionClip!==${JSON.stringify(clip)}||(${JSON.stringify(facing ?? null)}!==null&&document.querySelector(selector)?.dataset.facing!==${JSON.stringify(facing ?? null)})) {
+      if(performance.now()-started>2000)throw new Error('Expected actual ${character} ${clip} animation');
+      await new Promise(requestAnimationFrame);
+    }
+    const samples=[];
+    for(let frame=0;frame<3;frame++) {
+      if(frame)await new Promise(resolve=>setTimeout(()=>requestAnimationFrame(resolve),80));
+      const actor=document.querySelector(selector),stage=document.querySelector('[data-testid="scene-viewport"]'),r=actor.getBoundingClientRect(),s=stage.getBoundingClientRect(),d=window.__itSceneDebug();
+      const head=actor.querySelector('[data-rig-part="head"]');
+      samples.push({at:performance.now(),clip:actor.dataset.motionClip,sequence:actor.dataset.motionSequence,facing:actor.dataset.facing,
+        position:{x:(r.left+r.width/2-s.left-d.cameraX)/d.scale,y:(r.bottom-s.top-d.ground)/d.scale},
+        joints:[...actor.querySelectorAll('[data-rig-joint]')].map(joint=>({name:joint.dataset.rigJoint,transform:getComputedStyle(joint).transform,left:getComputedStyle(joint).left,top:getComputedStyle(joint).top})),
+        animal:[...actor.querySelectorAll('[data-animal-motion]')].map(part=>({transform:getComputedStyle(part).transform,images:[...part.querySelectorAll('img')].map(img=>({src:img.currentSrc,opacity:getComputedStyle(img).opacity}))})),
+        head:head?{src:head.currentSrc,width:head.clientWidth,height:head.clientHeight}:null});
+    }
+    return samples;
+  })()`);
+  const active = samples.filter(sample => sample.clip === clip);
+  assert.ok(active.length >= 2, `${character}: ${clip} remains active across sampled frames`);
+  const signatures = active.map(sample => JSON.stringify(sample.joints.length ? sample.joints : sample.animal));
+  assert.ok(new Set(signatures).size > 1, `${character}: ${clip} changes real joint or animal transforms over time`);
+  if (travel) assert.ok(active.some(sample => Math.hypot(sample.position.x - active[0].position.x, sample.position.y - active[0].position.y) > 1), `${character}: ${clip} changes actual projected body position`);
+  (report.animation ??= []).push({ character, clip, samples });
+  return samples;
 }
 try {
   // A local rerun may reuse the previous short-landscape viewport. Establish
@@ -160,8 +194,12 @@ try {
       }
       await clickCommand('ring-bell');
       await advance(1);
+      await motionEvidence('pavlov', 'interact');
       await clickCommand('feed');
-      learningEvents.push(...await advance(11));
+      learningEvents.push(...await advance(1));
+      await motionEvidence('dog', 'eat');
+      await shot('animation-dog-feeding');
+      learningEvents.push(...await advance(10));
       await shot('learning-real-command-buttons');
       report.realCommandButtons = ['command-ring-bell', 'command-feed'];
     } else {
@@ -210,13 +248,16 @@ try {
     await clickWorldX(460, .2); await waitPosition('cat-billi', 460, 300);
     await clickWorldX(520, .72); await waitPosition('cat-billi', 520, 300);
     await call('click', { selector: '[data-testid="scene-posture"]' });
+    await motionEvidence('cat-billi', 'sit-down');
     const sitting = await call('snapshot');
     assert.equal(sitting.character_postures['cat-billi'], 'sitting');
     assert.deepEqual(sitting.characters['cat-billi'].position, { x: 520, y: 300 });
     await shot('smart-cat-real-sitting');
     await call('click', { selector: '[data-testid="scene-posture"]' });
+    await motionEvidence('cat-billi', 'stand-up');
     assert.equal((await call('snapshot')).character_postures['cat-billi'], 'standing');
     await call('click', { selector: '[data-testid="scene-traverse"]' });
+    await motionEvidence('cat-billi', 'stairs', { travel: true });
     await waitPosition('cat-billi', 580, 180);
     assert.equal((await call('snapshot')).characters['cat-billi'].position.y, 180);
     await shot('smart-cat-real-stairs-up');
@@ -229,7 +270,7 @@ try {
     await call('click', { selector: '[data-testid="scene-character-tim"]' });
     await call('click', { selector: '[data-testid="scene-posture"]' });
     assert.equal((await call('snapshot')).character_postures.tim, 'sitting');
-    await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(document.querySelector('[data-testid="scene-character-rig-tim"]')?.dataset.pose==='sitting'){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Tim sitting pose did not render'))}},20)})`);
+    await waitFinalPosture('tim', 'sitting');
     const seatedArt = await rigEvidence('tim');
     assert.equal(seatedArt.pose, 'sitting', 'Tim displays the canonical articulated sitting pose');
     seatedArt.chairVisible = await evaluate(`(async()=>{const chair=document.querySelector('[data-testid="scene-chair-tim"]');if(chair)await chair.decode();const r=chair?.getBoundingClientRect();return !!chair&&chair.naturalWidth>0&&r.width>0&&r.height>0&&r.right>0&&r.left<innerWidth&&r.bottom>0&&r.top<innerHeight})()`);
@@ -270,22 +311,49 @@ try {
       await call('click', { selector: '[data-testid="scene-wardrobe"]' });
       const nextOutfit = await evaluate(`(()=>{const buttons=[...document.querySelectorAll('[data-testid^="scene-outfit-"]')];return (buttons.find(b=>b.dataset.testid==='scene-outfit-teacher'&&b.getAttribute('aria-pressed')!=='true')??buttons.find(b=>b.getAttribute('aria-pressed')!=='true'))?.dataset.testid})()`);
       assert.ok(nextOutfit, 'Wardrobe exposes a real alternative outfit');
+      let beforeDressingMotion;
+      if (viewport.name === 'desktop') {
+        // This unobstructed classroom stretch stays left of the teacher at x=300.
+        // Open the wardrobe first, then change clothes during a real click-to-walk.
+        await clickWorldX(20, .25);
+        beforeDressingMotion = await motionEvidence('tim', 'walk', { travel: true });
+      }
       await call('click', { selector: `[data-testid="${nextOutfit}"]` });
-      await settle(`rig-${viewport.name}-outfit`);
+      if (viewport.name === 'desktop') {
+        const afterDressingMotion = await motionEvidence('tim', 'walk', { travel: true });
+        const headBefore = beforeDressingMotion.at(-1).head, headAfter = afterDressingMotion[0].head;
+        assert.equal(headAfter.src, headBefore.src, 'Mid-walk outfit change retains the identity head');
+        assert.ok(Math.abs(headAfter.width / headBefore.width - 1) < .15 && Math.abs(headAfter.height / headBefore.height - 1) < .15, 'Mid-walk outfit change preserves head proportions');
+        assert.ok(Number(afterDressingMotion[0].sequence) >= Number(beforeDressingMotion.at(-1).sequence), 'Outfit change does not restart the active motion sequence');
+        assert.equal(afterDressingMotion[0].facing, 'left');
+        // Interrupt the walk with another actual ground click, not a synthetic state.
+        await clickWorldX(240, .25);
+        const turned = await motionEvidence('tim', 'walk', { travel: true, facing: 'right' });
+        assert.equal(turned[0].facing, 'right', 'A new movement target turns the articulated body');
+        await waitPosition('tim', 240, 300, 1);
+      } else await settle(`rig-${viewport.name}-outfit`);
       const dressed = await rigEvidence('tim');
       assert.notEqual(dressed.outfit, standing.outfit);
       assert.notEqual(dressed.torsoSrc, standing.torsoSrc);
       assert.equal(dressed.headSrc, standing.headSrc, 'Changing clothes preserves the same identity head');
-      assert.deepEqual(await call('snapshot'), beforeCosmetic, 'Cosmetics cannot mutate the authoritative world, graph, ticks or progress');
+      const afterCosmetic = await call('snapshot');
+      const nonMovement = world => ({ tick: world.tick, progress: world.progress, minds: Object.fromEntries(Object.entries(world.characters).map(([id, character]) => [id, character.mind_graph])), items: world.items });
+      if (viewport.name === 'desktop') assert.deepEqual(nonMovement(afterCosmetic), nonMovement(beforeCosmetic), 'Moving while changing clothes preserves minds, items, ticks and progress');
+      else assert.deepEqual(afterCosmetic, beforeCosmetic, 'Cosmetics cannot mutate the authoritative world, graph, ticks or progress');
       await call('click', { selector: '[data-testid="scene-wardrobe"]' });
       await call('click', { selector: '[data-testid="scene-posture"]' });
-      await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(window.__INTENTION_TEST__.state().character_postures.tim==='sitting'&&document.querySelector('[data-testid="scene-character-rig-tim"]')?.dataset.pose==='sitting'){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Actual posture request did not finish'))}},20)})`);
+      if (viewport.name === 'desktop') await motionEvidence('tim', 'sit-down');
+      await waitFinalPosture('tim', 'sitting');
       const sittingRig = await rigEvidence('tim');
       assert.equal(sittingRig.pose, 'sitting');
+      if (viewport.name === 'desktop') {
+        await call('click', { selector: '[data-testid="scene-posture"]' });
+        await motionEvidence('tim', 'stand-up');
+      }
       const beforeWalk = await call('snapshot');
       const walkingTarget = beforeWalk.characters.tim.position.x - 120;
       await clickWorldX(walkingTarget, .25);
-      await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{if(document.querySelector('[data-testid="scene-character-rig-tim"]')?.dataset.pose==='walking'){clearInterval(timer);resolve(true)}else if(++n>100){clearInterval(timer);reject(new Error('Real movement did not produce canonical walking pose'))}},10)})`);
+      await evaluate(`new Promise((resolve,reject)=>{const started=performance.now();const poll=()=>{if(document.querySelector('[data-testid="scene-character-tim"]')?.dataset.motionClip==='walk')resolve(true);else if(performance.now()-started>2000)reject(new Error('Real movement did not produce walking'));else requestAnimationFrame(poll)};poll()})`);
       const walkingRig = await rigEvidence('tim');
       assert.equal(walkingRig.pose, 'walking');
       await waitPosition('tim', walkingTarget, 300, 1);
@@ -390,6 +458,7 @@ try {
     }
     roomControls.ladderUp = await touchControl('scene-traverse');
     await call('click', { selector: '[data-testid="scene-traverse"]' });
+    if (roomViewport.name === 'desktop') await motionEvidence('pavlov', 'climb', { travel: true });
     await waitPosition('pavlov', 1200, 180);
     const ladderUp = await call('snapshot');
     assert.equal(ladderUp.character_rooms.pavlov, 'pantry');

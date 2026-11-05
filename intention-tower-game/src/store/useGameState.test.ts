@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { CommandDef, WorldEvent, WorldState } from '../types/backend';
+import type { CommandDef, LayeredState, MindNode, WorldEvent, WorldState } from '../types/backend';
 
 const api = vi.hoisted(() => ({
   loadLevel: vi.fn(),
@@ -9,6 +9,9 @@ const api = vi.hoisted(() => ({
   snapshot: vi.fn(),
   stepTick: vi.fn(),
   moveCharacter: vi.fn(),
+  setCharacterPosture: vi.fn(),
+  traverseConnector: vi.fn(),
+  loadSave: vi.fn(),
 }));
 
 vi.mock('../api/tauriApi', () => ({
@@ -17,7 +20,6 @@ vi.mock('../api/tauriApi', () => ({
   tick: vi.fn(),
   setPaused: vi.fn(),
   saveGame: vi.fn(),
-  loadSave: vi.fn(),
   listSaves: vi.fn(),
   deleteSave: vi.fn(),
 }));
@@ -82,6 +84,9 @@ describe('backend-driven game store', () => {
     api.snapshot.mockReset();
     api.stepTick.mockReset().mockResolvedValue([]);
     api.moveCharacter.mockReset();
+    api.setCharacterPosture.mockReset();
+    api.traverseConnector.mockReset();
+    api.loadSave.mockReset();
   });
 
   it('mirrors an authoritative micro-control movement snapshot', async () => {
@@ -105,6 +110,93 @@ describe('backend-driven game store', () => {
 
     expect(api.moveCharacter).toHaveBeenCalledWith('pavlov', 28, 0);
     expect(gameStore.getState().worldState?.characters.pavlov.position.x).toBe(28);
+    expect(gameStore.getState().sceneMotions.pavlov).toMatchObject({ clip: 'walk', from: { x: 0, y: 0 }, to: { x: 28, y: 0 } });
+  });
+
+  it('consumes only new successful events and replaces the current motion', async () => {
+    api.loadLevel.mockResolvedValue(world());
+    await gameStore.getState().loadLevel('pavlov');
+    gameStore.getState().setAutoStepOnCommand(false);
+    api.snapshot.mockResolvedValue(world());
+    api.executeCommand.mockResolvedValue([{ CommandRejected: { actor_id: 'pavlov', command_id: 'ring-bell', target_id: 'dog', reason: 'blocked' } }]);
+    await gameStore.getState().executeCommand('ring-bell');
+    expect(gameStore.getState().sceneMotions).toEqual({});
+    api.executeCommand.mockResolvedValue([{ CommandExecuted: { actor_id: 'pavlov', command_id: 'ring-bell', target_id: 'dog' } }]);
+    await gameStore.getState().executeCommand('ring-bell');
+    const motion = gameStore.getState().sceneMotions.pavlov;
+    expect(motion.clip).toBe('interact');
+    gameStore.getState().acceptWorld(world());
+    expect(gameStore.getState().sceneMotions.pavlov).toBe(motion);
+    api.executeCommand.mockResolvedValue([{ CommandExecuted: { actor_id: 'pavlov', command_id: 'offer-water', target_id: 'dog' } }]);
+    await gameStore.getState().executeCommand('offer-water');
+    expect(gameStore.getState().sceneMotions.pavlov.clip).toBe('offer');
+    expect(gameStore.getState().sceneMotions.pavlov.sequence).toBe(motion.sequence + 1);
+    expect(gameStore.getState().sceneMotions.dog).toBeUndefined();
+    await gameStore.getState().loadLevel('pavlov');
+    expect(gameStore.getState().sceneMotions).toEqual({});
+  });
+
+  it('uses connector metadata and clears motion on load, layer jumps and character removal', async () => {
+    const initial = world();
+    initial.scene = { platforms: [], connectors: [{ id: 'ladder', kind: 'ladder', from_platform: 'a', to_platform: 'b', from_x: 0, to_x: 0 }] };
+    api.loadLevel.mockResolvedValue(initial);
+    await gameStore.getState().loadLevel('pavlov');
+    const climbed = world();
+    climbed.characters.pavlov.position = { x: 0, y: 100 };
+    api.snapshot.mockResolvedValue(climbed);
+    api.traverseConnector.mockResolvedValue({ CharacterMoved: { character_id: 'pavlov', from_x: 0, from_y: 0, to_x: 0, to_y: 100 } });
+    await gameStore.getState().traverseSelectedConnector('ladder');
+    expect(gameStore.getState().sceneMotions.pavlov).toMatchObject({ clip: 'climb', to: { x: 0, y: 100 } });
+    api.loadSave.mockResolvedValue(initial);
+    await gameStore.getState().loadSave('slot');
+    expect(gameStore.getState().sceneMotions).toEqual({});
+    gameStore.getState().acceptWorld(initial, [{ CommandExecuted: { actor_id: 'pavlov', command_id: 'ring-bell', target_id: 'dog' } }]);
+    gameStore.getState().acceptWorld({ ...initial, in_virtual_context: true });
+    expect(gameStore.getState().sceneMotions).toEqual({});
+    const modern = { ...initial, layered_world: { pavlov: { context_id: 'real' } as LayeredState, dog: { context_id: 'real' } as LayeredState } };
+    gameStore.getState().acceptWorld(modern);
+    gameStore.getState().acceptWorld(modern, [{ CommandExecuted: { actor_id: 'pavlov', command_id: 'ring-bell', target_id: 'dog' } }]);
+    const ongoing = gameStore.getState().sceneMotions.pavlov;
+    gameStore.getState().acceptWorld({ ...modern, in_virtual_context: true, virtual_context_stack: ['dream'], layered_world: { ...modern.layered_world, dog: { context_id: 'dream' } as LayeredState } });
+    expect(gameStore.getState().sceneMotions.pavlov).toBe(ongoing);
+    const removed = world();
+    delete removed.characters.pavlov;
+    gameStore.getState().acceptWorld(removed);
+    expect(gameStore.getState().sceneMotions).toEqual({});
+    gameStore.getState().reset();
+    expect(gameStore.getState().sceneMotions).toEqual({});
+  });
+
+  it('animates authoritative posture, executed action schemas and actual feeding results', async () => {
+    const initial = world();
+    initial.characters.dog.mind_graph.nodes.hunger = { instance_id: 'hunger', schema_id: 'it:concept/hunger', value: 0.8 } as MindNode;
+    initial.characters.dog.mind_graph.nodes.press = { instance_id: 'press', schema_id: 'it:concept/press-button' } as MindNode;
+    api.loadLevel.mockResolvedValue(initial);
+    await gameStore.getState().loadLevel('pavlov');
+    const sitting = { ...initial, character_postures: { pavlov: 'sitting' as const } };
+    api.snapshot.mockResolvedValue(sitting);
+    await gameStore.getState().setSelectedPosture('sitting');
+    expect(gameStore.getState().sceneMotions.pavlov).toMatchObject({ clip: 'sit-down', fromPosture: 'standing', toPosture: 'sitting' });
+    gameStore.getState().acceptWorld(sitting, [{ ActionExecuted: { character_id: 'dog', instance_id: 'press', executed_at: 1, autonomous: true } }]);
+    expect(gameStore.getState().sceneMotions.dog.clip).toBe('interact');
+    const fed = structuredClone(sitting);
+    fed.characters.dog.mind_graph.nodes.hunger.value = 0.4;
+    gameStore.getState().acceptWorld(fed, [
+      { CommandExecuted: { actor_id: 'pavlov', command_id: 'feed', target_id: 'dog' } },
+      { LearningUpdated: { character_id: 'dog', edge_id: 'food-hunger', source_id: 'food', target_id: 'hunger', reward: 0.4, prediction: 0, prediction_error: 0.4, dopamine_spent: 0.1, old_weight: 0.1, new_weight: 0.2, phase: 'reinforced' } },
+    ]);
+    expect(gameStore.getState().sceneMotions.dog.clip).toBe('eat');
+    const activated = structuredClone(fed);
+    activated.characters.dog.mind_graph.nodes.salivate = { instance_id: 'salivate', schema_id: 'it:concept/salivate', node_type: 'Action', active: true, action: { innate: true } } as MindNode;
+    gameStore.getState().acceptWorld(activated, [{ NodeActivated: { character_id: 'dog', instance_id: 'salivate' } }]);
+    const innateMotion = gameStore.getState().sceneMotions.dog;
+    expect(innateMotion.clip).toBe('observe');
+    gameStore.getState().acceptWorld(activated);
+    expect(gameStore.getState().sceneMotions.dog).toBe(innateMotion);
+    const perceived = structuredClone(activated);
+    perceived.characters.dog.mind_graph.nodes.observation = { instance_id: 'observation', schema_id: 'it:concept/drink', node_type: 'Observation', active: true, action: null } as MindNode;
+    gameStore.getState().acceptWorld(perceived, [{ NodeActivated: { character_id: 'dog', instance_id: 'observation' } }]);
+    expect(gameStore.getState().sceneMotions.dog).toBe(innateMotion);
   });
 
   it('uses level defaults and starts paused so both mouse and touch players can orient', async () => {
