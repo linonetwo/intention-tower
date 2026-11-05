@@ -67,5 +67,12 @@
     "level.smart-cat.objective.0",
     "level.smart-cat.objective.1",
     "level.smart-cat.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "demonstrate-button", "label": "level.smart-cat.objective.0", "condition": { "type": "conditioningTrials", "characterId": "cat-billi", "sourceSchemaId": "it:concept/hear-button-sound", "targetSchemaId": "it:concept/press-button", "minPaired": 3 } },
+    { "objectiveId": "reinforce-correct-action", "label": "level.smart-cat.objective.1", "condition": { "type": "actionEpisodes", "characterId": "cat-billi", "actionSchemaId": "it:concept/press-button", "minCount": 2, "rewarded": true } },
+    { "objectiveId": "verify-cat-action", "label": "level.smart-cat.objective.2", "condition": { "type": "actionEpisodes", "characterId": "cat-billi", "actionSchemaId": "it:concept/press-button", "minCount": 1, "autonomous": true } }
+  ],
+  "defaultActorId": "trainer",
+  "defaultTargetId": "cat-billi"
 }

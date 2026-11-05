@@ -1,0 +1,467 @@
+   Compiling intention-tower-game v0.9.0 (/home/user/workspace/intention-tower/intention-tower-game/src-tauri)
+    Finished `test` profile [unoptimized] target(s) in 18.49s
+     Running unittests src/lib.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/intention_tower_game_lib-d8553bdd5ab9416a)
+
+running 5 tests
+test save_slots::tests::rejects_path_traversal_and_accepts_portable_names ... ok
+test level_loader::tests::instruction_cues_fail_closed_before_a_mind_graph_is_loaded ... ok
+test level_loader::tests::test_load_pavlov_level ... ok
+test level_loader::tests::test_simulation_tick ... ok
+test level_loader::tests::test_load_all_levels ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/action_social_credit.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/action_social_credit-8a3f53a2720afb11)
+
+running 16 tests
+test real_runner_action_receives_real_relief_and_paid_edges_to_exact_action ... ok
+test authored_stand_pair_can_receive_its_own_paid_social_credit ... ok
+test duplicate_of_latest_consumed_response_never_falls_back_to_older_response ... ok
+test authored_weak_approval_relief_pays_negative_prediction_error ... ok
+test no_action_selection_and_manual_pose_cannot_receive_approval ... ok
+test no_response_cannot_create_extinction_and_zero_dopamine_never_backpays ... ok
+test one_episode_is_consumed_once_for_queued_same_tick_cross_tick_and_save_restore ... ok
+test save_between_command_and_delivery_preserves_exact_pin_and_one_delivery ... ok
+test wrong_reward_actor_or_target_cannot_borrow_tims_episode ... ok
+test saved_pending_pin_stays_bound_to_sit_even_after_a_real_stand_response ... ok
+test zero_relief_or_zero_dopamine_still_irrevocably_consumes_action_reward ... ok
+test deadline_is_inclusive_and_omission_is_once_across_save_restore ... ok
+test legacy_or_invalid_sources_never_decay_unrelated_edges ... ok
+test mismatched_and_future_or_expired_motor_evidence_never_credits ... ok
+test reserved_unattended_reward_expires_without_late_relief_or_recharge_backpay ... ok
+test zero_scale_or_saturated_need_settles_zero_reward_without_repeat ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/all_levels_playable.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/all_levels_playable-9cc5fbf51831af18)
+
+running 1 test
+test every_shipped_level_has_a_verified_winning_route ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests/command_cohorts.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/command_cohorts-0e051d0243a378df)
+
+running 5 tests
+test ideology_commands_are_limited_to_the_authored_speaker_and_audience ... ok
+test repeated_saturated_faith_does_not_complete_two_person_objective ... ok
+test persuasion_only_targets_luddites_without_overconstraining_bci ... ok
+test skeptic_acquires_a_real_action_binding_before_faith_can_be_reinforced ... ok
+test gesture_teaching_creates_the_discipline_binding_for_each_student ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/command_outcomes.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/command_outcomes-0d6c23c9a6e77e06)
+
+running 11 tests
+test forged_payload_is_ignored_and_unknown_queue_is_rejected ... ok
+test empty_and_missing_effects_do_not_execute ... ok
+test no_target_command_discards_forged_recipient ... ok
+test absolute_resistance_rejects_but_partial_weakening_executes ... ok
+test queued_commands_revalidate_resource_without_fabricated_consumption ... ok
+test repeated_observation_is_meaningful_and_refreshes_ttl ... ok
+test resistance_diagnostics_do_not_leak_from_failed_atomic_command ... ok
+test movement_collision_is_atomic_failure ... ok
+test hard_failure_rolls_back_cost_and_domain_events ... ok
+test cost_does_not_turn_missing_primary_effect_into_success ... ok
+test self_trade_and_unowned_asset_reject_and_roll_back_price_changes ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/command_validation.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/command_validation-408814b30b5ae976)
+
+running 12 tests
+test legacy_observation_effect_dtos_default_social_fields_without_name_inference ... ok
+test declared_roles_reject_other_actors_targets_and_self_targeting ... ok
+test dispatch_contract::accepted_queue_is_not_reported_as_executed ... ok
+test dispatch_contract::immediate_success_uses_last_matching_normalized_outcome ... ok
+test no_target_checks_the_actor_and_ignores_supplied_target ... ok
+test dispatch_contract::immediate_dispatch_reports_domain_rejections_and_does_not_count_them ... ok
+test authored_social_metadata_and_need_bindings_reach_command_templates ... ok
+test authored_roles_are_loaded_and_enforced_by_the_shared_api_rules ... ok
+test all_twenty_one_bundled_levels_load ... ok
+test invalid_social_signal_metadata_fails_closed_with_command_context ... ok
+test invalid_action_credit_metadata_fails_closed_with_command_context ... ok
+test malformed_declarations_fail_closed_with_command_context ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/core_semantics.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/core_semantics-e375c430fc66ea9e)
+
+running 14 tests
+test attention_loss_is_recoverable_and_does_not_deactivate_nodes ... ok
+test one_public_presentation_and_passive_ticks_do_not_fabricate_an_emergent_meme ... ok
+test action_competition_can_choose_a_different_winner_next_tick ... ok
+test own_action_echo_is_not_a_meme_but_another_character_can_observe_it ... ok
+test movement_is_authoritative_rate_limited_and_bounded ... ok
+test repeated_food_and_auditory_stimuli_are_associations_not_public_memes ... ok
+test repeated_public_behavior_crystallizes_into_an_emergent_meme ... ok
+test belief_suppression_is_effective_but_never_erodes_base_instinct_strength ... ok
+test thought_seal_resists_deletion ... ok
+test virtual_context_is_nested_and_stamps_observation_layer ... ok
+test consumer_command_creates_a_real_balanced_asset_transaction ... ok
+test weaken_edge_always_reduces_weight_even_with_legacy_negative_delta ... ok
+test identity_memes_form_a_cross_character_social_group ... ok
+test spaced_public_presentations_survive_stimulus_expiry_and_save_restore ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/cucumber.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/cucumber-a6d2100969446991)
+[test-server] MCP: http://127.0.0.1:38097/mcp
+功能: 雏鹅真实关键期印刻及固定实体追随
+  场景: 真实接触后实际远离和追随
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  当雏鹅执行 "approach-gosling" 后推进 1 步
+   ✔  那么雏鹅的固定印刻对象为 "it:entity/lorenz"
+   ✔  而且雏鹅仍未通关
+   ✔  当雏鹅执行 "move-away" 后推进 1 步
+   ✔  而且雏鹅仅推进 12 步
+   ✔  那么雏鹅真实移动追随洛伦兹并通关
+  场景: 关键期外接触不能印刻
+[test-server] MCP: http://127.0.0.1:36249/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  而且雏鹅已过印刻关键期
+   ✔  当雏鹅执行 "approach-gosling" 后推进 12 步
+   ✔  那么雏鹅没有真实印刻且未通关
+  场景: 零多巴胺且无再生不能印刻
+[test-server] MCP: http://127.0.0.1:40143/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  而且雏鹅的 "it:concept/dopamine" 资源为零且不再生
+   ✔  当雏鹅执行 "approach-gosling" 后推进 12 步
+   ✔  那么雏鹅没有真实印刻且未通关
+  场景: 零注意力且无再生不能印刻
+[test-server] MCP: http://127.0.0.1:34553/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  而且雏鹅的 "it:concept/attention" 资源为零且不再生
+   ✔  当雏鹅执行 "approach-gosling" 后推进 12 步
+   ✔  那么雏鹅没有真实印刻且未通关
+  场景: 无关视觉不能替代合格接触
+[test-server] MCP: http://127.0.0.1:41153/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  当雏鹅收到与真实对象有关但不属于接触的视觉
+   ✔  那么雏鹅没有真实印刻且未通关
+  场景: 首次印刻诱饵不能切换到洛伦兹
+[test-server] MCP: http://127.0.0.1:34491/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  当雏鹅执行 "show-decoy" 后推进 1 步
+   ✔  那么雏鹅的固定印刻对象为 "it:entity/mother-goose-decoy"
+   ✔  当雏鹅执行 "approach-gosling" 后推进 1 步
+   ✔  而且雏鹅执行 "move-away" 后推进 12 步
+   ✔  那么雏鹅的固定印刻对象为 "it:entity/mother-goose-decoy"
+   ✔  而且雏鹅仍未通关
+  场景: 旧命令计数和预置边不能伪通关
+[test-server] MCP: http://127.0.0.1:35783/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  当雏鹅仅拥有旧通关命令计数
+   ✔  那么雏鹅没有真实印刻且未通关
+  场景: 保存恢复后保留印刻证据与真实追随能力
+[test-server] MCP: http://127.0.0.1:35137/mcp
+   ✔  假如已加载雏鹅真实目标关卡
+   ✔  当雏鹅执行 "approach-gosling" 后推进 1 步
+   ✔  而且雏鹅执行 "move-away" 后推进 1 步
+   ✔  而且雏鹅保存恢复完整状态
+   ✔  那么雏鹅的固定印刻对象为 "it:entity/lorenz"
+   ✔  当雏鹅仅推进 12 步
+   ✔  那么雏鹅真实移动追随洛伦兹并通关
+[test-server] MCP: http://127.0.0.1:38297/mcp
+功能: 巴甫洛夫的狗 — 经典条件反射
+  场景: 加载关卡并验证世界构成
+   ✔  假如已加载关卡 "pavlov"
+   ✔  那么世界中应存在以下角色和物品
+       | 类型     | ID             |
+       | 角色     | pavlov         |
+       | 角色     | dog            |
+       | 物品     | fast-metronome |
+       | 物品     | slow-metronome |
+       | 物品     | meat           |
+   ✔  而且执行者 "pavlov" 对目标 "dog" 的可用命令应包含 "ring-bell"
+   ✔  而且执行者 "pavlov" 对目标 "dog" 的可用命令应包含 "feed"
+  场景: 饥饿本能随时间增长触发进食动机
+[test-server] MCP: http://127.0.0.1:43271/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  那么"dog" 的 "it:concept/hunger" 节点值应小于 0.5
+   ✔  当推进 50 个 tick
+   ✔  那么"dog" 的 "it:concept/hunger" 节点值应大于 0.6
+   ✔  而且"dog" 的 "it:concept/want-to-eat" 节点应存在
+  场景: 经典条件反射训练 — 摇铃+喂食建立关联
+[test-server] MCP: http://127.0.0.1:39165/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  当推进 20 个 tick
+   ✔  那么"dog" 的 "it:concept/want-to-eat" 节点应存在
+   ✔  当执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 2 个 tick
+   ✔  当执行命令 "feed" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 25 个 tick
+   ✔  当执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 2 个 tick
+   ✔  当执行命令 "feed" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 25 个 tick
+   ✔  当执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 2 个 tick
+   ✔  那么"dog" 应至少有 1 条可学习边
+   ✔  而且"dog" 应有 "Classical" 类型的学习边
+   ✔  而且"dog" 中从 "hear-metronome" 到 "salivate" 的边权重应大于 0.3
+   ✔  而且"dog" 应有阶段为 "created" 的真实奖励预测误差学习事件
+   ✔  而且"dog" 应有阶段为 "reinforced" 的真实奖励预测误差学习事件
+  场景: 仅摇铃验证条件反射 + 听觉节点生成
+[test-server] MCP: http://127.0.0.1:40563/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  当对目标 "dog" 重复以下训练 10 轮
+       | 命令        | 执行者       | tick间隔     |
+       | ring-bell | pavlov    | 1          |
+       | feed      | pavlov    | 30         |
+   ✔  当执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 5 个 tick
+   ✔  那么"dog" 的 "it:concept/hear-metronome" 节点应存在
+   ✔  而且"dog" 的 "it:concept/see-food" 节点应未激活
+   ✔  而且"dog" 的 "it:concept/salivate" 节点应激活
+  场景: 消退 — 长期只摇铃不喂食导致关联衰减
+[test-server] MCP: http://127.0.0.1:44295/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  当对目标 "dog" 重复以下训练 8 轮
+       | 命令        | 执行者       | tick间隔     |
+       | ring-bell | pavlov    | 1          |
+       | feed      | pavlov    | 30         |
+   ✔  那么"dog" 中从 "hear-metronome" 到 "salivate" 的边权重应大于 0.6
+   ✔  当重复 20 次: 执行 "ring-bell" 由 "pavlov" 对 "dog" 然后推进 12 tick
+   ✔  那么"dog" 中从 "hear-metronome" 到 "salivate" 的边权重应小于 0.1
+   ✔  而且"dog" 应有阶段为 "extinguished" 的真实奖励预测误差学习事件
+   ✔  当执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 3 个 tick
+   ✔  那么"dog" 的 "it:concept/salivate" 节点应未激活
+  场景: 未训练仅铃声不能从饥饿中假学会流口水
+[test-server] MCP: http://127.0.0.1:41809/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  当推进 100 个 tick
+   ✔  当重复 5 次: 执行 "ring-bell" 由 "pavlov" 对 "dog" 然后推进 12 tick
+   ✔  那么"dog" 中从 "hear-metronome" 到 "salivate" 的边权重应小于 0.01
+   ✔  当执行命令 "ring-bell" 执行者 "pavlov" 目标 "dog"
+   ✔  当推进 3 个 tick
+   ✔  那么"dog" 的 "it:concept/salivate" 节点应未激活
+  场景: 反向配对和单独食物不能训练铃声
+[test-server] MCP: http://127.0.0.1:44821/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  当对目标 "dog" 重复以下训练 5 轮
+       | 命令        | 执行者       | tick间隔     |
+       | feed      | pavlov    | 1          |
+       | ring-bell | pavlov    | 12         |
+   ✔  那么"dog" 中从 "hear-metronome" 到 "salivate" 的边权重应小于 0.01
+  场景: 喂食降低饥饿感
+[test-server] MCP: http://127.0.0.1:40193/mcp
+   ✔  假如已加载关卡 "pavlov"
+   ✔  当推进 30 个 tick
+   ✔  那么"dog" 的 "it:concept/hunger" 节点值应大于 0.5
+   ✔  当执行命令 "feed" 执行者 "pavlov" 目标 "dog"
+   ✔  那么"dog" 的 "it:concept/hunger" 节点值应小于 0.8
+[test-server] MCP: http://127.0.0.1:33645/mcp
+功能: 聪明猫 — 操作性条件反射
+  场景: 加载关卡并验证角色和命令
+   ✔  假如已加载关卡 "smart-cat"
+   ✔  那么世界中应存在以下角色和物品
+       | 类型     | ID          |
+       | 角色     | trainer     |
+       | 角色     | cat-billi   |
+       | 物品     | button-food |
+       | 物品     | cat-food    |
+   ✔  而且执行者 "trainer" 对目标 "cat-billi" 的可用命令应包含 "demonstrate-press"
+   ✔  而且执行者 "trainer" 对目标 "cat-billi" 的可用命令应包含 "feed"
+   ✔  而且执行者 "trainer" 对目标 "cat-billi" 的可用命令不应包含 "feed-after-press"
+  场景: 示范按键训练猫建立按键→食物关联
+[test-server] MCP: http://127.0.0.1:33085/mcp
+   ✔  假如已加载关卡 "smart-cat"
+   ✔  那么"cat-billi" 的 "it:concept/press-button" 节点值应小于 0.5
+   ✔  当对目标 "cat-billi" 重复以下训练 10 轮
+       | 命令                | 执行者       | tick间隔     |
+       | demonstrate-press | trainer   | 1          |
+       | feed              | trainer   | 3          |
+   ✔  那么"cat-billi" 应至少有 1 条可学习边
+   ✔  而且"cat-billi" 中从 "hear-button-sound" 到 "press-button" 的边权重应大于 0.3
+  场景: 无奖励示范不能建立关联或替猫按键
+[test-server] MCP: http://127.0.0.1:35659/mcp
+   ✔  假如已加载关卡 "smart-cat"
+   ✔  当重复 8 次: 执行 "demonstrate-press" 由 "trainer" 对 "cat-billi" 然后推进 12 tick
+   ✔  那么"cat-billi" 中从 "hear-button-sound" 到 "press-button" 的边权重应小于 0.01
+   ✔  而且"cat-billi" 的 "it:concept/press-button" 节点应未激活
+   ✔  而且执行者 "trainer" 对目标 "cat-billi" 的可用命令不应包含 "feed-after-press"
+  场景: 猫的饥饿驱动进食
+[test-server] MCP: http://127.0.0.1:41849/mcp
+   ✔  假如已加载关卡 "smart-cat"
+   ✔  那么"cat-billi" 的 "it:concept/hunger" 节点应存在
+   ✔  当推进 50 个 tick
+   ✔  那么"cat-billi" 的 "it:concept/hunger" 节点值应大于 0.5
+   ✔  当执行命令 "feed" 执行者 "trainer" 目标 "cat-billi"
+   ✔  那么"cat-billi" 的 "it:concept/hunger" 节点值应小于 0.8
+  场景: 真正执行按键之后的奖励建立操作性联结
+[test-server] MCP: http://127.0.0.1:37561/mcp
+   ✔  假如已加载关卡 "smart-cat"
+   ✔  当对目标 "cat-billi" 重复以下训练 3 轮
+       | 命令                | 执行者       | tick间隔     |
+       | demonstrate-press | trainer   | 1          |
+       | feed              | trainer   | 12         |
+   ✔  当执行命令 "demonstrate-press" 执行者 "trainer" 目标 "cat-billi"
+   ✔  当推进 2 个 tick
+   ✔  那么执行者 "trainer" 对目标 "cat-billi" 的可用命令应包含 "feed-after-press"
+   ✔  当执行命令 "feed-after-press" 执行者 "trainer" 目标 "cat-billi"
+   ✔  那么"cat-billi" 应有 "Operant" 类型的学习边
+  场景: 实际饥饿需求训练后无提示自主按键求食并保持完整存档
+[test-server] MCP: http://127.0.0.1:33145/mcp
+   ✔  假如已加载聪明猫真实目标关卡
+   ✔  当用真实饥饿按键回合训练聪明猫并恢复完整存档
+   ✔  那么聪明猫应凭无提示自主按键回合完成关卡
+[Summary]
+3 features
+22 scenarios (22 passed)
+128 steps (128 passed)
+     Running tests/gosling_integration.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/gosling_integration-52fc6e8181b81ddf)
+
+running 9 tests
+test initial_follow_wiring_and_command_counts_do_not_imply_imprinting_or_win ... ok
+test separation_distress_tracks_actual_distance_and_clears_inside_comfort_radius ... ok
+test unrelated_visual_observation_even_about_a_real_entity_cannot_imprint ... ok
+test zero_dopamine_with_regeneration_blocked_cannot_imprint ... ok
+test actual_contact_spends_dopamine_binds_entity_and_following_closes_real_gap ... ok
+test zero_attention_with_regeneration_blocked_cannot_imprint_or_follow ... ok
+test critical_period_boundary_and_late_contact_cannot_imprint ... ok
+test first_decoy_target_is_fixed_and_later_lorenz_contact_cannot_win ... ok
+test serialized_save_restore_preserves_fixed_target_evidence_positions_and_future_following ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/instructed_posture.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/instructed_posture-f05f6eab04de0edf)
+
+running 13 tests
+test authored_commands_require_teaching_and_exact_teacher_student_roles ... ok
+test all_students_can_sit_on_the_same_ground_without_vertical_displacement ... ok
+test episode_goals_require_real_matching_stimulus_and_physical_outcome_when_filtered ... ok
+test each_presentation_is_consumed_even_if_already_sitting_and_old_sit_cannot_replay ... ok
+test competing_action_and_inhibitory_input_can_block_an_attended_instruction ... ok
+test authored_wave_obedience_goal_requires_sit_and_stand_evidence_from_all_three_students ... ok
+test execution_revalidates_attention_after_selection_and_failed_world_change_has_no_episode ... ok
+test refreshing_the_same_tick_instruction_cannot_reuse_its_motor_receipt ... ok
+test selection_or_manual_posture_without_world_motor_request_is_not_evidence ... ok
+test learned_physical_action_without_a_cue_requires_a_fresh_motor_request_and_real_drive ... ok
+test real_runner_teaches_and_obeys_sit_then_stand_for_every_student_without_changing_y ... ok
+test receipts_survive_restore_but_pending_motor_requests_and_selected_flags_are_not_authority ... ok
+test wrong_emitter_group_schema_age_attention_or_activity_cannot_drive_posture ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/pavlov_integration.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/pavlov_integration-32e3e04408cfd4ab)
+
+running 13 tests
+test food_outside_eligibility_window_does_not_count_as_pair ... ok
+test dopamine_is_required_and_no_stale_reward_is_reused ... ok
+test attention_is_causal_not_bypassed_by_command_spawn ... ok
+test reward_feedback_is_immediate_but_persistent_food_does_not_reinforce_again ... ok
+test repeated_cue_refreshes_during_one_window_cannot_farm_learning ... ok
+test cue_identity_is_generic_and_conditioning_does_not_spread_to_other_cues ... ok
+test independent_bell_response_is_required_and_settles_only_after_reward_window ... ok
+test save_roundtrip_preserves_pending_trial_and_learned_memory ... ok
+test forward_pairing_uses_diminishing_prediction_error_and_exact_dopamine_cost ... ok
+test food_alone_and_backward_pairing_do_not_condition_bell ... ok
+test compound_cues_share_prediction_and_do_not_each_learn_full_reward ... ok
+test hungry_untrained_bell_does_not_learn_or_salivate_or_win ... ok
+test omission_extinguishes_real_response_and_survives_ttl_cleanup ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/pavlov_level_loader.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/pavlov_level_loader-6c15d317ccfd8ff1)
+
+running 9 tests
+test tests::test_load_pavlov_level ... ok
+test tests::test_attention_budget_limits_nodes ... ok
+test tests::test_load_pavlov_commands ... ok
+test tests::test_dog_resources_regenerate ... ok
+test tests::test_loaded_level_hunger_rises ... ok
+test tests::test_full_pavlov_conditioning_loop ... ok
+test tests::test_command_precondition_checking ... ok
+test tests::test_repeated_bell_food_creates_association ... ok
+test tests::test_novelty_habituation_reduces_strength ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/room_isolation.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/room_isolation-058e8e460be224e4)
+
+running 2 tests
+test sensory_events_are_room_local_and_unknown_sources_do_not_broadcast ... ok
+test commands_reject_cross_room_target_and_explicit_recipient_atomically ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/scene_movement.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/scene_movement-1f40e2bfe2b1d0f9)
+
+running 11 tests
+test room_schema_rejects_nonadjacent_duplicate_and_unassigned_platforms ... ok
+test boundary_support_and_collisions_use_occupancy_then_pantry_ladder_works ... ok
+test horizontal_walking_cannot_fly_and_stands_up ... ok
+test non_blocking_policy_rejects_blank_and_duplicate_characters ... ok
+test authored_pavlov_can_walk_past_dog_into_pantry_and_back_without_state_injection ... ok
+test stairs_require_endpoint_then_preserve_floor_and_bounds ... ok
+test blocked_crossing_rolls_back_and_missing_portal_stays_at_boundary ... ok
+test seamless_portal_crossing_is_bidirectional_bounded_and_preserves_state ... ok
+test legacy_snapshot_without_room_fields_uses_main ... ok
+test snapshot_retains_sitting_and_migrates_legacy_ground ... ok
+test wave_all_characters_share_ground ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/smart_cat_learning.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/smart_cat_learning-8be3a52dc0924534)
+
+running 16 tests
+test an_eligible_but_unselected_action_cannot_unlock_contingent_food ... ok
+test executed_action_gate_cannot_be_shadowed_or_satisfied_by_selection_or_observation ... ok
+test command_counts_or_forged_selected_flags_cannot_replace_real_motor_evidence ... ok
+test demonstration_requires_actual_following_reward_and_builds_a_new_predictor ... ok
+test first_demonstration_has_positive_zero_prediction_without_learned_inputs ... ok
+test snapshot_json_preserves_f64_learning_values_exactly ... ok
+test learned_cue_causes_a_real_selected_press_and_later_reward_creates_operant_credit ... ok
+test unrewarded_real_presses_do_not_create_operant_credit ... ok
+test food_alone_and_backward_food_then_demonstration_do_not_train_button_press ... ok
+test attention_and_dopamine_are_required_for_rewarded_demonstration_learning ... ok
+test unrewarded_demonstrations_never_create_learning_or_puppet_button_press ... ok
+test executed_action_gate_requires_a_recent_unconsumed_episode_and_survives_restore ... ok
+test food_without_dopamine_or_captured_context_cannot_count_as_reinforcement ... ok
+test independent_contingent_rewards_consume_actual_hungry_motor_episodes_once ... ok
+test hungry_cat_eventually_executes_an_unprompted_motor_episode_and_wins ... ok
+test complete_snapshot_restore_preserves_motor_episodes_and_deterministic_future_learning ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+     Running tests/social_exclusion.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/social_exclusion-b44b25cb58d8d8ea)
+
+running 9 tests
+test outcome_filter_checks_actual_target_increase_and_goal_requires_both_actors ... ok
+test stronger_competing_action_prevents_exclusion ... ok
+test preselected_flag_and_quiet_learned_action_never_create_exclusion ... ok
+test real_runner_paid_identity_then_dissent_changes_actual_target ... ok
+test two_separately_paid_actors_satisfy_authored_exclusion_goal ... ok
+test no_paid_learning_zero_resource_or_legacy_counts_cannot_exclude ... ok
+test exact_presentation_is_consumed_across_save_and_requires_new_dissent ... ok
+test strict_loader_rejects_invalid_exclusion_effects_and_filters ... ok
+test live_identity_need_and_actual_target_are_required ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/social_presentations.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/social_presentations-89574eaad231d86d)
+
+running 12 tests
+test real_wave_approval_relief_has_exact_paid_prediction_error_learning ... ok
+test only_realized_relief_learns_and_duplicate_bindings_do_not_multiply_it ... ok
+test generic_authored_schemas_support_belonging_and_threat_without_wave_hardcoding ... ok
+test rejection_aggravates_need_and_pays_to_weaken_but_never_creates_a_negative_edge ... ok
+test long_ttl_and_repeated_system_runs_do_not_repeat_a_presentation ... ok
+test unfunded_relief_is_real_but_refilling_dopamine_does_not_backpay_learning ... ok
+test same_tick_refresh_cannot_double_spend_but_a_new_presentation_can_learn ... ok
+test group_size_and_time_only_aggregate_and_never_supply_free_identity_strength ... ok
+test absent_nonresource_or_insufficient_dopamine_cannot_pay_for_an_edge ... ok
+test real_runner_and_serialized_restore_cannot_redeem_the_same_signal_again ... ok
+test invalid_bindings_and_missing_or_resource_needs_are_safe_and_consumed ... ok
+test eligibility_requires_current_attended_social_signal_and_matching_active_identity ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/test_utilities.rs (/var/lib/mwc/build-scratch/cargo-target/debug/deps/test_utilities-16b4f5ca41b50537)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

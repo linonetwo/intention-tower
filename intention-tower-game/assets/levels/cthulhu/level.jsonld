@@ -43,5 +43,18 @@
     "level.cthulhu.objective.0",
     "level.cthulhu.objective.1",
     "level.cthulhu.objective.2"
-  ]
+  ],
+  "objectiveRules": [
+    { "objectiveId": "read-forbidden-book", "label": "level.cthulhu.objective.0", "condition": { "type": "commandUsed", "commandId": "read-necronomicon", "minCount": 1 } },
+    { "objectiveId": "close-before-collapse", "label": "level.cthulhu.objective.1", "condition": { "type": "all", "conditions": [
+      { "type": "commandUsed", "commandId": "read-necronomicon", "minCount": 1 },
+      { "type": "commandUsed", "commandId": "close-book", "minCount": 1 }
+    ] } },
+    { "objectiveId": "investigate-victim", "label": "level.cthulhu.objective.2", "condition": { "type": "commandUsed", "commandId": "investigate-victim", "minCount": 1 } }
+  ],
+  "failureRules": [
+    { "ruleId": "sanity-collapse", "label": "outcome.cthulhu.sanityCollapse", "condition": { "type": "nodeValue", "characterId": "investigator", "schemaId": "it:concept/sanity", "op": "LTE", "value": 0.05 } }
+  ],
+  "defaultActorId": "investigator",
+  "defaultTargetId": "investigator"
 }

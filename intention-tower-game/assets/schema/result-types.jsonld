@@ -1,0 +1,17 @@
+{
+  "@context": { "@import": "./context.jsonld" },
+  "@id": "it:BehaviorResultCondition",
+  "@type": "rdfs:Class",
+  "comment": "Typed acquisition, executed-following and motor-episode evidence; all thresholds are authored per level",
+  "it:variants": [
+    { "type": "actionEpisodes", "fields": {
+      "characterId": "string", "actionSchemaId": "IRI", "minCount": "u32",
+      "rewarded": "bool: paid positive reinforcement only", "autonomous": "bool: learned need, actual execution and a quiet stimulus window"
+    } },
+    { "type": "imprintedTarget", "fields": { "characterId": "string", "motivationSchemaId": "IRI", "targetEntity": "IRI" } },
+    { "type": "followedTarget", "fields": {
+      "characterId": "string", "motivationSchemaId": "IRI", "targetEntity": "IRI",
+      "minDistance": "f64", "minTicks": "u32", "minSeparationDistance": "f64", "maxTargetDistance": "f64"
+    } }
+  ]
+}

@@ -1,26 +1,334 @@
-use std::collections::HashMap;
+use super::mind_node::{AssociationEdge, MindNode};
 use serde::{Deserialize, Serialize};
-use super::mind_node::{MindNode, AssociationEdge};
+use std::collections::BTreeMap;
 
 /// A character's personal mind graph (their "Intention Tower")
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MindGraph {
     pub character_id: String,
-    pub nodes: HashMap<String, MindNode>,
-    pub edges: HashMap<String, AssociationEdge>,
+    // Stable traversal is part of snapshot determinism: floating-point sums,
+    // resource allocation and tied selections must not depend on a map's
+    // randomized hash seed (which changes when a saved graph is restored).
+    pub nodes: BTreeMap<String, MindNode>,
+    pub edges: BTreeMap<String, AssociationEdge>,
+    #[serde(default)]
+    pub conditioning_trials: Vec<ConditioningTrial>,
+    #[serde(default)]
+    pub conditioning_stats: BTreeMap<String, ConditioningStats>,
+    #[serde(default)]
+    pub action_episodes: Vec<ActionEpisode>,
+    #[serde(default)]
+    pub consumed_action_stimuli: Vec<ConsumedActionStimulus>,
+    #[serde(skip)]
+    pub pending_action_request: Option<ActionExecutionRequest>,
+    /// Survives percept TTL expiry so a short cue cannot bypass the quiet window.
+    #[serde(default)]
+    pub last_external_observation_at: Option<u64>,
+}
+
+/// Durable evidence of one motor response, not of persistent selection.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionEpisode {
+    #[serde(default)]
+    pub social_reward_expectation: Option<SocialRewardExpectation>,
+    #[serde(default)]
+    pub stimulus: Option<ActionStimulus>,
+    #[serde(default)]
+    pub physical_outcome: Option<ActionPhysicalOutcome>,
+    pub action_id: String,
+    pub action_schema_id: String,
+    pub executed_at: u64,
+    pub contexts: Vec<ActionContext>,
+    pub autonomous: bool,
+    /// Reward delivery is consumed even when no learning resource is available.
+    #[serde(default)]
+    pub reward_consumed_at: Option<u64>,
+    /// Reserved causal social delivery is processed once, including zero reward.
+    #[serde(default)]
+    pub social_reward_delivered_at: Option<u64>,
+    /// Only paid positive updates constitute successful reinforcement.
+    #[serde(default)]
+    pub reinforcement_dopamine_spent: f64,
+    pub rewarded_at: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocialRewardExpectation {
+    pub config: super::commands::ActionCreditConfig,
+    pub deadline: u64,
+    pub sources: Vec<ActionContext>,
+    pub prediction: f64,
+    pub settled_at: Option<u64>,
+    pub outcome: Option<String>,
+    pub reward: Option<f64>,
+    pub extinction_dopamine_spent: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActionStimulus {
+    pub observation_instance_id: String,
+    pub observation_schema_id: String,
+    pub emitter_id: Option<String>,
+    pub group_context: Option<String>,
+    pub presented_at: u64,
+    pub presentation_count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionCreditPin {
+    pub target_character_id: String,
+    pub episode_index: usize,
+    pub action_id: String,
+    pub executed_at: u64,
+    pub stimulus: ActionStimulus,
+    pub config: super::commands::ActionCreditConfig,
+    pub reserved_at: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConsumedActionStimulus {
+    pub action_id: String,
+    pub stimulus: ActionStimulus,
+}
+
+#[derive(Debug, Clone)]
+pub struct ActionExecutionRequest {
+    pub action_id: String,
+    pub stimulus: Option<ActionStimulus>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ActionPhysicalOutcome {
+    SocialExclusion {
+        target_character_id: String,
+        group_id: String,
+        target_need_schema_id: String,
+        from: f64,
+        to: f64,
+        learned_identity_instance_id: String,
+        social_edge_id: String,
+        social_dopamine_spent: f64,
+    },
+    ActorPosture {
+        from: super::scene::CharacterPosture,
+        to: super::scene::CharacterPosture,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActionContext {
+    pub instance_id: String,
+    pub schema_id: String,
+    pub value: f64,
+}
+
+/// One presentation, not one simulation tick, is a learning trial.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConditioningTrial {
+    pub source_id: String,
+    pub target_id: String,
+    pub started_at: u64,
+    pub deadline: u64,
+    pub prediction: f64,
+    pub reward: f64,
+    pub responded: bool,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ConditioningStats {
+    pub paired_trials: u32,
+    pub independent_responses: u32,
+    pub omitted_rewards: u32,
 }
 
 impl MindGraph {
+    /// Match a completed, unconsumed receipt. Never infer action from selection.
+    pub fn credit_episode(
+        &self,
+        config: &super::commands::ActionCreditConfig,
+        actor_id: &str,
+        tick: u64,
+    ) -> Option<usize> {
+        if !config.valid() || actor_id != config.emitter_id || actor_id == self.character_id {
+            return None;
+        }
+        // Once the newest matching motor result was consumed, a duplicate
+        // approval must not fall back and reward an older response instead.
+        self.action_episodes
+            .iter()
+            .rposition(|episode| Self::credit_matches(episode, config, tick))
+            .filter(|index| {
+                let episode = &self.action_episodes[*index];
+                episode.rewarded_at.is_none()
+                    && episode.reward_consumed_at.is_none()
+                    && episode
+                        .social_reward_expectation
+                        .as_ref()
+                        .is_none_or(|e| e.settled_at.is_none() && tick <= e.deadline)
+            })
+    }
+
+    pub fn credit_matches(
+        episode: &ActionEpisode,
+        config: &super::commands::ActionCreditConfig,
+        tick: u64,
+    ) -> bool {
+        let Some(stimulus) = &episode.stimulus else {
+            return false;
+        };
+        let Some(ActionPhysicalOutcome::ActorPosture { from, to }) = &episode.physical_outcome
+        else {
+            return false;
+        };
+        config.valid()
+            && episode.executed_at <= tick
+            && tick - episode.executed_at <= config.max_age_ticks
+            && stimulus.presented_at <= episode.executed_at
+            && episode.executed_at - stimulus.presented_at <= config.max_age_ticks
+            && stimulus.presentation_count > 0
+            && stimulus.emitter_id.as_deref() == Some(config.emitter_id.as_str())
+            && stimulus.group_context.as_deref() == Some(config.group_context.as_str())
+            && from != to
+            && config.actions.iter().any(|entry| {
+                entry.action_schema_id == episode.action_schema_id
+                    && entry.stimulus_schema_id == stimulus.observation_schema_id
+                    && entry.posture == *to
+            })
+    }
+
+    pub fn credit_pin_valid(&self, pin: &ActionCreditPin, tick: u64) -> bool {
+        self.character_id == pin.target_character_id
+            && pin.config.emitter_id != self.character_id
+            && pin.reserved_at <= tick
+            && self
+                .action_episodes
+                .get(pin.episode_index)
+                .is_some_and(|episode| {
+                    episode.action_id == pin.action_id
+                        && episode.executed_at == pin.executed_at
+                        && episode.stimulus.as_ref() == Some(&pin.stimulus)
+                        && episode.reward_consumed_at == Some(pin.reserved_at)
+                        && episode.social_reward_delivered_at.is_none()
+                        && episode
+                            .social_reward_expectation
+                            .as_ref()
+                            .is_none_or(|e| e.settled_at.is_none() && tick <= e.deadline)
+                        && episode.rewarded_at.is_none()
+                        && Self::credit_matches(episode, &pin.config, tick)
+                })
+    }
+    /// Only evidenced associations with currently attended sources provide learned motor drive.
+    pub fn learned_action_drive(&self, action_id: &str) -> f64 {
+        self.edges
+            .values()
+            .filter(|edge| {
+                edge.learnable
+                    && edge.evidence.co_occurrence_count > 0
+                    && edge.target_instance_id == action_id
+            })
+            .map(|edge| {
+                self.nodes
+                    .get(&edge.source_instance_id)
+                    .filter(|source| source.active && source.attended)
+                    .map_or(0.0, |source| match edge.polarity {
+                        super::mind_node::Polarity::Excitatory => edge.weight * source.value,
+                        super::mind_node::Polarity::Inhibitory => -edge.weight * source.value,
+                    })
+            })
+            .sum::<f64>()
+            .clamp(0.0, 1.0)
+    }
+
     pub fn new(character_id: String) -> Self {
         Self {
             character_id,
-            nodes: HashMap::new(),
-            edges: HashMap::new(),
+            nodes: BTreeMap::new(),
+            edges: BTreeMap::new(),
+            conditioning_trials: Vec::new(),
+            conditioning_stats: BTreeMap::new(),
+            action_episodes: Vec::new(),
+            consumed_action_stimuli: Vec::new(),
+            pending_action_request: None,
+            last_external_observation_at: None,
         }
+    }
+
+    /// Snapshot the exact attended external presentation; durable receipts prevent replay.
+    pub fn action_stimulus(&self, action_id: &str, tick: u64) -> Option<ActionStimulus> {
+        self.action_stimuli(action_id, tick)
+            .into_iter()
+            .max_by_key(|s| (s.presented_at, s.presentation_count))
+    }
+
+    pub fn action_stimuli(&self, action_id: &str, tick: u64) -> Vec<ActionStimulus> {
+        let Some(cue) = self
+            .nodes
+            .get(action_id)
+            .and_then(|n| n.action.as_ref())
+            .and_then(|a| a.instruction_cue.as_ref())
+        else {
+            return Vec::new();
+        };
+        self.nodes
+            .values()
+            .filter_map(|node| {
+                let observation = node.observation.as_ref()?;
+                if node.node_type != super::mind_node::NodeType::Observation
+                    || !node.active
+                    || !node.attended
+                    || !node.value.is_finite()
+                    || node.value < cue.min_value
+                    || node.created_at > tick
+                    || tick - node.created_at > cue.max_age_ticks
+                    || !cue.observation_schema_ids.contains(&node.schema_id)
+                    || observation.emitter_id.as_ref() == Some(&self.character_id)
+                    || observation.emitter_id.is_none()
+                    || cue
+                        .emitter_id
+                        .as_ref()
+                        .is_some_and(|id| observation.emitter_id.as_ref() != Some(id))
+                    || cue
+                        .group_context
+                        .as_ref()
+                        .is_some_and(|id| observation.group_context.as_ref() != Some(id))
+                {
+                    return None;
+                }
+                let stimulus = ActionStimulus {
+                    observation_instance_id: node.instance_id.clone(),
+                    observation_schema_id: node.schema_id.clone(),
+                    emitter_id: observation.emitter_id.clone(),
+                    group_context: observation.group_context.clone(),
+                    presented_at: node.created_at,
+                    presentation_count: observation.presentation_count,
+                };
+                (!self
+                    .consumed_action_stimuli
+                    .iter()
+                    .any(|receipt| receipt.action_id == action_id && receipt.stimulus == stimulus))
+                .then_some(stimulus)
+            })
+            .collect()
     }
 
     pub fn add_node(&mut self, node: MindNode) {
         self.nodes.insert(node.instance_id.clone(), node);
+    }
+
+    pub fn next_presentation_count(&self, instance_id: &str, tick: u64) -> u32 {
+        let Some(node) = self.nodes.get(instance_id) else {
+            return 1;
+        };
+        let count = node
+            .observation
+            .as_ref()
+            .map_or(0, |observation| observation.presentation_count);
+        if count > 0 && node.created_at == tick {
+            count
+        } else {
+            count.saturating_add(1)
+        }
     }
 
     pub fn remove_node(&mut self, instance_id: &str) -> Option<MindNode> {
@@ -59,16 +367,15 @@ impl MindGraph {
 
     /// Get all active Observation nodes
     pub fn active_observations(&self) -> Vec<&MindNode> {
-        self.nodes.values()
+        self.nodes
+            .values()
             .filter(|n| n.node_type == super::mind_node::NodeType::Observation && n.active)
             .collect()
     }
 
     /// Get all resource nodes (attention, dopamine, health)
     pub fn resource_nodes(&self) -> Vec<&MindNode> {
-        self.nodes.values()
-            .filter(|n| n.is_resource())
-            .collect()
+        self.nodes.values().filter(|n| n.is_resource()).collect()
     }
 
     /// Get the current value of a resource node by schema_id
@@ -89,14 +396,16 @@ impl MindGraph {
 
     /// Get outgoing edges from a node
     pub fn outgoing_edges(&self, instance_id: &str) -> Vec<&AssociationEdge> {
-        self.edges.values()
+        self.edges
+            .values()
             .filter(|e| e.source_instance_id == instance_id)
             .collect()
     }
 
     /// Get incoming edges to a node
     pub fn incoming_edges(&self, instance_id: &str) -> Vec<&AssociationEdge> {
-        self.edges.values()
+        self.edges
+            .values()
             .filter(|e| e.target_instance_id == instance_id)
             .collect()
     }

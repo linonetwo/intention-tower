@@ -1,6 +1,6 @@
 created: 20260219120000000
 creator: 林一二
-modified: 20260220180000000
+modified: 20260824120000000
 modifier: 林一二
 tags: Index
 title: 开发进度
@@ -47,12 +47,15 @@ type: text/vnd.tiddlywiki
 * [x] 设计评审：对照 21 个关卡场景逐一审查系统覆盖率，发现 6 大设计缺口并记录
 * [x] 追加字段：MemeData.resilience（信念抗擦除强度）、MindNode.reality_layer / is_virtual（虚拟层标记）
 
-!! 阶段三：前端接入
+!! 阶段三：前端接入（已完成）
 
-* [ ] 前端 store 改为后端状态镜像（通过事件流/diff 同步）
-* [ ] 前端渲染层适配后端 StateDiff
-* [ ] 动态命令菜单 UI 实现
-* [ ] 图谱模式接入后端 MindGraph 数据
+* [x] 前端 store 改为后端状态镜像（完整快照 + WorldEvent 增量流）
+* [x] 前端渲染层适配后端 WorldState / WorldEvent
+* [x] 动态命令菜单 UI 实现（后端统一校验 actor / target / precondition）
+* [x] 图谱模式接入后端 MindGraph 数据
+* [x] 后端权威目标、失败规则、Won/Lost 结算遮罩
+* [x] 浏览器 MCP 与 Tauri IPC 共用同一 Rust 核心语义
+* [x] 360×480 起的响应式布局、触控微操方向键、WASD/方向键移动
 
 !! 阶段四：全关卡数据（已完成）
 
@@ -87,6 +90,19 @@ type: text/vnd.tiddlywiki
 ** 🟡 新增 `Modality::Social` 变体
 ** 🟡 MemeJson 扩展：groupId / conflictResolution / resilience / floodNodeCount / floodDrainRatePerTick / antiMemeTargetPattern
 
+!! 阶段五：可玩闭环与发布验证
+
+* [x] 21 关全部具备数据驱动 objectiveRules；目标数量与显示文本一一对应
+* [x] Rust 集成测试实际执行命令并验证 21 关均到达 Won
+* [x] 独立 MCP/JSON-RPC 服务与外部逐关游玩脚本（命令发现、合法目标轮换、暂停单步、结果证据）
+* [x] 浏览器传输、存档恢复、后端结算与微操状态镜像的 Vitest 回归
+* [x] Tauri 核心与桌面 GTK 解耦，可在无 GUI 的 CI/开发机测试所有游戏逻辑
+* [x] 注意力 `attended` 与节点生命周期 `active` 分离，恢复注意力不再永久删掉工作记忆
+* [x] Action 每 tick 选择与长期资格分离，落选行动可在后续重新胜出
+* [x] 真实群体聚合、经济账户/持仓/交易、信念压制、模因结晶和权威移动/碰撞
+* [x] 正式 GPT Image 2 图像包与来源审计：通过 `proxy-imagegen` / Codex Responses 上游生成 21 张背景与 55 张头像；运行时已切换，manifest 记录模型/提示词/映射，自动门禁验证 76 个 PNG
+* [ ] 各目标平台签名、商店账号资料和实体设备验收（需要发布方证书/账号与设备）
+
 !! 关键设计决定记录
 
 !!! 5 种节点类型（不再增加）
@@ -108,6 +124,7 @@ type: text/vnd.tiddlywiki
 * 实体类型优先 schema.org，不够才加 `it:` 扩展
 * 所有显示文本走 i18n key
 * ResourcePool 删除：attention/dopamine/health 是 PriorInstinct 实例
+* 图谱 DOM、缩放、拖拽与状态仅由 React/SVG 管理；不得引入 D3 渲染/交互模块，只允许 `d3-force` 等无 DOM 算法库
 
 !!! ThresholdTrigger 双向机制
 
@@ -134,39 +151,42 @@ intention-tower-game/assets/
 
 ID 规范：`it:` = `https://intention.tower/schema/`；概念 = `it:concept/{slug}`；实例 = `it:mind/{charId}/node/{localId}`
 
-!!! 21 场景设计覆盖率评审结果（Phase 2 发现）
+!!! 21 场景设计覆盖率评审结果（Phase 5 已落实）
 
 3 个教学关卡（巴甫洛夫/聪明猫/雏鹅）缺口最小，已基本可跑。后续扩展优先级：
 
-''缺口 A：VirtualContext 系统''（影响 4 个场景：触发网瘾 / 赛博梦中梦 / 网瘾少年 / 幻境挣扎）
+''[x] 缺口 A：VirtualContext 系统''（影响 4 个场景：触发网瘾 / 赛博梦中梦 / 网瘾少年 / 幻境挣扎）
 
-* 需要独立的 VirtualContextSystem，管理 context 栈和感知过滤
-* 支持双层并行仿真（虚拟世界感知 + 现实身体暴露）
-* 建议放在 PerceptionSystem 之前
-* 已追加 `MindNode.reality_layer` / `is_virtual` 字段预留
+* `WorldState.virtual_context_stack` 支持多层进入/退出并可存档
+* 虚拟环境感知写入对应 `reality_layer`；身体内感受始终保留在现实层
+* 前置条件、事件与目标谓词都使用同一个权威虚拟状态
 
-''缺口 B：群体动力学''（影响 5 个场景：浪潮实验 / 人从众 / 等死死国可乎 / 集群意识 / 毁灭虫族）
+''[x] 缺口 B：群体动力学''（影响 5 个场景：浪潮实验 / 人从众 / 等死死国可乎 / 集群意识 / 毁灭虫族）
 
-* 当前系统是逐角色独立仿真，缺少跨角色交互
-* 需新增 SocialDynamicsSystem（群体密度加成 / 从众压力 / 集体决策）
-* 跨角色共享节点/协议机制
+* `SocialDynamicsSystem` 从身份模因聚合成员、凝聚力与共识行动
+* 群体状态进入可序列化 WorldState，并可直接用于关卡目标谓词
+* 环境公开行动经空间半径传播为 Social Observation，形成跨角色反馈
 
-''缺口 C：经济/资产系统''（影响 3 个场景：人从众 / 消费主义魔法 / 毁灭虫族）
+''[x] 缺口 C：经济/资产系统''（影响 3 个场景：人从众 / 消费主义魔法 / 毁灭虫族）
 
-* 完全没有市场、价格、交易、股权、产业链机制
-* 需新增 EconomySystem
+* `EconomyState` 持久化账户、持仓、资产供给、价格、需求与交易账本
+* `SetAssetPrice` / `TradeAsset` 是声明式命令效果；购买目标校验真实成交与不同买家
+* `EconomySystem` 从欲望模因投影市场需求，后续产业链可沿资产 DTO 扩展
 
-''缺口 D：信念不可逆性 & 分裂''（影响 3 个场景：水是有毒的 / 信仰与意识形态 / 后现代解构流浪）
+''[x] 缺口 D：信念不可逆性 & 分裂''（影响 3 个场景：水是有毒的 / 信仰与意识形态 / 后现代解构流浪）
 
-* BeliefConflictSystem 需扩展：信念间冲突（不只是信念 vs 本能）
-* 已追加 `MemeData.resilience` 字段（抗擦除强度）
+* `BeliefConflictSystem` 支持信念→本能以及抑制边驱动的证据/信念与信念/信念冲突
+* `suppression` 是每 tick 重算的有效压制，不会指数式永久毁坏基础 strength
+* `MemeData.resilience` 控制抗擦除；思想钢印会产生 `NodeDeletionResisted`
 
-''缺口 E：模因涌现''（影响 2 个场景：后现代解构流浪 / 浪潮实验）
+''[x] 缺口 E：模因涌现''（影响 2 个场景：后现代解构流浪 / 浪潮实验）
 
-* 当前模因只能被外部注入或预设
-* 需要从底层交互中自然涌现模因的机制（模因结晶）
+* `MemeEmergenceSystem` 将重复、被注意的公共感知确定性结晶为低韧性模因
+* 结晶模因保留组成 schema、传播向量和现实层，能继续参与感染与学习
 
-''缺口 F：空间/战术层''（影响 2 个场景：毁灭虫族 / 逆模因部）
+''[x] 缺口 F：空间/战术层基础''（影响 2 个场景：毁灭虫族 / 逆模因部）
 
-* 23 个系统全部是心智仿真层，没有世界空间管理
-* 需要地图、区域、移动、视距、领土控制系统
+* 关卡像素坐标由后端权威保存；镜头自动适配世界边界
+* 角色移动具备单步限速、场景边界、角色/物品碰撞和 `CharacterMoved` 事件
+* 感知按空间半径过滤；桌面 WASD/方向键与移动触控板共用同一 API
+* 更复杂的领土/寻路可作为后续关卡数据与系统插件扩展，不再要求重写现有世界模型

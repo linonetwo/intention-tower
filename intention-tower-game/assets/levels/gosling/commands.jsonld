@@ -6,8 +6,12 @@
       "commandId": "approach-gosling",
       "label": "command.approach-gosling.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
-      "preconditions": [],
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -24,8 +28,12 @@
       "commandId": "make-sound",
       "label": "command.make-sound.label",
       "hotkey": "2",
-      "targeting": "NoTarget",
-      "preconditions": [],
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
@@ -42,14 +50,18 @@
       "commandId": "move-away",
       "label": "command.move-away.label",
       "hotkey": "3",
-      "targeting": "NoTarget",
-      "preconditions": [],
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
-          "type": "ModifyNodeValue",
-          "schemaId": "it:concept/separation-distress",
-          "delta": 0.3,
-          "targetCharacterId": "__target"
+          "type": "MoveCharacter",
+          "deltaX": -40.0,
+          "deltaY": 0.0,
+          "targetCharacterId": "__actor"
         }
       ]
     },
@@ -59,6 +71,9 @@
       "hotkey": "4",
       "targeting": "RequiresTarget",
       "preconditions": [
+        { "type": "ActorIs", "characterIds": ["lorenz"] },
+        { "type": "TargetIs", "characterIds": ["gosling"] },
+        { "type": "TargetIsNotActor" },
         { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
       ],
       "effects": [

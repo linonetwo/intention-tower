@@ -7,12 +7,17 @@
       "label": "command.preach.label",
       "hotkey": "1",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["ideologue"] },
+        { "type": "TargetIs", "characterIds": ["believer", "skeptic"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/ideology",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/doubt", "it:concept/struggle-action"], "isBelief": true, "isIdentity": true, "groupId": "movement", "conflictResolution": "StressDependent", "resilience": 0.78 }
         }
       ]
     },
@@ -21,7 +26,11 @@
       "label": "command.reinforce-faith.label",
       "hotkey": "2",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["ideologue"] },
+        { "type": "TargetIs", "characterIds": ["believer", "skeptic"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "ReinforceEdge",
@@ -37,7 +46,11 @@
       "label": "command.challenge-belief.label",
       "hotkey": "3",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["ideologue"] },
+        { "type": "TargetIs", "characterIds": ["believer", "skeptic"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "ModifyNodeValue",
@@ -52,7 +65,11 @@
       "label": "command.show-evidence.label",
       "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["ideologue"] },
+        { "type": "TargetIs", "characterIds": ["believer", "skeptic"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "WeakenEdge",

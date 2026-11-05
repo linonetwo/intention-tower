@@ -1,0 +1,23 @@
+/* Self-hosted Noto Sans SC; licensed under public/fonts/OFL.txt. */
+@font-face {
+  font-family: 'Intention CJK';
+  src: url('/fonts/NotoSansSC-VF.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+html,
+body,
+#root {
+  font-family: 'Intention CJK', 'Roboto', Arial, sans-serif;
+}
+
+/* Native controls and React-owned SVG labels use the same offline CJK face. */
+button,
+input,
+textarea,
+select,
+svg text {
+  font-family: inherit;
+}

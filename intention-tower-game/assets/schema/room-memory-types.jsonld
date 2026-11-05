@@ -1,0 +1,11 @@
+{
+  "@context":{"@import":"context.jsonld"},
+  "@graph":[
+    {"@id":"it:RoomMemory","label":"Observer-local room memory","comment":"Optional scene.room_memory; physical topology persists, perceived room identity changes deterministically only after actual forgetting and re-entry."},
+    {"@id":"it:ApplyMemoryDrug","label":"ApplyMemoryDrug","comment":"Actor-only finite drug window; actual configured drug item must share the actor's room. Does not anchor a room."},
+    {"@id":"it:AnchorCurrentRoom","label":"AnchorCurrentRoom","comment":"Actor must currently observe a configured room and have an unexpired personal memory-drug window; preserves only this room identity."},
+    {"@id":"it:ObserveCurrentRoom","label":"ObserveCurrentRoom","comment":"Inspect an already visible room; never anchors, creates visits, or supplies objective evidence."},
+    {"@id":"it:RecallRoomWithWitness","label":"RecallRoomWithWitness","comment":"Configured observer asks an actual same-room configured witness about a prior forgotten-room revisit; no command-count surrogate."},
+    {"@id":"it:RoomMemoryEvidence","label":"roomMemoryEvidence","comment":"Objective evidence kinds forgottenRevisit, witnessRecall and anchoredRevisit refer to persisted causal receipts, never command counts."}
+  ]
+}

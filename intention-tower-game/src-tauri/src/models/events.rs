@@ -3,6 +3,17 @@ use serde::{Deserialize, Serialize};
 /// All events that can occur in the simulation, forming the StateDiff event stream.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WorldEvent {
+    RoomMemoryChanged {
+        observer_id: String,
+        room_id: Option<String>,
+        /// Perception at emission time; later room regeneration must not rewrite history.
+        #[serde(default)]
+        variant_id: Option<String>,
+        #[serde(default)]
+        drug_ticks_remaining: Option<u64>,
+        kind: String,
+        tick: u64,
+    },
     // ── Node lifecycle ──
     NodeSpawned {
         character_id: String,
@@ -28,6 +39,56 @@ pub enum WorldEvent {
         character_id: String,
         instance_id: String,
     },
+    NodeAttentionChanged {
+        character_id: String,
+        instance_id: String,
+        attended: bool,
+    },
+    NodeSuppressionChanged {
+        character_id: String,
+        instance_id: String,
+        suppression: f64,
+    },
+    ActionSelected {
+        character_id: String,
+        instance_id: String,
+    },
+    ActionExecuted {
+        character_id: String,
+        instance_id: String,
+        executed_at: u64,
+        autonomous: bool,
+    },
+    CharacterMoved {
+        character_id: String,
+        from_x: f64,
+        from_y: f64,
+        to_x: f64,
+        to_y: f64,
+    },
+    SocialGroupUpdated {
+        group_id: String,
+        member_count: u32,
+        cohesion: f64,
+        consensus_action: Option<String>,
+    },
+    AssetPriceChanged {
+        item_id: String,
+        old_price: f64,
+        new_price: f64,
+    },
+    AssetTraded {
+        item_id: String,
+        seller_id: String,
+        buyer_id: String,
+        quantity: f64,
+        total_price: f64,
+    },
+    AssetTradeRejected {
+        item_id: String,
+        buyer_id: String,
+        reason: String,
+    },
 
     // ── Edge lifecycle ──
     EdgeCreated {
@@ -47,6 +108,19 @@ pub enum WorldEvent {
         character_id: String,
         edge_id: String,
     },
+    LearningUpdated {
+        character_id: String,
+        edge_id: String,
+        source_id: String,
+        target_id: String,
+        reward: f64,
+        prediction: f64,
+        prediction_error: f64,
+        dopamine_spent: f64,
+        old_weight: f64,
+        new_weight: f64,
+        phase: String,
+    },
 
     // ── Resource ──
     ResourceConsumed {
@@ -57,10 +131,21 @@ pub enum WorldEvent {
     },
 
     // ── Commands ──
+    CommandRejected {
+        actor_id: String,
+        command_id: String,
+        target_id: Option<String>,
+        reason: String,
+    },
     CommandExecuted {
         actor_id: String,
         command_id: String,
         target_id: Option<String>,
+    },
+    NodeDeletionResisted {
+        character_id: String,
+        instance_id: String,
+        remaining_resilience: f64,
     },
 
     // ── Sensory ──
@@ -85,5 +170,29 @@ pub enum WorldEvent {
     // ── Tick marker ──
     TickCompleted {
         tick: u64,
+    },
+    VirtualContextChanged {
+        value: bool,
+        depth: u8,
+    },
+    LayeredWorldChanged {
+        actor_id: String,
+        context_id: String,
+        depth: u8,
+        kind: String,
+        fact: Option<serde_json::Value>,
+    },
+    ObjectiveCompleted {
+        objective_id: String,
+        label: String,
+    },
+    LevelWon {
+        level_id: String,
+        tick: u64,
+    },
+    LevelLost {
+        level_id: String,
+        tick: u64,
+        reason: String,
     },
 }

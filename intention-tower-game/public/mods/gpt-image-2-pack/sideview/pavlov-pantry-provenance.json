@@ -1,0 +1,12 @@
+{
+  "generator": "proxy-imagegen",
+  "model": "gpt-image-2",
+  "generated": "2026-10-23",
+  "promptFile": "docs/art/pavlov-pantry-prompt.md",
+  "file": "pavlov-pantry.png",
+  "sha256": "1371b5432d18f97a7f8717b44104d9ffcb4a7929e3c02ca1ae0c4514d61bd5db",
+  "width": 1536,
+  "height": 1024,
+  "floorY": 754,
+  "review": "Straight-on pantry wall and horizontal foreground plank seam. Floor anchor measured from generated image; engine overlays the actual loft and ladder."
+}

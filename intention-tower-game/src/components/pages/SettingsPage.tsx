@@ -86,20 +86,20 @@ export const SettingsPage: React.FC = () => {
     <Box
       sx={{
         width: '100vw',
-        height: '100vh',
-        bgcolor: '#0a0a1e',
-        color: '#fff',
+        minHeight: '100dvh',
+        bgcolor: '#efe5cf',
+        color: '#443627',
         p: 3,
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <IconButton onClick={() => navigate('/')} sx={{ color: '#ddd', mr: 1 }}>
+        <IconButton aria-label={t('game.backToMenu')} onClick={() => navigate(-1)} sx={{ color: '#584431', mr: 1 }}>
           <ArrowBackIcon />
         </IconButton>
         <Typography sx={{ fontSize: 22, fontWeight: 700 }}>{t('settings.title')}</Typography>
       </Box>
 
-      <Paper sx={{ p: 2, maxWidth: 480, bgcolor: '#141428', border: '1px solid #2a2a5e' }}>
+      <Paper sx={{ p: 2, maxWidth: 480, bgcolor: '#fff8e9', color: '#443627', border: '1px solid #d6bf99' }}>
         <FormControl fullWidth size='small'>
           <InputLabel sx={{ fontSize: 12 }}>{t('settings.language')}</InputLabel>
           <Select
@@ -113,7 +113,7 @@ export const SettingsPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        <Divider sx={{ my: 2, borderColor: '#2a2a5e' }} />
+        <Divider sx={{ my: 2, borderColor: '#d6bf99' }} />
 
         <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>{t('settings.graphics.title')}</Typography>
 
@@ -128,19 +128,19 @@ export const SettingsPage: React.FC = () => {
             sx={{ fontSize: 13 }}
           >
             {RESOLUTION_PRESETS.map((preset) => (
-              <MenuItem key={preset.value} value={preset.value}>{preset.label}</MenuItem>
+              <MenuItem key={preset.value} value={preset.value}>{preset.value === '390x844' ? t('settings.graphics.mobilePreset') : preset.value === '768x1024' ? t('settings.graphics.tabletPreset') : preset.label}</MenuItem>
             ))}
           </Select>
         </FormControl>
 
-        <Typography sx={{ fontSize: 12, color: '#8ea4ff', mt: 1 }}>
+        <Typography sx={{ fontSize: 12, color: '#896640', mt: 1 }}>
           {t('settings.graphics.current', { size: windowSizeText })}
         </Typography>
-        <Typography sx={{ fontSize: 11, color: '#999', mt: 0.5 }}>
+        <Typography sx={{ fontSize: 11, color: '#806c55', mt: 0.5 }}>
           {t('settings.graphics.hint')}
         </Typography>
         {resolutionError && (
-          <Typography sx={{ fontSize: 11, color: '#ff8a80', mt: 0.8 }}>{resolutionError}</Typography>
+          <Typography sx={{ fontSize: 11, color: '#8f4d48', mt: 0.8 }}>{resolutionError}</Typography>
         )}
       </Paper>
     </Box>

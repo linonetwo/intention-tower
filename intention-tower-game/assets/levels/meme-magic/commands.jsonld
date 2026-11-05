@@ -14,7 +14,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/normal-meme",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/existing-knowledge-a"], "resilience": 0.35 }
         }
       ]
     },
@@ -30,7 +31,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/magic-meme",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/curiosity"], "isMagic": true, "resilience": 0.72 }
         }
       ]
     },
@@ -44,7 +46,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/normal-meme",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/existing-knowledge-a"], "resilience": 0.35 }
         },
         {
           "type": "ConsumeResource",
@@ -73,7 +76,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/normal-meme",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/existing-knowledge-a"], "resilience": 0.35 }
         }
       ]
     },

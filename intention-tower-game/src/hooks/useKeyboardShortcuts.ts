@@ -17,18 +17,32 @@ export function useKeyboardShortcuts() {
   const navigate = useNavigate();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Ignore if user is typing in an input
+    // Keep typing, browser shortcuts and IME input out of gameplay controls.
+    const editable = e.target instanceof Element ? e.target.closest('[contenteditable]') : null;
     if (
+      e.isComposing ||
       e.target instanceof HTMLInputElement ||
       e.target instanceof HTMLTextAreaElement ||
-      e.target instanceof HTMLSelectElement
+      e.target instanceof HTMLSelectElement ||
+      (editable !== null && editable.getAttribute('contenteditable') !== 'false')
     ) return;
 
     const key = e.key.toLowerCase();
+    const intentionalModifiedShortcut =
+      (!e.altKey && (e.ctrlKey || e.metaKey) && (key === 's' || (e.shiftKey && key === 'r'))) ||
+      (!e.ctrlKey && !e.metaKey && e.altKey && (key === 'arrowleft' || key === 'arrowright'));
+    if ((e.ctrlKey || e.metaKey || e.altKey) && !intentionalModifiedShortcut) return;
     const state = gameStore.getState();
     const { uiMode } = state;
 
     // ── Global shortcuts (all modes) ──
+
+    // Q controls the currently selected character; switching mode never selects another actor.
+    if (key === 'q') {
+      e.preventDefault();
+      if (!e.repeat) state.setUiMode(uiMode === 'micro' ? 'observe' : 'micro');
+      return;
+    }
 
     // ESC: if in graph mode → back to observe; else → menu
     if (key === 'escape') {
@@ -63,8 +77,9 @@ export function useKeyboardShortcuts() {
       return;
     }
 
-    // 0-4 → speed control
-    if (['1', '2', '3', '4'].includes(key)) { state.setTimeSpeed(parseInt(key)); return; }
+    // 0-4 → speed control outside micro mode. In micro mode 1-4 are
+    // command slots, matching the interaction specification.
+    if (uiMode !== 'micro' && ['1', '2', '3', '4'].includes(key)) { state.setTimeSpeed(parseInt(key)); return; }
     if (key === '0') { state.setTimeSpeed(0); return; }
 
     // Ctrl+S → quick save
@@ -109,9 +124,21 @@ export function useKeyboardShortcuts() {
     }
 
     if (uiMode === 'micro') {
-      // 1-4 also mapped to skill slots (first 4 commands)
-      // Already handled by speed above; micro mode uses qwer for skills
-      const skillKeys = ['q', 'w', 'e', 'r'];
+      const movement: Record<string, [number, number]> = {
+        a: [-28, 0],
+        arrowleft: [-28, 0],
+        d: [28, 0],
+        arrowright: [28, 0],
+      };
+      if (movement[key]) {
+        if (e.shiftKey) return;
+        e.preventDefault();
+        window.dispatchEvent(new Event('scene-cancel-walk'));
+        void state.moveSelectedActor(...movement[key]);
+        return;
+      }
+
+      const skillKeys = ['1', '2', '3', '4'];
       const skillIdx = skillKeys.indexOf(key);
       if (skillIdx >= 0) {
         const cmds = state.availableCommands;

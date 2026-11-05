@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "generator": "proxy-imagegen",
+  "model": "gpt-image-2",
+  "generated": "2026-10-24",
+  "promptFile": "docs/art/room-memory-prompts.md",
+  "promptFileSha256": "014ce66aa47a063ccb01016f97e5ffd47e50e7713d46926d7ad1987a4ace2828",
+  "rooms": {
+    "antimeme_archive": {
+      "file": "archive.png",
+      "width": 1536,
+      "height": 1024,
+      "floorY": 736,
+      "sha256": "02c0540dc3abb64ffaffdc8e9100ba14369c70fb8061dffe82653dcaab1a9da2",
+      "prompt": "Use case: stylized-concept\nAsset type: production 2D side-scrolling RPG background, one room, PNG 1536x1024 landscape.\nPrimary request: a warm archive room with tall honey-colored wooden bookcases containing cream and muted teal bound archive volumes, many small wooden index-card drawers with brass handles, closed document boxes and rolled documents. Distinct archive identity, not a laboratory. Leave a broad clear central wall section between storage furniture.\nStyle/medium: polished warm hand-painted anime fantasy game environment, soft cel shading, clean delicate brown outlines, pale cream stone/plaster walls, light honey wood, restrained sage and muted teal accents, soft golden daylight. Match a cozy side-scrolling research-room game, not photorealistic.\nComposition/framing: strict straight-on orthographic FRONT ELEVATION of the back wall. Camera exactly perpendicular to wall. All shelves, drawers and furniture show front faces only. Every horizontal line stays horizontal. No visible side walls, no room corners, no vanishing point, no converging floor lines. A single uninterrupted flat horizontal walkable platform crosses the entire image at y=805 of 1024, from left edge to right edge. Its narrow top surface is a straight line; below y=805 is a simple light cream decorative platform fascia extending to the bottom edge. All room furnishings stay behind that line and never obstruct it. Open left and right traversal edges on the same floor height. No raised steps.\nLighting/mood: welcoming soft morning sunlight, warm and quiet, readable even detail.\nConstraints: no people, no animals, no silhouettes, no text, no letters, no numbers, no labels, no signage, no UI, no border, no watermark. Book spines and drawer labels must be blank. Do not draw an angled floor or a perspective room. Deliver exactly one complete room background, 1536x1024 pixels.",
+      "visualReview": "Reviewed actual delivered PNG: front-facing room, level uninterrupted edge-to-edge platform whose top is y=736, clear character travel band; no people, UI, text or watermark. Original pixels retained; requested y=805 was not treated as measured geometry."
+    },
+    "antimeme_maproom": {
+      "file": "maproom.png",
+      "width": 1536,
+      "height": 1024,
+      "floorY": 787,
+      "sha256": "536a4dcc2cd440da4659eddc5f8355f28e9c655dfbefba22b1d572ec5bb715ff",
+      "prompt": "Use case: stylized-concept\nAsset type: production 2D side-scrolling RPG background, one room, PNG 1536x1024 landscape.\nPrimary request: a warm map display and surveying room with large framed parchment maps on the cream back wall, abstract unlabeled coastlines, a wooden map rack of rolled charts, brass surveying instruments displayed on narrow wall shelves, a front-facing drafting cabinet and a small globe at the side. Distinct cartography room identity, not an archive or a laboratory. Keep the central lower wall open and uncluttered.\nStyle/medium: polished warm hand-painted anime fantasy game environment, soft cel shading, clean delicate brown outlines, pale cream stone/plaster walls, light honey wood, restrained sage and muted teal accents, soft golden daylight. Match a cozy side-scrolling research-room game, not photorealistic.\nComposition/framing: strict straight-on orthographic FRONT ELEVATION of the back wall. Camera exactly perpendicular to wall. All shelves, cabinet and furniture show front faces only. Every horizontal line stays horizontal. No visible side walls, no room corners, no vanishing point, no converging floor lines. A single uninterrupted flat horizontal walkable platform crosses the entire image at y=805 of 1024, from left edge to right edge. Its narrow top surface is a straight line; below y=805 is a simple light cream decorative platform fascia extending to the bottom edge. All room furnishings stay behind that line and never obstruct it. Open left and right traversal edges on the same floor height. No raised steps.\nLighting/mood: welcoming soft morning sunlight, warm and quiet, readable even detail.\nConstraints: no people, no animals, no silhouettes, no text, no letters, no numbers, no labels, no signage, no UI, no border, no watermark. Maps contain only abstract shapes and unlabeled contour lines, never writing. Do not draw an angled floor or a perspective room. Deliver exactly one complete room background, 1536x1024 pixels.",
+      "visualReview": "Reviewed actual delivered PNG: front-facing room, level uninterrupted edge-to-edge platform whose top is y=787, clear character travel band; no people, UI, text or watermark. Original pixels retained; requested y=805 was not treated as measured geometry."
+    },
+    "antimeme_conservatory": {
+      "file": "conservatory.png",
+      "width": 1536,
+      "height": 1024,
+      "floorY": 697,
+      "sha256": "21687f7515ebafbd1adf2476b058884b0171947874d328a7efa3eb2deefcd1b9",
+      "prompt": "Use case: stylized-concept\nAsset type: production 2D side-scrolling RPG background, one room, PNG 1536x1024 landscape.\nPrimary request: a warm indoor botanical conservatory with tall sage-green framed glass windows across the back wall, lush leafy ferns and broad-leaf plants in terracotta and cream pots on low wooden shelves, trailing vines above, a few small pale blossoms and a simple watering can. Distinct living greenhouse identity, not a laboratory, archive or map room. Keep central lower wall open enough for clear character silhouettes. All plants are contained behind the walking platform.\nStyle/medium: polished warm hand-painted anime fantasy game environment, soft cel shading, clean delicate brown outlines, pale cream stone/plaster walls, light honey wood, restrained sage and muted teal accents, soft golden daylight. Match a cozy side-scrolling research-room game, not photorealistic.\nComposition/framing: strict straight-on orthographic FRONT ELEVATION of the back wall. Camera exactly perpendicular to wall. Windows and shelves are front-facing with no depth convergence. Every horizontal line stays horizontal. No visible side walls, no room corners, no vanishing point, no converging floor lines. A single uninterrupted flat horizontal walkable platform crosses the entire image at y=805 of 1024, from left edge to right edge. Its narrow top surface is a straight line; below y=805 is a simple light cream decorative platform fascia extending to the bottom edge. All room furnishings stay behind that line and never obstruct it. Open left and right traversal edges on the same floor height. No raised steps.\nLighting/mood: welcoming soft morning sunlight through glass, warm and quiet, readable even detail.\nConstraints: no people, no animals, no silhouettes, no text, no letters, no numbers, no labels, no signage, no UI, no border, no watermark. No floor plants obstructing the walking line. Do not draw an angled floor or a perspective room. Deliver exactly one complete room background, 1536x1024 pixels.",
+      "visualReview": "Reviewed actual delivered PNG: front-facing room, level uninterrupted edge-to-edge platform whose top is y=697, clear character travel band; no people, UI, text or watermark. Original pixels retained; requested y=805 was not treated as measured geometry."
+    }
+  },
+  "reused": {
+    "antimeme_reception": {
+      "file": "../rooms/antimeme-division.png",
+      "width": 1536,
+      "height": 1024,
+      "floorY": 786,
+      "sha256": "b2fed17c1d1d44344f4b3318c76ba535f33f5b17e7daa12515fd14ac1fc4073b",
+      "sourceKey": "antimeme-division",
+      "visualReview": "Existing image inspected: front-facing wall and continuous horizontal platform. Explicit reuse, not a fourth new generation."
+    }
+  }
+}

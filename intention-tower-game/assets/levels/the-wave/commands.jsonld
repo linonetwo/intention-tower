@@ -3,16 +3,47 @@
   "@id": "it:level/the-wave/commands",
   "commands": [
     {
+      "commandId": "request-sit",
+      "label": "command.request-sit.label",
+      "hotkey": "6",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim", "student-a", "student-b"] },
+        { "type": "TargetIsNotActor" },
+        { "type": "TargetHasNode", "schemaId": "it:concept/discipline" }
+      ],
+      "effects": [{ "type": "SpawnObservation", "schemaId": "it:concept/instruction-sit", "modality": "Auditory", "about": "it:entity/teacher-wenger", "ttl": 6, "strength": 0.9, "signalType": null, "groupContext": "the-wave", "targetCharacterId": "__target" }]
+    },
+    {
+      "commandId": "request-stand",
+      "label": "command.request-stand.label",
+      "hotkey": "7",
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim", "student-a", "student-b"] },
+        { "type": "TargetIsNotActor" },
+        { "type": "TargetHasNode", "schemaId": "it:concept/discipline" }
+      ],
+      "effects": [{ "type": "SpawnObservation", "schemaId": "it:concept/instruction-stand", "modality": "Auditory", "about": "it:entity/teacher-wenger", "ttl": 6, "strength": 0.9, "signalType": null, "groupContext": "the-wave", "targetCharacterId": "__target" }]
+    },
+    {
       "commandId": "introduce-uniform",
       "label": "command.introduce-uniform.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
-      "preconditions": [],
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/group-identity",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/belonging-need"], "socialNeedBindings": [{ "needSchemaId": "it:concept/loneliness", "relief": 0.2 }, { "needSchemaId": "it:concept/value-deficit", "relief": 0.2 }], "isIdentity": true, "groupId": "the-wave", "resilience": 0.64 }
         }
       ]
     },
@@ -20,13 +51,18 @@
       "commandId": "teach-gesture",
       "label": "command.teach-gesture.label",
       "hotkey": "2",
-      "targeting": "NoTarget",
-      "preconditions": [],
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/discipline",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/individual-thought", "it:concept/obey"], "isBelief": true, "groupId": "the-wave", "resilience": 0.68 }
         }
       ]
     },
@@ -35,7 +71,11 @@
       "label": "command.enforce-discipline.label",
       "hotkey": "3",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "ReinforceEdge",
@@ -52,15 +92,31 @@
       ]
     },
     {
-      "commandId": "give-approval",
-      "label": "command.give-approval.label",
-      "hotkey": "4",
+      "commandId": "give-weak-approval",
+      "label": "command.give-weak-approval.label",
+      "hotkey": "8",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/social-approval",
+          "actionCredit": {
+            "actions": [
+              { "actionSchemaId": "it:concept/sit-on-command", "stimulusSchemaId": "it:concept/instruction-sit", "posture": "sitting" },
+              { "actionSchemaId": "it:concept/stand-on-command", "stimulusSchemaId": "it:concept/instruction-stand", "posture": "standing" }
+            ],
+            "emitterId": "teacher-wenger",
+            "groupContext": "the-wave",
+            "maxAgeTicks": 10
+          },
+          "socialRewardScale": 0.05,
+          "signalType": "Approval",
+          "groupContext": "the-wave",
           "modality": "Social",
           "about": "it:entity/teacher-wenger",
           "ttl": 200,
@@ -70,21 +126,48 @@
       ]
     },
     {
-      "commandId": "reject-outsider",
-      "label": "command.reject-outsider.label",
-      "hotkey": "5",
+      "commandId": "give-approval",
+      "label": "command.give-approval.label",
+      "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["teacher-wenger"] },
+        { "type": "TargetIs", "characterIds": ["tim","student-a","student-b"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
-          "schemaId": "it:concept/social-rejection",
+          "schemaId": "it:concept/social-approval",
+          "actionCredit": {
+            "actions": [
+              { "actionSchemaId": "it:concept/sit-on-command", "stimulusSchemaId": "it:concept/instruction-sit", "posture": "sitting" },
+              { "actionSchemaId": "it:concept/stand-on-command", "stimulusSchemaId": "it:concept/instruction-stand", "posture": "standing" }
+            ],
+            "emitterId": "teacher-wenger",
+            "groupContext": "the-wave",
+            "maxAgeTicks": 10
+          },
+          "signalType": "Approval",
+          "groupContext": "the-wave",
           "modality": "Social",
           "about": "it:entity/teacher-wenger",
           "ttl": 200,
-          "strength": 0.7,
+          "strength": 0.8,
           "targetCharacterId": "__target"
         }
+      ]
+    },
+    {
+      "commandId": "voice-dissent",
+      "label": "command.voice-dissent.label",
+      "hotkey": "5",
+      "targeting": "NoTarget",
+      "preconditions": [{ "type": "ActorIs", "characterIds": ["outsider"] }],
+      "effects": [
+        { "type": "SpawnObservation", "schemaId": "it:concept/group-dissent", "modality": "Auditory", "about": "it:entity/outsider", "ttl": 10, "strength": 0.9, "groupContext": "the-wave", "targetCharacterId": "tim" },
+        { "type": "SpawnObservation", "schemaId": "it:concept/group-dissent", "modality": "Auditory", "about": "it:entity/outsider", "ttl": 10, "strength": 0.9, "groupContext": "the-wave", "targetCharacterId": "student-a" },
+        { "type": "SpawnObservation", "schemaId": "it:concept/group-dissent", "modality": "Auditory", "about": "it:entity/outsider", "ttl": 10, "strength": 0.9, "groupContext": "the-wave", "targetCharacterId": "student-b" }
       ]
     }
   ]

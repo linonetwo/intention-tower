@@ -49,7 +49,8 @@
       "hotkey": "3",
       "targeting": "RequiresTarget",
       "preconditions": [
-        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" }
+        { "type": "EnvHasItem", "itemSchemaId": "schema:Product" },
+        { "type": "TargetHasNode", "schemaId": "it:concept/hive-control" }
       ],
       "effects": [
         {
@@ -68,7 +69,10 @@
       "label": "command.persuade-luddite.label",
       "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["player-agent"] },
+        { "type": "TargetIs", "characterIds": ["luddite-1", "luddite-2"] }
+      ],
       "effects": [
         {
           "type": "WeakenEdge",
@@ -97,7 +101,7 @@
       "commandId": "request-orbital-fire",
       "label": "command.request-orbital-fire.label",
       "hotkey": "6",
-      "targeting": "NoTarget",
+      "targeting": "RequiresTarget",
       "preconditions": [],
       "effects": [
         {

@@ -1,0 +1,487 @@
+{
+  "expectedLevels": 21,
+  "results": [
+    {
+      "levelId": "antimeme-division",
+      "tick": 4,
+      "status": "Won"
+    },
+    {
+      "levelId": "chen-sheng-uprising",
+      "tick": 10,
+      "status": "Won"
+    },
+    {
+      "levelId": "collapse",
+      "tick": 5,
+      "status": "Won"
+    },
+    {
+      "levelId": "consumerism-magic",
+      "tick": 9,
+      "status": "Won"
+    },
+    {
+      "levelId": "crowd",
+      "tick": 11,
+      "status": "Won"
+    },
+    {
+      "levelId": "cthulhu",
+      "tick": 3,
+      "status": "Won"
+    },
+    {
+      "levelId": "cyber-dream",
+      "tick": 4,
+      "status": "Won"
+    },
+    {
+      "levelId": "destroy-hive-mind",
+      "tick": 9,
+      "status": "Won"
+    },
+    {
+      "levelId": "face-saving",
+      "tick": 4,
+      "status": "Won"
+    },
+    {
+      "levelId": "gosling",
+      "tick": 14,
+      "status": "Won",
+      "imprinting": {
+        "dopamine_spent": 0.2,
+        "follow_ticks": 8,
+        "followed_distance": 160,
+        "imprinted_at": 1,
+        "max_separation_distance": 240,
+        "source_id": "obs_it_concept_see-contact-object__it_entity_lorenz",
+        "target_entity": "it:entity/lorenz"
+      },
+      "separation": 220,
+      "finalDistance": 80
+    },
+    {
+      "levelId": "hive-self",
+      "tick": 7,
+      "status": "Won"
+    },
+    {
+      "levelId": "ideology",
+      "tick": 7,
+      "status": "Won"
+    },
+    {
+      "levelId": "illusion-trap",
+      "tick": 8,
+      "status": "Won"
+    },
+    {
+      "levelId": "internet-addict",
+      "tick": 6,
+      "status": "Won"
+    },
+    {
+      "levelId": "meme-magic",
+      "tick": 6,
+      "status": "Won"
+    },
+    {
+      "levelId": "pavlov",
+      "tick": 71,
+      "status": "Won",
+      "conditioning": {
+        "learned_obs_it_concept_hear-metronome_dog-salivate": {
+          "independent_responses": 1,
+          "omitted_rewards": 1,
+          "paired_trials": 5
+        }
+      }
+    },
+    {
+      "levelId": "postmodern-vagrant",
+      "tick": 8,
+      "status": "Won"
+    },
+    {
+      "levelId": "smart-cat",
+      "tick": 1142,
+      "status": "Won",
+      "learningEdges": [
+        {
+          "decay_rate_per_tick": 0,
+          "edge_id": "learned_obs_it_concept_hear-button-sound_cat-press-button",
+          "evidence": {
+            "co_occurrence_count": 28,
+            "last_co_occurred_at": 815,
+            "window_sec": 1
+          },
+          "learn_type": "Classical",
+          "learnable": true,
+          "polarity": "Excitatory",
+          "source_instance_id": "obs_it_concept_hear-button-sound",
+          "target_instance_id": "cat-press-button",
+          "weight": 0.20282093456824435
+        },
+        {
+          "decay_rate_per_tick": 0,
+          "edge_id": "operant___managed:curiosity-spawn-want-explore_cat-press-button",
+          "evidence": {
+            "co_occurrence_count": 25,
+            "last_co_occurred_at": 815,
+            "window_sec": 1
+          },
+          "learn_type": "Operant",
+          "learnable": true,
+          "polarity": "Excitatory",
+          "source_instance_id": "__managed:curiosity-spawn-want-explore",
+          "target_instance_id": "cat-press-button",
+          "weight": 0.29187857106590165
+        },
+        {
+          "decay_rate_per_tick": 0,
+          "edge_id": "operant_cat-hunger_cat-press-button",
+          "evidence": {
+            "co_occurrence_count": 25,
+            "last_co_occurred_at": 815,
+            "window_sec": 1
+          },
+          "learn_type": "Operant",
+          "learnable": true,
+          "polarity": "Excitatory",
+          "source_instance_id": "cat-hunger",
+          "target_instance_id": "cat-press-button",
+          "weight": 0.29187857106590165
+        },
+        {
+          "decay_rate_per_tick": 0,
+          "edge_id": "operant_obs_it_concept_hear-button-sound_cat-press-button",
+          "evidence": {
+            "co_occurrence_count": 25,
+            "last_co_occurred_at": 815,
+            "window_sec": 1
+          },
+          "learn_type": "Operant",
+          "learnable": true,
+          "polarity": "Excitatory",
+          "source_instance_id": "obs_it_concept_hear-button-sound",
+          "target_instance_id": "cat-press-button",
+          "weight": 0.29187857106590165
+        }
+      ]
+    },
+    {
+      "levelId": "the-wave",
+      "tick": 40,
+      "status": "Won",
+      "instructedPostures": [
+        {
+          "target": "tim",
+          "posture": "sitting",
+          "episode": {
+            "action_id": "tim-sit-on-command",
+            "action_schema_id": "it:concept/sit-on-command",
+            "autonomous": false,
+            "contexts": [
+              {
+                "instance_id": "tim-belonging-need",
+                "schema_id": "it:concept/belonging-need",
+                "value": 0.2
+              },
+              {
+                "instance_id": "tim-loneliness",
+                "schema_id": "it:concept/loneliness",
+                "value": 0.8250000000000001
+              },
+              {
+                "instance_id": "tim-self-worth",
+                "schema_id": "it:concept/self-worth",
+                "value": 0.1
+              },
+              {
+                "instance_id": "tim-value-deficit",
+                "schema_id": "it:concept/value-deficit",
+                "value": 0.8250000000000001
+              }
+            ],
+            "executed_at": 5,
+            "physical_outcome": {
+              "from": "standing",
+              "to": "sitting",
+              "type": "ActorPosture"
+            },
+            "reinforcement_dopamine_spent": 0.011999999999999997,
+            "reward_consumed_at": 8,
+            "rewarded_at": 8,
+            "social_reward_delivered_at": 8,
+            "stimulus": {
+              "emitter_id": "teacher-wenger",
+              "group_context": "the-wave",
+              "observation_instance_id": "obs_it_concept_instruction-sit",
+              "observation_schema_id": "it:concept/instruction-sit",
+              "presentation_count": 1,
+              "presented_at": 4
+            }
+          }
+        },
+        {
+          "target": "tim",
+          "posture": "standing",
+          "episode": {
+            "action_id": "tim-stand-on-command",
+            "action_schema_id": "it:concept/stand-on-command",
+            "autonomous": false,
+            "contexts": [
+              {
+                "instance_id": "tim-belonging-need",
+                "schema_id": "it:concept/belonging-need",
+                "value": 0.2
+              },
+              {
+                "instance_id": "tim-loneliness",
+                "schema_id": "it:concept/loneliness",
+                "value": 0.6500000000000001
+              },
+              {
+                "instance_id": "tim-self-worth",
+                "schema_id": "it:concept/self-worth",
+                "value": 0.1
+              },
+              {
+                "instance_id": "tim-value-deficit",
+                "schema_id": "it:concept/value-deficit",
+                "value": 0.6500000000000001
+              }
+            ],
+            "executed_at": 10,
+            "physical_outcome": {
+              "from": "sitting",
+              "to": "standing",
+              "type": "ActorPosture"
+            },
+            "reinforcement_dopamine_spent": 0.012,
+            "reward_consumed_at": 13,
+            "rewarded_at": 13,
+            "social_reward_delivered_at": 13,
+            "stimulus": {
+              "emitter_id": "teacher-wenger",
+              "group_context": "the-wave",
+              "observation_instance_id": "obs_it_concept_instruction-stand",
+              "observation_schema_id": "it:concept/instruction-stand",
+              "presentation_count": 1,
+              "presented_at": 9
+            }
+          }
+        },
+        {
+          "target": "student-a",
+          "posture": "sitting",
+          "episode": {
+            "action_id": "student-a-sit-on-command",
+            "action_schema_id": "it:concept/sit-on-command",
+            "autonomous": false,
+            "contexts": [
+              {
+                "instance_id": "student-a-belonging-need",
+                "schema_id": "it:concept/belonging-need",
+                "value": 0.2
+              },
+              {
+                "instance_id": "student-a-loneliness",
+                "schema_id": "it:concept/loneliness",
+                "value": 0.39000000000000007
+              },
+              {
+                "instance_id": "student-a-self-worth",
+                "schema_id": "it:concept/self-worth",
+                "value": 0.6
+              },
+              {
+                "instance_id": "student-a-value-deficit",
+                "schema_id": "it:concept/value-deficit",
+                "value": 0.39000000000000007
+              }
+            ],
+            "executed_at": 18,
+            "physical_outcome": {
+              "from": "standing",
+              "to": "sitting",
+              "type": "ActorPosture"
+            },
+            "reinforcement_dopamine_spent": 0.012,
+            "reward_consumed_at": 21,
+            "rewarded_at": 21,
+            "social_reward_delivered_at": 21,
+            "stimulus": {
+              "emitter_id": "teacher-wenger",
+              "group_context": "the-wave",
+              "observation_instance_id": "obs_it_concept_instruction-sit",
+              "observation_schema_id": "it:concept/instruction-sit",
+              "presentation_count": 1,
+              "presented_at": 17
+            }
+          }
+        },
+        {
+          "target": "student-a",
+          "posture": "standing",
+          "episode": {
+            "action_id": "student-a-stand-on-command",
+            "action_schema_id": "it:concept/stand-on-command",
+            "autonomous": false,
+            "contexts": [
+              {
+                "instance_id": "student-a-belonging-need",
+                "schema_id": "it:concept/belonging-need",
+                "value": 0.2
+              },
+              {
+                "instance_id": "student-a-loneliness",
+                "schema_id": "it:concept/loneliness",
+                "value": 0.21500000000000008
+              },
+              {
+                "instance_id": "student-a-self-worth",
+                "schema_id": "it:concept/self-worth",
+                "value": 0.6
+              },
+              {
+                "instance_id": "student-a-value-deficit",
+                "schema_id": "it:concept/value-deficit",
+                "value": 0.21500000000000008
+              }
+            ],
+            "executed_at": 23,
+            "physical_outcome": {
+              "from": "sitting",
+              "to": "standing",
+              "type": "ActorPosture"
+            },
+            "reinforcement_dopamine_spent": 0.012,
+            "reward_consumed_at": 26,
+            "rewarded_at": 26,
+            "social_reward_delivered_at": 26,
+            "stimulus": {
+              "emitter_id": "teacher-wenger",
+              "group_context": "the-wave",
+              "observation_instance_id": "obs_it_concept_instruction-stand",
+              "observation_schema_id": "it:concept/instruction-stand",
+              "presentation_count": 1,
+              "presented_at": 22
+            }
+          }
+        },
+        {
+          "target": "student-b",
+          "posture": "sitting",
+          "episode": {
+            "action_id": "student-b-sit-on-command",
+            "action_schema_id": "it:concept/sit-on-command",
+            "autonomous": false,
+            "contexts": [
+              {
+                "instance_id": "student-b-belonging-need",
+                "schema_id": "it:concept/belonging-need",
+                "value": 0.2
+              },
+              {
+                "instance_id": "student-b-loneliness",
+                "schema_id": "it:concept/loneliness",
+                "value": 0.6550000000000001
+              },
+              {
+                "instance_id": "student-b-self-worth",
+                "schema_id": "it:concept/self-worth",
+                "value": 0.4
+              },
+              {
+                "instance_id": "student-b-value-deficit",
+                "schema_id": "it:concept/value-deficit",
+                "value": 0.6550000000000001
+              }
+            ],
+            "executed_at": 31,
+            "physical_outcome": {
+              "from": "standing",
+              "to": "sitting",
+              "type": "ActorPosture"
+            },
+            "reinforcement_dopamine_spent": 0.012,
+            "reward_consumed_at": 34,
+            "rewarded_at": 34,
+            "social_reward_delivered_at": 34,
+            "stimulus": {
+              "emitter_id": "teacher-wenger",
+              "group_context": "the-wave",
+              "observation_instance_id": "obs_it_concept_instruction-sit",
+              "observation_schema_id": "it:concept/instruction-sit",
+              "presentation_count": 1,
+              "presented_at": 30
+            }
+          }
+        },
+        {
+          "target": "student-b",
+          "posture": "standing",
+          "episode": {
+            "action_id": "student-b-stand-on-command",
+            "action_schema_id": "it:concept/stand-on-command",
+            "autonomous": false,
+            "contexts": [
+              {
+                "instance_id": "student-b-belonging-need",
+                "schema_id": "it:concept/belonging-need",
+                "value": 0.2
+              },
+              {
+                "instance_id": "student-b-loneliness",
+                "schema_id": "it:concept/loneliness",
+                "value": 0.48000000000000015
+              },
+              {
+                "instance_id": "student-b-self-worth",
+                "schema_id": "it:concept/self-worth",
+                "value": 0.4
+              },
+              {
+                "instance_id": "student-b-value-deficit",
+                "schema_id": "it:concept/value-deficit",
+                "value": 0.48000000000000015
+              }
+            ],
+            "executed_at": 36,
+            "physical_outcome": {
+              "from": "sitting",
+              "to": "standing",
+              "type": "ActorPosture"
+            },
+            "reinforcement_dopamine_spent": 0.012,
+            "reward_consumed_at": 39,
+            "rewarded_at": 39,
+            "social_reward_delivered_at": 39,
+            "stimulus": {
+              "emitter_id": "teacher-wenger",
+              "group_context": "the-wave",
+              "observation_instance_id": "obs_it_concept_instruction-stand",
+              "observation_schema_id": "it:concept/instruction-stand",
+              "presentation_count": 1,
+              "presented_at": 35
+            }
+          }
+        }
+      ]
+    },
+    {
+      "levelId": "trigger-addiction",
+      "tick": 4,
+      "status": "Won"
+    },
+    {
+      "levelId": "water-is-poison",
+      "tick": 7,
+      "status": "Won"
+    }
+  ],
+  "failures": []
+}

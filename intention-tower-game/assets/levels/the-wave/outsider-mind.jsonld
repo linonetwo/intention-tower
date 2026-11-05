@@ -1,0 +1,18 @@
+{
+  "@context": { "@import": "../../schema/context.jsonld" },
+  "@id": "it:level/the-wave/outsider-mind",
+  "@type": "it:MindGraph",
+  "belongsToCharacter": "it:entity/outsider",
+  "nodes": [{
+    "instanceId": "outsider-loneliness",
+    "schemaId": "it:concept/loneliness",
+    "label": "concept.loneliness.label",
+    "nodeType": "PriorInstinct",
+    "value": 0.1,
+    "valueVelocity": 0.0,
+    "strength": 0.9,
+    "active": true,
+    "it:priorInstinct": { "setPoint": 0.0, "brainRegion": "Limbic", "isResource": false, "isMood": true, "overridableByMeme": false, "satisfiedByAbout": [] }
+  }],
+  "edges": []
+}

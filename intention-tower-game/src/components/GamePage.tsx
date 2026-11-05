@@ -1,5 +1,5 @@
 /**
- * GamePage — map-centric game interface with PixiJS scene and HUD overlays.
+ * GamePage — horizontal full-body world stage with HUD overlays.
  *
  * Layout (desktop):
  * ┌──────────────────────────────────────────────────────────┐
@@ -17,28 +17,26 @@
  * Mobile: No side bars, top status bar, bottom dialogue, graph as overlay.
  */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Box, Snackbar, Alert } from '@mui/material';
+import { Box, Snackbar, Alert, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useGameState, gameStore } from '../store/useGameState';
 import { progressStore } from '../store/useLevelProgress';
 
 // HUD components
 import { TimeControlsHud } from './hud/TimeControlsHud';
-import { ActorStatusBar } from './hud/ActorStatusBar';
-import { MiniMapHud } from './hud/MiniMapHud';
 import { DialogueBox } from './hud/DialogueBox';
-import { MobileStatusBar } from './hud/MobileStatusBar';
+import { ObjectiveHud } from './hud/ObjectiveHud';
 
 // Overlay components
 import { MindGraphOverlay } from './overlay/MindGraphOverlay';
-import { CharacterPortrait } from './overlay/CharacterPortrait';
 import { SceneContextMenu } from './overlay/SceneContextMenu';
+import { LevelOutcomeOverlay } from './overlay/LevelOutcomeOverlay';
 
 // Scene
 import { GameScene } from './scene/GameScene';
 
 // Tutorial
-import { TutorialGuidePanel } from './panels/TutorialGuidePanel';
+import { TutorialGuidePanel, SHORT_LANDSCAPE_QUERY } from './panels/TutorialGuidePanel';
 
 // Hooks
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -48,6 +46,7 @@ import { modAssetsStore } from '../store/useModAssets';
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
   useResponsiveLayout(); // initialize layout detection
+  const shortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
   const worldState = useGameState((s) => s.worldState);
   const error = useGameState((s) => s.error);
   const clearError = useGameState((s) => s.clearError);
@@ -76,6 +75,12 @@ export const GamePage: React.FC = () => {
       progressStore.getState().updateTick(currentLevelId, tick);
     }
   }, [currentLevelId, worldState?.tick]);
+
+  useEffect(() => {
+    if (currentLevelId && worldState?.progress.status === 'Won') {
+      progressStore.getState().markCompleted(currentLevelId);
+    }
+  }, [currentLevelId, worldState?.progress.status]);
 
   // Redirect if no world state
   useEffect(() => {
@@ -110,11 +115,11 @@ export const GamePage: React.FC = () => {
         height: '100dvh',
         position: 'relative',
         overflow: 'hidden',
-        bgcolor: '#0e0e1a',
-        color: '#ddd',
+        bgcolor: '#efe5cf',
+        color: '#584431',
       }}
     >
-      {/* ── Layer 0: PixiJS Scene (full screen canvas) ── */}
+      {/* ── Layer 0: world stage; safe area excludes status and dialogue HUDs ── */}
       <Box sx={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <GameScene width={canvasSize.width} height={canvasSize.height} />
       </Box>
@@ -125,16 +130,18 @@ export const GamePage: React.FC = () => {
         <TimeControlsHud />
 
         {/* Left status bar (desktop/tablet) */}
-        <ActorStatusBar />
 
         {/* Mini-map (desktop/tablet) */}
-        <MiniMapHud />
 
         {/* Mobile status bar */}
-        <MobileStatusBar />
 
-        {/* Character portraits */}
-        <CharacterPortrait />
+        {/* Backend-driven level goals */}
+        <ObjectiveHud />
+
+        {/* Movement controls are embedded in the stage safe area on all devices. */}
+
+        {/* Data-driven economy appears only in levels with authored assets */}
+
 
         {/* Dialogue box (bottom) */}
         <DialogueBox />
@@ -146,8 +153,11 @@ export const GamePage: React.FC = () => {
       {/* ── Layer 3: Context menus ── */}
       <SceneContextMenu />
 
+      {/* ── Terminal level result ── */}
+      <LevelOutcomeOverlay />
+
       {/* ── Tutorial guide ── */}
-      <TutorialGuidePanel />
+      {!shortLandscape && <TutorialGuidePanel />}
 
       {/* ── Error snackbar ── */}
       <Snackbar

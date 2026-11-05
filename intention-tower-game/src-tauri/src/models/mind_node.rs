@@ -120,8 +120,20 @@ pub struct ResourceCost {
 
 // ── Observation fields ──
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObservationData {
+    #[serde(default = "default_social_reward_scale", alias = "socialRewardScale")]
+    pub social_reward_scale: f64,
+    /// Number of distinct presentation ticks of this persistent percept.
+    /// Passive simulation ticks are not exposures; old saves default to zero.
+    #[serde(default)]
+    pub presentation_count: u32,
+    /// Tick of the last consumed social presentation, persisted across saves.
+    #[serde(default)]
+    pub social_consumed_at: Option<u64>,
+    /// Immutable causal receipt, absent on legacy and ungated observations.
+    #[serde(default)]
+    pub action_credit: Option<super::mind_graph::ActionCreditPin>,
     pub modality: Option<Modality>,
     pub about: Option<String>,
     pub novelty_key: Option<String>,
@@ -133,6 +145,32 @@ pub struct ObservationData {
     pub emitter_id: Option<String>,
     pub group_context: Option<String>,
     pub replica_of: Option<String>,
+}
+
+pub fn default_social_reward_scale() -> f64 {
+    1.0
+}
+
+impl Default for ObservationData {
+    fn default() -> Self {
+        Self {
+            social_reward_scale: 1.0,
+            presentation_count: 0,
+            social_consumed_at: None,
+            action_credit: None,
+            modality: None,
+            about: None,
+            novelty_key: None,
+            credibility: 0.0,
+            satisfaction: 0.0,
+            source: None,
+            is_signal: false,
+            signal_type: None,
+            emitter_id: None,
+            group_context: None,
+            replica_of: None,
+        }
+    }
 }
 
 // ── PriorInstinct fields ──
@@ -163,22 +201,113 @@ pub struct MotivationData {
     pub critical_period_end: Option<u64>,
     pub is_persistent: bool,
     pub suppressed_by: Vec<String>,
+    /// Opt-in sensory and motor contract; unrelated motivations are unchanged.
+    #[serde(default)]
+    pub imprinting: Option<ImprintingConfig>,
+    /// Only real acquisition and actual movement create evidence.
+    #[serde(default)]
+    pub imprinting_evidence: Option<ImprintingEvidence>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImprintingConfig {
+    #[serde(alias = "observationSchemas")]
+    pub observation_schemas: Vec<String>,
+    #[serde(alias = "followActionSchema")]
+    pub follow_action_schema: String,
+    #[serde(alias = "separationInstinctSchema")]
+    pub separation_instinct_schema: String,
+    #[serde(alias = "followSpeed")]
+    pub follow_speed: f64,
+    #[serde(alias = "comfortRadius")]
+    pub comfort_radius: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImprintingEvidence {
+    pub target_entity: String,
+    pub source_id: String,
+    pub imprinted_at: u64,
+    pub dopamine_spent: f64,
+    pub followed_distance: f64,
+    pub follow_ticks: u32,
+    pub max_separation_distance: f64,
 }
 
 // ── Action fields ──
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ActionData {
+    #[serde(default, alias = "instructionCue")]
+    pub instruction_cue: Option<InstructionCue>,
+    #[serde(default, alias = "physicalEffect")]
+    pub physical_effect: Option<ActionPhysicalEffect>,
     pub innate: bool,
     pub goap: bool,
     pub sub_action_schemas: Vec<String>,
+    /// Observable sensory consequences produced once per execution episode.
+    #[serde(default)]
+    pub emitted_observation_schemas: Vec<String>,
+    /// Optional authored restriction on which learned need can prove autonomy.
+    #[serde(default)]
+    pub autonomous_need_schema_ids: Vec<String>,
+    #[serde(default)]
+    pub autonomous_need_min_value: Option<f64>,
     pub proficiency_level: f64,
+    /// Per-tick winner chosen by ActionSelectionSystem. Eligibility remains in
+    /// MindNode.active, so losing one tick never removes an action forever.
+    #[serde(default)]
+    pub selected: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InstructionCue {
+    #[serde(alias = "observationSchemaIds")]
+    pub observation_schema_ids: Vec<String>,
+    #[serde(default, alias = "emitterId")]
+    pub emitter_id: Option<String>,
+    #[serde(default, alias = "groupContext")]
+    pub group_context: Option<String>,
+    #[serde(alias = "maxAgeTicks")]
+    pub max_age_ticks: u64,
+    #[serde(alias = "minValue")]
+    pub min_value: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ActionPhysicalEffect {
+    SocialExclusion {
+        #[serde(alias = "groupId")]
+        group_id: String,
+        target: SocialExclusionTarget,
+        #[serde(alias = "targetNeedSchemaId")]
+        target_need_schema_id: String,
+        aggravation: f64,
+        #[serde(alias = "identitySchemaId")]
+        identity_schema_id: String,
+        #[serde(alias = "minimumSocialWeight")]
+        minimum_social_weight: f64,
+        #[serde(alias = "minimumNeedValue")]
+        minimum_need_value: f64,
+    },
+    ActorPosture {
+        posture: super::scene::CharacterPosture,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SocialExclusionTarget {
+    StimulusEmitter,
 }
 
 // ── Meme fields ──
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MemeData {
+    /// Authored needs relieved (or aggravated) by this group's social signals.
+    #[serde(default)]
+    pub social_need_bindings: Vec<SocialNeedBinding>,
     pub constituent_schemas: Vec<String>,
     pub binding_sites: Vec<String>,
     pub spread_vector: Option<SpreadVector>,
@@ -199,6 +328,13 @@ pub struct MemeData {
     pub resilience: f64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocialNeedBinding {
+    #[serde(alias = "needSchemaId")]
+    pub need_schema_id: String,
+    pub relief: f64,
+}
+
 // ── MindNode ──
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -211,6 +347,14 @@ pub struct MindNode {
     pub value_velocity: f64,
     pub strength: f64,
     pub active: bool,
+    /// Recomputed by AttentionAllocationSystem. Unlike `active`, this is a
+    /// transient working-memory budget decision and can recover next tick.
+    #[serde(default = "default_attended")]
+    pub attended: bool,
+    /// Recomputed conflict pressure. This modifies effective strength without
+    /// destructively eroding the authored/learned base strength.
+    #[serde(default)]
+    pub suppression: f64,
     pub created_at: u64,
     pub ttl: Option<u64>,
     pub hidden_by_default: bool,
@@ -234,13 +378,23 @@ pub struct MindNode {
     pub is_virtual: bool,
 }
 
+const fn default_attended() -> bool {
+    true
+}
+
 impl MindNode {
     pub fn is_resource(&self) -> bool {
-        self.prior_instinct.as_ref().map_or(false, |pi| pi.is_resource)
+        self.prior_instinct
+            .as_ref()
+            .is_some_and(|pi| pi.is_resource)
     }
 
     pub fn is_mood(&self) -> bool {
-        self.prior_instinct.as_ref().map_or(false, |pi| pi.is_mood)
+        self.prior_instinct.as_ref().is_some_and(|pi| pi.is_mood)
+    }
+
+    pub fn effective_strength(&self) -> f64 {
+        self.strength * (1.0 - self.suppression.clamp(0.0, 1.0))
     }
 }
 
@@ -248,6 +402,10 @@ impl MindNode {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Evidence {
+    /// Actual dopamine paid for positive Social strengthening only. Rejection
+    /// payments and legacy/preseeded associations never establish belonging.
+    #[serde(default)]
+    pub social_dopamine_spent: f64,
     pub co_occurrence_count: u32,
     pub last_co_occurred_at: u64,
     pub window_sec: f64,
@@ -256,6 +414,7 @@ pub struct Evidence {
 impl Default for Evidence {
     fn default() -> Self {
         Self {
+            social_dopamine_spent: 0.0,
             co_occurrence_count: 0,
             last_co_occurred_at: 0,
             window_sec: 10.0,

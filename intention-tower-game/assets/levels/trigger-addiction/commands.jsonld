@@ -32,7 +32,8 @@
         {
           "type": "InjectMeme",
           "memeSchemaId": "it:concept/game-achievement",
-          "targetCharacterId": "__target"
+          "targetCharacterId": "__target",
+          "meme": { "bindingSites": ["it:concept/virtual-pleasure"], "resilience": 0.62 }
         },
         {
           "type": "ModifyNodeValue",
@@ -54,6 +55,12 @@
           "schemaId": "it:concept/virtual-pleasure",
           "delta": 0.5,
           "targetCharacterId": "__target"
+        },
+        {
+          "type": "ModifyNodeValue",
+          "schemaId": "it:concept/play-game",
+          "delta": 0.5,
+          "targetCharacterId": "__target"
         }
       ]
     },
@@ -63,7 +70,7 @@
       "hotkey": "4",
       "targeting": "RequiresTarget",
       "preconditions": [
-        { "type": "TargetNodeActive", "schemaId": "it:concept/play-game" }
+        { "type": "TargetNodeValue", "schemaId": "it:concept/play-game", "op": "GTE", "threshold": 0.5 }
       ],
       "effects": [
         {

@@ -38,6 +38,7 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
   const currentLevelId = useGameState((s) => s.currentLevelId);
   const worldState = useGameState((s) => s.worldState);
   const [newSlotName, setNewSlotName] = useState('');
+  const slotIsValid = /^[A-Za-z0-9_-]{1,64}$/.test(newSlotName);
 
   useEffect(() => {
     if (open) {
@@ -70,28 +71,30 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
       maxWidth='sm'
       fullWidth
       slotProps={{
-        paper: { sx: { bgcolor: '#1a1a2e', color: '#ddd' } },
+        paper: { sx: { bgcolor: '#fff8e9', color: '#584431' } },
       }}
     >
       <DialogTitle sx={{ fontSize: 16, fontWeight: 600 }}>
         {t('save.title')}
       </DialogTitle>
 
-      <DialogContent dividers sx={{ borderColor: '#2a2a4e' }}>
+      <DialogContent dividers sx={{ borderColor: '#d6bf99' }}>
         {/* New save section */}
         <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
           <TextField
             size='small'
             label={t('save.slotName')}
             value={newSlotName}
+            error={newSlotName.length > 0 && !slotIsValid}
+            helperText={newSlotName.length > 0 && !slotIsValid ? t('save.slotHelp') : ' '}
             onChange={(event) => {
               setNewSlotName(event.target.value);
             }}
             sx={{
               flex: 1,
-              '& .MuiInputBase-root': { color: '#ddd', fontSize: 13 },
-              '& .MuiInputLabel-root': { color: '#888', fontSize: 12 },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#444' },
+              '& .MuiInputBase-root': { color: '#584431', fontSize: 13 },
+              '& .MuiInputLabel-root': { color: '#79644d', fontSize: 12 },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#b79871' },
             }}
             onKeyDown={(event) => {
               if (event.key === 'Enter') void handleSave();
@@ -102,19 +105,19 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
             size='small'
             startIcon={<SaveIcon sx={{ fontSize: 14 }} />}
             onClick={handleSave}
-            disabled={!newSlotName.trim()}
+            disabled={!slotIsValid}
             sx={{
               textTransform: 'none',
               fontSize: 12,
-              bgcolor: 'rgba(100,100,255,0.2)',
-              '&:hover': { bgcolor: 'rgba(100,100,255,0.35)' },
+              bgcolor: 'rgba(154,113,62,0.2)',
+              '&:hover': { bgcolor: 'rgba(154,113,62,0.35)' },
             }}
           >
             {t('save.save')}
           </Button>
         </Box>
 
-        <Divider sx={{ borderColor: '#2a2a4e', mb: 1 }} />
+        <Divider sx={{ borderColor: '#d6bf99', mb: 1 }} />
 
         {/* Existing saves */}
         {saves.length === 0
@@ -131,7 +134,7 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
                   sx={{
                     borderRadius: 1,
                     mb: 0.5,
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
+                    '&:hover': { bgcolor: 'rgba(149,112,64,0.03)' },
                   }}
                 >
                   <ListItemText
@@ -141,16 +144,16 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
                         <Chip
                           label={t('save.tick', { tick: save.tick })}
                           size='small'
-                          sx={{ height: 18, fontSize: 10, fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.05)' }}
+                          sx={{ height: 18, fontSize: 10, fontFamily: 'monospace', bgcolor: 'rgba(149,112,64,0.05)' }}
                         />
                         <Chip
                           label={save.timestamp}
                           size='small'
-                          sx={{ height: 18, fontSize: 10, color: '#888', bgcolor: 'rgba(255,255,255,0.03)' }}
+                          sx={{ height: 18, fontSize: 10, color: '#79644d', bgcolor: 'rgba(149,112,64,0.03)' }}
                         />
                       </Box>
                     }
-                    primaryTypographyProps={{ fontSize: 13, fontWeight: 500, color: '#ccc' }}
+                    primaryTypographyProps={{ fontSize: 13, fontWeight: 500, color: '#68543f' }}
                   />
                   <ListItemSecondaryAction>
                     <Tooltip title={t('save.load')} arrow>
@@ -182,8 +185,8 @@ export const SaveManager: React.FC<SaveManagerProps> = ({ open, onClose }) => {
           )}
       </DialogContent>
 
-      <DialogActions sx={{ borderTop: '1px solid #2a2a4e' }}>
-        <Button onClick={onClose} sx={{ color: '#888', textTransform: 'none', fontSize: 12 }}>
+      <DialogActions sx={{ borderTop: '1px solid #d6bf99' }}>
+        <Button onClick={onClose} sx={{ color: '#79644d', textTransform: 'none', fontSize: 12 }}>
           {t('save.cancel')}
         </Button>
       </DialogActions>

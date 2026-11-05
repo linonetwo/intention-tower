@@ -1,0 +1,962 @@
+{
+  "version": 1,
+  "generator": "proxy-imagegen",
+  "model": "gpt-image-2",
+  "generated": "2026-10-23",
+  "promptFile": "docs/art/paper-doll-v1-prompt.md",
+  "source": {
+    "file": "source-v1.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "sha256": "d54d8a5b182785296d6667350fd207089b0fbbc8fd90d392cd75b303dec1e5d2"
+  },
+  "processing": "Per-cell largest 8-connected alpha>=16 component; nearby low-alpha edge retained; tight crop; premultiplied-alpha bilinear resize, transparent 3px padding (one canonical unit). Heads retain aspect and bottom-centered neck.",
+  "pixelRatio": 3,
+  "runtimeSizes": {
+    "head": [
+      56,
+      56
+    ],
+    "torso": [
+      60,
+      72
+    ],
+    "upperArm": [
+      18,
+      39
+    ],
+    "forearm": [
+      18,
+      39
+    ],
+    "thigh": [
+      22,
+      46
+    ],
+    "shin": [
+      22,
+      50
+    ]
+  },
+  "parts": [
+    {
+      "id": "student-boy",
+      "type": "head",
+      "cell": [
+        0,
+        0
+      ],
+      "sourceBounds": {
+        "left": 23,
+        "top": 15,
+        "right": 250,
+        "bottom": 246
+      },
+      "componentPixels": 33166,
+      "size": [
+        168,
+        168
+      ],
+      "sha256": "6d0e44ba9588fc3b8f57516e8e72b978923347ff343fdbaef6c7b05eb5164962"
+    },
+    {
+      "id": "student-girl",
+      "type": "head",
+      "cell": [
+        1,
+        0
+      ],
+      "sourceBounds": {
+        "left": 18,
+        "top": 25,
+        "right": 246,
+        "bottom": 246
+      },
+      "componentPixels": 37351,
+      "size": [
+        168,
+        168
+      ],
+      "sha256": "b9ff85aae078963e40d760ae93d1b6fa5abb2ba4b64d018fe0c238e05609eab6"
+    },
+    {
+      "id": "teacher",
+      "type": "head",
+      "cell": [
+        2,
+        0
+      ],
+      "sourceBounds": {
+        "left": 25,
+        "top": 14,
+        "right": 253,
+        "bottom": 250
+      },
+      "componentPixels": 35788,
+      "size": [
+        168,
+        168
+      ],
+      "sha256": "b36c15da7e3caf7578cfb99e360315b9107192a047d7b87c491fb0c3ea19ef2e"
+    },
+    {
+      "id": "scientist",
+      "type": "head",
+      "cell": [
+        3,
+        0
+      ],
+      "sourceBounds": {
+        "left": 27,
+        "top": 14,
+        "right": 256,
+        "bottom": 251
+      },
+      "componentPixels": 36281,
+      "size": [
+        168,
+        168
+      ],
+      "sha256": "86c4428d05c411b208f31e18144bc3afd07b8c6cabe80112086126c2a3b4e561"
+    },
+    {
+      "id": "student-torso",
+      "type": "torso",
+      "cell": [
+        0,
+        1
+      ],
+      "sourceBounds": {
+        "left": 62,
+        "top": 0,
+        "right": 229,
+        "bottom": 237
+      },
+      "componentPixels": 30293,
+      "size": [
+        180,
+        216
+      ],
+      "sha256": "eb159ecdaa0b9696934a3a19a5683517c43919f4637ad1e033e0cb501b8ea363"
+    },
+    {
+      "id": "student-upperArm",
+      "type": "upperArm",
+      "cell": [
+        1,
+        1
+      ],
+      "sourceBounds": {
+        "left": 93,
+        "top": 14,
+        "right": 193,
+        "bottom": 236
+      },
+      "componentPixels": 15517,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "6d7bbd6978215552796cacbe9ea90e0b8cb006f5447a6af9837913044ed7ce52"
+    },
+    {
+      "id": "student-forearm",
+      "type": "forearm",
+      "cell": [
+        2,
+        1
+      ],
+      "sourceBounds": {
+        "left": 94,
+        "top": 4,
+        "right": 180,
+        "bottom": 238
+      },
+      "componentPixels": 14330,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "4a6e39e4fdd2b7e311f1414a6bd890d60cb947eb9f79c5a40f6729c29ae5df81"
+    },
+    {
+      "id": "navy-thigh",
+      "type": "thigh",
+      "cell": [
+        3,
+        1
+      ],
+      "sourceBounds": {
+        "left": 80,
+        "top": 9,
+        "right": 200,
+        "bottom": 236
+      },
+      "componentPixels": 22313,
+      "size": [
+        66,
+        138
+      ],
+      "sha256": "15c37cacf1813a8a70a6d200415f6ed9d7772ffa6d2eda811a61e94049ed696c"
+    },
+    {
+      "id": "navy-shin",
+      "type": "shin",
+      "cell": [
+        0,
+        2
+      ],
+      "sourceBounds": {
+        "left": 89,
+        "top": 0,
+        "right": 232,
+        "bottom": 236
+      },
+      "componentPixels": 20332,
+      "size": [
+        66,
+        150
+      ],
+      "sha256": "61dfebbb2eeca99616efe1df88f5b4af70599839be8c098d4927fcc8484d834c"
+    },
+    {
+      "id": "teacher-torso",
+      "type": "torso",
+      "cell": [
+        1,
+        2
+      ],
+      "sourceBounds": {
+        "left": 57,
+        "top": 0,
+        "right": 232,
+        "bottom": 232
+      },
+      "componentPixels": 32170,
+      "size": [
+        180,
+        216
+      ],
+      "sha256": "e33d8ae7d8cae658a251601d30f2b44cf2d86f41ca407b7bcf36402408975f9b"
+    },
+    {
+      "id": "teacher-upperArm",
+      "type": "upperArm",
+      "cell": [
+        2,
+        2
+      ],
+      "sourceBounds": {
+        "left": 92,
+        "top": 6,
+        "right": 190,
+        "bottom": 216
+      },
+      "componentPixels": 15342,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "ee1e2620922e25ddd42a5a3bef74bd7c0f5e6308d7cf31b4935c5e0446a05274"
+    },
+    {
+      "id": "teacher-forearm",
+      "type": "forearm",
+      "cell": [
+        3,
+        2
+      ],
+      "sourceBounds": {
+        "left": 89,
+        "top": 1,
+        "right": 186,
+        "bottom": 232
+      },
+      "componentPixels": 14440,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "dec30c799899ed84031fa6bd87b0b482945b2d4af5e7e3f4df71560f7bf4c598"
+    },
+    {
+      "id": "brown-thigh",
+      "type": "thigh",
+      "cell": [
+        0,
+        3
+      ],
+      "sourceBounds": {
+        "left": 80,
+        "top": 0,
+        "right": 206,
+        "bottom": 230
+      },
+      "componentPixels": 24320,
+      "size": [
+        66,
+        138
+      ],
+      "sha256": "3559379fd0c0819d120ab2b10cb09fd889035808107585884b8947f280c999b9"
+    },
+    {
+      "id": "brown-shin",
+      "type": "shin",
+      "cell": [
+        1,
+        3
+      ],
+      "sourceBounds": {
+        "left": 82,
+        "top": 0,
+        "right": 238,
+        "bottom": 231
+      },
+      "componentPixels": 20434,
+      "size": [
+        66,
+        150
+      ],
+      "sha256": "bc96fc2540e2863c6f730e9586e3ffefab7e992d948e69b8a3463dae56bbfc8b"
+    },
+    {
+      "id": "scientist-torso",
+      "type": "torso",
+      "cell": [
+        2,
+        3
+      ],
+      "sourceBounds": {
+        "left": 45,
+        "top": 0,
+        "right": 246,
+        "bottom": 235
+      },
+      "componentPixels": 37741,
+      "size": [
+        180,
+        216
+      ],
+      "sha256": "15918d39c96975d7bde9553012fe796892436d5eed45a5add3bb19282a1e2dda"
+    },
+    {
+      "id": "scientist-upperArm",
+      "type": "upperArm",
+      "cell": [
+        3,
+        3
+      ],
+      "sourceBounds": {
+        "left": 94,
+        "top": 0,
+        "right": 195,
+        "bottom": 220
+      },
+      "componentPixels": 17451,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "e757113ff5660a77568812c7bf01778d37cb2023d6662b44a35733e69272947d"
+    },
+    {
+      "id": "scientist-forearm",
+      "type": "forearm",
+      "cell": [
+        0,
+        4
+      ],
+      "sourceBounds": {
+        "left": 94,
+        "top": 0,
+        "right": 195,
+        "bottom": 233
+      },
+      "componentPixels": 15891,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "c24047b8fb752b6a8e80b8268637b5fd596311b876d541bc42abbdd36b1001ba"
+    },
+    {
+      "id": "teal-torso",
+      "type": "torso",
+      "cell": [
+        1,
+        4
+      ],
+      "sourceBounds": {
+        "left": 58,
+        "top": 0,
+        "right": 230,
+        "bottom": 226
+      },
+      "componentPixels": 31095,
+      "size": [
+        180,
+        216
+      ],
+      "sha256": "9e86a793c6d2f1a848f5b431afc21f4d95bac9a4d9cbf30b696a393202cd08ac"
+    },
+    {
+      "id": "teal-upperArm",
+      "type": "upperArm",
+      "cell": [
+        2,
+        4
+      ],
+      "sourceBounds": {
+        "left": 91,
+        "top": 0,
+        "right": 196,
+        "bottom": 225
+      },
+      "componentPixels": 16797,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "7f31f0b3321bf4684506fab63dcab96b28e7e789511de24a44080289f1f7b895"
+    },
+    {
+      "id": "teal-forearm",
+      "type": "forearm",
+      "cell": [
+        3,
+        4
+      ],
+      "sourceBounds": {
+        "left": 99,
+        "top": 0,
+        "right": 189,
+        "bottom": 232
+      },
+      "componentPixels": 14549,
+      "size": [
+        54,
+        117
+      ],
+      "sha256": "9bd61bf8936bc065d86bee2d9faf9e4db4f83eb7aa4b64e83c4c31cda38c4aca"
+    }
+  ],
+  "characters": {
+    "it:entity/pavlov": {
+      "headId": "scientist",
+      "outfitId": "scientist",
+      "height": 150
+    },
+    "pavlov": {
+      "headId": "scientist",
+      "outfitId": "scientist",
+      "height": 150
+    },
+    "it:entity/lorenz": {
+      "headId": "scientist",
+      "outfitId": "scientist",
+      "height": 150
+    },
+    "lorenz": {
+      "headId": "scientist",
+      "outfitId": "scientist",
+      "height": 150
+    },
+    "it:entity/hines": {
+      "headId": "scientist",
+      "outfitId": "scientist",
+      "height": 150
+    },
+    "hines": {
+      "headId": "scientist",
+      "outfitId": "scientist",
+      "height": 150
+    },
+    "outsider": {
+      "headId": "student-girl",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/student-worker": {
+      "headId": "student-girl",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "student-worker": {
+      "headId": "student-girl",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/student-b": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "student-b": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/clone-b": {
+      "headId": "student-girl",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "clone-b": {
+      "headId": "student-girl",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/tim": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "tim": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/student-a": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "student-a": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/addict-teen": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "addict-teen": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/protagonist": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "protagonist": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/clone-a": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "clone-a": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/clone-c": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "clone-c": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/friend": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "friend": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/victim": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "victim": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/subject": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "subject": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/trapped-person": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "trapped-person": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/meme-target": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "meme-target": {
+      "headId": "student-boy",
+      "outfitId": "student",
+      "height": 150
+    },
+    "it:entity/investigator": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "investigator": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/player": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "player": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/antimeme-agent": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "antimeme-agent": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/player-agent": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "player-agent": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/ally-agent": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "ally-agent": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/enemy-target": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "enemy-target": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/player-capitalist": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "player-capitalist": {
+      "headId": "student-boy",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/teacher-wenger": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "teacher-wenger": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/trainer": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "trainer": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/meme-engineer": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "meme-engineer": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/illusionist": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "illusionist": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/ideologue": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "ideologue": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/skeptic": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "skeptic": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/magic-merchant": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "magic-merchant": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/bystander": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "bystander": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/citizen-1": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "citizen-1": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/citizen-2": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "citizen-2": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/citizen-3": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "citizen-3": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/citizen-4": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "citizen-4": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/citizen-5": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "citizen-5": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/luddite-1": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "luddite-1": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/luddite-2": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "luddite-2": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/energy-employee": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "energy-employee": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/believer": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "believer": {
+      "headId": "teacher",
+      "outfitId": "teal",
+      "height": 150
+    },
+    "it:entity/chen-sheng": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "chen-sheng": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/wu-guang": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "wu-guang": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/soldier-1": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "soldier-1": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/soldier-2": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "soldier-2": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/soldier-3": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "soldier-3": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/vagrant-leader": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "vagrant-leader": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/vagrant-1": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "vagrant-1": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/vagrant-2": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "vagrant-2": {
+      "headId": "student-boy",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/king": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "king": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "it:entity/minister": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    },
+    "minister": {
+      "headId": "teacher",
+      "outfitId": "teacher",
+      "height": 150
+    }
+  }
+}

@@ -1,6 +1,42 @@
-use serde::{Deserialize, Serialize};
-use super::mind_node::Modality;
 use super::events::WorldEvent;
+use super::mind_node::{MemeData, Modality, SignalType};
+use serde::{Deserialize, Serialize};
+
+/// Opt-in causal social consequence. Each entry pairs one cue with its motor outcome.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ActionCreditConfig {
+    pub actions: Vec<ActionCreditAction>,
+    #[serde(alias = "emitterId")]
+    pub emitter_id: String,
+    #[serde(alias = "groupContext")]
+    pub group_context: String,
+    #[serde(alias = "maxAgeTicks")]
+    pub max_age_ticks: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ActionCreditAction {
+    #[serde(alias = "actionSchemaId")]
+    pub action_schema_id: String,
+    #[serde(alias = "stimulusSchemaId")]
+    pub stimulus_schema_id: String,
+    pub posture: super::scene::CharacterPosture,
+}
+
+impl ActionCreditConfig {
+    pub fn valid(&self) -> bool {
+        !self.actions.is_empty()
+            && !self.emitter_id.trim().is_empty()
+            && !self.group_context.trim().is_empty()
+            && (1..=1000).contains(&self.max_age_ticks)
+            && self.actions.iter().all(|action| {
+                !action.action_schema_id.trim().is_empty()
+                    && !action.stimulus_schema_id.trim().is_empty()
+            })
+    }
+}
 
 /// A command submitted by the player (or NPC AI) to be executed by CommandSystem.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,12 +50,38 @@ pub struct CommandDTO {
 /// Declarative command effects — no closures, fully serializable.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CommandEffect {
+    EnterLayer,
+    ExitLayer,
+    ObserveLayer,
+    CompareLayers,
+    EarnLayerReward,
+    SatisfyLayerNeed,
+    ApplyMemoryDrug,
+    AnchorCurrentRoom,
+    RecallRoomWithWitness,
+    ObserveCurrentRoom,
+    MoveCharacter {
+        delta_x: f64,
+        delta_y: f64,
+        target_character_id: Option<String>,
+    },
     SpawnObservation {
         schema_id: String,
         modality: Modality,
         about: String,
         ttl: u64,
         strength: f64,
+        #[serde(
+            default = "super::mind_node::default_social_reward_scale",
+            alias = "socialRewardScale"
+        )]
+        social_reward_scale: f64,
+        #[serde(default)]
+        signal_type: Option<SignalType>,
+        #[serde(default)]
+        group_context: Option<String>,
+        #[serde(default, alias = "actionCredit")]
+        action_credit: Option<ActionCreditConfig>,
         target_character_id: Option<String>,
     },
     ModifyNodeValue {
@@ -47,6 +109,8 @@ pub enum CommandEffect {
     InjectMeme {
         meme_schema_id: String,
         target_character_id: Option<String>,
+        #[serde(default)]
+        meme: MemeData,
     },
     DeleteNode {
         schema_id: String,
@@ -56,6 +120,19 @@ pub enum CommandEffect {
         resource_schema_id: String,
         new_regen_rate: f64,
         target_character_id: Option<String>,
+    },
+    SetVirtualContext {
+        value: bool,
+    },
+    SetAssetPrice {
+        item_id: String,
+        unit_price: f64,
+    },
+    TradeAsset {
+        item_id: String,
+        buyer_id: String,
+        seller_id: String,
+        quantity: f64,
     },
     EmitWorldEvent {
         event: WorldEvent,
@@ -83,12 +160,42 @@ pub enum TargetingMode {
 /// Atomic precondition — all must be satisfied (AND).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Precondition {
-    EnvHasItem { item_schema_id: String },
-    TargetHasNode { schema_id: String },
-    TargetNodeActive { schema_id: String },
-    TargetNodeValue { schema_id: String, op: CompareOp, threshold: f64 },
-    ActorResource { resource_schema_id: String, op: CompareOp, threshold: f64 },
-    IsVirtualContext { value: bool },
+    ActorIs {
+        character_ids: Vec<String>,
+    },
+    TargetIs {
+        character_ids: Vec<String>,
+    },
+    TargetIsNotActor,
+    EnvHasItem {
+        item_schema_id: String,
+    },
+    TargetHasNode {
+        schema_id: String,
+    },
+    TargetNodeActive {
+        schema_id: String,
+    },
+    TargetActionSelected {
+        schema_id: String,
+    },
+    /// A real motor response is still eligible for a subsequent reward.
+    TargetActionExecuted {
+        schema_id: String,
+    },
+    TargetNodeValue {
+        schema_id: String,
+        op: CompareOp,
+        threshold: f64,
+    },
+    ActorResource {
+        resource_schema_id: String,
+        op: CompareOp,
+        threshold: f64,
+    },
+    IsVirtualContext {
+        value: bool,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

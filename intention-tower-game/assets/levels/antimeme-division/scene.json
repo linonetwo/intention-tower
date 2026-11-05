@@ -1,0 +1,27 @@
+{
+  "platforms": [
+    {"id":"reception_ground","x_min":0,"x_max":800,"y":300},
+    {"id":"archive_ground","x_min":800,"x_max":1600,"y":300},
+    {"id":"conservatory_ground","x_min":1600,"x_max":2400,"y":300}
+  ],
+  "rooms": [
+    {"id":"reception","label":"room.antimeme.reception","x_min":0,"x_max":800,"platform_ids":["reception_ground"],"background_key":"antimeme_reception"},
+    {"id":"archive","label":"room.antimeme.archive","x_min":800,"x_max":1600,"platform_ids":["archive_ground"],"background_key":"antimeme_archive"},
+    {"id":"conservatory","label":"room.antimeme.conservatory","x_min":1600,"x_max":2400,"platform_ids":["conservatory_ground"],"background_key":"antimeme_conservatory"}
+  ],
+  "portals": [
+    {"id":"reception_archive","from_room":"reception","to_room":"archive","from_platform":"reception_ground","to_platform":"archive_ground","x":800},
+    {"id":"archive_conservatory","from_room":"archive","to_room":"conservatory","from_platform":"archive_ground","to_platform":"conservatory_ground","x":1600}
+  ],
+  "non_blocking_characters": ["antimeme-agent","bystander"],
+  "room_memory": {
+    "observer_ids":["antimeme-agent"], "witness_ids":["bystander"],
+    "rooms":[
+      {"room_id":"archive","variants":[{"id":"archive","background_key":"antimeme_archive"},{"id":"maproom","background_key":"antimeme_maproom"}]},
+      {"room_id":"conservatory","variants":[{"id":"conservatory","background_key":"antimeme_conservatory"},{"id":"archive","background_key":"antimeme_archive"}]}
+    ],
+    "fade_after_ticks":3, "forget_after_ticks":6, "drug_duration_ticks":40,
+    "drug_item_id":"memory-drug", "observation_schema_id":"it:concept/memory-of-location",
+    "observation_node_ids":{"archive":"agent-memory-of-location"}
+  }
+}

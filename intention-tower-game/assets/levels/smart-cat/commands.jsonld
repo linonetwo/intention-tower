@@ -6,15 +6,19 @@
       "commandId": "show-button",
       "label": "command.show-button.label",
       "hotkey": "1",
-      "targeting": "NoTarget",
-      "preconditions": [],
+      "targeting": "RequiresTarget",
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/see-button",
           "modality": "Visual",
           "about": "it:entity-type/sound-button",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
         }
       ]
@@ -25,7 +29,10 @@
       "hotkey": "2",
       "targeting": "RequiresTarget",
       "preconditions": [
-        { "type": "TargetNodeActive", "schemaId": "it:concept/press-button" }
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" },
+        { "type": "TargetActionExecuted", "schemaId": "it:concept/press-button" }
       ],
       "effects": [
         {
@@ -33,7 +40,7 @@
           "schemaId": "it:concept/see-food",
           "modality": "Olfactory",
           "about": "schema:Food",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 1.0
         },
         {
@@ -49,14 +56,18 @@
       "label": "command.demonstrate-press.label",
       "hotkey": "3",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
         {
           "type": "SpawnObservation",
           "schemaId": "it:concept/see-button",
           "modality": "Visual",
           "about": "it:entity-type/sound-button",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
         },
         {
@@ -64,16 +75,8 @@
           "schemaId": "it:concept/hear-button-sound",
           "modality": "Auditory",
           "about": "it:entity-type/sound-button",
-          "ttl": 300,
+          "ttl": 10,
           "strength": 0.8
-        },
-        {
-          "type": "SpawnObservation",
-          "schemaId": "it:concept/see-food",
-          "modality": "Olfactory",
-          "about": "schema:Food",
-          "ttl": 300,
-          "strength": 1.0
         }
       ]
     },
@@ -82,8 +85,20 @@
       "label": "command.feed.label",
       "hotkey": "4",
       "targeting": "RequiresTarget",
-      "preconditions": [],
+      "preconditions": [
+        { "type": "ActorIs", "characterIds": ["trainer"] },
+        { "type": "TargetIs", "characterIds": ["cat-billi"] },
+        { "type": "TargetIsNotActor" }
+      ],
       "effects": [
+        {
+          "type": "SpawnObservation",
+          "schemaId": "it:concept/see-food",
+          "modality": "Olfactory",
+          "about": "schema:Food",
+          "ttl": 10,
+          "strength": 1.0
+        },
         {
           "type": "ModifyNodeValue",
           "schemaId": "it:concept/hunger",

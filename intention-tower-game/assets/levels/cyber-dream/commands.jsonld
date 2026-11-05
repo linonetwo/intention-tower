@@ -1,5 +1,7 @@
 {
-  "@context": { "@import": "../../schema/context.jsonld" },
+  "@context": {
+    "@import": "../../schema/context.jsonld"
+  },
   "@id": "it:level/cyber-dream/commands",
   "commands": [
     {
@@ -7,16 +9,17 @@
       "label": "command.enter-vr.label",
       "hotkey": "1",
       "targeting": "NoTarget",
-      "preconditions": [],
+      "preconditions": [
+        {
+          "type": "ActorIs",
+          "characterIds": [
+            "player"
+          ]
+        }
+      ],
       "effects": [
         {
-          "type": "SpawnObservation",
-          "schemaId": "it:concept/enter-virtual",
-          "modality": "Visual",
-          "about": "it:entity/vr-terminal-l1",
-          "ttl": 600,
-          "strength": 0.8,
-          "targetCharacterId": "__target"
+          "type": "EnterLayer"
         }
       ]
     },
@@ -26,14 +29,16 @@
       "hotkey": "2",
       "targeting": "NoTarget",
       "preconditions": [
-        { "type": "IsVirtualContext", "value": true }
+        {
+          "type": "ActorIs",
+          "characterIds": [
+            "player"
+          ]
+        }
       ],
       "effects": [
         {
-          "type": "ModifyNodeValue",
-          "schemaId": "it:concept/reality-sense",
-          "delta": 0.2,
-          "targetCharacterId": "__target"
+          "type": "ExitLayer"
         }
       ]
     },
@@ -42,13 +47,17 @@
       "label": "command.examine-reality.label",
       "hotkey": "3",
       "targeting": "NoTarget",
-      "preconditions": [],
+      "preconditions": [
+        {
+          "type": "ActorIs",
+          "characterIds": [
+            "player"
+          ]
+        }
+      ],
       "effects": [
         {
-          "type": "ModifyNodeValue",
-          "schemaId": "it:concept/reality-sense",
-          "delta": 0.3,
-          "targetCharacterId": "__target"
+          "type": "ObserveLayer"
         }
       ]
     },
@@ -57,16 +66,55 @@
       "label": "command.compare-layers.label",
       "hotkey": "4",
       "targeting": "NoTarget",
-      "preconditions": [],
+      "preconditions": [
+        {
+          "type": "ActorIs",
+          "characterIds": [
+            "player"
+          ]
+        }
+      ],
       "effects": [
         {
-          "type": "SpawnObservation",
-          "schemaId": "it:concept/layer-comparison",
-          "modality": "Visual",
-          "about": "it:entity/real-object",
-          "ttl": 300,
-          "strength": 0.7,
-          "targetCharacterId": "__target"
+          "type": "CompareLayers"
+        }
+      ]
+    },
+    {
+      "commandId": "earn-virtual-reward",
+      "label": "command.earn-virtual-reward.label",
+      "hotkey": "5",
+      "targeting": "NoTarget",
+      "preconditions": [
+        {
+          "type": "ActorIs",
+          "characterIds": [
+            "player"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "EarnLayerReward"
+        }
+      ]
+    },
+    {
+      "commandId": "satisfy-real-need",
+      "label": "command.satisfy-real-need.label",
+      "hotkey": "6",
+      "targeting": "NoTarget",
+      "preconditions": [
+        {
+          "type": "ActorIs",
+          "characterIds": [
+            "player"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "SatisfyLayerNeed"
         }
       ]
     }
