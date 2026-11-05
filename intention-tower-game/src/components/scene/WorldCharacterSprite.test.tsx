@@ -2,9 +2,11 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WorldCharacterSprite } from './WorldCharacterSprite';
 import type { WorldCharacter } from '../../types/backend';
+import type { SceneMotion } from '../../animation/motion';
 
 const character: WorldCharacter = { id: 'dog', label: 'Dog', position: { x: 100, y: 300 }, mind_graph: { character_id: 'dog', nodes: {}, edges: {} } };
-const props = { character, asset: { src: '/dog.png', height: 90 }, revision: 1, x: 100, ground: 300, scale: 1, projectionKey: '1:0:300:1', selected: true, targeted: false, onSelect: vi.fn() };
+const props = { character, asset: { src: '/dog.png', height: 90 }, revision: 1, x: 100, ground: 300, scale: 1, selected: true, targeted: false, onSelect: vi.fn() };
+const walk = (to = 118): SceneMotion => ({ sequence: 1, clip: 'walk', startedAt: performance.now(), durationMs: 180, from: character.position, to: { x: to, y: 300 }, fromPosture: 'standing', toPosture: 'standing', facing: to < 100 ? 'left' : 'right' });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('full-body world character', () => {
@@ -25,9 +27,9 @@ describe('full-body world character', () => {
     expect(shin.style.height).toBe('54px');
     // Shin textures bleed upward only: their lower edge remains at the IK foot.
     expect(Number.parseFloat(shin.style.top) + Number.parseFloat(shin.style.height)).toBe(50);
-    const hip = rig.querySelector('[data-rig-joint="hip"]')!;
-    expect(hip.lastElementChild?.getAttribute('data-rig-joint')).toBe('left-arm');
-    expect((hip.lastElementChild as HTMLElement).style.left).toBe('-24px');
+    const torso = rig.querySelector('[data-rig-joint="torso"]')!;
+    expect(torso.lastElementChild?.getAttribute('data-rig-joint')).toBe('left-arm');
+    expect((torso.lastElementChild as HTMLElement).style.left).toBe('-24px');
     expect((rig.querySelector('[data-rig-part="torso"]') as HTMLImageElement).style.top).toBe('-76px');
     rerender(<WorldCharacterSprite {...props} asset={{ ...props.asset, paperDoll: { ...paperDoll, outfitId: 'teal', parts: { ...paperDoll.parts, torso: '/teal.png' } } }} />);
     expect(root.style.cssText).toBe(before);
@@ -37,30 +39,30 @@ describe('full-body world character', () => {
     expect(root.getAttribute('data-asset-missing')).toBe('true');
     expect(screen.queryByTestId('scene-character-rig-dog')).toBeNull();
   });
-  it('snaps changed projections during a walk and preserves that decision through art rerenders', () => {
+  it('reprojects the same world animation when the camera changes without restarting it', () => {
     vi.useFakeTimers();
     const { rerender } = render(<WorldCharacterSprite {...props} />);
     const moved = { ...character, position: { x: 118, y: 300 } };
-    rerender(<WorldCharacterSprite {...props} character={moved} x={118} />);
+    const motion = walk();
+    rerender(<WorldCharacterSprite {...props} character={moved} x={118} motion={motion} />);
     const entity = screen.getByTestId('scene-character-dog');
-    expect(entity.style.transition).toBe('left 140ms linear,top 140ms linear');
-    const resized = { ...props, character: moved, x: 59, ground: 200, scale: .5, projectionKey: '.5:0:200:.5' };
+    act(() => { vi.advanceTimersByTime(64); });
+    const worldX = Number(entity.dataset.renderX);
+    const phase = entity.dataset.gaitPhase;
+    const resized = { ...props, character: moved, x: 49, ground: 200, scale: .5, worldScale: .5, motion };
     rerender(<WorldCharacterSprite {...resized} />);
     expect(entity.getAttribute('data-moving')).toBe('true');
-    expect(entity.style.transition).toBe('none');
-    expect(entity.style.left).toBe('59px');
+    expect(entity.dataset.gaitPhase).toBe(phase);
+    expect(Number.parseFloat(entity.style.left)).toBeCloseTo(worldX * .5 - 10);
     expect(entity.style.top).toBe('155px');
     const sprite = screen.getByTestId('scene-character-sprite-dog');
     Object.defineProperty(sprite, 'naturalHeight', { value: 100 });
     Object.defineProperty(sprite, 'naturalWidth', { value: 80 });
     fireEvent.load(sprite);
-    expect(entity.style.transition).toBe('none');
-    rerender(<WorldCharacterSprite {...resized} character={{ ...moved, position: { x: 136, y: 300 } }} x={68} />);
-    expect(entity.style.transition).toBe('left 140ms linear,top 140ms linear');
-    act(() => { vi.advanceTimersByTime(241); });
-    expect(entity.style.transition).toBe('left 140ms linear,top 140ms linear');
-    rerender(<WorldCharacterSprite {...resized} projectionKey=".5:-10:200:.5" character={{ ...moved, position: { x: 154, y: 300 } }} x={67} />);
-    expect(entity.style.transition).toBe('none');
+    expect(entity.dataset.gaitPhase).toBe(phase);
+    act(() => { vi.advanceTimersByTime(200); });
+    expect(entity.dataset.motionClip).toBe('idle');
+    expect(entity.style.left).toBe('49px');
   });
   it('uses sprite art and keeps authoritative positions available to verification', () => {
     render(<WorldCharacterSprite {...props} />);
@@ -71,11 +73,13 @@ describe('full-body world character', () => {
     fireEvent.click(entity);
     expect(props.onSelect).toHaveBeenCalled();
   });
-  it('faces the actual displacement and animates only after backend movement', () => {
+  it('consumes explicit movement and does not guess a walk from teleports', () => {
     vi.useFakeTimers();
     const { rerender } = render(<WorldCharacterSprite {...props} />);
     expect(screen.getByTestId('scene-character-dog').getAttribute('data-moving')).toBe('false');
     rerender(<WorldCharacterSprite {...props} character={{ ...character, position: { x: 72, y: 300 } }} x={72} />);
+    expect(screen.getByTestId('scene-character-dog').getAttribute('data-moving')).toBe('false');
+    rerender(<WorldCharacterSprite {...props} motion={walk(54)} character={{ ...character, position: { x: 54, y: 300 } }} x={54} />);
     expect(screen.getByTestId('scene-character-dog').getAttribute('data-facing')).toBe('left');
     expect(screen.getByTestId('scene-character-dog').getAttribute('data-moving')).toBe('true');
     act(() => { vi.advanceTimersByTime(241); });
@@ -99,13 +103,13 @@ describe('full-body world character', () => {
     expect(screen.queryByTestId('scene-chair-dog')).toBeNull();
     expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/dog-sit.png?rev=1');
   });
-  it('cycles generated walk frames after authoritative movement', () => {
+  it('cycles authored animal walk frames on the shared distance-driven timeline', () => {
     vi.useFakeTimers();
     const asset = { ...props.asset, walkFrames: ['/walk1.png', '/walk2.png'] };
     const { rerender } = render(<WorldCharacterSprite {...props} asset={asset} />);
-    rerender(<WorldCharacterSprite {...props} asset={asset} character={{ ...character, position: { x: 118, y: 300 } }} />);
+    rerender(<WorldCharacterSprite {...props} asset={asset} motion={{ ...walk(148), durationMs: 400 }} character={{ ...character, position: { x: 148, y: 300 } }} />);
     expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/walk1.png?rev=1');
-    act(() => { vi.advanceTimersByTime(90); });
+    act(() => { vi.advanceTimersByTime(240); });
     expect(screen.getByTestId('scene-character-sprite-dog').getAttribute('src')).toBe('/walk2.png?rev=1');
   });
 });

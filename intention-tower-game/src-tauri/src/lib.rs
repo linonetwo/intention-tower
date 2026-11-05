@@ -16,8 +16,7 @@ pub mod test_server;
 use api::SimulationState;
 
 #[cfg(feature = "desktop")]
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run(context: tauri::Context<tauri::Wry>) {
     // 检查是否为测试模式
     #[cfg(feature = "test-server")]
     let test_mode = std::env::args().any(|arg| arg == "--test-mode");
@@ -85,7 +84,7 @@ pub fn run() {
             }
             Ok(())
         })
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("error while running tauri application");
 }
 

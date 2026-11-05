@@ -19,7 +19,7 @@ if (new URLSearchParams(location.search).get('mcp-test') === '1') {
     },
     refresh: async (events: import('./types/backend').WorldEvent[] = []) => {
       const worldState = await snapshot();
-      gameStore.setState((state) => ({ worldState, recentEvents: [...events, ...state.recentEvents].slice(0, 200) }));
+      gameStore.getState().acceptWorld(worldState, events);
       await gameStore.getState().refreshCommands();
     },
     state: () => gameStore.getState().worldState,
