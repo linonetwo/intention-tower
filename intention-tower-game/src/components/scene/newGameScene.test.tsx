@@ -23,6 +23,46 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('continuous multi-room scene', () => {
+  it('covers all six mobile layer backgrounds without resizing the cast or clipping an open notebook', () => {
+    const floors = [692, 697, 726, 766, 719, 848];
+    const world = makeWorld();
+    const rooms = floors.map((_, i) => ({ id: `layer-${i}`, label: `Layer ${i}`, x_min: 0, x_max: 800, platform_ids: [`floor-${i}`], background_key: `layer-${i}` }));
+    world.scene = { platforms: rooms.map((_, i) => ({ id: `floor-${i}`, x_min: 0, x_max: 800, y: 300 })), connectors: [], rooms,
+      layered_world: { contexts: rooms.map(r => ({ id: r.id })) } } as unknown as WorldState['scene'];
+    world.layered_world = { boy: { context_id: rooms[0].id, stack: [], observations: {}, rewards: {} } } as unknown as WorldState['layered_world'];
+    world.characters.boy.position.x = 400;
+    world.character_rooms = { boy: rooms[0].id };
+    gameStore.setState({ worldState: world, sceneNotebookOpen: false, availableCommands: [] });
+    modAssetsStore.setState({ manifest: { ...modAssetsStore.getState().manifest!,
+      backgrounds: Object.fromEntries(rooms.map(r => [r.id, '/layer.png'])),
+      backgroundsMetadata: Object.fromEntries(rooms.map((r, i) => [r.id, { width: 1536, height: 1024, floorY: floors[i] }])) } });
+    const dialogue = document.createElement('div');
+    dialogue.dataset.testid = 'dialogue-hud';
+    dialogue.getBoundingClientRect = () => ({ height: 42 }) as DOMRect;
+    document.body.appendChild(dialogue);
+    vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
+    try {
+      render(<GameScene width={390} height={844} />);
+      const bodyHeight = screen.getByTestId('scene-character-boy').style.height;
+      const debug = () => (window as Window & { __itSceneDebug?: () => { scale: number; artScale: number; ground: number } }).__itSceneDebug!();
+      const fixed = debug();
+      rooms.forEach((r, i) => {
+        act(() => gameStore.setState({ worldState: { ...world, character_rooms: { boy: r.id }, layered_world: { boy: { ...world.layered_world!.boy, context_id: r.id } } }, sceneNotebookOpen: false }));
+        const background = screen.getByTestId('scene-background');
+        expect(parseFloat(background.style.top)).toBeLessThanOrEqual(60.000001);
+        const floor = Number(screen.getByTestId('scene-ground').getAttribute('data-ground-y'));
+        expect(parseFloat(background.style.top) + floors[i] * parseFloat(background.style.width) / 1536).toBeCloseTo(floor);
+        expect(screen.getByTestId(`scene-platform-floor-${i}`).style.top).toBe(`${floor}px`);
+        fireEvent.click(screen.getByTestId('scene-layer-map'));
+        expect(screen.getByTestId('layer-notebook')).toBeTruthy();
+        expect(screen.getByTestId('scene-character-boy').style.height).toBe(bodyHeight);
+        expect(debug().scale).toBe(fixed.scale);
+        expect(debug().artScale).toBe(fixed.artScale);
+        expect(debug().ground - parseFloat(bodyHeight)).toBeGreaterThanOrEqual(180);
+        expect(debug().ground + 207).toBeLessThanOrEqual(802);
+      });
+    } finally { dialogue.remove(); vi.unstubAllGlobals(); }
+  });
   it('draws mobile ladders with two rails and separated open rungs, while stairs keep solid steps', () => {
     const world = makeWorld();
     world.scene!.platforms.push({ id: 'loft', x_min: 1200, x_max: 1600, y: 180 });

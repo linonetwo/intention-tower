@@ -118,6 +118,16 @@ describe('backend-driven game store', () => {
     expect(state.worldState).toMatchObject({ paused: true, time_speed: 0 });
     expect(state.availableCommands).toEqual([command]);
   });
+  it('closes notebook on repeated same-level load, not on ordinary snapshots', async () => {
+    api.loadLevel.mockResolvedValue(world());
+    await gameStore.getState().loadLevel('pavlov');
+    gameStore.setState({ sceneNotebookOpen: true });
+    api.snapshot.mockResolvedValue({ ...world(), layered_world: { pavlov: { context_id: 'inner' } } } as unknown as WorldState);
+    await gameStore.getState().executeCommand('ring-bell');
+    expect(gameStore.getState().sceneNotebookOpen).toBe(true);
+    await gameStore.getState().loadLevel('pavlov');
+    expect(gameStore.getState().sceneNotebookOpen).toBe(false);
+  });
   it('refreshes backend proximity commands after moving while paused in a layered world', async () => {
     api.loadLevel.mockResolvedValue(world());
     await gameStore.getState().loadLevel('pavlov');

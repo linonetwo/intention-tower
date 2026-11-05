@@ -1,4 +1,6 @@
 {
+  "command.satisfy-real-need.label": "吃下现实餐食",
+  "command.earn-virtual-reward.label": "领取虚拟积分",
   "layer.nearbyActions": "附近物件交互",
   "layer.migration.legacy-reset": "旧存档已升级：角色与心智保留，层间旅程从现实重新开始；旧指令次数仅归档，不作为到访或完成证据。",
   "event.layer.migrated": "{{name}}的旧存档已在{{context}}升级。层间旅程重新开始，旧次数仅归档，不计入完成证据。",

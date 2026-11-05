@@ -111,6 +111,11 @@ fn hungry_response(state: &mut WorldState) {
 #[test]
 fn unrewarded_demonstrations_never_create_learning_or_puppet_button_press() {
     let mut state = world();
+    assert!(state.characters.contains_key("trainer"));
+    assert!(state.items.contains_key("button-food"));
+    assert!(state.items.contains_key("cat-food"));
+    assert!(available(&state, "demonstrate-press"));
+    assert!(available(&state, "feed"));
     for _ in 0..10 {
         command(&mut state, "demonstrate-press");
         ticks(&mut state, 12);
@@ -120,6 +125,11 @@ fn unrewarded_demonstrations_never_create_learning_or_puppet_button_press() {
         assert_eq!(action.value, 0.0);
         assert!(!available(&state, "feed-after-press"));
     }
+    let hunger = state.characters["cat-billi"].mind_graph.nodes["cat-hunger"].value;
+    assert!(hunger > 0.5);
+    command(&mut state, "feed");
+    ticks(&mut state, 1);
+    assert!(state.characters["cat-billi"].mind_graph.nodes["cat-hunger"].value < hunger);
 }
 
 #[test]

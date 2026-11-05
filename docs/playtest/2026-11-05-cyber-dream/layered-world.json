@@ -1,0 +1,5855 @@
+{
+  "backend": "authoritative Rust MCP",
+  "screenshots": "real Chromium compositor",
+  "routes": [
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "checkpoints": [
+        {
+          "label": "reality-arrival",
+          "tick": 0,
+          "position": {
+            "x": 300,
+            "y": 300
+          },
+          "context": "reality",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "reality-workshop",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/reality-workshop.png?rev=1",
+            "buttons": [],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-vr-terminal-l1",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "reality-observed",
+          "tick": 1,
+          "position": {
+            "x": 1100,
+            "y": 300
+          },
+          "context": "reality",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "reality-garden",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/room-memory/conservatory.png?rev=1",
+            "buttons": [],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-reality-cue",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "outer-arrival",
+          "tick": 2,
+          "position": {
+            "x": 1800,
+            "y": 300
+          },
+          "context": "outer",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "outer-arrival",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/rooms/cyber-dream.png?rev=1",
+            "buttons": [
+              {
+                "id": "layer-action-exit-vr",
+                "width": 61,
+                "height": 44
+              }
+            ],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-return-outer",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "outer-observed",
+          "tick": 3,
+          "position": {
+            "x": 2600,
+            "y": 300
+          },
+          "context": "outer",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "outer-exchange",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/outer-exchange.png?rev=1",
+            "buttons": [
+              {
+                "id": "layer-action-earn-virtual-reward",
+                "width": 94,
+                "height": 44
+              }
+            ],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-outer-cue",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "inner-arrival",
+          "tick": 5,
+          "position": {
+            "x": 3400,
+            "y": 300
+          },
+          "context": "inner",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "inner-arrival",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/inner-arrival.png?rev=1",
+            "buttons": [
+              {
+                "id": "layer-action-exit-vr",
+                "width": 61,
+                "height": 44
+              }
+            ],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-return-inner",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "inner-observed",
+          "tick": 6,
+          "position": {
+            "x": 4300,
+            "y": 300
+          },
+          "context": "inner",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "inner-archive",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/inner-archive.png?rev=1",
+            "buttons": [
+              {
+                "id": "layer-action-compare-layers",
+                "width": 70,
+                "height": 44
+              },
+              {
+                "id": "layer-action-earn-virtual-reward",
+                "width": 94,
+                "height": 44
+              }
+            ],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-inner-cue",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "comparison",
+          "tick": 8,
+          "position": {
+            "x": 4300,
+            "y": 300
+          },
+          "context": "inner",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "inner-archive",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/inner-archive.png?rev=1",
+            "buttons": [],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-inner-cue",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "outer-returned",
+          "tick": 9,
+          "position": {
+            "x": 3000,
+            "y": 300
+          },
+          "context": "outer",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "outer-exchange",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/outer-exchange.png?rev=1",
+            "buttons": [
+              {
+                "id": "layer-action-enter-vr",
+                "width": 61,
+                "height": 44
+              }
+            ],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-vr-terminal-l2",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "reality-returned",
+          "tick": 10,
+          "position": {
+            "x": 200,
+            "y": 300
+          },
+          "context": "reality",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "reality-workshop",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/cyber-layers/reality-workshop.png?rev=1",
+            "buttons": [
+              {
+                "id": "layer-action-enter-vr",
+                "width": 61,
+                "height": 44
+              }
+            ],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-vr-terminal-l1",
+                "svg": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "real-meal-won",
+          "tick": 11,
+          "position": {
+            "x": 1300,
+            "y": 300
+          },
+          "context": "reality",
+          "ui": {
+            "identity": {
+              "outfit": "teal",
+              "head": "student-boy",
+              "parts": [
+                {
+                  "part": "right-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "right-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                },
+                {
+                  "part": "left-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "left-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "right-leg-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-thigh.png?rev=1"
+                },
+                {
+                  "part": "right-leg-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/navy-shin.png?rev=1"
+                },
+                {
+                  "part": "torso",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-torso.png?rev=1"
+                },
+                {
+                  "part": "head",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/student-boy.png?rev=1"
+                },
+                {
+                  "part": "left-arm-upper",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-upperArm.png?rev=1"
+                },
+                {
+                  "part": "left-arm-lower",
+                  "src": "http://127.0.0.1:4173/mods/gpt-image-2-pack/paper-doll/teal-forearm.png?rev=1"
+                }
+              ]
+            },
+            "room": "reality-garden",
+            "background": "http://127.0.0.1:4173/mods/gpt-image-2-pack/sideview/room-memory/conservatory.png?rev=1",
+            "buttons": [],
+            "overlap": false,
+            "overflow": false,
+            "markers": [
+              {
+                "id": "layer-hotspot-real-meal",
+                "svg": true
+              }
+            ]
+          }
+        }
+      ],
+      "negatives": [
+        {
+          "command_id": "enter-vr",
+          "reason": "far terminal entry",
+          "rejected": true
+        },
+        {
+          "command_id": "compare-layers",
+          "reason": "early comparison",
+          "rejected": true
+        },
+        {
+          "command_id": "satisfy-real-need",
+          "reason": "early real meal",
+          "rejected": true
+        },
+        {
+          "command_id": "enter-vr",
+          "reason": "third layer entry",
+          "rejected": true
+        }
+      ],
+      "realPortals": [
+        "reality-workshop-door",
+        "reality-workshop-door",
+        "outer-arrival-door",
+        "inner-arrival-door",
+        "inner-arrival-door",
+        "outer-arrival-door",
+        "reality-workshop-door"
+      ],
+      "realHotspots": [
+        "real-meal",
+        "reality-cue",
+        "vr-terminal-l1",
+        "outer-cue",
+        "vr-terminal-l2",
+        "inner-cue",
+        "return-inner",
+        "return-outer",
+        "real-meal"
+      ],
+      "realCommandButtons": [
+        "examine-reality",
+        "enter-vr",
+        "examine-reality",
+        "earn-virtual-reward",
+        "enter-vr",
+        "examine-reality",
+        "earn-virtual-reward",
+        "compare-layers",
+        "exit-vr",
+        "exit-vr",
+        "satisfy-real-need"
+      ],
+      "final": {
+        "character_postures": {
+          "player": "standing"
+        },
+        "character_rooms": {
+          "player": "reality-garden"
+        },
+        "characters": {
+          "player": {
+            "id": "player",
+            "label": "level.cyber-dream.character.player.label",
+            "mind_graph": {
+              "action_episodes": [],
+              "character_id": "player",
+              "conditioning_stats": {},
+              "conditioning_trials": [],
+              "consumed_action_stimuli": [],
+              "edges": {
+                "confusion-to-enter-deeper": {
+                  "decay_rate_per_tick": 0.001,
+                  "edge_id": "confusion-to-enter-deeper",
+                  "evidence": {
+                    "co_occurrence_count": 0,
+                    "last_co_occurred_at": 0,
+                    "social_dopamine_spent": 0,
+                    "window_sec": 10
+                  },
+                  "learn_type": "Classical",
+                  "learnable": true,
+                  "polarity": "Excitatory",
+                  "source_instance_id": "player-confusion",
+                  "target_instance_id": "player-enter-deeper",
+                  "weight": 0.4
+                },
+                "real-purpose-to-escape-virtual": {
+                  "decay_rate_per_tick": 0,
+                  "edge_id": "real-purpose-to-escape-virtual",
+                  "evidence": {
+                    "co_occurrence_count": 0,
+                    "last_co_occurred_at": 0,
+                    "social_dopamine_spent": 0,
+                    "window_sec": 10
+                  },
+                  "learn_type": "Classical",
+                  "learnable": false,
+                  "polarity": "Excitatory",
+                  "source_instance_id": "player-real-purpose",
+                  "target_instance_id": "player-escape-virtual",
+                  "weight": 0.7
+                }
+              },
+              "last_external_observation_at": 6,
+              "nodes": {
+                "layer-observation:player:inner": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 6,
+                  "hidden_by_default": false,
+                  "instance_id": "layer-observation:player:inner",
+                  "is_virtual": true,
+                  "label": "layer.fact.inner",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "Observation",
+                  "observation": {
+                    "about": "it:entity/inner-cue",
+                    "action_credit": null,
+                    "credibility": 1,
+                    "emitter_id": null,
+                    "group_context": null,
+                    "is_signal": false,
+                    "modality": "Visual",
+                    "novelty_key": "inner",
+                    "presentation_count": 0,
+                    "replica_of": null,
+                    "satisfaction": 0,
+                    "signal_type": null,
+                    "social_consumed_at": null,
+                    "social_reward_scale": 1,
+                    "source": "Virtual"
+                  },
+                  "prev_value": 1,
+                  "prior_instinct": null,
+                  "reality_layer": 2,
+                  "schema_id": "it:concept/layer-evidence",
+                  "strength": 0.9,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 1,
+                  "value_velocity": 0
+                },
+                "layer-observation:player:outer": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 3,
+                  "hidden_by_default": false,
+                  "instance_id": "layer-observation:player:outer",
+                  "is_virtual": true,
+                  "label": "layer.fact.outer",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "Observation",
+                  "observation": {
+                    "about": "it:entity/outer-cue",
+                    "action_credit": null,
+                    "credibility": 1,
+                    "emitter_id": null,
+                    "group_context": null,
+                    "is_signal": false,
+                    "modality": "Visual",
+                    "novelty_key": "outer",
+                    "presentation_count": 0,
+                    "replica_of": null,
+                    "satisfaction": 0,
+                    "signal_type": null,
+                    "social_consumed_at": null,
+                    "social_reward_scale": 1,
+                    "source": "Virtual"
+                  },
+                  "prev_value": 1,
+                  "prior_instinct": null,
+                  "reality_layer": 1,
+                  "schema_id": "it:concept/layer-evidence",
+                  "strength": 0.9,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 1,
+                  "value_velocity": 0
+                },
+                "layer-observation:player:reality": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 1,
+                  "hidden_by_default": false,
+                  "instance_id": "layer-observation:player:reality",
+                  "is_virtual": false,
+                  "label": "layer.fact.reality",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "Observation",
+                  "observation": {
+                    "about": "it:entity/reality-cue",
+                    "action_credit": null,
+                    "credibility": 1,
+                    "emitter_id": null,
+                    "group_context": null,
+                    "is_signal": false,
+                    "modality": "Visual",
+                    "novelty_key": "reality",
+                    "presentation_count": 0,
+                    "replica_of": null,
+                    "satisfaction": 0,
+                    "signal_type": null,
+                    "social_consumed_at": null,
+                    "social_reward_scale": 1,
+                    "source": "Environment"
+                  },
+                  "prev_value": 1,
+                  "prior_instinct": null,
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/layer-evidence",
+                  "strength": 0.9,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 1,
+                  "value_velocity": 0
+                },
+                "player-attention": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-attention",
+                  "is_virtual": false,
+                  "label": "it:concept/attention",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "PriorInstinct",
+                  "observation": null,
+                  "prev_value": 1,
+                  "prior_instinct": {
+                    "arousal": null,
+                    "brain_region": "PFC",
+                    "is_mood": false,
+                    "is_resource": true,
+                    "overridable_by_meme": false,
+                    "satisfied_by_about": [],
+                    "set_point": 1,
+                    "threshold_modifiers": [],
+                    "valence": null
+                  },
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/attention",
+                  "strength": 1,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 1,
+                  "value_velocity": 0.05
+                },
+                "player-confusion": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-confusion",
+                  "is_virtual": false,
+                  "label": "it:concept/confusion",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "PriorInstinct",
+                  "observation": null,
+                  "prev_value": 0.2,
+                  "prior_instinct": {
+                    "arousal": null,
+                    "brain_region": "Limbic",
+                    "is_mood": true,
+                    "is_resource": false,
+                    "overridable_by_meme": false,
+                    "satisfied_by_about": [],
+                    "set_point": 0,
+                    "threshold_modifiers": [],
+                    "valence": null
+                  },
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/confusion",
+                  "strength": 0.3,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.2,
+                  "value_velocity": 0
+                },
+                "player-dopamine": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-dopamine",
+                  "is_virtual": false,
+                  "label": "it:concept/dopamine",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "PriorInstinct",
+                  "observation": null,
+                  "prev_value": 0.8,
+                  "prior_instinct": {
+                    "arousal": null,
+                    "brain_region": "Limbic",
+                    "is_mood": false,
+                    "is_resource": true,
+                    "overridable_by_meme": false,
+                    "satisfied_by_about": [],
+                    "set_point": 1,
+                    "threshold_modifiers": [],
+                    "valence": null
+                  },
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/dopamine",
+                  "strength": 0.8,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.9100000000000001,
+                  "value_velocity": 0.02
+                },
+                "player-enter-deeper": {
+                  "action": {
+                    "autonomous_need_min_value": null,
+                    "autonomous_need_schema_ids": [],
+                    "emitted_observation_schemas": [],
+                    "goap": false,
+                    "innate": false,
+                    "instruction_cue": null,
+                    "physical_effect": null,
+                    "proficiency_level": 0.5,
+                    "selected": false,
+                    "sub_action_schemas": []
+                  },
+                  "active": false,
+                  "attended": false,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-enter-deeper",
+                  "is_virtual": false,
+                  "label": "it:concept/enter-deeper",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "Action",
+                  "observation": null,
+                  "prev_value": 0,
+                  "prior_instinct": null,
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/enter-deeper",
+                  "strength": 0.3,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0,
+                  "value_velocity": 0
+                },
+                "player-escape-virtual": {
+                  "action": {
+                    "autonomous_need_min_value": null,
+                    "autonomous_need_schema_ids": [],
+                    "emitted_observation_schemas": [],
+                    "goap": false,
+                    "innate": false,
+                    "instruction_cue": null,
+                    "physical_effect": null,
+                    "proficiency_level": 0.5,
+                    "selected": false,
+                    "sub_action_schemas": []
+                  },
+                  "active": false,
+                  "attended": false,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-escape-virtual",
+                  "is_virtual": false,
+                  "label": "it:concept/escape-virtual",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "Action",
+                  "observation": null,
+                  "prev_value": 0,
+                  "prior_instinct": null,
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/escape-virtual",
+                  "strength": 0.4,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0,
+                  "value_velocity": 0
+                },
+                "player-health": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-health",
+                  "is_virtual": false,
+                  "label": "it:concept/health",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "PriorInstinct",
+                  "observation": null,
+                  "prev_value": 1,
+                  "prior_instinct": {
+                    "arousal": null,
+                    "brain_region": "Brainstem",
+                    "is_mood": false,
+                    "is_resource": true,
+                    "overridable_by_meme": false,
+                    "satisfied_by_about": [],
+                    "set_point": 1,
+                    "threshold_modifiers": [],
+                    "valence": null
+                  },
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/health",
+                  "strength": 1,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 1,
+                  "value_velocity": 0.01
+                },
+                "player-hunger": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-hunger",
+                  "is_virtual": false,
+                  "label": "it:concept/hunger",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "PriorInstinct",
+                  "observation": null,
+                  "prev_value": 0.15000000000000002,
+                  "prior_instinct": {
+                    "arousal": null,
+                    "brain_region": "Hypothalamus",
+                    "is_mood": false,
+                    "is_resource": false,
+                    "overridable_by_meme": false,
+                    "satisfied_by_about": [],
+                    "set_point": 0,
+                    "threshold_modifiers": [],
+                    "valence": null
+                  },
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/hunger",
+                  "strength": 0.8,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.15000000000000002,
+                  "value_velocity": 0
+                },
+                "player-real-purpose": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-real-purpose",
+                  "is_virtual": false,
+                  "label": "it:concept/real-purpose",
+                  "meme": null,
+                  "motivation": {
+                    "chain_target": null,
+                    "critical_period_end": null,
+                    "goal": "find-meaning",
+                    "imprinting": null,
+                    "imprinting_evidence": null,
+                    "is_chained": false,
+                    "is_persistent": false,
+                    "lookback_window_sec": 10,
+                    "spawned_by": null,
+                    "suppressed_by": [],
+                    "target_entity": null
+                  },
+                  "node_type": "Motivation",
+                  "observation": null,
+                  "prev_value": 0.4,
+                  "prior_instinct": null,
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/real-purpose",
+                  "strength": 0.6,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.4,
+                  "value_velocity": 0
+                },
+                "player-reality-sense": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-reality-sense",
+                  "is_virtual": false,
+                  "label": "it:concept/reality-sense",
+                  "meme": null,
+                  "motivation": null,
+                  "node_type": "PriorInstinct",
+                  "observation": null,
+                  "prev_value": 0.44999999999999996,
+                  "prior_instinct": {
+                    "arousal": null,
+                    "brain_region": "PFC",
+                    "is_mood": false,
+                    "is_resource": false,
+                    "overridable_by_meme": true,
+                    "satisfied_by_about": [],
+                    "set_point": 1,
+                    "threshold_modifiers": [],
+                    "valence": null
+                  },
+                  "reality_layer": 0,
+                  "schema_id": "it:concept/reality-sense",
+                  "strength": 0.8,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.44499999999999995,
+                  "value_velocity": -0.01
+                },
+                "player-virtual-achievement-l1": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-virtual-achievement-l1",
+                  "is_virtual": true,
+                  "label": "it:concept/virtual-achievement-l1",
+                  "meme": {
+                    "anti_meme_target_pattern": null,
+                    "binding_sites": [],
+                    "conflict_resolution": null,
+                    "constituent_schemas": [],
+                    "flood_drain_rate_per_tick": null,
+                    "flood_node_count": null,
+                    "group_id": null,
+                    "is_anti_meme": false,
+                    "is_attention_flood": false,
+                    "is_belief": false,
+                    "is_identity": false,
+                    "is_magic": false,
+                    "overrides_instinct": [],
+                    "reinforced_by": [],
+                    "resilience": 0,
+                    "social_need_bindings": [],
+                    "spread_vector": null
+                  },
+                  "motivation": null,
+                  "node_type": "Meme",
+                  "observation": null,
+                  "prev_value": 0.3,
+                  "prior_instinct": null,
+                  "reality_layer": 1,
+                  "schema_id": "it:concept/virtual-achievement-l1",
+                  "strength": 0.4,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.3,
+                  "value_velocity": 0
+                },
+                "player-virtual-achievement-l2": {
+                  "action": null,
+                  "active": true,
+                  "attended": true,
+                  "costs": [],
+                  "created_at": 0,
+                  "hidden_by_default": false,
+                  "instance_id": "player-virtual-achievement-l2",
+                  "is_virtual": true,
+                  "label": "it:concept/virtual-achievement-l2",
+                  "meme": {
+                    "anti_meme_target_pattern": null,
+                    "binding_sites": [],
+                    "conflict_resolution": null,
+                    "constituent_schemas": [],
+                    "flood_drain_rate_per_tick": null,
+                    "flood_node_count": null,
+                    "group_id": null,
+                    "is_anti_meme": false,
+                    "is_attention_flood": false,
+                    "is_belief": false,
+                    "is_identity": false,
+                    "is_magic": false,
+                    "overrides_instinct": [],
+                    "reinforced_by": [],
+                    "resilience": 0,
+                    "social_need_bindings": [],
+                    "spread_vector": null
+                  },
+                  "motivation": null,
+                  "node_type": "Meme",
+                  "observation": null,
+                  "prev_value": 0.1,
+                  "prior_instinct": null,
+                  "reality_layer": 2,
+                  "schema_id": "it:concept/virtual-achievement-l2",
+                  "strength": 0.2,
+                  "suppression": 0,
+                  "thresholds": [],
+                  "ttl": null,
+                  "value": 0.1,
+                  "value_velocity": 0
+                }
+              }
+            },
+            "position": {
+              "x": 1300,
+              "y": 300
+            }
+          }
+        },
+        "command_defs": [
+          {
+            "command_id": "enter-vr",
+            "effect_templates": [
+              "EnterLayer"
+            ],
+            "hotkey": "1",
+            "label": "command.enter-vr.label",
+            "preconditions": [
+              {
+                "ActorIs": {
+                  "character_ids": [
+                    "player"
+                  ]
+                }
+              }
+            ],
+            "targeting": "NoTarget"
+          },
+          {
+            "command_id": "exit-vr",
+            "effect_templates": [
+              "ExitLayer"
+            ],
+            "hotkey": "2",
+            "label": "command.exit-vr.label",
+            "preconditions": [
+              {
+                "ActorIs": {
+                  "character_ids": [
+                    "player"
+                  ]
+                }
+              }
+            ],
+            "targeting": "NoTarget"
+          },
+          {
+            "command_id": "examine-reality",
+            "effect_templates": [
+              "ObserveLayer"
+            ],
+            "hotkey": "3",
+            "label": "command.examine-reality.label",
+            "preconditions": [
+              {
+                "ActorIs": {
+                  "character_ids": [
+                    "player"
+                  ]
+                }
+              }
+            ],
+            "targeting": "NoTarget"
+          },
+          {
+            "command_id": "compare-layers",
+            "effect_templates": [
+              "CompareLayers"
+            ],
+            "hotkey": "4",
+            "label": "command.compare-layers.label",
+            "preconditions": [
+              {
+                "ActorIs": {
+                  "character_ids": [
+                    "player"
+                  ]
+                }
+              }
+            ],
+            "targeting": "NoTarget"
+          },
+          {
+            "command_id": "earn-virtual-reward",
+            "effect_templates": [
+              "EarnLayerReward"
+            ],
+            "hotkey": "5",
+            "label": "command.earn-virtual-reward.label",
+            "preconditions": [
+              {
+                "ActorIs": {
+                  "character_ids": [
+                    "player"
+                  ]
+                }
+              }
+            ],
+            "targeting": "NoTarget"
+          },
+          {
+            "command_id": "satisfy-real-need",
+            "effect_templates": [
+              "SatisfyLayerNeed"
+            ],
+            "hotkey": "6",
+            "label": "command.satisfy-real-need.label",
+            "preconditions": [
+              {
+                "ActorIs": {
+                  "character_ids": [
+                    "player"
+                  ]
+                }
+              }
+            ],
+            "targeting": "NoTarget"
+          }
+        ],
+        "default_actor_id": "player",
+        "default_target_id": "player",
+        "economy": {
+          "accounts": {
+            "player": 100
+          },
+          "assets": {
+            "real-meal": {
+              "demand": 0,
+              "item_id": "real-meal",
+              "owner_id": null,
+              "supply": 1,
+              "unit_price": 1
+            }
+          },
+          "holdings": {
+            "player": {}
+          },
+          "transactions": []
+        },
+        "event_log": [
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 300,
+              "from_y": 300,
+              "to_x": 318,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 318,
+              "from_y": 300,
+              "to_x": 336,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 336,
+              "from_y": 300,
+              "to_x": 354,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 354,
+              "from_y": 300,
+              "to_x": 372,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 372,
+              "from_y": 300,
+              "to_x": 390,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 390,
+              "from_y": 300,
+              "to_x": 408,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 408,
+              "from_y": 300,
+              "to_x": 426,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 426,
+              "from_y": 300,
+              "to_x": 444,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 444,
+              "from_y": 300,
+              "to_x": 462,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 462,
+              "from_y": 300,
+              "to_x": 480,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 480,
+              "from_y": 300,
+              "to_x": 498,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 498,
+              "from_y": 300,
+              "to_x": 516,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 516,
+              "from_y": 300,
+              "to_x": 534,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 534,
+              "from_y": 300,
+              "to_x": 552,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 552,
+              "from_y": 300,
+              "to_x": 570,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 570,
+              "from_y": 300,
+              "to_x": 588,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 588,
+              "from_y": 300,
+              "to_x": 606,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 606,
+              "from_y": 300,
+              "to_x": 624,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 624,
+              "from_y": 300,
+              "to_x": 642,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 642,
+              "from_y": 300,
+              "to_x": 660,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 660,
+              "from_y": 300,
+              "to_x": 678,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 678,
+              "from_y": 300,
+              "to_x": 696,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 696,
+              "from_y": 300,
+              "to_x": 714,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 714,
+              "from_y": 300,
+              "to_x": 732,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 732,
+              "from_y": 300,
+              "to_x": 750,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 750,
+              "from_y": 300,
+              "to_x": 768,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 768,
+              "from_y": 300,
+              "to_x": 786,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 786,
+              "from_y": 300,
+              "to_x": 804,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 804,
+              "from_y": 300,
+              "to_x": 822,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 822,
+              "from_y": 300,
+              "to_x": 828,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 828,
+              "from_y": 300,
+              "to_x": 856,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 856,
+              "from_y": 300,
+              "to_x": 884,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 884,
+              "from_y": 300,
+              "to_x": 912,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 912,
+              "from_y": 300,
+              "to_x": 940,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 940,
+              "from_y": 300,
+              "to_x": 968,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 968,
+              "from_y": 300,
+              "to_x": 996,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 996,
+              "from_y": 300,
+              "to_x": 1024,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1024,
+              "from_y": 300,
+              "to_x": 1052,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1052,
+              "from_y": 300,
+              "to_x": 1080,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1080,
+              "from_y": 300,
+              "to_x": 1108,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1108,
+              "from_y": 300,
+              "to_x": 1136,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1136,
+              "from_y": 300,
+              "to_x": 1164,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1164,
+              "from_y": 300,
+              "to_x": 1192,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1192,
+              "from_y": 300,
+              "to_x": 1210,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1210,
+              "from_y": 300,
+              "to_x": 1228,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1228,
+              "from_y": 300,
+              "to_x": 1246,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1246,
+              "from_y": 300,
+              "to_x": 1264,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1264,
+              "from_y": 300,
+              "to_x": 1282,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1282,
+              "from_y": 300,
+              "to_x": 1300,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1300,
+              "from_y": 300,
+              "to_x": 1272,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1272,
+              "from_y": 300,
+              "to_x": 1244,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1244,
+              "from_y": 300,
+              "to_x": 1216,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1216,
+              "from_y": 300,
+              "to_x": 1188,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1188,
+              "from_y": 300,
+              "to_x": 1170,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1170,
+              "from_y": 300,
+              "to_x": 1152,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1152,
+              "from_y": 300,
+              "to_x": 1134,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1134,
+              "from_y": 300,
+              "to_x": 1116,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1116,
+              "from_y": 300,
+              "to_x": 1100,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.81,
+              "old_value": 0.8
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "reality",
+              "depth": 0,
+              "fact": {
+                "context_id": "reality",
+                "depth": 0,
+                "fact": "layer.fact.reality",
+                "id": "layer-observation:player:reality",
+                "is_virtual": false,
+                "item_id": "reality-cue",
+                "observed_at_tick": 1,
+                "position": {
+                  "x": 1100,
+                  "y": 300
+                },
+                "room_id": "reality-garden",
+                "sequence": 1
+              },
+              "kind": "observed"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "examine-reality",
+              "target_id": null
+            }
+          },
+          {
+            "NodeAttentionChanged": {
+              "attended": false,
+              "character_id": "player",
+              "instance_id": "player-enter-deeper"
+            }
+          },
+          {
+            "NodeAttentionChanged": {
+              "attended": false,
+              "character_id": "player",
+              "instance_id": "player-escape-virtual"
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.495,
+              "old_value": 0.5
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 1
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1100,
+              "from_y": 300,
+              "to_x": 1082,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1082,
+              "from_y": 300,
+              "to_x": 1064,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1064,
+              "from_y": 300,
+              "to_x": 1046,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1046,
+              "from_y": 300,
+              "to_x": 1028,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1028,
+              "from_y": 300,
+              "to_x": 1010,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1010,
+              "from_y": 300,
+              "to_x": 992,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 992,
+              "from_y": 300,
+              "to_x": 974,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 974,
+              "from_y": 300,
+              "to_x": 956,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 956,
+              "from_y": 300,
+              "to_x": 938,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 938,
+              "from_y": 300,
+              "to_x": 920,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 920,
+              "from_y": 300,
+              "to_x": 902,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 902,
+              "from_y": 300,
+              "to_x": 884,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 884,
+              "from_y": 300,
+              "to_x": 866,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 866,
+              "from_y": 300,
+              "to_x": 848,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 848,
+              "from_y": 300,
+              "to_x": 830,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 830,
+              "from_y": 300,
+              "to_x": 812,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 812,
+              "from_y": 300,
+              "to_x": 794,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 794,
+              "from_y": 300,
+              "to_x": 776,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 776,
+              "from_y": 300,
+              "to_x": 772,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 772,
+              "from_y": 300,
+              "to_x": 744,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 744,
+              "from_y": 300,
+              "to_x": 716,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 716,
+              "from_y": 300,
+              "to_x": 688,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 688,
+              "from_y": 300,
+              "to_x": 660,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 660,
+              "from_y": 300,
+              "to_x": 632,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 632,
+              "from_y": 300,
+              "to_x": 604,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 604,
+              "from_y": 300,
+              "to_x": 576,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 576,
+              "from_y": 300,
+              "to_x": 548,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 548,
+              "from_y": 300,
+              "to_x": 520,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 520,
+              "from_y": 300,
+              "to_x": 492,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 492,
+              "from_y": 300,
+              "to_x": 464,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 464,
+              "from_y": 300,
+              "to_x": 436,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 436,
+              "from_y": 300,
+              "to_x": 408,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 408,
+              "from_y": 300,
+              "to_x": 380,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 380,
+              "from_y": 300,
+              "to_x": 352,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 352,
+              "from_y": 300,
+              "to_x": 324,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 324,
+              "from_y": 300,
+              "to_x": 296,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 296,
+              "from_y": 300,
+              "to_x": 278,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 278,
+              "from_y": 300,
+              "to_x": 260,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 260,
+              "from_y": 300,
+              "to_x": 242,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 242,
+              "from_y": 300,
+              "to_x": 224,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 224,
+              "from_y": 300,
+              "to_x": 206,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 206,
+              "from_y": 300,
+              "to_x": 200,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8200000000000001,
+              "old_value": 0.81
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "outer",
+              "depth": 1,
+              "fact": {
+                "at_tick": 2,
+                "from_context_id": "reality",
+                "from_position": {
+                  "x": 200,
+                  "y": 300
+                },
+                "from_room": "reality-workshop",
+                "kind": "entered",
+                "sequence": 2,
+                "to_context_id": "outer",
+                "to_position": {
+                  "x": 1800,
+                  "y": 300
+                },
+                "to_room": "outer-arrival"
+              },
+              "kind": "entered"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "enter-vr",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.49,
+              "old_value": 0.495
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 2
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1800,
+              "from_y": 300,
+              "to_x": 1818,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1818,
+              "from_y": 300,
+              "to_x": 1836,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1836,
+              "from_y": 300,
+              "to_x": 1854,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1854,
+              "from_y": 300,
+              "to_x": 1872,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1872,
+              "from_y": 300,
+              "to_x": 1890,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1890,
+              "from_y": 300,
+              "to_x": 1908,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1908,
+              "from_y": 300,
+              "to_x": 1926,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1926,
+              "from_y": 300,
+              "to_x": 1944,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1944,
+              "from_y": 300,
+              "to_x": 1962,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1962,
+              "from_y": 300,
+              "to_x": 1980,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1980,
+              "from_y": 300,
+              "to_x": 1998,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1998,
+              "from_y": 300,
+              "to_x": 2016,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2016,
+              "from_y": 300,
+              "to_x": 2034,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2034,
+              "from_y": 300,
+              "to_x": 2052,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2052,
+              "from_y": 300,
+              "to_x": 2070,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2070,
+              "from_y": 300,
+              "to_x": 2088,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2088,
+              "from_y": 300,
+              "to_x": 2106,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2106,
+              "from_y": 300,
+              "to_x": 2124,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2124,
+              "from_y": 300,
+              "to_x": 2142,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2142,
+              "from_y": 300,
+              "to_x": 2160,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2160,
+              "from_y": 300,
+              "to_x": 2178,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2178,
+              "from_y": 300,
+              "to_x": 2196,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2196,
+              "from_y": 300,
+              "to_x": 2214,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2214,
+              "from_y": 300,
+              "to_x": 2232,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2232,
+              "from_y": 300,
+              "to_x": 2250,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2250,
+              "from_y": 300,
+              "to_x": 2268,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2268,
+              "from_y": 300,
+              "to_x": 2286,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2286,
+              "from_y": 300,
+              "to_x": 2304,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2304,
+              "from_y": 300,
+              "to_x": 2322,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2322,
+              "from_y": 300,
+              "to_x": 2340,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2340,
+              "from_y": 300,
+              "to_x": 2358,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2358,
+              "from_y": 300,
+              "to_x": 2376,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2376,
+              "from_y": 300,
+              "to_x": 2394,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2394,
+              "from_y": 300,
+              "to_x": 2412,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2412,
+              "from_y": 300,
+              "to_x": 2428,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2428,
+              "from_y": 300,
+              "to_x": 2456,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2456,
+              "from_y": 300,
+              "to_x": 2484,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2484,
+              "from_y": 300,
+              "to_x": 2512,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2512,
+              "from_y": 300,
+              "to_x": 2530,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2530,
+              "from_y": 300,
+              "to_x": 2548,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2548,
+              "from_y": 300,
+              "to_x": 2566,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2566,
+              "from_y": 300,
+              "to_x": 2584,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2584,
+              "from_y": 300,
+              "to_x": 2600,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8300000000000001,
+              "old_value": 0.8200000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "outer",
+              "depth": 1,
+              "fact": {
+                "context_id": "outer",
+                "depth": 1,
+                "fact": "layer.fact.outer",
+                "id": "layer-observation:player:outer",
+                "is_virtual": true,
+                "item_id": "outer-cue",
+                "observed_at_tick": 3,
+                "position": {
+                  "x": 2600,
+                  "y": 300
+                },
+                "room_id": "outer-exchange",
+                "sequence": 3
+              },
+              "kind": "observed"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "examine-reality",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.485,
+              "old_value": 0.49
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 3
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8400000000000001,
+              "old_value": 0.8300000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "outer",
+              "depth": 1,
+              "fact": {
+                "context_id": "outer",
+                "physical_need_relief": 0,
+                "quantity": 1
+              },
+              "kind": "rewarded"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "earn-virtual-reward",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.48,
+              "old_value": 0.485
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 4
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2600,
+              "from_y": 300,
+              "to_x": 2628,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2628,
+              "from_y": 300,
+              "to_x": 2656,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2656,
+              "from_y": 300,
+              "to_x": 2684,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2684,
+              "from_y": 300,
+              "to_x": 2712,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2712,
+              "from_y": 300,
+              "to_x": 2740,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2740,
+              "from_y": 300,
+              "to_x": 2768,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2768,
+              "from_y": 300,
+              "to_x": 2796,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2796,
+              "from_y": 300,
+              "to_x": 2824,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2824,
+              "from_y": 300,
+              "to_x": 2852,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2852,
+              "from_y": 300,
+              "to_x": 2880,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2880,
+              "from_y": 300,
+              "to_x": 2908,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2908,
+              "from_y": 300,
+              "to_x": 2926,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2926,
+              "from_y": 300,
+              "to_x": 2944,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2944,
+              "from_y": 300,
+              "to_x": 2962,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2962,
+              "from_y": 300,
+              "to_x": 2980,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2980,
+              "from_y": 300,
+              "to_x": 2998,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2998,
+              "from_y": 300,
+              "to_x": 3000,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8500000000000001,
+              "old_value": 0.8400000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "inner",
+              "depth": 2,
+              "fact": {
+                "at_tick": 5,
+                "from_context_id": "outer",
+                "from_position": {
+                  "x": 3000,
+                  "y": 300
+                },
+                "from_room": "outer-exchange",
+                "kind": "entered",
+                "sequence": 4,
+                "to_context_id": "inner",
+                "to_position": {
+                  "x": 3400,
+                  "y": 300
+                },
+                "to_room": "inner-arrival"
+              },
+              "kind": "entered"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "enter-vr",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.475,
+              "old_value": 0.48
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 5
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3400,
+              "from_y": 300,
+              "to_x": 3418,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3418,
+              "from_y": 300,
+              "to_x": 3436,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3436,
+              "from_y": 300,
+              "to_x": 3454,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3454,
+              "from_y": 300,
+              "to_x": 3472,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3472,
+              "from_y": 300,
+              "to_x": 3490,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3490,
+              "from_y": 300,
+              "to_x": 3508,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3508,
+              "from_y": 300,
+              "to_x": 3526,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3526,
+              "from_y": 300,
+              "to_x": 3544,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3544,
+              "from_y": 300,
+              "to_x": 3562,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3562,
+              "from_y": 300,
+              "to_x": 3580,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3580,
+              "from_y": 300,
+              "to_x": 3598,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3598,
+              "from_y": 300,
+              "to_x": 3616,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3616,
+              "from_y": 300,
+              "to_x": 3634,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3634,
+              "from_y": 300,
+              "to_x": 3652,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3652,
+              "from_y": 300,
+              "to_x": 3670,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3670,
+              "from_y": 300,
+              "to_x": 3688,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3688,
+              "from_y": 300,
+              "to_x": 3706,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3706,
+              "from_y": 300,
+              "to_x": 3724,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3724,
+              "from_y": 300,
+              "to_x": 3742,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3742,
+              "from_y": 300,
+              "to_x": 3760,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3760,
+              "from_y": 300,
+              "to_x": 3778,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3778,
+              "from_y": 300,
+              "to_x": 3796,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3796,
+              "from_y": 300,
+              "to_x": 3814,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3814,
+              "from_y": 300,
+              "to_x": 3832,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3832,
+              "from_y": 300,
+              "to_x": 3850,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3850,
+              "from_y": 300,
+              "to_x": 3868,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3868,
+              "from_y": 300,
+              "to_x": 3886,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3886,
+              "from_y": 300,
+              "to_x": 3904,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3904,
+              "from_y": 300,
+              "to_x": 3922,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3922,
+              "from_y": 300,
+              "to_x": 3940,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3940,
+              "from_y": 300,
+              "to_x": 3958,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3958,
+              "from_y": 300,
+              "to_x": 3976,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3976,
+              "from_y": 300,
+              "to_x": 3994,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3994,
+              "from_y": 300,
+              "to_x": 4012,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4012,
+              "from_y": 300,
+              "to_x": 4028,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4028,
+              "from_y": 300,
+              "to_x": 4056,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4056,
+              "from_y": 300,
+              "to_x": 4084,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4084,
+              "from_y": 300,
+              "to_x": 4112,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4112,
+              "from_y": 300,
+              "to_x": 4140,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4140,
+              "from_y": 300,
+              "to_x": 4168,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4168,
+              "from_y": 300,
+              "to_x": 4196,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4196,
+              "from_y": 300,
+              "to_x": 4214,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4214,
+              "from_y": 300,
+              "to_x": 4232,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4232,
+              "from_y": 300,
+              "to_x": 4250,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4250,
+              "from_y": 300,
+              "to_x": 4268,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4268,
+              "from_y": 300,
+              "to_x": 4286,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4286,
+              "from_y": 300,
+              "to_x": 4300,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8600000000000001,
+              "old_value": 0.8500000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "inner",
+              "depth": 2,
+              "fact": {
+                "context_id": "inner",
+                "depth": 2,
+                "fact": "layer.fact.inner",
+                "id": "layer-observation:player:inner",
+                "is_virtual": true,
+                "item_id": "inner-cue",
+                "observed_at_tick": 6,
+                "position": {
+                  "x": 4300,
+                  "y": 300
+                },
+                "room_id": "inner-archive",
+                "sequence": 5
+              },
+              "kind": "observed"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "examine-reality",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.47,
+              "old_value": 0.475
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 6
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8700000000000001,
+              "old_value": 0.8600000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "inner",
+              "depth": 2,
+              "fact": {
+                "context_id": "inner",
+                "physical_need_relief": 0,
+                "quantity": 1
+              },
+              "kind": "rewarded"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "earn-virtual-reward",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.46499999999999997,
+              "old_value": 0.47
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 7
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8800000000000001,
+              "old_value": 0.8700000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "inner",
+              "depth": 2,
+              "fact": {
+                "compared_at_tick": 8,
+                "observation_ids": [
+                  "layer-observation:player:reality",
+                  "layer-observation:player:outer",
+                  "layer-observation:player:inner"
+                ],
+                "sequence": 6
+              },
+              "kind": "compared"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "compare-layers",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.45999999999999996,
+              "old_value": 0.46499999999999997
+            }
+          },
+          {
+            "ObjectiveCompleted": {
+              "label": "level.cyber-dream.objective.0",
+              "objective_id": "navigate-virtual-layer"
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 8
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4300,
+              "from_y": 300,
+              "to_x": 4282,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4282,
+              "from_y": 300,
+              "to_x": 4264,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4264,
+              "from_y": 300,
+              "to_x": 4246,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4246,
+              "from_y": 300,
+              "to_x": 4228,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4228,
+              "from_y": 300,
+              "to_x": 4210,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4210,
+              "from_y": 300,
+              "to_x": 4192,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4192,
+              "from_y": 300,
+              "to_x": 4174,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4174,
+              "from_y": 300,
+              "to_x": 4156,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4156,
+              "from_y": 300,
+              "to_x": 4138,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4138,
+              "from_y": 300,
+              "to_x": 4120,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4120,
+              "from_y": 300,
+              "to_x": 4102,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4102,
+              "from_y": 300,
+              "to_x": 4084,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4084,
+              "from_y": 300,
+              "to_x": 4066,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4066,
+              "from_y": 300,
+              "to_x": 4048,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4048,
+              "from_y": 300,
+              "to_x": 4030,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4030,
+              "from_y": 300,
+              "to_x": 4012,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 4012,
+              "from_y": 300,
+              "to_x": 3994,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3994,
+              "from_y": 300,
+              "to_x": 3976,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3976,
+              "from_y": 300,
+              "to_x": 3972,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3972,
+              "from_y": 300,
+              "to_x": 3944,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3944,
+              "from_y": 300,
+              "to_x": 3916,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3916,
+              "from_y": 300,
+              "to_x": 3888,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3888,
+              "from_y": 300,
+              "to_x": 3860,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3860,
+              "from_y": 300,
+              "to_x": 3832,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3832,
+              "from_y": 300,
+              "to_x": 3804,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3804,
+              "from_y": 300,
+              "to_x": 3776,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3776,
+              "from_y": 300,
+              "to_x": 3748,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3748,
+              "from_y": 300,
+              "to_x": 3720,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3720,
+              "from_y": 300,
+              "to_x": 3692,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3692,
+              "from_y": 300,
+              "to_x": 3664,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3664,
+              "from_y": 300,
+              "to_x": 3636,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3636,
+              "from_y": 300,
+              "to_x": 3608,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3608,
+              "from_y": 300,
+              "to_x": 3580,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3580,
+              "from_y": 300,
+              "to_x": 3552,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3552,
+              "from_y": 300,
+              "to_x": 3524,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3524,
+              "from_y": 300,
+              "to_x": 3496,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3496,
+              "from_y": 300,
+              "to_x": 3478,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3478,
+              "from_y": 300,
+              "to_x": 3460,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3460,
+              "from_y": 300,
+              "to_x": 3442,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3442,
+              "from_y": 300,
+              "to_x": 3424,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3424,
+              "from_y": 300,
+              "to_x": 3406,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3406,
+              "from_y": 300,
+              "to_x": 3400,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.8900000000000001,
+              "old_value": 0.8800000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "outer",
+              "depth": 1,
+              "fact": {
+                "at_tick": 9,
+                "from_context_id": "inner",
+                "from_position": {
+                  "x": 3400,
+                  "y": 300
+                },
+                "from_room": "inner-arrival",
+                "kind": "returned",
+                "sequence": 7,
+                "to_context_id": "outer",
+                "to_position": {
+                  "x": 3000,
+                  "y": 300
+                },
+                "to_room": "outer-exchange"
+              },
+              "kind": "returned"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "exit-vr",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.45499999999999996,
+              "old_value": 0.45999999999999996
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 9
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 3000,
+              "from_y": 300,
+              "to_x": 2982,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2982,
+              "from_y": 300,
+              "to_x": 2964,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2964,
+              "from_y": 300,
+              "to_x": 2946,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2946,
+              "from_y": 300,
+              "to_x": 2928,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2928,
+              "from_y": 300,
+              "to_x": 2910,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2910,
+              "from_y": 300,
+              "to_x": 2892,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2892,
+              "from_y": 300,
+              "to_x": 2874,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2874,
+              "from_y": 300,
+              "to_x": 2856,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2856,
+              "from_y": 300,
+              "to_x": 2838,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2838,
+              "from_y": 300,
+              "to_x": 2820,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2820,
+              "from_y": 300,
+              "to_x": 2802,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2802,
+              "from_y": 300,
+              "to_x": 2784,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2784,
+              "from_y": 300,
+              "to_x": 2766,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2766,
+              "from_y": 300,
+              "to_x": 2748,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2748,
+              "from_y": 300,
+              "to_x": 2730,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2730,
+              "from_y": 300,
+              "to_x": 2712,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2712,
+              "from_y": 300,
+              "to_x": 2694,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2694,
+              "from_y": 300,
+              "to_x": 2676,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2676,
+              "from_y": 300,
+              "to_x": 2658,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2658,
+              "from_y": 300,
+              "to_x": 2640,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2640,
+              "from_y": 300,
+              "to_x": 2622,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2622,
+              "from_y": 300,
+              "to_x": 2604,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2604,
+              "from_y": 300,
+              "to_x": 2586,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2586,
+              "from_y": 300,
+              "to_x": 2568,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2568,
+              "from_y": 300,
+              "to_x": 2550,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2550,
+              "from_y": 300,
+              "to_x": 2532,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2532,
+              "from_y": 300,
+              "to_x": 2514,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2514,
+              "from_y": 300,
+              "to_x": 2496,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2496,
+              "from_y": 300,
+              "to_x": 2478,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2478,
+              "from_y": 300,
+              "to_x": 2460,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2460,
+              "from_y": 300,
+              "to_x": 2442,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2442,
+              "from_y": 300,
+              "to_x": 2424,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2424,
+              "from_y": 300,
+              "to_x": 2406,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2406,
+              "from_y": 300,
+              "to_x": 2388,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2388,
+              "from_y": 300,
+              "to_x": 2372,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2372,
+              "from_y": 300,
+              "to_x": 2344,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2344,
+              "from_y": 300,
+              "to_x": 2316,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2316,
+              "from_y": 300,
+              "to_x": 2288,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2288,
+              "from_y": 300,
+              "to_x": 2260,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2260,
+              "from_y": 300,
+              "to_x": 2232,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2232,
+              "from_y": 300,
+              "to_x": 2204,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2204,
+              "from_y": 300,
+              "to_x": 2176,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2176,
+              "from_y": 300,
+              "to_x": 2148,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2148,
+              "from_y": 300,
+              "to_x": 2120,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2120,
+              "from_y": 300,
+              "to_x": 2092,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2092,
+              "from_y": 300,
+              "to_x": 2064,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2064,
+              "from_y": 300,
+              "to_x": 2036,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2036,
+              "from_y": 300,
+              "to_x": 2008,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 2008,
+              "from_y": 300,
+              "to_x": 1980,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1980,
+              "from_y": 300,
+              "to_x": 1952,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1952,
+              "from_y": 300,
+              "to_x": 1924,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1924,
+              "from_y": 300,
+              "to_x": 1896,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1896,
+              "from_y": 300,
+              "to_x": 1878,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1878,
+              "from_y": 300,
+              "to_x": 1860,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1860,
+              "from_y": 300,
+              "to_x": 1842,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1842,
+              "from_y": 300,
+              "to_x": 1824,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1824,
+              "from_y": 300,
+              "to_x": 1806,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1806,
+              "from_y": 300,
+              "to_x": 1800,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.9000000000000001,
+              "old_value": 0.8900000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "reality",
+              "depth": 0,
+              "fact": {
+                "at_tick": 10,
+                "from_context_id": "outer",
+                "from_position": {
+                  "x": 1800,
+                  "y": 300
+                },
+                "from_room": "outer-arrival",
+                "kind": "returned",
+                "sequence": 8,
+                "to_context_id": "reality",
+                "to_position": {
+                  "x": 200,
+                  "y": 300
+                },
+                "to_room": "reality-workshop"
+              },
+              "kind": "returned"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "exit-vr",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.44999999999999996,
+              "old_value": 0.45499999999999996
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 10
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 200,
+              "from_y": 300,
+              "to_x": 218,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 218,
+              "from_y": 300,
+              "to_x": 236,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 236,
+              "from_y": 300,
+              "to_x": 254,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 254,
+              "from_y": 300,
+              "to_x": 272,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 272,
+              "from_y": 300,
+              "to_x": 290,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 290,
+              "from_y": 300,
+              "to_x": 308,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 308,
+              "from_y": 300,
+              "to_x": 326,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 326,
+              "from_y": 300,
+              "to_x": 344,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 344,
+              "from_y": 300,
+              "to_x": 362,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 362,
+              "from_y": 300,
+              "to_x": 380,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 380,
+              "from_y": 300,
+              "to_x": 398,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 398,
+              "from_y": 300,
+              "to_x": 416,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 416,
+              "from_y": 300,
+              "to_x": 434,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 434,
+              "from_y": 300,
+              "to_x": 452,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 452,
+              "from_y": 300,
+              "to_x": 470,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 470,
+              "from_y": 300,
+              "to_x": 488,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 488,
+              "from_y": 300,
+              "to_x": 506,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 506,
+              "from_y": 300,
+              "to_x": 524,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 524,
+              "from_y": 300,
+              "to_x": 542,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 542,
+              "from_y": 300,
+              "to_x": 560,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 560,
+              "from_y": 300,
+              "to_x": 578,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 578,
+              "from_y": 300,
+              "to_x": 596,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 596,
+              "from_y": 300,
+              "to_x": 614,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 614,
+              "from_y": 300,
+              "to_x": 632,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 632,
+              "from_y": 300,
+              "to_x": 650,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 650,
+              "from_y": 300,
+              "to_x": 668,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 668,
+              "from_y": 300,
+              "to_x": 686,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 686,
+              "from_y": 300,
+              "to_x": 704,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 704,
+              "from_y": 300,
+              "to_x": 722,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 722,
+              "from_y": 300,
+              "to_x": 740,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 740,
+              "from_y": 300,
+              "to_x": 758,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 758,
+              "from_y": 300,
+              "to_x": 776,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 776,
+              "from_y": 300,
+              "to_x": 794,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 794,
+              "from_y": 300,
+              "to_x": 812,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 812,
+              "from_y": 300,
+              "to_x": 828,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 828,
+              "from_y": 300,
+              "to_x": 856,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 856,
+              "from_y": 300,
+              "to_x": 884,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 884,
+              "from_y": 300,
+              "to_x": 912,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 912,
+              "from_y": 300,
+              "to_x": 940,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 940,
+              "from_y": 300,
+              "to_x": 968,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 968,
+              "from_y": 300,
+              "to_x": 996,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 996,
+              "from_y": 300,
+              "to_x": 1024,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1024,
+              "from_y": 300,
+              "to_x": 1052,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1052,
+              "from_y": 300,
+              "to_x": 1080,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1080,
+              "from_y": 300,
+              "to_x": 1108,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1108,
+              "from_y": 300,
+              "to_x": 1136,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1136,
+              "from_y": 300,
+              "to_x": 1164,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1164,
+              "from_y": 300,
+              "to_x": 1192,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1192,
+              "from_y": 300,
+              "to_x": 1210,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1210,
+              "from_y": 300,
+              "to_x": 1228,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1228,
+              "from_y": 300,
+              "to_x": 1246,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1246,
+              "from_y": 300,
+              "to_x": 1264,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1264,
+              "from_y": 300,
+              "to_x": 1282,
+              "to_y": 300
+            }
+          },
+          {
+            "CharacterMoved": {
+              "character_id": "player",
+              "from_x": 1282,
+              "from_y": 300,
+              "to_x": 1300,
+              "to_y": 300
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-dopamine",
+              "new_value": 0.9100000000000001,
+              "old_value": 0.9000000000000001
+            }
+          },
+          {
+            "LayeredWorldChanged": {
+              "actor_id": "player",
+              "context_id": "reality",
+              "depth": 0,
+              "fact": {
+                "after": 0.15000000000000002,
+                "before": 0.75,
+                "item_id": "real-meal",
+                "position": {
+                  "x": 1300,
+                  "y": 300
+                },
+                "room_id": "reality-garden",
+                "satisfied_at_tick": 11,
+                "sequence": 9
+              },
+              "kind": "need_satisfied"
+            }
+          },
+          {
+            "CommandExecuted": {
+              "actor_id": "player",
+              "command_id": "satisfy-real-need",
+              "target_id": null
+            }
+          },
+          {
+            "NodeValueChanged": {
+              "character_id": "player",
+              "instance_id": "player-reality-sense",
+              "new_value": 0.44499999999999995,
+              "old_value": 0.44999999999999996
+            }
+          },
+          {
+            "ObjectiveCompleted": {
+              "label": "level.cyber-dream.objective.1",
+              "objective_id": "return-to-reality"
+            }
+          },
+          {
+            "LevelWon": {
+              "level_id": "cyber-dream",
+              "tick": 11
+            }
+          },
+          {
+            "TickCompleted": {
+              "tick": 11
+            }
+          }
+        ],
+        "in_virtual_context": false,
+        "initial_mode": "observe",
+        "item_rooms": {
+          "inner-cue": "inner-archive",
+          "outer-cue": "outer-exchange",
+          "real-meal": "reality-garden",
+          "reality-cue": "reality-garden",
+          "return-inner": "inner-arrival",
+          "return-outer": "outer-arrival",
+          "vr-terminal-l1": "reality-workshop",
+          "vr-terminal-l2": "outer-exchange"
+        },
+        "items": {
+          "inner-cue": {
+            "abstract_type": null,
+            "id": "inner-cue",
+            "label": "level.cyber-dream.item.inner-cue.label",
+            "owner_id": null,
+            "position": {
+              "x": 4300,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "outer-cue": {
+            "abstract_type": null,
+            "id": "outer-cue",
+            "label": "level.cyber-dream.item.outer-cue.label",
+            "owner_id": null,
+            "position": {
+              "x": 2600,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "real-meal": {
+            "abstract_type": null,
+            "id": "real-meal",
+            "label": "level.cyber-dream.item.real-meal.label",
+            "owner_id": null,
+            "position": {
+              "x": 1300,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "reality-cue": {
+            "abstract_type": null,
+            "id": "reality-cue",
+            "label": "level.cyber-dream.item.reality-cue.label",
+            "owner_id": null,
+            "position": {
+              "x": 1100,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "return-inner": {
+            "abstract_type": null,
+            "id": "return-inner",
+            "label": "level.cyber-dream.item.return-inner.label",
+            "owner_id": null,
+            "position": {
+              "x": 3400,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "return-outer": {
+            "abstract_type": null,
+            "id": "return-outer",
+            "label": "level.cyber-dream.item.return-outer.label",
+            "owner_id": null,
+            "position": {
+              "x": 1800,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "vr-terminal-l1": {
+            "abstract_type": null,
+            "id": "vr-terminal-l1",
+            "label": "level.cyber-dream.item.vr-terminal-l1.label",
+            "owner_id": null,
+            "position": {
+              "x": 200,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          },
+          "vr-terminal-l2": {
+            "abstract_type": null,
+            "id": "vr-terminal-l2",
+            "label": "level.cyber-dream.item.vr-terminal-l2.label",
+            "owner_id": null,
+            "position": {
+              "x": 3000,
+              "y": 240
+            },
+            "quantity": 0,
+            "schema_type": "schema:Product",
+            "unit_price": 1
+          }
+        },
+        "layered_world": {
+          "player": {
+            "comparison": {
+              "compared_at_tick": 8,
+              "observation_ids": [
+                "layer-observation:player:reality",
+                "layer-observation:player:outer",
+                "layer-observation:player:inner"
+              ],
+              "sequence": 6
+            },
+            "context_id": "reality",
+            "legacy_in_virtual_context": false,
+            "legacy_virtual_context_stack": [],
+            "max_depth": 2,
+            "need_receipt": {
+              "after": 0.15000000000000002,
+              "before": 0.75,
+              "item_id": "real-meal",
+              "position": {
+                "x": 1300,
+                "y": 300
+              },
+              "room_id": "reality-garden",
+              "satisfied_at_tick": 11,
+              "sequence": 9
+            },
+            "next_sequence": 9,
+            "observations": {
+              "inner": {
+                "context_id": "inner",
+                "depth": 2,
+                "fact": "layer.fact.inner",
+                "id": "layer-observation:player:inner",
+                "is_virtual": true,
+                "item_id": "inner-cue",
+                "observed_at_tick": 6,
+                "position": {
+                  "x": 4300,
+                  "y": 300
+                },
+                "room_id": "inner-archive",
+                "sequence": 5
+              },
+              "outer": {
+                "context_id": "outer",
+                "depth": 1,
+                "fact": "layer.fact.outer",
+                "id": "layer-observation:player:outer",
+                "is_virtual": true,
+                "item_id": "outer-cue",
+                "observed_at_tick": 3,
+                "position": {
+                  "x": 2600,
+                  "y": 300
+                },
+                "room_id": "outer-exchange",
+                "sequence": 3
+              },
+              "reality": {
+                "context_id": "reality",
+                "depth": 0,
+                "fact": "layer.fact.reality",
+                "id": "layer-observation:player:reality",
+                "is_virtual": false,
+                "item_id": "reality-cue",
+                "observed_at_tick": 1,
+                "position": {
+                  "x": 1100,
+                  "y": 300
+                },
+                "room_id": "reality-garden",
+                "sequence": 1
+              }
+            },
+            "rewards": {
+              "inner": 1,
+              "outer": 1
+            },
+            "stack": [],
+            "transitions": [
+              {
+                "at_tick": 2,
+                "from_context_id": "reality",
+                "from_position": {
+                  "x": 200,
+                  "y": 300
+                },
+                "from_room": "reality-workshop",
+                "kind": "entered",
+                "sequence": 2,
+                "to_context_id": "outer",
+                "to_position": {
+                  "x": 1800,
+                  "y": 300
+                },
+                "to_room": "outer-arrival"
+              },
+              {
+                "at_tick": 5,
+                "from_context_id": "outer",
+                "from_position": {
+                  "x": 3000,
+                  "y": 300
+                },
+                "from_room": "outer-exchange",
+                "kind": "entered",
+                "sequence": 4,
+                "to_context_id": "inner",
+                "to_position": {
+                  "x": 3400,
+                  "y": 300
+                },
+                "to_room": "inner-arrival"
+              },
+              {
+                "at_tick": 9,
+                "from_context_id": "inner",
+                "from_position": {
+                  "x": 3400,
+                  "y": 300
+                },
+                "from_room": "inner-arrival",
+                "kind": "returned",
+                "sequence": 7,
+                "to_context_id": "outer",
+                "to_position": {
+                  "x": 3000,
+                  "y": 300
+                },
+                "to_room": "outer-exchange"
+              },
+              {
+                "at_tick": 10,
+                "from_context_id": "outer",
+                "from_position": {
+                  "x": 1800,
+                  "y": 300
+                },
+                "from_room": "outer-arrival",
+                "kind": "returned",
+                "sequence": 8,
+                "to_context_id": "reality",
+                "to_position": {
+                  "x": 200,
+                  "y": 300
+                },
+                "to_room": "reality-workshop"
+              }
+            ],
+            "unwind_count": 2
+          }
+        },
+        "layered_world_migration": null,
+        "level_description": "level.cyber-dream.description",
+        "level_id": "cyber-dream",
+        "level_label": "level.cyber-dream.name",
+        "paused": true,
+        "pending_commands": [],
+        "progress": {
+          "command_counts": {
+            "compare-layers": 1,
+            "earn-virtual-reward": 2,
+            "enter-vr": 2,
+            "examine-reality": 3,
+            "exit-vr": 2,
+            "satisfy-real-need": 1
+          },
+          "command_targets": {},
+          "completed_at_tick": 11,
+          "failure_rules": [],
+          "objectives": [
+            {
+              "completed": true,
+              "completed_at_tick": 8,
+              "condition": {
+                "characterId": "player",
+                "complete": false,
+                "type": "layeredJourney"
+              },
+              "label": "level.cyber-dream.objective.0",
+              "objective_id": "navigate-virtual-layer",
+              "required": true
+            },
+            {
+              "completed": true,
+              "completed_at_tick": 11,
+              "condition": {
+                "characterId": "player",
+                "complete": true,
+                "type": "layeredJourney"
+              },
+              "label": "level.cyber-dream.objective.1",
+              "objective_id": "return-to-reality",
+              "required": true
+            }
+          ],
+          "outcome_label": null,
+          "status": "Won"
+        },
+        "room_memory": {},
+        "scene": {
+          "connectors": [],
+          "layered_world": {
+            "actor_ids": [
+              "player"
+            ],
+            "contexts": [
+              {
+                "arrival": {
+                  "x": 300,
+                  "y": 300
+                },
+                "arrival_room": "reality-workshop",
+                "cue_fact": "layer.fact.reality",
+                "cue_item_id": "reality-cue",
+                "entry_item_id": "vr-terminal-l1",
+                "id": "reality",
+                "return_item_id": null,
+                "room_ids": [
+                  "reality-workshop",
+                  "reality-garden"
+                ]
+              },
+              {
+                "arrival": {
+                  "x": 1800,
+                  "y": 300
+                },
+                "arrival_room": "outer-arrival",
+                "cue_fact": "layer.fact.outer",
+                "cue_item_id": "outer-cue",
+                "entry_item_id": "vr-terminal-l2",
+                "id": "outer",
+                "return_item_id": "return-outer",
+                "room_ids": [
+                  "outer-arrival",
+                  "outer-exchange"
+                ]
+              },
+              {
+                "arrival": {
+                  "x": 3400,
+                  "y": 300
+                },
+                "arrival_room": "inner-arrival",
+                "cue_fact": "layer.fact.inner",
+                "cue_item_id": "inner-cue",
+                "entry_item_id": null,
+                "id": "inner",
+                "return_item_id": "return-inner",
+                "room_ids": [
+                  "inner-arrival",
+                  "inner-archive"
+                ]
+              }
+            ],
+            "interaction_range": 60,
+            "meal_item_id": "real-meal",
+            "need_max": 0.25,
+            "need_relief": 0.6,
+            "need_schema_id": "it:concept/hunger"
+          },
+          "non_blocking_characters": [],
+          "platforms": [
+            {
+              "id": "reality-workshop-floor",
+              "x_max": 800,
+              "x_min": 0,
+              "y": 300
+            },
+            {
+              "id": "reality-garden-floor",
+              "x_max": 1600,
+              "x_min": 800,
+              "y": 300
+            },
+            {
+              "id": "outer-arrival-floor",
+              "x_max": 2400,
+              "x_min": 1600,
+              "y": 300
+            },
+            {
+              "id": "outer-exchange-floor",
+              "x_max": 3200,
+              "x_min": 2400,
+              "y": 300
+            },
+            {
+              "id": "inner-arrival-floor",
+              "x_max": 4000,
+              "x_min": 3200,
+              "y": 300
+            },
+            {
+              "id": "inner-archive-floor",
+              "x_max": 4800,
+              "x_min": 4000,
+              "y": 300
+            }
+          ],
+          "portals": [
+            {
+              "from_platform": "reality-workshop-floor",
+              "from_room": "reality-workshop",
+              "id": "reality-workshop-door",
+              "to_platform": "reality-garden-floor",
+              "to_room": "reality-garden",
+              "x": 800
+            },
+            {
+              "from_platform": "outer-arrival-floor",
+              "from_room": "outer-arrival",
+              "id": "outer-arrival-door",
+              "to_platform": "outer-exchange-floor",
+              "to_room": "outer-exchange",
+              "x": 2400
+            },
+            {
+              "from_platform": "inner-arrival-floor",
+              "from_room": "inner-arrival",
+              "id": "inner-arrival-door",
+              "to_platform": "inner-archive-floor",
+              "to_room": "inner-archive",
+              "x": 4000
+            }
+          ],
+          "room_memory": null,
+          "rooms": [
+            {
+              "background_key": "cyber_reality_workshop",
+              "id": "reality-workshop",
+              "label": "room.cyber.reality-workshop",
+              "platform_ids": [
+                "reality-workshop-floor"
+              ],
+              "x_max": 800,
+              "x_min": 0
+            },
+            {
+              "background_key": "cyber_reality_garden",
+              "id": "reality-garden",
+              "label": "room.cyber.reality-garden",
+              "platform_ids": [
+                "reality-garden-floor"
+              ],
+              "x_max": 1600,
+              "x_min": 800
+            },
+            {
+              "background_key": "cyber_outer_arrival",
+              "id": "outer-arrival",
+              "label": "room.cyber.outer-arrival",
+              "platform_ids": [
+                "outer-arrival-floor"
+              ],
+              "x_max": 2400,
+              "x_min": 1600
+            },
+            {
+              "background_key": "cyber_outer_exchange",
+              "id": "outer-exchange",
+              "label": "room.cyber.outer-exchange",
+              "platform_ids": [
+                "outer-exchange-floor"
+              ],
+              "x_max": 3200,
+              "x_min": 2400
+            },
+            {
+              "background_key": "cyber_inner_arrival",
+              "id": "inner-arrival",
+              "label": "room.cyber.inner-arrival",
+              "platform_ids": [
+                "inner-arrival-floor"
+              ],
+              "x_max": 4000,
+              "x_min": 3200
+            },
+            {
+              "background_key": "cyber_inner_archive",
+              "id": "inner-archive",
+              "label": "room.cyber.inner-archive",
+              "platform_ids": [
+                "inner-archive-floor"
+              ],
+              "x_max": 4800,
+              "x_min": 4000
+            }
+          ]
+        },
+        "seed": 42,
+        "social_groups": {},
+        "tick": 11,
+        "time_speed": 0,
+        "virtual_context_stack": []
+      },
+      "passed": true,
+      "sameLevelRestartClosesNotebook": true
+    }
+  ],
+  "errors": [],
+  "status": "failed",
+  "failure": "Error: evaluate_script: Error: page.evaluate: Error: Layer notebook open failed\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:1:212)",
+  "stack": "Error: evaluate_script: Error: page.evaluate: Error: Layer notebook open failed\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:1:212)\n    at call (file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:15:29)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async until (file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:22:3)\n    at async notebook (file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:51:3)\n    at async file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:176:3"
+}

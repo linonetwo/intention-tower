@@ -23,7 +23,7 @@ frontend or Rust compilation and no dependency installation is necessary.
 For automated real-browser MCP screenshots, use an available Playwright
 installation and Chromium. Development verification runs locally; GitHub Actions
 is reserved for an explicitly requested publication check. Keep temporary tooling
-under the workspace and preserve the machine's existing build-cache paths.
+on the machine's existing SSD scratch storage and preserve its build-cache paths.
 
 ```sh
 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs node scripts/browser-mcp.mjs

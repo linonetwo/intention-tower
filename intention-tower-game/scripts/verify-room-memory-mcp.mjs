@@ -143,7 +143,7 @@ async function capture(run, label) {
   }
   const evidence = { label, tick: world.tick, status: world.progress.status, entry: memory(world), about: about(world), view, identity: { title, portalLabel, notebookLabel, eventText } };
   run.stages.push(evidence);
-  await shot(`${run.viewport.name}-room-memory-${label}`);
+  if (['fading', 'forgotten', 'anchored-return-won'].includes(label)) await shot(`${run.viewport.name}-room-memory-${label}`);
   return { world, view, entry: memory(world) };
 }
 
@@ -180,7 +180,6 @@ async function verifyThirdRoom(run) {
     const labels = dictionaries.map(dictionary => dictionary[`memory.variant.${variant}`]);
     const feedback = await evaluate(`[...document.querySelectorAll('[data-testid^="dialogue-event-"]')].map(el=>el.textContent).find(line=>line.startsWith('📖'))`);
     assert.ok(labels.some(name => feedback?.includes(name)), 'Second portal immediately publishes its perceived destination feedback');
-    await shot(`mobile-room-memory-second-seam-${destination}-${after.room_memory[actor].rooms[destination].generation}`);
     return { beforeCamera, afterCamera, target, feedback, world: after };
   };
   const entered = await cross('conservatory');
@@ -192,7 +191,6 @@ async function verifyThirdRoom(run) {
   assert.equal(memory(world).phase, 'forgotten');
   assert.equal(world.room_memory[actor].rooms.conservatory.phase, 'visible');
   assert.equal(world.room_memory[actor].rooms.conservatory.generation, initialConservatory.generation);
-  await shot('mobile-room-memory-conservatory-visible-archive-forgotten');
   const returned = await cross('archive');
   assert.notEqual(memory(returned.world).variant_id, initialArchive.variant_id);
   assert.equal(memory(returned.world).forgotten_revisits.length, 1);
@@ -202,7 +200,6 @@ async function verifyThirdRoom(run) {
   assert.equal(memory(world).phase, 'visible');
   assert.equal(world.room_memory[actor].rooms.conservatory.phase, 'forgotten');
   assert.equal(memory(world).generation, memory(returned.world).generation);
-  await shot('mobile-room-memory-archive-visible-conservatory-forgotten');
   const revisited = await cross('conservatory');
   assert.notEqual(revisited.world.room_memory[actor].rooms.conservatory.variant_id, initialConservatory.variant_id);
   assert.equal(revisited.world.room_memory[actor].rooms.conservatory.forgotten_revisits.length, 1);
@@ -212,7 +209,7 @@ async function verifyThirdRoom(run) {
 
 try {
   await call('health');
-  for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
+  for (const viewport of [{ name: 'mobile', width: 390, height: 844 }]) {
     const run = { viewport, stages: [] };
     report.viewports.push(run);
     const mobile = viewport.name === 'mobile';

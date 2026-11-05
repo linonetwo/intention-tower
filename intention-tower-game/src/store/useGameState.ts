@@ -50,6 +50,7 @@ interface GameState {
   uiMode: UiMode;
   autoStepOnCommand: boolean;
   loading: boolean;
+  sceneNotebookOpen: boolean;
   error: string | null;
 }
 
@@ -114,6 +115,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
   uiMode: 'observe',
   autoStepOnCommand: true,
   loading: false,
+  sceneNotebookOpen: false,
   error: null,
 
   // ── Actions ──
@@ -131,6 +133,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
 
       set({
         worldState: pausedState,
+        sceneNotebookOpen: false,
         currentLevelId: levelId,
         selectedActorId: initial.actorId,
         selectedTargetId: initial.targetId,
@@ -372,6 +375,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       set({
         worldState: state,
         currentLevelId: state.level_id || slot.split('-tick')[0] || null,
+        sceneNotebookOpen: false,
         selectedActorId: initial.actorId,
         selectedTargetId: initial.targetId,
         inspectedCharacterId: initial.inspectId,
@@ -413,6 +417,7 @@ export const gameStore = createStore<GameStore>()((set, get) => ({
       page: 'menu',
       currentLevelId: null,
       worldState: null,
+      sceneNotebookOpen: false,
       selectedActorId: null,
       selectedTargetId: null,
       inspectedCharacterId: null,

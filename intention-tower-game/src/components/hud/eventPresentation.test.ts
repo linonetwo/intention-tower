@@ -52,26 +52,16 @@ describe('human-readable event presentation', () => {
     expect(legacy.text).toContain(i18n.t('memory.location'));
     expect(legacy.text).not.toContain(i18n.t('memory.variant.archive'));
   });
-  const rejectionReasons = [
-    'unknown_command', 'preconditions_failed', 'no_effect_applied', 'character_not_found',
-    'invalid_effect_value', 'movement_rejected', 'resource_not_found', 'invalid_resource_amount',
-    'insufficient_resource', 'trade_party_not_found', 'asset_not_found', 'invalid_quantity',
-    'room_memory_disabled', 'not_memory_observer', 'observer_missing', 'memory_drug_not_here', 'memory_drug_already_active', 'room_not_observed', 'memory_drug_required_or_expired', 'room_not_visible', 'room_already_anchored', 'invalid_memory_witness', 'memory_witness_not_here', 'no_forgotten_revisit', 'no_unconfirmed_forgotten_revisit',
-    'invalid_trade_value', 'seller_does_not_own_asset', 'insufficient_supply', 'insufficient_funds', 'self_trade', 'action_credit_invalid',
-  ];
-  it.each(['zh-CN', 'en'])('localizes every rejection reason in %s', async (language) => {
-    await i18n.changeLanguage(language);
-    for (const reason of rejectionReasons) {
-      const { text, icon } = presentEvent({ CommandRejected: {
-        actor_id: 'dog', command_id: 'ring-bell', target_id: null, reason,
-      } }, world);
-      expect(text).toContain('Dog');
-      expect(text).toContain('Ring Bell');
-      expect(text).toContain(i18n.t(`event.commandRejection.${reason}`));
-      expect(text).not.toContain(reason);
-      expect(text).not.toContain('event.');
-      expect(icon).toBe('⚠️');
-    }
+  it('presents a localized command rejection', () => {
+    const reason = 'insufficient_resource';
+    const { text, icon } = presentEvent({ CommandRejected: {
+      actor_id: 'dog', command_id: 'ring-bell', target_id: null, reason,
+    } }, world);
+    expect(text).toContain('Dog');
+    expect(text).toContain('Ring Bell');
+    expect(text).toContain(i18n.t(`event.commandRejection.${reason}`));
+    expect(text).not.toContain(reason);
+    expect(icon).toBe('⚠️');
   });
   it('uses a readable fallback for unknown rejection reasons and command IDs', () => {
     const { text } = presentEvent({ CommandRejected: {

@@ -29,7 +29,7 @@ export const LayeredWorldStatus: React.FC<{ world: WorldState; actorId: string; 
   if (!config || !state) return null;
   const hunger = Object.values(world.characters[actorId]?.mind_graph.nodes ?? {}).find(n => n.schema_id === config.need_schema_id)?.value;
   const path = [...state.stack.map(frame => frame.context_id), state.context_id];
-  if (!notes) return <div data-testid="layer-context-status" aria-live="polite" style={{ position: 'absolute', top: 12, left: 72, right: 12, zIndex: 710, color: '#654c2b', fontSize: 12, pointerEvents: 'none' }}>
+  if (!notes) return <div data-testid="layer-context-status" aria-live="polite" style={{ position: 'absolute', top: 124, left: 12, right: 12, zIndex: 710, color: '#654c2b', fontSize: 12, pointerEvents: 'none' }}>
     <span style={{ display: 'inline-block', borderRadius: 12, padding: '6px 10px', background: '#fff7e7ed' }}>{path.map(id => t(`layer.context.${id}`)).join(' › ')} · {t('layer.depth', { depth: state.stack.length })}<br />{t('layer.hunger', { value: hunger == null ? '—' : hunger.toFixed(2) })} · {t('layer.points', { count: state.rewards[state.context_id] ?? 0 })}</span>
     {world.layered_world_migration && <p role="status" data-testid="layer-migration-notice" style={{ maxWidth: 540, margin: '4px 0', padding: '5px 9px', borderRadius: 10, background: '#fff2cfef' }}>{t('layer.migration.legacy-reset')}</p>}
   </div>;

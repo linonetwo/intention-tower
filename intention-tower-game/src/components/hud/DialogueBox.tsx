@@ -50,7 +50,9 @@ export const DialogueBox: React.FC = () => {
   const executeCommand = useGameState((s) => s.executeCommand);
   const cancelPendingCommand = useGameState((s) => s.cancelPendingCommand);
 
-  const [expanded, setExpanded] = useState(true);
+  const [userExpanded, setExpanded] = useState(true);
+  const notebookOpen = useGameState(s => s.sceneNotebookOpen);
+  const expanded = userExpanded && !notebookOpen;
   const [justExecuted, setJustExecuted] = useState<string | null>(null);
   const [hoveredCmd, setHoveredCmd] = useState<string | null>(null);
   const scrollContentRef = useRef<HTMLDivElement>(null);

@@ -131,17 +131,6 @@ pub fn initialize(world: &mut WorldState) {
     };
     for id in &config.actor_ids {
         if !world.layered_world.contains_key(id) {
-            for objective in &mut world.progress.objectives {
-                if refers_to_actor(&objective.condition, id) {
-                    objective.completed = false;
-                    objective.completed_at_tick = None;
-                    if world.progress.status == crate::models::progress::LevelStatus::Won {
-                        world.progress.status = crate::models::progress::LevelStatus::InProgress;
-                        world.progress.completed_at_tick = None;
-                        world.progress.outcome_label = None;
-                    }
-                }
-            }
             // Legacy flags are archival only, not evidence of any visit or observation.
             world.layered_world.insert(
                 id.clone(),
@@ -168,16 +157,6 @@ pub fn initialize(world: &mut WorldState) {
         }
     }
     sync_legacy(world);
-}
-fn refers_to_actor(condition: &crate::models::progress::LevelCondition, actor: &str) -> bool {
-    use crate::models::progress::LevelCondition;
-    match condition {
-        LevelCondition::LayeredJourney { character_id, .. } => character_id == actor,
-        LevelCondition::All { conditions } | LevelCondition::Any { conditions } => {
-            conditions.iter().any(|c| refers_to_actor(c, actor))
-        }
-        _ => false,
-    }
 }
 fn sync_legacy(world: &mut WorldState) {
     if let Some(state) = world
@@ -890,6 +869,39 @@ pub fn validate_world(world: &WorldState) -> Result<(), String> {
         .any(|o| !valid_objective(&o.condition, config))
     {
         return Err("layered objective has unconfigured actor".into());
+    }
+    // Completion flags are historical, but must have durable causal support.
+    // Do not re-evaluate current hunger/location or unrelated objective kinds.
+    fn historical_support(
+        c: &crate::models::progress::LevelCondition,
+        world: &WorldState,
+        config: &LayeredConfig,
+    ) -> bool {
+        use crate::models::progress::LevelCondition;
+        match c {
+            LevelCondition::LayeredJourney {
+                character_id,
+                complete,
+            } => world.layered_world.get(character_id).is_some_and(|s| {
+                s.max_depth as usize == config.contexts.len() - 1
+                    && valid_comparison(s, config)
+                    && (!complete || s.need_receipt.is_some())
+            }),
+            LevelCondition::All { conditions } => conditions
+                .iter()
+                .all(|c| historical_support(c, world, config)),
+            LevelCondition::Any { conditions } => conditions
+                .iter()
+                .any(|c| historical_support(c, world, config)),
+            _ => true,
+        }
+    }
+    if world.progress.objectives.iter().any(|o| {
+        (o.completed
+            || (world.progress.status == crate::models::progress::LevelStatus::Won && o.required))
+            && !historical_support(&o.condition, world, config)
+    }) {
+        return Err("completed layered objective lacks durable journey receipts".into());
     }
     Ok(())
 }

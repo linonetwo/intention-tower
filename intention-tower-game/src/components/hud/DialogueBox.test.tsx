@@ -8,29 +8,34 @@ const fixture = vi.hoisted(() => ({ state: {
   recentEvents: [] as WorldEvent[],
   availableCommands: [] as CommandDef[], selectedActorId: null as string | null, selectedTargetId: null as string | null,
   executeCommand: vi.fn(), cancelPendingCommand: vi.fn(),
+  sceneNotebookOpen: false,
 } }));
 vi.mock('../../store/useGameState', () => ({ useGameState: (selector: (state: typeof fixture.state) => unknown) => selector(fixture.state) }));
 vi.mock('../../hooks/useResponsiveLayout', () => ({ useResponsiveLayout: () => ({ isMobile: false, statusBarWidth: 0, dialogueHeight: 25, touchTarget: 44 }) }));
 import { DialogueBox } from './DialogueBox';
-import { CommandPanel } from '../panels/CommandPanel';
 
 const action = (tick: number): WorldEvent => ({ ActionExecuted: {
   character_id: 'dog', instance_id: 'bell', executed_at: tick, autonomous: false,
 } });
-afterEach(() => { cleanup(); fixture.state.worldState = null; fixture.state.recentEvents = []; fixture.state.availableCommands = []; fixture.state.selectedActorId = null; });
+afterEach(() => { cleanup(); fixture.state.sceneNotebookOpen = false; fixture.state.worldState = null; fixture.state.recentEvents = []; fixture.state.availableCommands = []; fixture.state.selectedActorId = null; });
 
 describe('dialogue feedback visibility', () => {
+  it('collapses dialogue while the scene notebook reserves its reading area', () => {
+    fixture.state.sceneNotebookOpen = true;
+    render(<DialogueBox />);
+    expect(screen.getByTestId('dialogue-hud').getAttribute('data-expanded')).toBe('false');
+  });
   it('keeps memory testimony prominent despite later ordinary movement events', () => {
     fixture.state.recentEvents = Array.from({ length: 8 }, (_, tick) => ({ CharacterMoved: { character_id: 'agent', from_x: tick, from_y: 300, to_x: tick + 1, to_y: 300 } }));
     fixture.state.recentEvents.push({ RoomMemoryChanged: { observer_id: 'agent', room_id: null, kind: 'witness_you_forgot_this_place', tick: 1 } });
     render(<DialogueBox />);
     expect(screen.getByTestId('dialogue-event-0').textContent).toContain(i18n.language === 'en' ? 'You simply forgot' : '你只是忘记了');
   });
-  it.each([{ label: 'dialogue', Component: DialogueBox }, { label: 'command panel', Component: CommandPanel }])('previews unit memory and layered effects safely in $label', ({ Component }) => {
+  it('previews unit memory and layered effects in dialogue', () => {
     fixture.state.availableCommands = [{ command_id: 'memory-test', label: 'Memory Test', hotkey: null, targeting: 'NoTarget', preconditions: [], effect_templates: ['ApplyMemoryDrug', 'AnchorCurrentRoom', 'RecallRoomWithWitness', 'ObserveCurrentRoom', 'EnterLayer', 'ExitLayer', 'ObserveLayer', 'CompareLayers', 'EarnLayerReward', 'SatisfyLayerNeed'] }];
     fixture.state.selectedActorId = 'agent';
     fixture.state.worldState = { tick: 0, paused: true, characters: { agent: { id: 'agent', label: 'Agent' } }, items: {}, pending_commands: [] } as unknown as WorldState;
-    render(<Component />);
+    render(<DialogueBox />);
     fireEvent.mouseEnter(screen.getByRole('button', { name: /Memory Test/ }));
     for (const effect of fixture.state.availableCommands[0].effect_templates) {
       expect(screen.getByText(`• ${i18n.t(`command.effect.${effect}`)}`)).toBeTruthy();

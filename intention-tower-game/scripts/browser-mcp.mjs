@@ -43,6 +43,7 @@ const errors = [];
 page.on('pageerror', error => errors.push(String(error)));
 await page.goto('http://127.0.0.1:4173/?mcp-test=1');
 const uiTools = [
+  ['open_main_menu', 'Navigate the real browser to the game entry page for an independent UI test fixture', {}],
   ['take_screenshot', 'Real Chromium screenshot (base64 PNG)', { full_page: { type: 'boolean' } }],
   ['click', 'Click a real DOM element at an optional element-relative position', { selector: { type: 'string' }, position: { type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' } }, required: ['x', 'y'] } }],
   ['evaluate_script', 'Evaluate JavaScript in the live browser page', { script: { type: 'string' } }],
@@ -63,7 +64,8 @@ async function dispatch(request) {
   if (request.method !== 'tools/call') return coreRpc(request);
   const { name, arguments: args = {} } = request.params;
   let data;
-  if (name === 'take_screenshot') data = { screenshot: `data:image/png;base64,${(await page.screenshot({ fullPage: args.full_page ?? false })).toString('base64')}`, source: 'chromium-compositor', url: page.url() };
+  if (name === 'open_main_menu') { await page.goto('http://127.0.0.1:4173/?mcp-test=1'); data = { success: true }; }
+  else if (name === 'take_screenshot') data = { screenshot: `data:image/png;base64,${(await page.screenshot({ fullPage: args.full_page ?? false })).toString('base64')}`, source: 'chromium-compositor', url: page.url() };
   else if (name === 'click') { await page.locator(args.selector).click(args.position ? { position: args.position } : {}); data = { success: true }; }
   else if (name === 'evaluate_script') data = await page.evaluate(script => (0, eval)(script), args.script);
   else if (name === 'set_viewport') { await page.setViewportSize({ width: args.width, height: args.height }); data = { success: true }; }

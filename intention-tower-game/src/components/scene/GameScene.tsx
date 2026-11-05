@@ -28,7 +28,8 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const [inspectedItem, setInspectedItem] = useState<string | null>(null);
   const [itemsVisible, setItemsVisible] = useState(false);
   const [wardrobeVisible, setWardrobeVisible] = useState(false);
-  const [notesVisible, setNotesVisible] = useState(false);
+  const notesVisible = useGameState(s => s.sceneNotebookOpen);
+  const setNotesVisible = (open: boolean) => gameStore.setState({ sceneNotebookOpen: open });
   const walkRun = useRef(0);
   const lastActorPosition = useRef<{ id: string | null; x: number; y: number } | null>(null);
   const actor = actorId ? world?.characters[actorId] : undefined;
@@ -52,8 +53,17 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const controlsHeight = width < (hasRoomMemory || hasLayers ? 500 : actorAsset?.paperDoll ? 440 : 372) ? 107 : 58;
   const actionRailHeight = hasLayers ? (width < 500 ? 100 : 52) : 0;
   const baseToolHeight = controlsHeight + actionRailHeight;
+  // Cover every context at the largest possible floor area (collapsed dialogue,
+  // closed notebook). Neither a context transfer nor opening a panel changes zoom.
+  const layerScaleRooms = world?.scene?.rooms ?? [];
+  const referenceGround = Math.max(1, height - baseToolHeight - 42);
+  const layerWorldScale = Math.max(.75, ...layerScaleRooms.map(r => sceneCameraGeometry(width, referenceGround,
+    r.x_max - r.x_min, manifest?.backgroundsMetadata?.[r.background_key ?? levelId ?? '']).worldScale));
+  const layerArtScale = characterArtScale(layerWorldScale, Math.min(400, height * .45), 150);
+  // Reserve the actual fixed-size body plus the status HUD's full clearance.
+  const minimumBodyArea = hasLayers ? Math.max(300, layerArtScale * 150 + 180) : 300;
   // An open notebook reserves its own space below the floor rather than covering the cast.
-  const notesHeight = notesVisible && (hasRoomMemory || hasLayers) ? Math.max(88, Math.min(230, stageHeight - baseToolHeight - 160)) : 0;
+  const notesHeight = notesVisible && (hasRoomMemory || hasLayers) ? Math.max(0, Math.min(230, stageHeight - baseToolHeight - minimumBodyArea)) : 0;
   const toolHeight = baseToolHeight + notesHeight;
   const ground = stageHeight - toolHeight;
   // Narrow screens show a slice of the world rather than compressing the cast
@@ -66,9 +76,10 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   const { backgroundScale, backgroundTop, metadata, worldScale: legacyScale } = sceneCameraGeometry(width, ground, room ? room.x_max - room.x_min : worldMax - worldMin,
     backgroundKey ? manifest?.backgroundsMetadata?.[backgroundKey] : undefined);
   // One projection for the whole strip: changing occupancy cannot change zoom at the seam.
-  const scaleRooms = hasLayers ? world?.scene?.rooms ?? stripRooms : stripRooms;
-  const worldScale = scaleRooms.length ? Math.max(...scaleRooms.map(r => sceneCameraGeometry(width, ground, r.x_max - r.x_min, manifest?.backgroundsMetadata?.[r.background_key ?? levelId ?? '']).worldScale)) : legacyScale;
-  const scale = characterArtScale(worldScale, ground, 150);
+  const scaleRooms = stripRooms;
+  const worldScale = hasLayers ? layerWorldScale : scaleRooms.length ? Math.max(...scaleRooms.map(r => sceneCameraGeometry(width, ground, r.x_max - r.x_min, manifest?.backgroundsMetadata?.[r.background_key ?? levelId ?? '']).worldScale)) : legacyScale;
+  // Notebook/dialogue visibility must not resize the same physical paperdoll.
+  const scale = hasLayers ? layerArtScale : characterArtScale(worldScale, ground, 150);
   const cameraX = clampCameraX(width, actor?.position.x ?? 400, worldScale, worldMin, worldMax);
   const projectionKey = `${layerState?.context_id ?? ''}:${worldScale}:${cameraX}:${ground}:${scale}`;
   const projectY = (y: number) => projectPlatformY(y, ground, worldScale);

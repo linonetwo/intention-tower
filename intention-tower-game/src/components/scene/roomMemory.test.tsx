@@ -81,6 +81,7 @@ describe('observer-owned antimemetic room presentation', () => {
     expect(screen.getByTestId('memory-map-room-reception').textContent).toContain('memory.youAreHere');
     expect(screen.getByTestId('memory-drug-remaining').textContent).toBe('memory.drugRemaining:20');
     expect(screen.getByTestId('room-memory-notes').style.overflowY).toBe('auto');
+    expect(Number(screen.getByTestId('scene-ground').getAttribute('data-ground-y'))).toBeGreaterThanOrEqual(300);
     expect(gameStore.getState().worldState).toBe(world);
     expect(roomMemoryDrugTicks({ ...world!, tick: 100 })).toBe(0);
   });

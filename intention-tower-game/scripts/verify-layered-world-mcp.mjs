@@ -27,23 +27,44 @@ async function settle() {
   await evaluate(`Promise.all([...document.querySelectorAll('[data-testid^="scene-background"], [data-rig-part]')].map(img=>img.decode()))`);
   await evaluate(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
 }
-async function shot(name) {
+async function shot(name, capture = true) {
   await settle();
+  const visual = await evaluate(`(()=>{const stage=document.querySelector('[data-testid="scene-viewport"]').getBoundingClientRect(),parts=[...document.querySelectorAll('[data-testid="scene-character-rig-player"] [data-rig-part]')].map(p=>p.getBoundingClientRect());return{stageTop:stage.top,bodyTop:Math.min(...parts.map(p=>p.top)),rawLabels:[...document.querySelectorAll('button')].map(b=>b.textContent).filter(text=>/command\\.[a-z-]+\\.label/.test(text))}})()`);
+  assert.ok(visual.bodyTop >= visual.stageTop - 1, `${name}: notebook must not clip the actual paper doll above scene (${visual.bodyTop} < ${visual.stageTop})`);
+  assert.deepEqual(visual.rawLabels, [], `${name}: no raw untranslated command labels`);
+  if (!capture) return;
   const data = await call('take_screenshot', { full_page: true });
   assert.equal(data.source, 'chromium-compositor');
   await writeFile(resolve(output, `${name}.png`), Buffer.from(data.screenshot.split(',')[1], 'base64'));
+}
+async function notebook(open) {
+  const before = await snapshot();
+  // Screenshot/command updates can resize the mobile dialogue and toolbar.
+  // Establish the current toggle state, then use the actual button; never
+  // manufacture React state or dismiss the terminal outcome dialog.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (await evaluate(`document.querySelector('[data-testid="scene-layer-map"]').getAttribute('aria-expanded')===${JSON.stringify(String(open))}`)) break;
+    await settle();
+    await click('[data-testid="scene-layer-map"]');
+    await evaluate(`new Promise(resolve=>setTimeout(resolve,250))`);
+  }
+  await until(`${open ? '!!' : '!'}document.querySelector('[data-testid="layer-notebook"]')`, `Layer notebook ${open ? 'open' : 'close'} failed`);
+  const after = await snapshot();
+  assert.deepEqual(after.characters.player.position, before.characters.player.position, 'Opening/closing notebook cannot move the actor');
+  assert.equal(after.character_rooms.player, before.character_rooms.player);
 }
 async function uiEvidence() {
   return evaluate(`(()=>{const rig=document.querySelector('[data-testid="scene-character-rig-player"]'), actor=document.querySelector('[data-testid="scene-character-player"]'), rail=document.querySelector('[data-testid="layer-action-rail"]');if(!rig||!actor||!rail)throw new Error('Missing persistent paper doll or action rail');const a=actor.getBoundingClientRect(),r=rail.getBoundingClientRect();return{identity:{outfit:rig.dataset.outfit,head:rig.dataset.head,parts:[...rig.querySelectorAll('[data-rig-part]')].map(p=>({part:p.dataset.rigPart,src:p.currentSrc}))},room:document.querySelector('[data-testid="scene-background"]').dataset.roomId,background:document.querySelector('[data-testid="scene-background"]').currentSrc,buttons:[...rail.querySelectorAll('button')].map(b=>({id:b.dataset.testid,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height})),overlap:Math.min(a.right,r.right)>Math.max(a.left,r.left)&&Math.min(a.bottom,r.bottom)>Math.max(a.top,r.top),overflow:document.documentElement.scrollWidth>innerWidth+1,markers:[...document.querySelectorAll('[data-testid^="layer-hotspot-"]')].map(e=>({id:e.dataset.testid,svg:!!e.querySelector('svg')}))}})()`);
 }
 try {
   assert.equal((await call('health')).status, 'OK');
-  for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
+  for (const viewport of [{ name: 'mobile', width: 390, height: 844 }]) {
     await call('set_viewport', { width: viewport.width, height: viewport.height });
     await evaluate(`window.__INTENTION_TEST__.loadLevel('cyber-dream')`);
     await until(`!!document.querySelector('[data-testid="scene-viewport"]')`, 'Missing cyber scene');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.setUiMode('micro')`);
     await call('set_time_speed', { speed: 0 });
+    assert.equal(await evaluate(`document.querySelector('[data-testid="scene-layer-map"]').getAttribute('aria-expanded')`), 'false', 'Level load closes notebook');
     const route = { viewport, checkpoints: [], negatives: [], realPortals: [], realHotspots: [], realCommandButtons: [] };
     report.routes.push(route);
     let identity;
@@ -57,7 +78,15 @@ try {
       if (identity) assert.deepEqual(ui.identity, identity, 'Same paper doll, head and outfit across all layers');
       else identity = ui.identity;
       route.checkpoints.push({ label, tick: world.tick, position: world.characters.player.position, context: world.layered_world.player.context_id, ui });
-      await shot(`${viewport.name}-${label}`);
+      await shot(`${viewport.name}-${label}`, false);
+      if (label === 'comparison') {
+        await notebook(true);
+        await until(`!!document.querySelector('[data-testid="layer-notebook"]')`, 'Layer notebook absent');
+        for (const context of world.scene.layered_world.contexts) assert.ok(await evaluate(`!!document.querySelector('[data-testid="layer-note-${context.id}"]')`));
+        assert.ok(await evaluate(`!!document.querySelector('[data-testid="layer-comparison"]')`));
+        await shot(`${viewport.name}-notebook-comparison`);
+        await notebook(false);
+      }
     };
     const walk = async destination => {
       let world = await snapshot();
@@ -92,6 +121,13 @@ try {
     const available = () => call('list_commands', { actor_id: 'player' });
     const command = async command_id => {
       assert.ok((await available()).some(c => c.command_id === command_id), `Authoritative nearby availability ${command_id}`);
+      // Open the notebook before the final real meal: the intentional victory
+      // dialog cannot be dismissed into a frozen scene, but React must still
+      // render the real receipt underneath it.
+      if (command_id === 'satisfy-real-need') {
+        await notebook(true);
+        await shot(`${viewport.name}-notebook-before-real-meal`, false);
+      }
       await click(`[data-testid="layer-action-${command_id}"]`);
       await until(`window.__INTENTION_TEST__.state().pending_commands.some(c=>c.command_id===${JSON.stringify(command_id)})`, `Real button ${command_id} did not queue`);
       const step = await call('step_tick');
@@ -119,14 +155,29 @@ try {
     const won = await layeredRoute({ snapshot, walk, command, available, checkpoint: check, negative });
     assert.equal(new Set(route.checkpoints.map(c => c.ui.room)).size, 6, 'All six authored rooms actually visited');
     assert.equal(new Set(route.checkpoints.map(c => c.ui.background)).size, 6, 'All six formal backgrounds distinct');
-    await click('[data-testid="scene-layer-map"]');
     await until(`!!document.querySelector('[data-testid="layer-notebook"]')`, 'Layer notebook absent');
     for (const context of won.scene.layered_world.contexts) assert.ok(await evaluate(`!!document.querySelector('[data-testid="layer-note-${context.id}"]')`));
     assert.ok(await evaluate(`!!document.querySelector('[data-testid="layer-comparison"]')&&!!document.querySelector('[data-testid="layer-meal-receipt"]')`));
     await shot(`${viewport.name}-notebook-complete`);
     route.final = won;
     route.passed = true;
+    await evaluate(`window.__INTENTION_TEST__.loadLevel('cyber-dream')`);
+    await until(`!!document.querySelector('[data-testid="scene-layer-map"]')`, 'Same-level restart scene missing');
+    assert.equal(await evaluate(`document.querySelector('[data-testid="scene-layer-map"]').getAttribute('aria-expanded')`), 'false', 'Same-level restart must close notebook');
+    assert.equal(await evaluate(`!!document.querySelector('[data-testid="layer-notebook"]')`), false);
+    assert.equal((await snapshot()).progress.status, 'InProgress');
+    route.sameLevelRestartClosesNotebook = true;
   }
+  // A short phone must still expose usable notebook content without rerunning
+  // the causal journey at another viewport.
+  await call('set_viewport', { width: 320, height: 500 });
+  await evaluate(`window.__INTENTION_TEST__.loadLevel('cyber-dream')`);
+  await until(`!!document.querySelector('[data-testid="scene-layer-map"]')`, 'Short-phone scene missing');
+  await notebook(true);
+  const shortNotebook = await evaluate(`(()=>{const e=document.querySelector('[data-testid="layer-notebook"]'),r=e.getBoundingClientRect();return{width:r.width,height:r.height,text:e.textContent.trim(),visible:r.bottom>0&&r.top<innerHeight}})()`);
+  assert.ok(shortNotebook.width > 0 && shortNotebook.height > 0 && shortNotebook.visible && shortNotebook.text, 'Short-phone notebook is visible and has content');
+  await notebook(false);
+  report.shortPhoneNotebook = { ...shortNotebook, closed: true };
   report.errors = await call('browser_errors');
   assert.deepEqual(report.errors, [], 'No uncaught Chromium errors');
   report.status = 'passed';

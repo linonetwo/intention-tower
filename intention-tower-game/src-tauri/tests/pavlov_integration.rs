@@ -126,6 +126,10 @@ fn forward_pairing_uses_diminishing_prediction_error_and_exact_dopamine_cost() {
         5
     );
     let graph = &state.characters["dog"].mind_graph;
+    assert_eq!(
+        graph.edges.values().filter(|edge| edge.learnable).count(),
+        1
+    );
     assert!(
         graph
             .edges

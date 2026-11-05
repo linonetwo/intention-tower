@@ -1,4 +1,6 @@
 {
+  "command.satisfy-real-need.label": "Eat the real meal",
+  "command.earn-virtual-reward.label": "Collect virtual point",
   "layer.nearbyActions": "Nearby object actions",
   "layer.migration.legacy-reset": "Older save updated: your character and mind are retained. The layered journey restarts in reality; old command counts are archived, not accepted as visit or completion evidence.",
   "event.layer.migrated": "{{name}}'s older save was updated in {{context}}. The layered journey restarts; old counts are archived, not credited.",

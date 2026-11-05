@@ -215,29 +215,6 @@ fn actor_local_context_stamps_perception_not_default_actor_global_flags() {
         .is_none());
 }
 #[test]
-fn legacy_flags_are_archived_without_inventing_layer_evidence() {
-    let mut w = world();
-    w.layered_world.clear();
-    w.progress.status = LevelStatus::Won;
-    for objective in &mut w.progress.objectives {
-        objective.completed = true;
-        objective.completed_at_tick = Some(0);
-    }
-    w.in_virtual_context = true;
-    w.virtual_context_stack = vec!["old-dream".into(), "old-inner".into()];
-    let restored = prepare_restored_world(w).unwrap();
-    let s = &restored.layered_world["player"];
-    assert_eq!(s.context_id, "reality");
-    assert_eq!(s.max_depth, 0);
-    assert!(s.observations.is_empty());
-    assert!(s.comparison.is_none());
-    assert_eq!(s.legacy_virtual_context_stack.len(), 2);
-    assert!(!restored.in_virtual_context);
-    assert_eq!(restored.progress.status, LevelStatus::InProgress);
-    assert!(restored.progress.objectives.iter().all(|o| !o.completed));
-}
-
-#[test]
 fn configured_actors_have_independent_visits_and_cannot_borrow_progress() {
     let mut w = world();
     let mut other = w.characters["player"].clone();
@@ -721,4 +698,93 @@ fn virtual_meme_provenance_is_authored_and_new_injection_is_actor_local() {
     let old = &w.characters["player"].mind_graph.nodes[&existing.instance_id];
     assert_eq!(old.reality_layer, existing.reality_layer);
     assert_eq!(old.is_virtual, existing.is_virtual);
+}
+
+#[cfg(feature = "test-server")]
+#[tokio::test]
+async fn actual_mcp_rejects_forged_modern_completion_but_preserves_supported_history() {
+    use intention_tower_game_lib::test_server::{dispatch::call_tool, state::TestServerState};
+    let server = TestServerState::new();
+    let initial = world();
+    call_tool(
+        &server,
+        "restore_snapshot",
+        &serde_json::json!({"world":initial}),
+    )
+    .await
+    .unwrap();
+    let baseline = call_tool(&server, "snapshot", &serde_json::json!({}))
+        .await
+        .unwrap();
+    for won in [false, true] {
+        let mut forged = baseline.clone();
+        for o in forged["progress"]["objectives"].as_array_mut().unwrap() {
+            o["completed"] = serde_json::json!(true);
+            o["completed_at_tick"] = serde_json::json!(0);
+        }
+        if won {
+            forged["progress"]["status"] = serde_json::json!("Won");
+            forged["progress"]["completed_at_tick"] = serde_json::json!(0);
+        }
+        let mut missing_journey = forged.clone();
+        missing_journey["layered_world"] = serde_json::json!({});
+        assert!(call_tool(
+            &server,
+            "restore_snapshot",
+            &serde_json::json!({"world":missing_journey})
+        )
+        .await
+        .is_err());
+        assert!(call_tool(
+            &server,
+            "restore_snapshot",
+            &serde_json::json!({"world":forged})
+        )
+        .await
+        .is_err());
+        assert_eq!(
+            baseline,
+            call_tool(&server, "snapshot", &serde_json::json!({}))
+                .await
+                .unwrap()
+        );
+    }
+    let mut partial = world();
+    enter_two(&mut partial);
+    assert!(cmd(&mut partial, "compare-layers"));
+    LevelProgressSystem.run(&mut partial, 0.0);
+    assert!(partial.progress.objectives[0].completed);
+    assert!(!partial.progress.objectives[1].completed);
+    assert_eq!(partial.layered_world["player"].context_id, "inner");
+    call_tool(
+        &server,
+        "restore_snapshot",
+        &serde_json::json!({"world":partial}),
+    )
+    .await
+    .unwrap();
+    let mut genuine = completed_receipts_at_distinct_ticks();
+    LevelProgressSystem.run(&mut genuine, 0.0);
+    assert_eq!(genuine.progress.status, LevelStatus::Won);
+    call_tool(
+        &server,
+        "restore_snapshot",
+        &serde_json::json!({"world":genuine}),
+    )
+    .await
+    .unwrap();
+    // Historical support survives later need changes: restore is not a fresh
+    // victory evaluation and must not invalidate unrelated/current predicates.
+    let mut historical = completed_receipts_at_distinct_ticks();
+    LevelProgressSystem.run(&mut historical, 0.0);
+    historical
+        .characters
+        .get_mut("player")
+        .unwrap()
+        .mind_graph
+        .nodes
+        .get_mut("player-hunger")
+        .unwrap()
+        .value = 0.9;
+    assert!(prepare_restored_world(historical).is_ok());
 }
