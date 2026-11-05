@@ -1,5 +1,5 @@
 {
-  "started": "2026-11-05T01:28:48.332Z",
+  "started": "2026-11-05T11:01:53.259Z",
   "source": "real Chromium compositor / authoritative Rust",
   "viewports": [
     {
@@ -3356,16 +3356,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.81,
                   "old_value": 0.8
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.81,
                   "old_value": 0.8
                 }
@@ -3405,16 +3405,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8200000000000001,
                   "old_value": 0.81
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8200000000000001,
                   "old_value": 0.81
                 }
@@ -3443,16 +3443,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8300000000000001,
                   "old_value": 0.8200000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8300000000000001,
                   "old_value": 0.8200000000000001
                 }
@@ -3471,16 +3471,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8400000000000001,
                   "old_value": 0.8300000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8400000000000001,
                   "old_value": 0.8300000000000001
                 }
@@ -3499,16 +3499,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8500000000000001,
                   "old_value": 0.8400000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8500000000000001,
                   "old_value": 0.8400000000000001
                 }
@@ -3537,16 +3537,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8600000000000001,
                   "old_value": 0.8500000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8600000000000001,
                   "old_value": 0.8500000000000001
                 }
@@ -5133,16 +5133,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.81,
                   "old_value": 0.8
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.81,
                   "old_value": 0.8
                 }
@@ -5182,16 +5182,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8200000000000001,
                   "old_value": 0.81
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8200000000000001,
                   "old_value": 0.81
                 }
@@ -5220,16 +5220,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8300000000000001,
                   "old_value": 0.8200000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8300000000000001,
                   "old_value": 0.8200000000000001
                 }
@@ -5248,16 +5248,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8400000000000001,
                   "old_value": 0.8300000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8400000000000001,
                   "old_value": 0.8300000000000001
                 }
@@ -5276,16 +5276,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8500000000000001,
                   "old_value": 0.8400000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8500000000000001,
                   "old_value": 0.8400000000000001
                 }
@@ -5314,16 +5314,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8600000000000001,
                   "old_value": 0.8500000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8600000000000001,
                   "old_value": 0.8500000000000001
                 }
@@ -5391,16 +5391,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8700000000000001,
                   "old_value": 0.8600000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8700000000000001,
                   "old_value": 0.8600000000000001
                 }
@@ -5425,16 +5425,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8800000000000001,
                   "old_value": 0.8700000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8800000000000001,
                   "old_value": 0.8700000000000001
                 }
@@ -5463,16 +5463,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.8900000000000001,
                   "old_value": 0.8800000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.8900000000000001,
                   "old_value": 0.8800000000000001
                 }
@@ -5491,16 +5491,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.9000000000000001,
                   "old_value": 0.8900000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.9000000000000001,
                   "old_value": 0.8900000000000001
                 }
@@ -5519,16 +5519,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.9100000000000001,
                   "old_value": 0.9000000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.9100000000000001,
                   "old_value": 0.9000000000000001
                 }
@@ -5557,16 +5557,16 @@
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "bystander",
-                  "instance_id": "bystander-dopamine",
+                  "character_id": "antimeme-agent",
+                  "instance_id": "agent-dopamine",
                   "new_value": 0.9200000000000002,
                   "old_value": 0.9100000000000001
                 }
               },
               {
                 "NodeValueChanged": {
-                  "character_id": "antimeme-agent",
-                  "instance_id": "agent-dopamine",
+                  "character_id": "bystander",
+                  "instance_id": "bystander-dopamine",
                   "new_value": 0.9200000000000002,
                   "old_value": 0.9100000000000001
                 }
@@ -5968,5 +5968,5 @@
   ],
   "errors": [],
   "status": "passed",
-  "finished": "2026-11-05T01:29:23.544Z"
+  "finished": "2026-11-05T11:02:28.946Z"
 }

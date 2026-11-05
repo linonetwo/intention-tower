@@ -5849,7 +5849,21 @@
     }
   ],
   "errors": [],
-  "status": "failed",
-  "failure": "Error: evaluate_script: Error: page.evaluate: Error: Layer notebook open failed\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:1:212)",
-  "stack": "Error: evaluate_script: Error: page.evaluate: Error: Layer notebook open failed\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:1:212)\n    at call (file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:15:29)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async until (file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:22:3)\n    at async notebook (file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:51:3)\n    at async file:///home/user/workspace/intention-tower/intention-tower-game/scripts/verify-layered-world-mcp.mjs:176:3"
+  "shortPhoneNotebook": {
+    "width": 290,
+    "height": 172,
+    "top": 119,
+    "bottom": 291,
+    "text": "情境证据笔记现实 · 已观察现实花园里有活着的树，现实身体仍然饥饿。外层虚拟世界 · 已观察外层交易所把树表示为可交易的代币，虚拟积分不能喂饱身体。内层虚拟世界 · 已观察内层档案馆保存树的代币副本，再多一层副本也不是现实食物。虚拟积分只属于对应情境，不能喂饱现实身体。比较三处亲眼观察的线索，经两处返回终端逐层退出，再吃现实餐食。已根据三条观察记录完成比较。",
+    "scrollTop": 176,
+    "scrollHeight": 346,
+    "clientHeight": 170,
+    "overflowY": "auto",
+    "closeWidth": 54,
+    "closeHeight": 44,
+    "closeBottom": 119,
+    "closeReachable": true,
+    "closed": true
+  },
+  "status": "passed"
 }

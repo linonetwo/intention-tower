@@ -37,7 +37,7 @@ async function shot(name, capture = true) {
   assert.equal(data.source, 'chromium-compositor');
   await writeFile(resolve(output, `${name}.png`), Buffer.from(data.screenshot.split(',')[1], 'base64'));
 }
-async function notebook(open) {
+async function notebook(open, selector = '[data-testid="scene-layer-map"]') {
   const before = await snapshot();
   // Screenshot/command updates can resize the mobile dialogue and toolbar.
   // Establish the current toggle state, then use the actual button; never
@@ -45,7 +45,7 @@ async function notebook(open) {
   for (let attempt = 0; attempt < 3; attempt++) {
     if (await evaluate(`document.querySelector('[data-testid="scene-layer-map"]').getAttribute('aria-expanded')===${JSON.stringify(String(open))}`)) break;
     await settle();
-    await click('[data-testid="scene-layer-map"]');
+    await click(selector);
     await evaluate(`new Promise(resolve=>setTimeout(resolve,250))`);
   }
   await until(`${open ? '!!' : '!'}document.querySelector('[data-testid="layer-notebook"]')`, `Layer notebook ${open ? 'open' : 'close'} failed`);
@@ -58,10 +58,11 @@ async function uiEvidence() {
 }
 try {
   assert.equal((await call('health')).status, 'OK');
+  await call('open_main_menu');
   for (const viewport of [{ name: 'mobile', width: 390, height: 844 }]) {
     await call('set_viewport', { width: viewport.width, height: viewport.height });
     await evaluate(`window.__INTENTION_TEST__.loadLevel('cyber-dream')`);
-    await until(`!!document.querySelector('[data-testid="scene-viewport"]')`, 'Missing cyber scene');
+    await until(`!!document.querySelector('[data-testid="scene-character-rig-player"]')&&!!document.querySelector('[data-testid="layer-action-rail"]')`, 'Cyber scene and production paper doll did not load');
     await evaluate(`window.__INTENTION_TEST__.setAutoStep(false);window.__INTENTION_TEST__.setUiMode('micro')`);
     await call('set_time_speed', { speed: 0 });
     assert.equal(await evaluate(`document.querySelector('[data-testid="scene-layer-map"]').getAttribute('aria-expanded')`), 'false', 'Level load closes notebook');
@@ -85,7 +86,23 @@ try {
         for (const context of world.scene.layered_world.contexts) assert.ok(await evaluate(`!!document.querySelector('[data-testid="layer-note-${context.id}"]')`));
         assert.ok(await evaluate(`!!document.querySelector('[data-testid="layer-comparison"]')`));
         await shot(`${viewport.name}-notebook-comparison`);
-        await notebook(false);
+        // Reuse the real observations already collected by this journey.
+        // A compact notebook may cover the scene, but must scroll and close.
+        await call('set_viewport', { width: 320, height: 500 });
+        await settle();
+        const shortNotebook = await evaluate(`(()=>{const e=document.querySelector('[data-testid="layer-notebook"]'),r=e.getBoundingClientRect(),b=document.querySelector('[data-testid="scene-notes-close"]'),c=b.getBoundingClientRect();e.scrollTop=e.scrollHeight;return{width:r.width,height:r.height,top:r.top,bottom:r.bottom,text:e.textContent.trim(),scrollTop:e.scrollTop,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight,overflowY:getComputedStyle(e).overflowY,closeWidth:c.width,closeHeight:c.height,closeBottom:c.bottom,closeReachable:b.contains(document.elementFromPoint(c.x+c.width/2,c.y+c.height/2))}})()`);
+        assert.ok(shortNotebook.width > 0 && shortNotebook.height >= 120 && shortNotebook.top >= 0 && shortNotebook.bottom <= 500 && shortNotebook.text, 'Short-phone notebook content stays inside the viewport');
+        assert.equal(shortNotebook.overflowY, 'auto');
+        assert.ok(shortNotebook.scrollTop > 0, 'Real collected notes scroll to their final comparison');
+        assert.ok(shortNotebook.closeWidth >= 44 && shortNotebook.closeHeight >= 44 && shortNotebook.closeBottom <= 500 && shortNotebook.closeReachable, 'Notebook toggle remains a reachable touch target');
+        assert.equal(await evaluate(`!!document.querySelector('[data-testid="objective-hud"]')`), false, 'Reading notes hides the competing objective panel');
+        const screenshot = await call('take_screenshot', { full_page: true });
+        assert.equal(screenshot.source, 'chromium-compositor');
+        await writeFile(resolve(output, 'short-phone-notebook.png'), Buffer.from(screenshot.screenshot.split(',')[1], 'base64'));
+        await notebook(false, '[data-testid="scene-notes-close"]');
+        assert.equal(await evaluate(`!!document.querySelector('[data-testid="objective-hud"]')`), true, 'Closing notes restores level objectives');
+        report.shortPhoneNotebook = { ...shortNotebook, closed: true };
+        await call('set_viewport', { width: viewport.width, height: viewport.height });
       }
     };
     const walk = async destination => {
@@ -168,16 +185,6 @@ try {
     assert.equal((await snapshot()).progress.status, 'InProgress');
     route.sameLevelRestartClosesNotebook = true;
   }
-  // A short phone must still expose usable notebook content without rerunning
-  // the causal journey at another viewport.
-  await call('set_viewport', { width: 320, height: 500 });
-  await evaluate(`window.__INTENTION_TEST__.loadLevel('cyber-dream')`);
-  await until(`!!document.querySelector('[data-testid="scene-layer-map"]')`, 'Short-phone scene missing');
-  await notebook(true);
-  const shortNotebook = await evaluate(`(()=>{const e=document.querySelector('[data-testid="layer-notebook"]'),r=e.getBoundingClientRect();return{width:r.width,height:r.height,text:e.textContent.trim(),visible:r.bottom>0&&r.top<innerHeight}})()`);
-  assert.ok(shortNotebook.width > 0 && shortNotebook.height > 0 && shortNotebook.visible && shortNotebook.text, 'Short-phone notebook is visible and has content');
-  await notebook(false);
-  report.shortPhoneNotebook = { ...shortNotebook, closed: true };
   report.errors = await call('browser_errors');
   assert.deepEqual(report.errors, [], 'No uncaught Chromium errors');
   report.status = 'passed';

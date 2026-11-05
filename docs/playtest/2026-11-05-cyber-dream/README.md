@@ -5,9 +5,9 @@
 背景和同一个可换装纸娃娃。进入梦境不会换掉人物、清空思维图谱或重置世界。
 本轮仅本地构建与测试，没有发布新安装器，没有运行 GitHub CI。
 
-当前验收未全部通过：320×500 矮屏打开层间笔记失败，PR 暂不合并。
-390×844 的六房间完整旅程通过。层级场景报告保留失败状态，
-不能将这些截图理解为所有手机尺寸均已验收。
+390×844 六房间完整旅程与 320×500 矮屏笔记打开、实际滚动和关闭均通过。
+矮屏使用浅色覆盖笔记，正常手机尺寸保留人物完整显示；
+阅读笔记时暂时隐藏任务目标栏，关闭后恢复。尚未完成真机验收。
 
 ## 启动
 
@@ -27,7 +27,7 @@ node scripts/serve-playtest.mjs
 
 另有本地 Linux 试玩包 `intention-tower-linux-playtest-20261105.tar.gz`：
 解压后按包内 `README.md` 启动 Rust 核心和网页服务，需要 Linux 与 Node 22+，
-无需安装前端依赖或重新编译。它包含上述已知问题，不是签名安装器。
+无需安装前端依赖或重新编译。它已包含矮屏修复，但不是签名安装器。
 
 ## 游玩步骤
 
@@ -72,5 +72,7 @@ node scripts/serve-playtest.mjs
 
 ![手机：返回现实并满足身体需求](mobile-notebook-complete.png)
 
+![矮屏：实际滚动至笔记末尾，关闭按钮可触达](short-phone-notebook.png)
+
 报告：`browser-report.json`、`room-memory-report.json`、`all-levels.json`、
-`layered-world.json`。最后一份明确记录矮屏失败及此前通过的完整旅程。
+`layered-world.json`。层级场景报告包含真实滚动距离、关闭按钮尺寸和完整旅程。

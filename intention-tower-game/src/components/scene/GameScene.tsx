@@ -63,7 +63,12 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
   // Reserve the actual fixed-size body plus the status HUD's full clearance.
   const minimumBodyArea = hasLayers ? Math.max(300, layerArtScale * 150 + 180) : 300;
   // An open notebook reserves its own space below the floor rather than covering the cast.
-  const notesHeight = notesVisible && (hasRoomMemory || hasLayers) ? Math.max(0, Math.min(230, stageHeight - baseToolHeight - minimumBodyArea)) : 0;
+  const availableNotesHeight = Math.max(0, Math.min(230, stageHeight - baseToolHeight - minimumBodyArea));
+  const compactNotes = notesVisible && (hasRoomMemory || hasLayers) && availableNotesHeight < 120;
+  const notesHeight = notesVisible && !compactNotes && (hasRoomMemory || hasLayers) ? availableNotesHeight : 0;
+  // The page's 60px top bar sits above the scene in a separate HUD layer.
+  const compactNotesTop = 68;
+  const compactNotesHeight = Math.max(0, Math.min(230, stageHeight - controlsHeight - compactNotesTop - 8));
   const toolHeight = baseToolHeight + notesHeight;
   const ground = stageHeight - toolHeight;
   // Narrow screens show a slice of the world rather than compressing the cast
@@ -223,6 +228,10 @@ export const GameScene: React.FC<{ width: number; height: number }> = ({ width, 
       </div>
       {hasLayers && world && actorId && room && <><LayeredWorldStatus world={world} actorId={actorId} notes={false} available={availableCommands} execute={id => { void gameStore.getState().executeCommand(id); }} /><LayeredWorldHotspots world={world} actorId={actorId} roomId={room.id} available={availableCommands} cameraX={cameraX} scale={worldScale} ground={ground} width={width} enabled={enabled} execute={id => { walkRun.current++; void gameStore.getState().executeCommand(id); }} walkTo={x => { void walkTo(x); }} /></>}
       {notesHeight > 0 && world && <div style={{ position: 'absolute', left: 8, right: 8, bottom: baseToolHeight + 4, height: notesHeight - 8, zIndex: 800 }}>{hasLayers && actorId ? <LayeredWorldStatus world={world} actorId={actorId} notes height={notesHeight - 8} available={availableCommands} execute={id => { void gameStore.getState().executeCommand(id); }} /> : <RoomMemoryNotes world={world} height={notesHeight - 8} />}</div>}
+      {compactNotes && world && <div data-testid="scene-notes-overlay" style={{ position: 'absolute', top: compactNotesTop, left: 8, right: 8, height: compactNotesHeight, zIndex: 800, display: 'flex', flexDirection: 'column', padding: 6, boxSizing: 'border-box', border: '1px solid #c7ab78', borderRadius: 14, background: '#fff5dff7', boxShadow: '0 4px 18px #75573155' }}>
+        <button data-testid="scene-notes-close" aria-label={t('app.close')} onClick={() => setNotesVisible(false)} style={{ ...controlStyle, alignSelf: 'flex-end', flexShrink: 0 }}>{t('app.close')}</button>
+        {hasLayers && actorId ? <LayeredWorldStatus world={world} actorId={actorId} notes height={Math.max(0, compactNotesHeight - 56)} available={availableCommands} execute={id => { void gameStore.getState().executeCommand(id); }} /> : <RoomMemoryNotes world={world} height={Math.max(0, compactNotesHeight - 56)} />}
+      </div>}
       {hasLayers && world && actorId && room && <LayeredWorldActionRail world={world} actorId={actorId} roomId={room.id} available={availableCommands} bottom={controlsHeight} height={actionRailHeight} enabled={enabled} execute={id => { walkRun.current++; void gameStore.getState().executeCommand(id); }} />}
       <div data-testid="scene-selected-info" style={{ position: 'absolute', bottom: 5, left: 8, right: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
         {hasRoomMemory && <button data-testid="scene-memory-map" aria-label={t('memory.notes')} aria-expanded={notesVisible} onClick={() => { setNotesVisible(!notesVisible); setWardrobeVisible(false); }} style={{ ...controlStyle, fontSize: 13 }}>{t('memory.map')}</button>}

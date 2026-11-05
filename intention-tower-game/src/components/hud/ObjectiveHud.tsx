@@ -15,6 +15,7 @@ export const ObjectiveHud: React.FC = () => {
   const { t } = useTranslation();
   const layout = useResponsiveLayout();
   const progress = useGameState((state) => state.worldState?.progress);
+  const notebookOpen = useGameState((state) => state.sceneNotebookOpen);
   const [expanded, setExpanded] = useState(false);
 
   const counts = useMemo(() => {
@@ -25,7 +26,7 @@ export const ObjectiveHud: React.FC = () => {
     };
   }, [progress]);
 
-  if (!progress || counts.total === 0) return null;
+  if (notebookOpen || !progress || counts.total === 0) return null;
 
   const ratio = counts.total > 0 ? (counts.completed / counts.total) * 100 : 0;
 

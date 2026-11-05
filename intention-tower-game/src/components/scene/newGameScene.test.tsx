@@ -42,7 +42,7 @@ describe('continuous multi-room scene', () => {
     document.body.appendChild(dialogue);
     vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
     try {
-      render(<GameScene width={390} height={844} />);
+      const { rerender } = render(<GameScene width={390} height={844} />);
       const bodyHeight = screen.getByTestId('scene-character-boy').style.height;
       const debug = () => (window as Window & { __itSceneDebug?: () => { scale: number; artScale: number; ground: number } }).__itSceneDebug!();
       const fixed = debug();
@@ -61,6 +61,25 @@ describe('continuous multi-room scene', () => {
         expect(debug().ground - parseFloat(bodyHeight)).toBeGreaterThanOrEqual(180);
         expect(debug().ground + 207).toBeLessThanOrEqual(802);
       });
+      act(() => gameStore.setState({ sceneNotebookOpen: false }));
+      rerender(<GameScene width={320} height={500} />);
+      const shortGround = debug().ground;
+      fireEvent.click(screen.getByTestId('scene-layer-map'));
+      expect(screen.getByTestId('scene-layer-map').getAttribute('aria-expanded')).toBe('true');
+      expect(screen.getByTestId('scene-notes-overlay').contains(screen.getByTestId('layer-notebook'))).toBe(true);
+      expect(screen.getByTestId('scene-notes-overlay').style.top).toBe('68px');
+      expect(screen.getByTestId('layer-notebook').style.overflowY).toBe('auto');
+      expect(screen.getByTestId('scene-notes-close').style.minHeight).toBe('44px');
+      expect(debug().ground).toBe(shortGround);
+      fireEvent.click(screen.getByTestId('scene-notes-close'));
+      expect(screen.queryByTestId('layer-notebook')).toBeNull();
+      const memoryWorld = makeWorld();
+      memoryWorld.scene!.room_memory = { rooms: [], observer_ids: [] } as unknown as NonNullable<WorldState['scene']>['room_memory'];
+      act(() => gameStore.setState({ worldState: memoryWorld }));
+      fireEvent.click(screen.getByTestId('scene-memory-map'));
+      expect(screen.getByTestId('scene-notes-overlay').contains(screen.getByTestId('room-memory-notes'))).toBe(true);
+      fireEvent.click(screen.getByTestId('scene-memory-map'));
+      expect(screen.queryByTestId('room-memory-notes')).toBeNull();
     } finally { dialogue.remove(); vi.unstubAllGlobals(); }
   });
   it('draws mobile ladders with two rails and separated open rungs, while stairs keep solid steps', () => {
